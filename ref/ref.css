@@ -1,40 +1,107 @@
-div.codeblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddddff; }
-div.jsblock { border: 1px solid #66cc66; padding: 3px; margin: 0ex 3em; background: #ddffff; }
-pre { margin: 0px; padding: 2px; }
-pre.code { color: #000066; margin-top: 1em; padding: 0px; }
-pre.code.fst,pre.geo.fst  { margin-top: 0px; }
-pre.result { color: #006600; background: #ddffdd; }
-pre.regexp { color: #99ccaa; background: #eeffdd; }
-pre.output { color: #993333; background: #dddddd; }
-pre.draw2d { color: #aa9999; background: #ddeedd; }
-pre.pragma { color: #996600; background: #ffffcc; }
-pre.geo    { color: #660000; background: #9999ff; margin-top: 1em; }
-code { background: #ddddff; }
-pre.block>code { background: inherit; }
-pre.block {
-background: #ddddee;
-margin: 0em 2em;
-padding: 1em;
-border-radius: 1em;
+div.codeblock {
+    border: 1px solid #66cc66;
+    padding: 3px;
+    margin: 0ex 3em;
+    background: #ddddff;
 }
-table { border-collapse:collapse; }
-table td, table th { padding: 0.5ex 1em;  border: 1px solid black; }
-table td, table th, table code { background: #ffffff; }
-a.hlink { margin-left: 0.5em; opacity: 0.1; text-decoration: none; }
-a.hlink:hover { text-decoration: underline; }
-a.hlink::after { content: "¶"; }
-a.hlink:hover { opacity: 0.8; }
-a { text-decoration: none; }
-a:hover { text-decoration: underline; }
+div.jsblock {
+    border: 1px solid #66cc66;
+    padding: 3px;
+    margin: 0ex 3em;
+    background: #ddffff;
+}
+pre {
+    margin: 0px;
+    padding: 2px;
+}
+pre.code {
+    color: #000066;
+    margin-top: 1em;
+    padding: 0px;
+}
+pre.code.fst,
+pre.geo.fst {
+    margin-top: 0px;
+}
+pre.result {
+    color: #006600;
+    background: #ddffdd;
+}
+pre.regexp {
+    color: #99ccaa;
+    background: #eeffdd;
+}
+pre.output {
+    color: #993333;
+    background: #dddddd;
+}
+pre.draw2d {
+    color: #aa9999;
+    background: #ddeedd;
+}
+pre.pragma {
+    color: #996600;
+    background: #ffffcc;
+}
+pre.geo {
+    color: #660000;
+    background: #9999ff;
+    margin-top: 1em;
+}
+code {
+    background: #ddddff;
+}
+pre.block > code {
+    background: inherit;
+}
+pre.block {
+    background: #ddddee;
+    margin: 0em 2em;
+    padding: 1em;
+    border-radius: 1em;
+}
+table {
+    border-collapse: collapse;
+}
+table td,
+table th {
+    padding: 0.5ex 1em;
+    border: 1px solid black;
+}
+table td,
+table th,
+table code {
+    background: #ffffff;
+}
+a.hlink {
+    margin-left: 0.5em;
+    opacity: 0.1;
+    text-decoration: none;
+}
+a.hlink:hover {
+    text-decoration: underline;
+}
+a.hlink::after {
+    content: "¶";
+}
+a.hlink:hover {
+    opacity: 0.8;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 kbd {
-display: inline-block;
-padding: 0.2em 0.3em;
-margin: 0em 0.1em;
-color: #555;
-vertical-align: middle;
-background-color: #eee;
-border: solid 1px #bbb;
-border-bottom-color: #aaa;
-border-radius: 0.3em;
-box-shadow: inset 0 -1px 0 #aaa;
+    display: inline-block;
+    padding: 0.2em 0.3em;
+    margin: 0em 0.1em;
+    color: #555;
+    vertical-align: middle;
+    background-color: #eee;
+    border: solid 1px #bbb;
+    border-bottom-color: #aaa;
+    border-radius: 0.3em;
+    box-shadow: inset 0 -1px 0 #aaa;
 }

@@ -1,143 +1,135 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            N = 512;
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-N = 512;
+            createimage("x", N, N);
+            createimage("output", N, N);
 
-createimage("x", N, N);
-createimage("output", N, N);
+            encodealpha = 4;
+            encodedelta = .5+.5*i;
 
-encodealpha = 4;
-encodedelta = .5+.5*i;
+            complex2color(c) := (
+              c = c/encodealpha+encodedelta;
+              (re(c), im(c), re(c), 1) //last 2 components are actually rubbish
+            );
 
-complex2color(c) := (
-  c = c/encodealpha+encodedelta;
-  (re(c), im(c), re(c), 1) //last 2 components are actually rubbish
-);
+            readcomplex(p) := (
+              color = imagergba((0,0),(N,0), "x", p, interpolate->false, repeat->true); //circular domain
+              encodealpha*(color.x + i*color.y-encodedelta);
+            );
 
-readcomplex(p) := (
-  color = imagergba((0,0),(N,0), "x", p, interpolate->false, repeat->true); //circular domain
-  encodealpha*(color.x + i*color.y-encodedelta);
-);
+            reloadimage() := (
+              if (!isundefined(image) & imageready(image),
+              colorplot((0,0),(N,0),"x",
+                  complex2color(
+                     imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false).r //grayscale image
+                  )
+              ),
+              colorplot((0,0),(N,0),"x",
+                c = (complex(#)-complex(B))/(complex(A)-complex(B));
+                complex2color(
+                  exp(-|#,(N/2,N/2)|^2/N/40)*(
+                    sin(re(8*pi*c))*sin(im(8*pi*c))>0
+                  )
+                )
+              )
 
-reloadimage() := (
-  if (!isundefined(image) & imageready(image),
-  colorplot((0,0),(N,0),"x",
-      complex2color(
-         imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false).r //grayscale image
-      )
-  ),
-  colorplot((0,0),(N,0),"x",
-    c = (complex(#)-complex(B))/(complex(A)-complex(B));
-    complex2color(
-      exp(-|#,(N/2,N/2)|^2/N/40)*(
-        sin(re(8*pi*c))*sin(im(8*pi*c))>0
-      )
-    )
-  )
-   
-  );
-);
+              );
+            );
 
-FFT():=(
-  step = N/2;
+            FFT():=(
+              step = N/2;
 
-  while(step>=1,
-    colorplot((0,0),(N,0),"x",
-    
-      l = #; //global index
-      delta = (mod(l.x,step),mod(l.y,step)); //shift
-      k = (l-delta)/step; //local index (within recursion)
-      x00 = readcomplex(2*l - delta + (0,0));
-      x10 = readcomplex(2*l - delta + (step,0));
-      x01 = readcomplex(2*l - delta + (0,step));
-      x11 = readcomplex(2*l - delta + (step,step));
-      
-      complex2color(sqrt(1/4)*(
-        x00
-        + exp((-2*pi*i/N*step)*k.x)*x10
-        + exp((-2*pi*i/N*step)*k.y)*x01
-        + exp((-2*pi*i/N*step)*(k.x+k.y))*x11)
-      )
-    );
-    
-    step = step/2;
-  );
-);
+              while(step>=1,
+                colorplot((0,0),(N,0),"x",
 
-</script>
-<script id="csdraw" type="text/x-cindyscript">
+                  l = #; //global index
+                  delta = (mod(l.x,step),mod(l.y,step)); //shift
+                  k = (l-delta)/step; //local index (within recursion)
+                  x00 = readcomplex(2*l - delta + (0,0));
+                  x10 = readcomplex(2*l - delta + (step,0));
+                  x01 = readcomplex(2*l - delta + (0,step));
+                  x11 = readcomplex(2*l - delta + (step,step));
 
-reloadimage();
+                  complex2color(sqrt(1/4)*(
+                    x00
+                    + exp((-2*pi*i/N*step)*k.x)*x10
+                    + exp((-2*pi*i/N*step)*k.y)*x01
+                    + exp((-2*pi*i/N*step)*(k.x+k.y))*x11)
+                  )
+                );
 
-colorplot((0,0),(N,0), "output",
-  abs(readcomplex(#))
-);
-drawimage((0,0),(N,0),"output");
+                step = step/2;
+              );
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
 
-FFT();
+            reloadimage();
 
-colorplot((N,N),(0,N),"output",//upside down
-  abs(readcomplex(#+(N/2, N/2))) //center
-);
+            colorplot((0,0),(N,0), "output",
+              abs(readcomplex(#))
+            );
+            drawimage((0,0),(N,0),"output");
 
-drawimage((N,0), (2*N,0),"output");
+            FFT();
 
-//pointwise squaring
-colorplot((0,0),(N,0),"x",
-  z = readcomplex(#);
-  complex2color(
-    z*conjugate(z)
-  )
-);
+            colorplot((N,N),(0,N),"output",//upside down
+              abs(readcomplex(#+(N/2, N/2))) //center
+            );
+
+            drawimage((N,0), (2*N,0),"output");
+
+            //pointwise squaring
+            colorplot((0,0),(N,0),"x",
+              z = readcomplex(#);
+              complex2color(
+                z*conjugate(z)
+              )
+            );
 
 
-FFT();
+            FFT();
 
-colorplot((N,N),(0,N),"output",//upside down
-  v0 = abs(readcomplex((.46*N,.42*N)));
-  v1 = abs(readcomplex((0,0))); //middle
-  v = abs(readcomplex(#+(N/2, N/2)));
-  (v-v0)/(v1-v0)
-);
-drawimage((2*N,0),(3*N,0),"output"); 
-</script>
+            colorplot((N,N),(0,N),"output",//upside down
+              v0 = abs(readcomplex((.46*N,.42*N)));
+              v1 = abs(readcomplex((0,0))); //middle
+              v = abs(readcomplex(#+(N/2, N/2)));
+              (v-v0)/(v1-v0)
+            );
+            drawimage((2*N,0),(3*N,0),"output");
+        </script>
 
-<script id="csondrop" type="text/x-cindyscript">
-  dropped = dropped();
-  if (!isundefined(dropped_1_1), image = dropped_1_1);
-</script>
+        <script id="csondrop" type="text/x-cindyscript">
+            dropped = dropped();
+            if (!isundefined(dropped_1_1), image = dropped_1_1);
+        </script>
 
-<script type="text/javascript">
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, 1536, 512] }] }],
+                scripts: "cs*",
+                language: "en",
+                geometry: [
+                    { name: "A", type: "Free", pos: [412, 100.1] },
+                    { name: "B", type: "Free", pos: [100, 100] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
 
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [0, 0, 1536, 512]}]}],
-  scripts: "cs*",
-  language: "en",
-  geometry: [
-    {name:"A", type:"Free", pos:[412,100.1]},
-    {name:"B", type:"Free", pos:[100,100]}
-  ],
-  use: ["CindyGL"]
-});
+    <body style="font-family: Arial">
+        <h1>CindyJS: Autocorrelation</h1>
+        We calculate the autocorrelation of an image with Fourier transforms and the Convolution Theorem. Please drag
+        and drop a periodic image to the area.
 
-</script>
-
-
-
-</head>
-
-<body style="font-family:Arial;">
-  <h1>CindyJS: Autocorrelation</h1>
-  We calculate the autocorrelation of an image with Fourier transforms and the Convolution Theorem. Please drag and drop a periodic image to the area.
-
-  <div id="CSCanvas" style="width:1536px; height:512px; border:2px solid black"></div>
-</body>
-
-
+        <div id="CSCanvas" style="width: 1536px; height: 512px; border: 2px solid black"></div>
+    </body>
 </html>

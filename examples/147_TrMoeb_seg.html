@@ -1,75 +1,193 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "D", type: "Free", pos: [4.0, 3.4936640163884243, 0.3792421852627193], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "E", type: "Free", pos: [4.0, 1.6101574724849992, 0.2753927927006315], color: [0.0, 1.0, 0.0], labeled: true},
-    {name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["D", "E"], visible: false, labeled: true},
-    {name: "F", type: "PointOnLine", pos: [4.0, 1.052871574986773, 0.24466616627826207], color: [1.0, 1.0, 0.0], args: ["b"], labeled: true},
-    {name: "G", type: "Free", pos: [4.0, 2.7171006164174885, 0.23039145227080007], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "H", type: "Free", pos: [4.0, 2.4115585348317397, 0.23518555047674136], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "K", type: "Free", pos: [4.0, 2.0914091705495212, 0.23412444098421722], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "L", type: "Free", pos: [4.0, 2.7529555890775086, 0.1929477143281032], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "M", type: "Free", pos: [4.0, 2.2514762127878014, 0.21004046768697385], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "N", type: "Free", pos: [4.0, 1.7987206106375953, 0.21734368286850866], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "Tr1", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["G", "L", "H", "M", "K", "N"], dock: {offset: [0.0, -0.0]}},
-    {name: "A", type: "Free", pos: [-1.1497502237018296, -4.0, -1.6120518875348402], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "O", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "A"], labeled: true},
-    {name: "B", type: "Free", pos: [-3.371361843829747, -4.0, -0.47229956419923025], color: [0.0, 1.0, 0.0], labeled: true},
-    {name: "P", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "B"], labeled: true},
-    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true},
-    {name: "C", type: "Mid", color: [1.0, 1.0, 0.0], args: ["A", "B"], labeled: true},
-    {name: "Tr0", type: "TrMoebius", color: [0.0, 0.0, 1.0], args: ["A", "D", "B", "E", "C", "F"], dock: {offset: [0.0, -0.0]}},
-    {name: "C0", type: "TrMoebiusSegment", color: [0.0, 0.0, 1.0], args: ["Tr0", "a"], printname: "$C_{0}$", labeled: true},
-    {name: "Q", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "C"], labeled: true},
-    {name: "C1", type: "TrMoebiusSegment", color: [0.0, 0.0, 1.0], args: ["Tr1", "a"], printname: "$C_{1}$", labeled: true},
-    {name: "R", type: "PointOnSegment", pos: [-3.0965741579713235, -4.0, -0.6132737563323807], color: [0.831, 0.639, 1.0], args: ["a"], labeled: true},
-    {name: "S", type: "TrMoebiusP", color: [0.831, 0.639, 1.0], args: ["Tr0", "R"], labeled: true},
-    {name: "T", type: "TrMoebiusP", color: [0.831, 0.639, 1.0], args: ["Tr1", "R"], labeled: true}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 335,
-    transform: [{visibleRect: [-6.432911586809997, 13.604801425235976, 23.28800930521439, -1.0371228377466246]}],
-    background: "rgb(168,176,192)"
-  }],
-  cinderella: {build: 1872, version: [2, 9, 1872]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "D",
+                        type: "Free",
+                        pos: [4.0, 3.4936640163884243, 0.3792421852627193],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "E",
+                        type: "Free",
+                        pos: [4.0, 1.6101574724849992, 0.2753927927006315],
+                        color: [0.0, 1.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "b",
+                        type: "Join",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["D", "E"],
+                        visible: false,
+                        labeled: true,
+                    },
+                    {
+                        name: "F",
+                        type: "PointOnLine",
+                        pos: [4.0, 1.052871574986773, 0.24466616627826207],
+                        color: [1.0, 1.0, 0.0],
+                        args: ["b"],
+                        labeled: true,
+                    },
+                    {
+                        name: "G",
+                        type: "Free",
+                        pos: [4.0, 2.7171006164174885, 0.23039145227080007],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "H",
+                        type: "Free",
+                        pos: [4.0, 2.4115585348317397, 0.23518555047674136],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "K",
+                        type: "Free",
+                        pos: [4.0, 2.0914091705495212, 0.23412444098421722],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "L",
+                        type: "Free",
+                        pos: [4.0, 2.7529555890775086, 0.1929477143281032],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "M",
+                        type: "Free",
+                        pos: [4.0, 2.2514762127878014, 0.21004046768697385],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "N",
+                        type: "Free",
+                        pos: [4.0, 1.7987206106375953, 0.21734368286850866],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "Tr1",
+                        type: "TrMoebius",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["G", "L", "H", "M", "K", "N"],
+                        dock: { offset: [0.0, -0.0] },
+                    },
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [-1.1497502237018296, -4.0, -1.6120518875348402],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "O", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "A"], labeled: true },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [-3.371361843829747, -4.0, -0.47229956419923025],
+                        color: [0.0, 1.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "P", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "B"], labeled: true },
+                    { name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true },
+                    { name: "C", type: "Mid", color: [1.0, 1.0, 0.0], args: ["A", "B"], labeled: true },
+                    {
+                        name: "Tr0",
+                        type: "TrMoebius",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["A", "D", "B", "E", "C", "F"],
+                        dock: { offset: [0.0, -0.0] },
+                    },
+                    {
+                        name: "C0",
+                        type: "TrMoebiusSegment",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["Tr0", "a"],
+                        printname: "$C_{0}$",
+                        labeled: true,
+                    },
+                    { name: "Q", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr1", "C"], labeled: true },
+                    {
+                        name: "C1",
+                        type: "TrMoebiusSegment",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["Tr1", "a"],
+                        printname: "$C_{1}$",
+                        labeled: true,
+                    },
+                    {
+                        name: "R",
+                        type: "PointOnSegment",
+                        pos: [-3.0965741579713235, -4.0, -0.6132737563323807],
+                        color: [0.831, 0.639, 1.0],
+                        args: ["a"],
+                        labeled: true,
+                    },
+                    { name: "S", type: "TrMoebiusP", color: [0.831, 0.639, 1.0], args: ["Tr0", "R"], labeled: true },
+                    { name: "T", type: "TrMoebiusP", color: [0.831, 0.639, 1.0], args: ["Tr1", "R"], labeled: true },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 335,
+                        transform: [
+                            {
+                                visibleRect: [
+                                    -6.432911586809997,
+                                    13.604801425235976,
+                                    23.28800930521439,
+                                    -1.0371228377466246,
+                                ],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1872, version: [2, 9, 1872] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

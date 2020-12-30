@@ -2,7 +2,6 @@ var lab = {};
 
 var doPri45 = {};
 
-
 doPri45.a = [
     [],
     [1 / 5],
@@ -10,7 +9,7 @@ doPri45.a = [
     [44 / 45, -56 / 15, 32 / 9],
     [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
     [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
-    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84]
+    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
 ];
 doPri45.dt = [0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1, 1];
 doPri45.b1 = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
@@ -33,13 +32,12 @@ fehlberg78.a = [
     [2383 / 4100, 0, 0, -341 / 164, 4496 / 1025, -301 / 82, 2133 / 4100, 45 / 82, 45 / 164, 18 / 41],
     [3 / 205, 0, 0, 0, 0, -6 / 41, -3 / 205, -3 / 41, 3 / 41, 6 / 41, 0],
     [-1777 / 4100, 0, 0, -341 / 164, 4496 / 1025, -289 / 82, 2193 / 4100, 51 / 82, 33 / 164, 12 / 41, 0, 1],
-    [0, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 0, 41 / 840, 41 / 840]
+    [0, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 0, 41 / 840, 41 / 840],
 ];
 fehlberg78.dt = [0, 2 / 27, 1 / 9, 1 / 6, 5 / 12, 1 / 2, 5 / 6, 1 / 6, 2 / 3, 1 / 3, 1, 0, 1];
 fehlberg78.b1 = [0, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 0, 41 / 840, 41 / 840];
 fehlberg78.b2 = [41 / 840, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 280, 41 / 840, 0, 0];
 fehlberg78.size = 13;
-
 
 //var rk = fehlberg78;
 var rk = doPri45;
@@ -49,17 +47,16 @@ var springs = [];
 var csPhysicsInited = false;
 
 function csresetphys() {
-    behaviors.forEach(function(beh) {
-        var geo = (beh.geo || []).map(function(name) {
+    behaviors.forEach(function (beh) {
+        var geo = (beh.geo || []).map(function (name) {
             return csgeo.csnames[name];
         });
         labObjects[beh.type].reset(beh, geo[0], geo);
     });
 }
 
-
 function csinitphys(behavs) {
-    csPhysicsInited = (behavs.length !== 0);
+    csPhysicsInited = behavs.length !== 0;
     //console.log(csPhysicsInited);
 
     behaviors = [];
@@ -67,8 +64,9 @@ function csinitphys(behavs) {
     springs = [];
 
     labObjects.Environment.init({}); // Set defaults
-    behavs.forEach(function(beh) {
-        if (beh.behavior) { // Legacy format
+    behavs.forEach(function (beh) {
+        if (beh.behavior) {
+            // Legacy format
             if (beh.name) {
                 beh.behavior.geo = [beh.name];
             }
@@ -79,7 +77,7 @@ function csinitphys(behavs) {
         } else {
             geo = beh.geo;
         }
-        var geo = (beh.geo || []).map(function(name) {
+        var geo = (beh.geo || []).map(function (name) {
             return csgeo.csnames[name];
         });
         var mainGeo = geo[0]; // may be undefined!
@@ -102,11 +100,9 @@ function csinitphys(behavs) {
         }
         behaviors.push(beh);
     });
-
 }
 
-
-lab.tick = function(deltat) {
+lab.tick = function (deltat) {
     deltat = deltat / simaccuracy;
     for (var i = 0; i < simaccuracy; i++) {
         lab.tick1(deltat);
@@ -115,17 +111,13 @@ lab.tick = function(deltat) {
     }
 };
 
-lab.tick1 = function(deltat) {
-
+lab.tick1 = function (deltat) {
     var mydeltat = deltat;
-
 
     var proceeded = 0;
     var actualdelta;
 
-    while (deltat > 0 && proceeded < deltat * 0.999 || deltat < 0 && proceeded > deltat * 0.999) {
-
-
+    while ((deltat > 0 && proceeded < deltat * 0.999) || (deltat < 0 && proceeded > deltat * 0.999)) {
         actualdelta = lab.oneRKStep(mydeltat);
 
         proceeded += actualdelta;
@@ -139,8 +131,8 @@ lab.tick1 = function(deltat) {
     return true;
 };
 
-lab.restorePosition = function() {
-    behaviors.forEach(function(beh) {
+lab.restorePosition = function () {
+    behaviors.forEach(function (beh) {
         labObjects[beh.type].restorePos(beh, rk.size + 2);
     });
     //for (Behavior beh : all) {
@@ -150,15 +142,14 @@ lab.restorePosition = function() {
     //}
 };
 
-lab.doCollisions = function() {
-    behaviors.forEach(function(beh) {
+lab.doCollisions = function () {
+    behaviors.forEach(function (beh) {
         labObjects[beh.type].doCollisions(beh);
     });
-
 };
 
-lab.calculateForces = function() {
-    behaviors.forEach(function(beh) {
+lab.calculateForces = function () {
+    behaviors.forEach(function (beh) {
         labObjects[beh.type].calculateForces(beh);
     });
     //dispatcher.callScriptsForOccasion(Assignments.OCCASION_STEP);
@@ -168,8 +159,8 @@ lab.calculateForces = function() {
     //    }
     //}
 };
-lab.moveToFinalPos = function() {
-    behaviors.forEach(function(beh) {
+lab.moveToFinalPos = function () {
+    behaviors.forEach(function (beh) {
         labObjects[beh.type].move(beh);
     });
     //for (Behavior beh : all) {
@@ -179,12 +170,9 @@ lab.moveToFinalPos = function() {
     //}
 };
 
-
-lab.oneRKStep = function(mydeltat) {
-
-    var initRKTimeStep = function(deltat) {
-
-        behaviors.forEach(function(beh) {
+lab.oneRKStep = function (mydeltat) {
+    var initRKTimeStep = function (deltat) {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].initRK(beh, deltat);
             labObjects[beh.type].storePosition(beh);
         });
@@ -196,8 +184,8 @@ lab.oneRKStep = function(mydeltat) {
         //}
     };
 
-    var setToTimestep = function(j) {
-        behaviors.forEach(function(beh) {
+    var setToTimestep = function (j) {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].setToTimestep(beh, rk.dt[j]);
         });
         //   for (Behavior anAll : all) {
@@ -207,8 +195,8 @@ lab.oneRKStep = function(mydeltat) {
         //}
     };
 
-    var proceedMotion = function(j) {
-        behaviors.forEach(function(beh) {
+    var proceedMotion = function (j) {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].proceedMotion(beh, rk.dt[j], j, rk.a[j]);
         });
         //for (Behavior anAll : all) {
@@ -216,11 +204,10 @@ lab.oneRKStep = function(mydeltat) {
         //        anAll.proceedMotion(rk.getDt(j), j, rk.getA(j));
         //    }
         //}
-
     };
 
-    var resetForces = function() {
-        behaviors.forEach(function(beh) {
+    var resetForces = function () {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].resetForces(beh);
         });
         //for (Behavior anAll : all) {
@@ -230,8 +217,8 @@ lab.oneRKStep = function(mydeltat) {
         //}
     };
 
-    var calculateDelta = function(j) {
-        behaviors.forEach(function(beh) {
+    var calculateDelta = function (j) {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].calculateDelta(beh, j);
         });
         //for (Behavior anAll : all) {
@@ -241,17 +228,15 @@ lab.oneRKStep = function(mydeltat) {
         //}
     };
 
-
-    var calculateError = function(j) {
+    var calculateError = function (j) {
         var error = 0;
-        behaviors.forEach(function(beh) {
+        behaviors.forEach(function (beh) {
             var j = rk.size;
             labObjects[beh.type].proceedMotion(beh, rk.dt[j - 1], j, rk.b1);
             labObjects[beh.type].savePos(beh, j + 1);
             labObjects[beh.type].proceedMotion(beh, rk.dt[j - 1], j, rk.b2);
             labObjects[beh.type].savePos(beh, j + 2);
             error += labObjects[beh.type].sqDist(beh, j + 1, j + 2);
-
         });
 
         error = Math.sqrt(error) / mydeltat;
@@ -271,8 +256,8 @@ lab.oneRKStep = function(mydeltat) {
         //return error;
     };
 
-    var recallInitialPosition = function(j) {
-        behaviors.forEach(function(beh) {
+    var recallInitialPosition = function (j) {
+        behaviors.forEach(function (beh) {
             labObjects[beh.type].recallPosition(beh);
         });
 
@@ -282,7 +267,6 @@ lab.oneRKStep = function(mydeltat) {
         //    }
         //}
     };
-
 
     var rksize = rk.size;
     var madeIt = false;
@@ -294,7 +278,6 @@ lab.oneRKStep = function(mydeltat) {
             resetForces();
             lab.calculateForces();
             calculateDelta(j);
-
         }
         var error = calculateError(mydeltat);
         //console.log(error);
@@ -305,12 +288,9 @@ lab.oneRKStep = function(mydeltat) {
             //            mydeltat /= 4;
             recallInitialPosition();
         } else {
-
             madeIt = true;
         }
-
     }
-
 
     return mydeltat;
 };

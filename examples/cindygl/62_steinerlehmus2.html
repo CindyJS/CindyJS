@@ -1,214 +1,195 @@
-
 <!DOCTYPE html>
-    <html>
+<html>
     <head>
-        <meta charset="UTF-8">
-        
+        <meta charset="UTF-8" />
+
         <title>Generalizing the Steiner-Lehmus Theorem</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-        
-      <script id="csinit" type="text/x-cindyscript">  
-        bisectors(A, B, C) := (
-          //compute the bisectors at point A
-          a = complex(A);
-          b = complex(B);
-          c = complex(C);
-          w = sqrt((c-a)*(b-a));
-          [join(A,gauss(a+w)), join(A,gauss(a+i*w))]
-        );
 
-
-        f(C) := (
-          Alines = bisectors(A, B, C);
-          Apts = apply(Alines, l, meet(l, join(B, C)).xy);
-          Alen = apply(Apts, P, |P-A|);
-
-          Blines = bisectors(B, C, A);
-          Bpts = apply(Blines, l, meet(l, join(A, C)).xy);
-          Blen = apply(Bpts, P, |P-B|);
-          
-          Clines = bisectors(C, A, B);
-          Cpts = apply(Clines, l, meet(l, join(A, B)).xy);
-          Clen = apply(Cpts, P, |P-C|);
-        );      
-      </script>
-      <script id="csdraw" type="text/x-cindyscript">
-        colorplot(
-          f(#); //eval f at pixel coordinate
-          terms = [
-            |(Alen_1/Blen_1)-1|,
-            |(Alen_1/Blen_2)-1|,
-            |(Alen_2/Blen_1)-1|,
-            |(Alen_2/Blen_2)-1|,
-            |(Blen_1/Clen_1)-1|,
-            |(Blen_1/Clen_2)-1|,
-            |(Blen_2/Clen_1)-1|,
-            |(Blen_2/Clen_2)-1|,
-            |(Clen_1/Alen_1)-1|,
-            |(Clen_1/Alen_2)-1|,
-            |(Clen_2/Alen_1)-1|,
-            |(Clen_2/Alen_2)-1|
-          ];
-          m = min(terms);
-          (exp(-15*m));
-        );
-
-        f(C);
-        draw(join(A, C), color->[1,1,1], alpha->.5);
-        draw(join(B, C), color->[1,1,1], alpha->.5);
-        draw(join(A, B), color->[1,1,1], alpha->.5);
-
-        draw(A, C);
-        draw(B, C);
-        draw(A, B);
-
-        pt2len(p) := (
-          if(p==A,Alen,
-             if(p==B,Blen,
-                Clen
-               )
-            )
-        );
-
-        pt2pts(p) := (
-          if(p==A,Apts,
-             if(p==B,Bpts,
-                Cpts
-               )
-            )
-        );
-
-        lencpdcnt = 0;
-        lencpds = [];
-
-        addcpd(cpd) := (
-          added = false;
-          forall(1..length(lencpds), k,
-                 if(!added & length(cpd ∩ lencpds_k)>0,
-                    lencpds_k = lencpds_k ∪ cpd;
-                    added = true;
-                   );
-                );
-          if(!added,
-             lencpds = lencpds :> cpd;
+        <script id="csinit" type="text/x-cindyscript">
+            bisectors(A, B, C) := (
+              //compute the bisectors at point A
+              a = complex(A);
+              b = complex(B);
+              c = complex(C);
+              w = sqrt((c-a)*(b-a));
+              [join(A,gauss(a+w)), join(A,gauss(a+i*w))]
             );
-        );
 
-        forall([[1,1],[1,2],[2,1],[2,2]], idx,
-               forall([[A,B],[B,C],[C,A]], pts,
-                      if(|pt2len(pts_1)_(idx_1)/pt2len(pts_2)_(idx_2)-1|<.05,
-                         addcpd([
-                           [pts_1, pt2pts(pts_1)_(idx_1)],
-                           [pts_2, pt2pts(pts_2)_(idx_2)]
-                         ]);
-                        );
-                     );
-              );
 
-        forall(1..length(lencpds), k,
-               forall(lencpds_k, l,
-                      draw(l_1, l_2, color->[.5,.5,.5]+hue(k/4), size->6, alpha->.8);
-                     );
-              );
-</script>
-    
+            f(C) := (
+              Alines = bisectors(A, B, C);
+              Apts = apply(Alines, l, meet(l, join(B, C)).xy);
+              Alen = apply(Apts, P, |P-A|);
+
+              Blines = bisectors(B, C, A);
+              Bpts = apply(Blines, l, meet(l, join(A, C)).xy);
+              Blen = apply(Bpts, P, |P-B|);
+
+              Clines = bisectors(C, A, B);
+              Cpts = apply(Clines, l, meet(l, join(A, B)).xy);
+              Clen = apply(Cpts, P, |P-C|);
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            colorplot(
+              f(#); //eval f at pixel coordinate
+              terms = [
+                |(Alen_1/Blen_1)-1|,
+                |(Alen_1/Blen_2)-1|,
+                |(Alen_2/Blen_1)-1|,
+                |(Alen_2/Blen_2)-1|,
+                |(Blen_1/Clen_1)-1|,
+                |(Blen_1/Clen_2)-1|,
+                |(Blen_2/Clen_1)-1|,
+                |(Blen_2/Clen_2)-1|,
+                |(Clen_1/Alen_1)-1|,
+                |(Clen_1/Alen_2)-1|,
+                |(Clen_2/Alen_1)-1|,
+                |(Clen_2/Alen_2)-1|
+              ];
+              m = min(terms);
+              (exp(-15*m));
+            );
+
+            f(C);
+            draw(join(A, C), color->[1,1,1], alpha->.5);
+            draw(join(B, C), color->[1,1,1], alpha->.5);
+            draw(join(A, B), color->[1,1,1], alpha->.5);
+
+            draw(A, C);
+            draw(B, C);
+            draw(A, B);
+
+            pt2len(p) := (
+              if(p==A,Alen,
+                 if(p==B,Blen,
+                    Clen
+                   )
+                )
+            );
+
+            pt2pts(p) := (
+              if(p==A,Apts,
+                 if(p==B,Bpts,
+                    Cpts
+                   )
+                )
+            );
+
+            lencpdcnt = 0;
+            lencpds = [];
+
+            addcpd(cpd) := (
+              added = false;
+              forall(1..length(lencpds), k,
+                     if(!added & length(cpd ∩ lencpds_k)>0,
+                        lencpds_k = lencpds_k ∪ cpd;
+                        added = true;
+                       );
+                    );
+              if(!added,
+                 lencpds = lencpds :> cpd;
+                );
+            );
+
+            forall([[1,1],[1,2],[2,1],[2,2]], idx,
+                   forall([[A,B],[B,C],[C,A]], pts,
+                          if(|pt2len(pts_1)_(idx_1)/pt2len(pts_2)_(idx_2)-1|<.05,
+                             addcpd([
+                               [pts_1, pt2pts(pts_1)_(idx_1)],
+                               [pts_2, pt2pts(pts_2)_(idx_2)]
+                             ]);
+                            );
+                         );
+                  );
+
+            forall(1..length(lencpds), k,
+                   forall(lencpds_k, l,
+                          draw(l_1, l_2, color->[.5,.5,.5]+hue(k/4), size->6, alpha->.8);
+                         );
+                  );
+        </script>
+
         <script type="text/javascript">
-          var cdy = CindyJS({
-  "scripts": "cs*",
-  "defaultAppearance": {
-    "dimDependent": 0.7,
-    "fontFamily": "sans-serif",
-    "lineSize": 1,
-    "pointSize": 5,
-    "textsize": 12
-  },
-  "angleUnit": "°",
-  "exclusive": "true",
-  "geometry": [
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "A",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        2,-2
-      ]
-    },
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "B",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        -2,-2
-      ]
-    },
-    
-    {
-      "alpha": 1,
-      "color": [
-        1,
-        0,
-        0
-      ],
-      "labeled": true,
-      "name": "C",
-      "pinned": false,
-      "size": 5,
-      "type": "Free",
-      "pos": [
-        0,1
-      ]
-    }
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      width: 800,
-      height: 600,
-      "transform": [
-        {
-          "visibleRect": [
-            -5,
-            -5,
-            5,
-            5
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)"
-    }
-  ],
-  "csconsole": false,
-  "use": [
-    "CindyGL"
-  ],
-  "autoplay": false,
-  "behavior": []
-});
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5,
+                    textsize: 12,
+                },
+                angleUnit: "°",
+                exclusive: "true",
+                geometry: [
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "A",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [2, -2],
+                    },
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "B",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [-2, -2],
+                    },
+
+                    {
+                        alpha: 1,
+                        color: [1, 0, 0],
+                        labeled: true,
+                        name: "C",
+                        pinned: false,
+                        size: 5,
+                        type: "Free",
+                        pos: [0, 1],
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 800,
+                        height: 600,
+                        transform: [
+                            {
+                                visibleRect: [-5, -5, 5, 5],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                use: ["CindyGL"],
+                autoplay: false,
+                behavior: [],
+            });
         </script>
     </head>
     <body>
-      <h1>Generalizing the Steiner-Lehmus Theorem</h1>
-        <div>This is an implementation of the dynamic picture from Losada, R., T. Recio, and J. L. Valcarce. <a href="http://www.geogebra.es/pub/adg2010def1.pdf">"On the automatic discovery of Steiner-Lehmus generalizations."</a> Proceedings of ADG. 2010.</div>
+        <h1>Generalizing the Steiner-Lehmus Theorem</h1>
+        <div>
+            This is an implementation of the dynamic picture from Losada, R., T. Recio, and J. L. Valcarce.
+            <a href="http://www.geogebra.es/pub/adg2010def1.pdf"
+                >"On the automatic discovery of Steiner-Lehmus generalizations."</a
+            >
+            Proceedings of ADG. 2010.
+        </div>
         <div>The point C is on the white curve iff there is a pair of bisectors with the same length.</div>
         <div id="CSCanvas"></div>
-        <div>See also the <a href="62_steinerlehmus.html">simpler version</a>, considering only the bisectors at A and B</div>
+        <div>
+            See also the <a href="62_steinerlehmus.html">simpler version</a>, considering only the bisectors at A and B
+        </div>
     </body>
-    </html>
-  
+</html>

@@ -1,110 +1,114 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>TensorFlow.js in CindyJS: An IFS with PoseNet</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+        <script type="text/javascript" src="posenet-plugin.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            video = camera video();
+            createimage("ifs", 1280, 720);
 
-<head>
-<title>TensorFlow.js in CindyJS: An IFS with PoseNet</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
-<script type="text/javascript" src="posenet-plugin.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-video = camera video();
-createimage("ifs", 1280, 720);
+            clamp(v) := min(max(0, v),1);
+            smoothboundary(p) := (
+              x = p_1/p_3;
+              y = p_2/p_3;
+              clamp(x*(1-x)*y*(imagesize(video)_2/imagesize(video)_1-y)*200)
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (imageready(video),
+              estimateSinglePose((0,0),(1,0), video, imagescalefactor->.3, multiplier->0.75,
+                pose=#;
+                errc(pose);
+              );
 
-clamp(v) := min(max(0, v),1);
-smoothboundary(p) := (
-  x = p_1/p_3;
-  y = p_2/p_3;
-  clamp(x*(1-x)*y*(imagesize(video)_2/imagesize(video)_1-y)*200)
-);
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-if (imageready(video),
-  estimateSinglePose((0,0),(1,0), video, imagescalefactor->.3, multiplier->0.75,
-    pose=#;
-    errc(pose);
-  );
-  
-  if(!isundefined(pose),
-    /*
-    1: nose
-    2: leftEye
-    3: rightEye
-    4: leftEar
-    5: rightEar
-    6: leftShoulder
-    7: rightShoulder
-    8: leftElbow
-    9: rightElbow
-    10: leftWrist
-    11: rightWrist
-    12: leftHip
-    13: rightHip
-    14: leftKnee
-    15: rightKnee
-    16: leftAnkle
-    17: rightAnkle
-    */
-    if(isundefined(coords),
-      coords = apply(pose, p, p_3);
-    );
-    //smooth pose
-    target = apply(pose, p, p_3);
-    coords = .9*coords + .1*target;
-    
-    T = (coords_6+coords_7)/2;
-    B = (coords_12+coords_13)/2;
-    mline = cross([T.x,T.y,1], [B.x, B.y,1]);
+              if(!isundefined(pose),
+                /*
+                1: nose
+                2: leftEye
+                3: rightEye
+                4: leftEar
+                5: rightEar
+                6: leftShoulder
+                7: rightShoulder
+                8: leftElbow
+                9: rightElbow
+                10: leftWrist
+                11: rightWrist
+                12: leftHip
+                13: rightHip
+                14: leftKnee
+                15: rightKnee
+                16: leftAnkle
+                17: rightAnkle
+                */
+                if(isundefined(coords),
+                  coords = apply(pose, p, p_3);
+                );
+                //smooth pose
+                target = apply(pose, p, p_3);
+                coords = .9*coords + .1*target;
 
-    f1 = map(coords_8, coords_6, T, B);
-    f2 = map(coords_9, coords_7, T, B);
-    
-    colorplot((0,0),(1,0), "ifs",
-      p = [#.x, #.y, 1];
-      c = imagergba((0,0),(1,0), "ifs", f1*p)*smoothboundary(f1*p)*clamp(3*pose_8_2);
-      c = c + imagergba((0,0),(1,0), "ifs", f2*p)*smoothboundary(f2*p)*clamp(3*pose_9_2);
-      if(c.a>1, c=c/c.a);
-      c = c*clamp(
-        - ((#-B)*(T-B)/|T-B|)*((#-T)*(B-T)/|B-T|)*40+(|p*mline|-|[coords_6_1,coords_6_2,1]*mline|)/|T-B|*20 //trunc
-      )*clamp(
-        5*(|#-coords_1|/|T-B|-.2) //head 
-      );
-       
-      c + (1-c.a)*imagergba((0,0),(1,0), video, p)
-    );
+                T = (coords_6+coords_7)/2;
+                B = (coords_12+coords_13)/2;
+                mline = cross([T.x,T.y,1], [B.x, B.y,1]);
 
-    drawimage((0,0),(1,0), "ifs");
-    ,
-    drawimage((0,0),(1,0), video);
-  );
-);
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", 
-    width: 1280,
-    height: 720,
-    transform:[{visibleRect:[0,0,1,9/16]}]}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [],
-  use: ["CindyGL", "posenet"]
-});
-</script>
-</head>
+                f1 = map(coords_8, coords_6, T, B);
+                f2 = map(coords_9, coords_7, T, B);
 
-<body style="font-family:Arial;">
-  <h1>TensorFlow.js in CindyJS: An IFS with PoseNet</h1>
-  <div id="CSCanvas"></div>
-  <div>Poses are detected with the <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet">PoseNet Model using TensorFlow.js</a></div>
-  <div>Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are obtained with Firefox or Chrome.</div>
-  <div>The applet shows an IFS with two similarities based (each mapping the segment shoulder-elbow to the trunk) on the pose of the pose of a person. A Feedback loop-approach renders the IFS in CindyGL.</div>
-  <div>Idea from <a href="https://momath.org/">MoMath</a></div>
-</body>
+                colorplot((0,0),(1,0), "ifs",
+                  p = [#.x, #.y, 1];
+                  c = imagergba((0,0),(1,0), "ifs", f1*p)*smoothboundary(f1*p)*clamp(3*pose_8_2);
+                  c = c + imagergba((0,0),(1,0), "ifs", f2*p)*smoothboundary(f2*p)*clamp(3*pose_9_2);
+                  if(c.a>1, c=c/c.a);
+                  c = c*clamp(
+                    - ((#-B)*(T-B)/|T-B|)*((#-T)*(B-T)/|B-T|)*40+(|p*mline|-|[coords_6_1,coords_6_2,1]*mline|)/|T-B|*20 //trunc
+                  )*clamp(
+                    5*(|#-coords_1|/|T-B|-.2) //head
+                  );
 
+                  c + (1-c.a)*imagergba((0,0),(1,0), video, p)
+                );
+
+                drawimage((0,0),(1,0), "ifs");
+                ,
+                drawimage((0,0),(1,0), video);
+              );
+            );
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 1280, height: 720, transform: [{ visibleRect: [0, 0, 1, 9 / 16] }] }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [],
+                use: ["CindyGL", "posenet"],
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>TensorFlow.js in CindyJS: An IFS with PoseNet</h1>
+        <div id="CSCanvas"></div>
+        <div>
+            Poses are detected with the
+            <a href="https://github.com/tensorflow/tfjs-models/tree/master/posenet"
+                >PoseNet Model using TensorFlow.js</a
+            >
+        </div>
+        <div>
+            Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are
+            obtained with Firefox or Chrome.
+        </div>
+        <div>
+            The applet shows an IFS with two similarities based (each mapping the segment shoulder-elbow to the trunk)
+            on the pose of the pose of a person. A Feedback loop-approach renders the IFS in CindyGL.
+        </div>
+        <div>Idea from <a href="https://momath.org/">MoMath</a></div>
+    </body>
 </html>

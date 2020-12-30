@@ -20,22 +20,10 @@ var exclude = [
 ];
 
 // The following files and directories will trigger a build & reload
-var watchToBuild = [
-    "images",
-    "lib",
-    "package.json",
-    "plugins",
-    "ref",
-    "src",
-    "tests",
-    "tools",
-].concat(exclude);
+var watchToBuild = ["images", "lib", "package.json", "plugins", "ref", "src", "tests", "tools"].concat(exclude);
 
 // The following directories will trigger a reload only
-var watchToReload = [
-    "examples",
-    "private_examples",
-].concat(exclude);
+var watchToReload = ["examples", "private_examples"].concat(exclude);
 
 var ignored = [
     "**/.*", // hidden files, e.g. lock files or similar
@@ -48,20 +36,23 @@ module.exports = function watch(makeOnce, doClean) {
     var watcher;
 
     var bs = browserSync.create("CindyJS");
-    bs.init({
-        server: {
-            baseDir: ".",
-            directory: true,
+    bs.init(
+        {
+            server: {
+                baseDir: ".",
+                directory: true,
+            },
+            port: 1337,
+            startPath: "/examples/",
+            files: watchToReload,
+            watchOptions: {
+                ignored: ignored,
+            },
         },
-        port: 1337,
-        startPath: "/examples/",
-        files: watchToReload,
-        watchOptions: {
-            ignored: ignored,
-        },
-    }, function(err, instance) {
-        if (err) return deferred.reject(err);
-    });
+        function (err, instance) {
+            if (err) return deferred.reject(err);
+        }
+    );
 
     var building = 1;
     make(doClean);
@@ -113,7 +104,8 @@ module.exports = function watch(makeOnce, doClean) {
 
     function onChange(event, path) {
         console.log(chalk.yellow(event + " " + path));
-        if (building === 0) { // need to trigger a build
+        if (building === 0) {
+            // need to trigger a build
             building = 1;
             console.log(chalk.yellow("Build triggered"));
             make(false);
@@ -121,6 +113,5 @@ module.exports = function watch(makeOnce, doClean) {
             console.log(chalk.yellow("Already building, build scheduled"));
             building = 2;
         }
-    };
-
+    }
 };

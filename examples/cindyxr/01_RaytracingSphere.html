@@ -1,140 +1,139 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-  
-<title>Exported from https://cindyjs.org/editor/: A simple three-dimensional scene</title>
-<style type="text/css">
-    body {
-        margin: 0px;
-        padding: 0px;
-    }
-    
-    #CSCanvas {
-        width: 800px; height: 800px;
-    }
-</style>
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script type="text/javascript" src="../../build/js/CindyXR.js"></script>
+    <head>
+        <meta charset="UTF-8" />
 
-<script id="init" type="text/x-cindyscript">
-    resetclock();
+        <title>Exported from https://cindyjs.org/editor/: A simple three-dimensional scene</title>
+        <style type="text/css">
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
 
-    initxrcindygl();
+            #CSCanvas {
+                width: 800px;
+                height: 800px;
+            }
+        </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyXR.js"></script>
 
-    ray(t) := rayOrig + t*rayDir;
+        <script id="init" type="text/x-cindyscript">
+            resetclock();
 
-    updatehit(t, normal, color) := (
-        if(t>0 & t < hitt,
-            //the hit is the closest hit so far.
-            hitt = t;
-            hitpos = ray(t);
-            hitnormal = normal;
-            hitcolor = color;
-        );
-    );
+            initxrcindygl();
 
-    // Position # in range [-1, 1] x [-1/aspectRatio, 1/aspectRatio]
-    computecolor() := (
-        //default values (if no hit)
-        hitt = 1e8;
-        hitpos = [0,0,0];
-        hitnormal = [1,1,1];
-        hitcolor = [.7,.7,1];
+            ray(t) := rayOrig + t*rayDir;
 
-        //intersect with floor: ray(t).y=0 <=> rayOrig.y+t*rayDir.y=0
-        updatehit((-rayOrig.y)/rayDir.y, [0,1,0],[1,1,1]);
-        
-        //intersect with wall at z=4: ray(t).z=4 <=> rayOrig.z+t*rayDir.z=4
-        updatehit((20-rayOrig.z)/rayDir.z, [0,0,-1],[1,1,0.6]);
-        //other walls
-        updatehit((-20-rayOrig.z)/rayDir.z, [0,0,1],[0,1,1]);
-        updatehit((20-rayOrig.x)/rayDir.x, [-1,0,0],[1,1,0]);
-        updatehit((-20-rayOrig.x)/rayDir.x, [1,0,0],[1,0,1]);
+            updatehit(t, normal, color) := (
+                if(t>0 & t < hitt,
+                    //the hit is the closest hit so far.
+                    hitt = t;
+                    hitpos = ray(t);
+                    hitnormal = normal;
+                    hitcolor = color;
+                );
+            );
 
-        //intersect with sphere with radius 1 and center (0,0,0)
-        //||ray(t)||=1 <=> t^2*(dit*rayDir) + t*2*(rayOrig*rayDir) + (rayOrig*rayOrig)-1 = 0 <=>
-        //a*t^2 + b*t + c = 0
-        a = (rayDir*rayDir);
-        b = 2*(rayOrig*rayDir);
-        c = rayOrig*rayOrig-1;
-        D = b^2-4*a*c; //discriminant of polynomial a t^2 + b t + c
+            // Position # in range [-1, 1] x [-1/aspectRatio, 1/aspectRatio]
+            computecolor() := (
+                //default values (if no hit)
+                hitt = 1e8;
+                hitpos = [0,0,0];
+                hitnormal = [1,1,1];
+                hitcolor = [.7,.7,1];
 
-        if(D>0,
-            spheret = (-b-re(sqrt(D)))/(2*a);
-            s = ray(spheret);
-            updatehit(spheret, s, [1,0,0]);
-        );
+                //intersect with floor: ray(t).y=0 <=> rayOrig.y+t*rayDir.y=0
+                updatehit((-rayOrig.y)/rayDir.y, [0,1,0],[1,1,1]);
 
-        //compute the color
-        lightdir = (light-hitpos)/|light-hitpos|;
-        max(0,lightdir*hitnormal)^2*hitcolor;
-    );
+                //intersect with wall at z=4: ray(t).z=4 <=> rayOrig.z+t*rayDir.z=4
+                updatehit((20-rayOrig.z)/rayDir.z, [0,0,-1],[1,1,0.6]);
+                //other walls
+                updatehit((-20-rayOrig.z)/rayDir.z, [0,0,1],[0,1,1]);
+                updatehit((20-rayOrig.x)/rayDir.x, [-1,0,0],[1,1,0]);
+                updatehit((-20-rayOrig.x)/rayDir.x, [1,0,0],[1,0,1]);
+
+                //intersect with sphere with radius 1 and center (0,0,0)
+                //||ray(t)||=1 <=> t^2*(dit*rayDir) + t*2*(rayOrig*rayDir) + (rayOrig*rayOrig)-1 = 0 <=>
+                //a*t^2 + b*t + c = 0
+                a = (rayDir*rayDir);
+                b = 2*(rayOrig*rayDir);
+                c = rayOrig*rayOrig-1;
+                D = b^2-4*a*c; //discriminant of polynomial a t^2 + b t + c
+
+                if(D>0,
+                    spheret = (-b-re(sqrt(D)))/(2*a);
+                    s = ray(spheret);
+                    updatehit(spheret, s, [1,0,0]);
+                );
+
+                //compute the color
+                lightdir = (light-hitpos)/|light-hitpos|;
+                max(0,lightdir*hitnormal)^2*hitcolor;
+            );
 
 
-    normalizedDirection(a, b) := (
-        (a - b) / dist(a, b)
-    );
-</script>
+            normalizedDirection(a, b) := (
+                (a - b) / dist(a, b)
+            );
+        </script>
 
-<script id="xrdraw" type="text/x-cindyscript">
-    light = [cos(seconds())+2,2, sin(seconds())];
-    numViews = getxrnumviews();
+        <script id="xrdraw" type="text/x-cindyscript">
+            light = [cos(seconds())+2,2, sin(seconds())];
+            numViews = getxrnumviews();
 
-    repeat(numViews, i,
-        viewIndex = i - 1;
-        viewportSize = getxrviewportsize(viewIndex);
-        aspectRatio = viewportSize.x/viewportSize.y;
+            repeat(numViews, i,
+                viewIndex = i - 1;
+                viewportSize = getxrviewportsize(viewIndex);
+                aspectRatio = viewportSize.x/viewportSize.y;
 
-        invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
-        invViewMatrix = inverse(getxrviewmatrix(viewIndex));
-        invViewProjMatrix = invViewMatrix * invProjectionMatrix;
+                invProjectionMatrix = inverse(getxrprojectionmatrix(viewIndex));
+                invViewMatrix = inverse(getxrviewmatrix(viewIndex));
+                invViewProjMatrix = invViewMatrix * invProjectionMatrix;
 
-        colorplotxr(viewIndex,
-            moving = true;
-            // Coordinates in NDC space
-            ndcPixelNearCoord = [#.x, #.y, -1, 1];
-            ndcPixelFarCoord = [#.x, #.y, 1, 1];
+                colorplotxr(viewIndex,
+                    moving = true;
+                    // Coordinates in NDC space
+                    ndcPixelNearCoord = [#.x, #.y, -1, 1];
+                    ndcPixelFarCoord = [#.x, #.y, 1, 1];
 
-            // Multiply with inverse view-projection matrix to get world space coordinates.
-            nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
-            farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
+                    // Multiply with inverse view-projection matrix to get world space coordinates.
+                    nearPointWorldHom = invViewProjMatrix * ndcPixelNearCoord;
+                    farPointWorldHom = invViewProjMatrix * ndcPixelFarCoord;
 
-            // Dehomogenize the homogeneous coordinates.
-            nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
-            farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
+                    // Dehomogenize the homogeneous coordinates.
+                    nearPointWorldDehom = [nearPointWorldHom_1, nearPointWorldHom_2, nearPointWorldHom_3] / nearPointWorldHom_4;
+                    farPointWorldDehom = [farPointWorldHom_1, farPointWorldHom_2, farPointWorldHom_3] / farPointWorldHom_4;
 
-            rayOrig = nearPointWorldDehom;
-            rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
+                    rayOrig = nearPointWorldDehom;
+                    rayDir = normalizedDirection(farPointWorldDehom, nearPointWorldDehom);
 
-            computeColor();
-        );
-    );
-</script>
+                    computeColor();
+                );
+            );
+        </script>
 
-<script type="text/javascript">
-    var cdy = CindyJS({
-        scripts: "*",
-        angleUnit: "°",
-        exclusive: "true",
-        geometry: [
-
-        ],
-        ports: [
-          {id: "CSCanvas", transform: [{visibleRect: [-0.7, -0.5, 0.7, 0.5]}], background: "rgb(168,176,192)"}
-        ],
-        csconsole: false,
-        use: [
-          "CindyGL",
-          "CindyXR"
-        ],
-        autoplay: true,
-    });
-</script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "*",
+                angleUnit: "°",
+                exclusive: "true",
+                geometry: [],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        transform: [{ visibleRect: [-0.7, -0.5, 0.7, 0.5] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                use: ["CindyGL", "CindyXR"],
+                autoplay: true,
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>
-  

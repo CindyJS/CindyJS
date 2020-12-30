@@ -1,48 +1,45 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/CindyJS documentation for details.
+                ports: [{ id: "CSCanvas" }],
+                language: "en",
+                geometry: [
+                    { name: "A", type: "Free", pos: [5, 5, 1], color: [0, 0, 1], labeled: true },
+                    { name: "B", type: "Free", pos: [5, 5, 1], color: [0, 0, 1], labeled: true },
+                    { name: "C", type: "Free", pos: [5, 5, 1], color: [0, 0, 1], labeled: true },
+                    { name: "D", type: "Free", pos: [3, -4, 1], color: [1, 0, 0], labeled: true },
+                    { name: "E", type: "Free", pos: [3, -4, 1], color: [1, 0, 0], labeled: true },
+                    { name: "F", type: "Free", pos: [3, -4, 1], color: [1, 0, 0], labeled: true },
+                    { name: "C0", type: "ConicFromPrincipalDirections", args: ["A", "B", "C"], color: [0, 0, 1] },
+                    { name: "C1", type: "ConicFromPrincipalDirections", args: ["D", "E", "F"], color: [1, 0, 0] },
+                    { name: "Is", type: "IntersectionConicConic", args: ["C0", "C1"] },
+                    { name: "I1", type: "SelectP", args: ["Is"], index: 1, color: [0, 0.7, 0] },
+                    { name: "I2", type: "SelectP", args: ["Is"], index: 2, color: [0, 0.7, 0] },
+                    { name: "I3", type: "SelectP", args: ["Is"], index: 3, color: [0, 0.7, 0] },
+                    { name: "I4", type: "SelectP", args: ["Is"], index: 4, color: [0, 0.7, 0] },
+                ],
+            });
+        </script>
+    </head>
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
-
-var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  ports: [{id: "CSCanvas"}],
-  language: "en",
-  geometry: [ 
-    { name: "A", type: "Free", pos: [5,5,1], color: [0,0,1], labeled: true }, 
-    { name: "B", type: "Free", pos: [5,5,1], color: [0,0,1], labeled: true }, 
-    { name: "C", type: "Free", pos: [5,5,1], color: [0,0,1], labeled: true }, 
-    { name: "D", type: "Free", pos: [3,-4,1], color: [1,0,0], labeled: true }, 
-    { name: "E", type: "Free", pos: [3,-4,1], color: [1,0,0], labeled: true }, 
-    { name: "F", type: "Free", pos: [3,-4,1], color: [1,0,0], labeled: true }, 
-    { name: "C0", type: "ConicFromPrincipalDirections", args: ["A", "B", "C"], color: [0,0,1] },
-    { name: "C1", type: "ConicFromPrincipalDirections", args: ["D", "E", "F"], color: [1,0,0] },
-    { name: "Is", type: "IntersectionConicConic", args: ["C0", "C1"] },
-    { name: "I1", type: "SelectP", args: ["Is"], index: 1, color: [0,.7,0] },
-    { name: "I2", type: "SelectP", args: ["Is"], index: 2, color: [0,.7,0] },
-    { name: "I3", type: "SelectP", args: ["Is"], index: 3, color: [0,.7,0] },
-    { name: "I4", type: "SelectP", args: ["Is"], index: 4, color: [0,.7,0] }
-  ]
-});
-</script>
-</head>
-
-<body style="font-family:Arial;">
-    <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-    <p>
-      The initial situation shows some <em>very</em> degenerate situation
-      for the intersection of two conics, where both the conics involved are
-      in fact undefined. This exposes a problem discussed in
-      <a href="https://github.com/CindyJS/CindyJS/issues/132">issue #132</a>
-      which would lead to an exception during initialization.
-    </p>
-    <p>
-      Moving from that situation is non-trivial as well, since it may
-      lead to extremely slow responses due to tracing problems. See
-      <a href="https://github.com/CindyJS/CindyJS/issues/136"> issue #136</a>.
-    </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>
+            The initial situation shows some <em>very</em> degenerate situation for the intersection of two conics,
+            where both the conics involved are in fact undefined. This exposes a problem discussed in
+            <a href="https://github.com/CindyJS/CindyJS/issues/132">issue #132</a>
+            which would lead to an exception during initialization.
+        </p>
+        <p>
+            Moving from that situation is non-trivial as well, since it may lead to extremely slow responses due to
+            tracing problems. See
+            <a href="https://github.com/CindyJS/CindyJS/issues/136"> issue #136</a>.
+        </p>
+    </body>
 </html>

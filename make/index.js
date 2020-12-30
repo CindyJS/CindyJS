@@ -37,11 +37,11 @@ function begin() {
         process.nextTick(proceed);
         return;
     }
-    fs.stat("package.json", function(err, stat) {
+    fs.stat("package.json", function (err, stat) {
         packageStat = err ? false : stat;
         haveStat();
     });
-    fs.stat(stampFile, function(err, stat) {
+    fs.stat(stampFile, function (err, stat) {
         stampStat = err ? false : stat;
         haveStat();
     });
@@ -49,28 +49,26 @@ function begin() {
 
 function haveStat() {
     if (packageStat === null || stampStat === null) return;
-    if (packageStat !== false && stampStat !== false &&
-        packageStat.mtime.getTime() <= stampStat.mtime.getTime()) {
+    if (packageStat !== false && stampStat !== false && packageStat.mtime.getTime() <= stampStat.mtime.getTime()) {
         process.nextTick(proceed);
         return;
     }
     console.log("Running npm install to make sure we have all dependencies");
     var env = {};
-    for (var key in process.env)
-        env[key] = process.env[key];
+    for (var key in process.env) env[key] = process.env[key];
     env.CINDYJS_SKIP_PREPUBLISH = "true";
-    var child = cp.spawn(npm, ["install"], {stdio: "inherit", env: env});
-    child.on("error", function(err) {
+    var child = cp.spawn(npm, ["install"], { stdio: "inherit", env: env });
+    child.on("error", function (err) {
         throw err;
     });
-    child.on("exit", function(code, signal) {
+    child.on("exit", function (code, signal) {
         if (signal !== null) {
             throw Error("npm terminated by signal " + signal);
         } else if (code !== 0) {
             throw Error("npm terminated with code " + code);
         } else {
-            fs.mkdir("build", function(err) {
-                fs.writeFile(stampFile, "", function(err) {
+            fs.mkdir("build", function (err) {
+                fs.writeFile(stampFile, "", function (err) {
                     if (err) throw err;
                     process.nextTick(restart);
                 });
@@ -86,11 +84,11 @@ function proceed() {
 function restart() {
     console.log("required modules installed, resuming command");
     var args = process.argv.slice(1).concat("call_npm=false");
-    var child = cp.spawn(process.argv[0], args, {stdio: "inherit"});
-    child.on("error", function(err) {
+    var child = cp.spawn(process.argv[0], args, { stdio: "inherit" });
+    child.on("error", function (err) {
         throw err;
     });
-    child.on("exit", function(code, signal) {
+    child.on("exit", function (code, signal) {
         if (signal !== null) {
             process.exit(1);
         } else {

@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>WebGL testing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("Cindy3D")
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            begin3d();
+            background3d([0,0,0]);
+            draw3d([A.x,A.y,1],[0,0,-1],color->[0.5,0.75,0.75],size->10);
+            end3d()
+        </script>
+        <script type="text/javascript">
+            var gslp = [{ name: "A", kind: "P", type: "Free", pos: [0, 0, 1], size: 3 }];
 
-<head>
-<title>WebGL testing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
-<script id="csinit" type="text/x-cindyscript">use("Cindy3D")</script>
-<script id="csdraw" type="text/x-cindyscript">
-begin3d();
-background3d([0,0,0]);
-draw3d([A.x,A.y,1],[0,0,-1],color->[0.5,0.75,0.75],size->10);
-end3d()
-</script>
-<script type="text/javascript">
+            CindyJS({ canvasname: "CSCanvas", scripts: "cs*", geometry: gslp });
+        </script>
+    </head>
 
-      var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[0,0,1],size:3}
-                ];
-
-
-CindyJS({canvasname:"CSCanvas",scripts:"cs*",  geometry:gslp});
-</script>
-</head>
-
-<body>
-  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
-  <div id="CSCanvas" style="width:400px; height:400px; border:2px solid black"></div>
-</body>
-
+    <body>
+        <canvas id="Cindy3D" style="border: none" width="632" height="452"></canvas>
+        <div id="CSCanvas" style="width: 400px; height: 400px; border: 2px solid black"></div>
+    </body>
 </html>

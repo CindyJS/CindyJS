@@ -1,125 +1,140 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Tracing visualization 2</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy1 = CindyJS({
+                canvasname: "CSCanvas1",
+                scripts: "cs1*",
+                language: "en",
+                defaultAppearance: {},
+                enableTraceLog: 100,
+                tracingStateReport: "tracingStateReport",
+                //  grid: 1,
+                //  snap: true,
+                geometry: [
+                    { name: "A1", type: "Free", pos: [3, 0] },
+                    { name: "A2", type: "Free", pos: [2, 2] },
+                    { name: "A3", type: "Free", pos: [0, 3] },
+                    { name: "A4", type: "Free", pos: [3, 1] },
+                    { name: "A5", type: "Free", pos: [1, 3] },
 
-<head>
-<title>Tracing visualization 2</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
+                    {
+                        name: "Co1",
+                        type: "ConicBy5",
+                        args: ["A1", "A2", "A3", "A4", "A5"],
+                        color: [0, 0, 1],
+                        alpha: 1,
+                        size: 1,
+                    },
 
-var cdy1 = CindyJS({
-  canvasname: "CSCanvas1",
-  scripts: "cs1*",
-  language: "en",
-  defaultAppearance: {},
-  enableTraceLog: 100,
-  tracingStateReport: "tracingStateReport",
-//  grid: 1,
-//  snap: true,
-  geometry: [
-      {name:"A1", type:"Free", pos:[3,0]},
-      {name:"A2", type:"Free", pos:[2,2]},
-      {name:"A3", type:"Free", pos:[0,3]},
-      {name:"A4", type:"Free", pos:[3,1]},
-      {name:"A5", type:"Free", pos:[1,3]},
+                    { name: "B1", type: "Free", pos: [4, 1] },
+                    { name: "B2", type: "Free", pos: [3, 3] },
+                    { name: "B3", type: "Free", pos: [1, 4] },
+                    { name: "B4", type: "Free", pos: [-2, 0] },
+                    { name: "B5", type: "Free", pos: [1, -2] },
+                    {
+                        name: "Co2",
+                        type: "ConicBy5",
+                        args: ["B1", "B2", "B3", "B4", "B5"],
+                        color: [1, 0, 0],
+                        alpha: 1,
+                        size: 1,
+                    },
 
-      {name:"Co1", type:"ConicBy5", args:["A1","A2","A3","A4","A5"],color:[0,0,1],alpha:1,size:1},
+                    {
+                        name: "CoCo",
+                        type: "IntersectConicConic",
+                        args: ["Co1", "Co2"],
+                        color: [1, 0, 0],
+                        alpha: 1,
+                        size: 1,
+                    },
 
-      {name:"B1", type:"Free", pos:[4,1]},
-      {name:"B2", type:"Free", pos:[3,3]},
-      {name:"B3", type:"Free", pos:[1,4]},
-      {name:"B4", type:"Free", pos:[-2,0]},
-      {name:"B5", type:"Free", pos:[1,-2]},
-      {name:"Co2", type:"ConicBy5", args:["B1","B2","B3","B4","B5"],color:[1,0,0],alpha:1,size:1},
+                    { name: "P1", type: "SelectP", args: ["CoCo"], index: 1, color: [1, 0, 0], size: 3 },
+                    { name: "P2", type: "SelectP", args: ["CoCo"], index: 2, color: [0, 1, 0], size: 3 },
+                    { name: "P3", type: "SelectP", args: ["CoCo"], index: 3, color: [0, 0, 1], size: 3 },
+                    { name: "P4", type: "SelectP", args: ["CoCo"], index: 4, color: [1, 0, 1], size: 3 },
+                ], // End of geometry array.
+            });
 
-      {name:"CoCo", type:"IntersectConicConic", args:["Co1","Co2"],color:[1,0,0],alpha:1,size:1},
+            var cdy2 = CindyJS({
+                canvasname: "CSCanvas2",
+                scripts: "cs2*",
+                language: "en",
+                defaultAppearance: {},
+                animation: { autoplay: false },
+                geometry: [
+                    { name: "C1", type: "Free", pos: [0, 0], color: [0, 0, 0], size: 2 },
+                    { name: "CCost", type: "Free", pos: [0, 0], color: [1, 1, 1], size: 1 },
+                    { name: "Cold", type: "Free", pos: [5, 0], color: [1, 0, 0], size: 3 },
+                    { name: "Cnew", type: "Free", pos: [0, 5], color: [0, 1, 0], size: 3 },
+                    { name: "CP", type: "CircleMP", args: ["C1", "CCost"] },
+                ],
+                // grid: 1,
+                oninit: function () {
+                    cdy1.addTraceHook(function () {
+                        cdy2.evokeCS("");
+                    });
+                },
+                plugins: {
+                    log: function (api) {
+                        api.defineFunction("getlog", 0, function () {
+                            return cdy1.getTraceLog();
+                        });
+                    },
+                },
+            });
+        </script>
+        <script id="cs2init" type="text/x-cindyscript">
+            cpos = 0;
+            use("log");
 
-      {name:"P1", type:"SelectP", args:["CoCo"],index:1,color:[1,0,0],size:3},
-      {name:"P2", type:"SelectP", args:["CoCo"],index:2,color:[0,1,0],size:3},
-      {name:"P3", type:"SelectP", args:["CoCo"],index:3,color:[0,0,1],size:3},
-      {name:"P4", type:"SelectP", args:["CoCo"],index:4,color:[1,0,1],size:3},
-  ] // End of geometry array.
-});
+            maxlog = 100;
+            scale = 20;
+            mylog(msg) := if(maxlog > 0, errc(msg); maxlog = maxlog - 1);
+            mydraw(p, a, c) := draw(gauss(p_2 / p_3), alpha->a, color->c);
+            mydrawcost(co1, co2, a, c) := draw(scale*(co1,co2), alpha->a, color->c);
+        </script>
+        <script id="cs2draw" type="text/x-cindyscript">
 
-var cdy2 = CindyJS({
-  canvasname: "CSCanvas2",
-  scripts: "cs2*",
-  language: "en",
-  defaultAppearance: {},
-  animation: {autoplay: false},
-  geometry: [
-  {name:"C1", type:"Free", pos:[0,0], color:[0,0,0], size:2},
-  {name:"CCost", type:"Free", pos:[0,0], color:[1,1,1], size:1},
-  {name:"Cold", type:"Free", pos:[5,0], color:[1,0,0], size:3},
-  {name:"Cnew", type:"Free", pos:[0,5], color:[0,1,0], size:3},
-  {name:"CP", type:"CircleMP", args:["C1", "CCost"]}],
- // grid: 1,
-  oninit: function() {
-    cdy1.addTraceHook(function() { cdy2.evokeCS(""); });
-  },
-  plugins: {
-    log: function(api) {
-      api.defineFunction("getlog", 0, function() {
-        return cdy1.getTraceLog();
-      });
-    }
-  }
-});
+            log = getlog();
+            n = length(log);
+            i = 1;
+            forall(log, mouseAndScripts,
+              forall(mouseAndScripts_1, mover,
+                forall(mover_1, step,
+                  forall(step_1, tracingX,
+            //        mydraw(tracingX_3_1, i/n, [1,0,0]);
+            //        mydraw(tracingX_3_2, i/n, [0,1,0]);
+            //       mydraw(tracingX_3_3, i/n, [0,0,1]);
+            //      mydraw(tracingX_3_4, i/n, [1,0,1]);
+            //mydrawcost(tracingX_8, tracingX_8, i/n, [1,0,0]);
+            //mydrawcost(-tracingX_7, tracingX_7, i/n, [0,1,0]);
+            //draw((tracingX_3_1_1/tracingX_3_1_3, tracingX_3_1_2/tracingX_3_1_3));
+            //draw((tracingX_3_2_1/tracingX_3_2_3, tracingX_3_2_2/tracingX_3_2_3));
+            //draw((tracingX_3_3_1/tracingX_3_2_3, tracingX_3_3_2/tracingX_3_3_3));
+            //draw((tracingX_3_4_1/tracingX_3_4_3, tracingX_3_4_2/tracingX_3_4_3));
+            Cold.xy=[-scale*tracingX_7, -scale*tracingX_7];
+            Cnew.xy=[scale*tracingX_8, scale*tracingX_8];
+            if(tracingX_6 >0.001,CCost.xy=[0, scale*3*tracingX_6],);
+                  )
+                )
+              );
+              i = i + 1;
+            )
+        </script>
+    </head>
 
-
-
-</script>
-<script id="cs2init" type="text/x-cindyscript">
-cpos = 0;
-use("log");
-
-maxlog = 100;
-scale = 20;
-mylog(msg) := if(maxlog > 0, errc(msg); maxlog = maxlog - 1);
-mydraw(p, a, c) := draw(gauss(p_2 / p_3), alpha->a, color->c);
-mydrawcost(co1, co2, a, c) := draw(scale*(co1,co2), alpha->a, color->c);
-
-
-</script>
-<script id="cs2draw" type="text/x-cindyscript">
-
-log = getlog();
-n = length(log);
-i = 1;
-forall(log, mouseAndScripts,
-  forall(mouseAndScripts_1, mover,
-    forall(mover_1, step,
-      forall(step_1, tracingX,
-//        mydraw(tracingX_3_1, i/n, [1,0,0]);
-//        mydraw(tracingX_3_2, i/n, [0,1,0]);
-//       mydraw(tracingX_3_3, i/n, [0,0,1]);
-//      mydraw(tracingX_3_4, i/n, [1,0,1]);
-//mydrawcost(tracingX_8, tracingX_8, i/n, [1,0,0]);
-//mydrawcost(-tracingX_7, tracingX_7, i/n, [0,1,0]);
-//draw((tracingX_3_1_1/tracingX_3_1_3, tracingX_3_1_2/tracingX_3_1_3));
-//draw((tracingX_3_2_1/tracingX_3_2_3, tracingX_3_2_2/tracingX_3_2_3));
-//draw((tracingX_3_3_1/tracingX_3_2_3, tracingX_3_3_2/tracingX_3_3_3));
-//draw((tracingX_3_4_1/tracingX_3_4_3, tracingX_3_4_2/tracingX_3_4_3));
-Cold.xy=[-scale*tracingX_7, -scale*tracingX_7];
-Cnew.xy=[scale*tracingX_8, scale*tracingX_8];
-if(tracingX_6 >0.001,CCost.xy=[0, scale*3*tracingX_6],);
-      )
-    )
-  );
-  i = i + 1;
-)
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas1" style="width:500px; height:500px; border:2px solid black"></div>
-  <div id="CSCanvas2" style="width:500px; height:500px; border:2px solid black"></div>
-  <p>
-    <button onclick="location.href=cdy1.formatTraceLog(false)">View log</button>
-    <button onclick="location.href=cdy1.formatTraceLog(true)">Save log</button>
-    <span id="tracingStateReport"></span>
-  </p>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas1" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <div id="CSCanvas2" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>
+            <button onclick="location.href=cdy1.formatTraceLog(false)">View log</button>
+            <button onclick="location.href=cdy1.formatTraceLog(true)">Save log</button>
+            <span id="tracingStateReport"></span>
+        </p>
+    </body>
 </html>

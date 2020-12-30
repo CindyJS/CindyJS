@@ -1,43 +1,36 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", snap: true, grid: 1 }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A1", type: "Free", pos: [0, 5], color: [1, 0, 0], labeled: true },
+                    { name: "A2", type: "Free", pos: [0, 3], color: [1, 0, 0], labeled: true },
+                    { name: "A3", type: "Free", pos: [0, 0], color: [1, 0, 0], labeled: true },
+                    { name: "B1", type: "Free", pos: [3, 5], color: [0, 1, 0], labeled: true },
+                    { name: "B2", type: "Free", pos: [3, 3], color: [0, 1, 0], labeled: true },
+                    { name: "B3", type: "Free", pos: [3, 0], color: [0, 1, 0], labeled: true },
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript">
+                    { name: "AA", type: "Free", pos: [-6, 1] },
+                    { name: "BB", type: "Free", pos: [0, -4] },
+                    { name: "CC", type: "Free", pos: [-2, -4] },
+                    { name: "Arc", type: "ArcBy3", args: ["AA", "BB", "CC"], color: [0, 0.75, 0], size: 2 },
 
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", snap: true, grid: 1}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A1", type:"Free", pos:[0,5], color:[1,0,0], labeled:true},
-    {name:"A2", type:"Free", pos:[0,3], color:[1,0,0], labeled:true},
-    {name:"A3", type:"Free", pos:[0,0], color:[1,0,0], labeled:true},
-    {name:"B1", type:"Free", pos:[3,5], color:[0,1,0], labeled:true},
-    {name:"B2", type:"Free", pos:[3,3], color:[0,1,0], labeled:true},
-    {name:"B3", type:"Free", pos:[3,0], color:[0,1,0], labeled:true},
+                    { name: "Tr0", type: "TrMoebius", args: ["A1", "B1", "A2", "B2", "A3", "B3"] },
+                    { name: "ArcTr", type: "TrMoebiusArc", args: ["Tr0", "Arc"], color: [0, 0, 1], size: 2 },
+                ],
+            });
+        </script>
+    </head>
 
-    {name:"AA", type:"Free", pos:[-6,1]},
-    {name:"BB", type:"Free", pos:[0,-4]},
-    {name:"CC", type:"Free", pos:[-2,-4]},
-    {name:"Arc", type:"ArcBy3", args:["AA", "BB", "CC"], color:[0,0.75,0], size:2},
-	
-
-    {name:"Tr0", type:"TrMoebius", args:["A1","B1","A2","B2","A3","B3"]},
-    {name:"ArcTr", type:"TrMoebiusArc", args:["Tr0","Arc"], color:[0, 0, 1], size:2},
-
-  ]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

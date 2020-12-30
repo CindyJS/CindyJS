@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="utf-8">
-      <title>Cindy JS</title>
-      <script type="text/javascript" src="../build/js/Cindy.js"></script>
-      <link rel="stylesheet" href="../css/cindy.css">
-   </head>
-   <body style="font-family:Arial;">
-      <h1>CindyJS: imagergba4</h1>
-			<script id='csinit' type='text/x-cindyscript'>
-				interpolate = true; repeat = false;
-			</script>
-      <script id='csmove' type='text/x-cindyscript'>
-         drawimage(A, B, "pixels");
-         col = imagergba(A, B, "pixels", C, interpolate->interpolate, repeat->repeat);
-         C.color = (col_1, col_2, col_3);
-         C.alpha = .5*col_4+.5;
-      </script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
+    <body style="font-family: Arial">
+        <h1>CindyJS: imagergba4</h1>
+        <script id="csinit" type="text/x-cindyscript">
+            interpolate = true; repeat = false;
+        </script>
+        <script id="csmove" type="text/x-cindyscript">
+            drawimage(A, B, "pixels");
+            col = imagergba(A, B, "pixels", C, interpolate->interpolate, repeat->repeat);
+            C.color = (col_1, col_2, col_3);
+            C.alpha = .5*col_4+.5;
+        </script>
 
-      <script type="text/javascript">
-         var gslp=[{name:"A", kind:"P", type:"Free", pos:[-8,-8,1]},
-                   {name:"B", kind:"P", type:"Free", pos:[8,-8,1]},
-                   {name:"C", kind:"P", type:"Free", pos:[0,3,1],size:10}];
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-8, -8, 1] },
+                { name: "B", kind: "P", type: "Free", pos: [8, -8, 1] },
+                { name: "C", kind: "P", type: "Free", pos: [0, 3, 1], size: 10 },
+            ];
 
-         cdy = CindyJS({canvasname:"CSCanvas",
-                     scripts: 'cs*',
-                     geometry:gslp,
-                     images: {pixels:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AYECQkMDRcfOAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAWSURBVAjXY2BgYAg6+Zjh/////xkYACNZBfuVdNqYAAAAAElFTkSuQmCC"}
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                images: {
+                    pixels:
+                        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AYECQkMDRcfOAAAABl0RVh0Q29tbWVudABDcmVhdGVkIHdpdGggR0lNUFeBDhcAAAAWSURBVAjXY2BgYAg6+Zjh/////xkYACNZBfuVdNqYAAAAAElFTkSuQmCC",
+                },
             });
-      </script>
-			<div id="CSCanvas" style="width:500px; height:500px;"></div>
-		  <p>
-		    <input onclick="cdy.evokeCS('interpolate = ' + this.checked);" checked type="checkbox" >interpolate bilinear&nbsp;&nbsp;&nbsp;
-		    <input onclick="cdy.evokeCS('repeat = ' + this.checked);" type="checkbox" >repeat
-		  </p>
-   </body>
+        </script>
+        <div id="CSCanvas" style="width: 500px; height: 500px"></div>
+        <p>
+            <input onclick="cdy.evokeCS('interpolate = ' + this.checked);" checked type="checkbox" />interpolate
+            bilinear&nbsp;&nbsp;&nbsp;
+            <input onclick="cdy.evokeCS('repeat = ' + this.checked);" type="checkbox" />repeat
+        </p>
+    </body>
 </html>

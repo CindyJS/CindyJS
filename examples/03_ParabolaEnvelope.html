@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-            <link rel="stylesheet" href="../css/cindy.css">
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Envelope</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
 
 
             l1=cross(A.xy,D.xy);
@@ -32,33 +26,24 @@
                   p2=point(C*l+B*(1-l));
                   draw(cross(p1,p2),alpha->0.2,color->(0,0,0));
                 );
+        </script>
 
-
-
-            </script>
-
-
-
-        <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 600px; height: 600px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
-                      {name:"B", kind:"P", type:"Free", pos:[0,9,1]},
-                      {name:"C", kind:"P", type:"Free", pos:[2,1,1]},
-                      {name:"D", kind:"P", type:"Free", pos:[-2,7,1]},
-                      ];
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [7, 1, 1] },
+                { name: "B", kind: "P", type: "Free", pos: [0, 9, 1] },
+                { name: "C", kind: "P", type: "Free", pos: [2, 1, 1] },
+                { name: "D", kind: "P", type: "Free", pos: [-2, 7, 1] },
+            ];
 
-            CindyJS({canvasname:"CSCanvas",
-                        defaultAppearance: {pointColor: [1,1,1]},
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-	</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                defaultAppearance: { pointColor: [1, 1, 1] },
+                movescript: "csmove",
+                geometry: gslp,
+            });
+        </script>
+    </body>
 </html>

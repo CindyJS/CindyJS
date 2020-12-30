@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    </head>
 
-<head>
-  <meta charset="utf-8">
-  <title>Cindy JS</title>
-  <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-  <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-</head>
+    <body>
+        <h1>CindyJS: Two instances with CindyGL</h1>
 
-<body>
-  <h1>CindyJS: Two instances with CindyGL</h1>
+        <div id="instance1" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
+        <div id="instance2" style="width: 600px; height: 300px; border: 2px solid #000000"></div>
 
-  <div id="instance1" style="width:500px; height:500px; border:2px solid #000000"></div>
-  <div id="instance2" style="width:600px; height:300px; border:2px solid #000000"></div>
+        <script type="text/javascript">
+            var cdy1 = CindyJS({
+                scripts: {
+                    draw: "colorplot(if(|#|<1,[1,0,0,1],[0,0,0,0]));",
+                },
+                ports: [
+                    {
+                        id: "instance1",
+                        transform: [
+                            {
+                                visibleRect: [-1, -1, 1, 1],
+                            },
+                        ],
+                    },
+                ],
+            });
 
-  <script type="text/javascript">
-    var cdy1 = CindyJS({
-      scripts: {
-        draw: "colorplot(if(|#|<1,[1,0,0,1],[0,0,0,0]));"
-      },
-      ports: [{
-        id: "instance1",
-        transform: [{
-          visibleRect: [-1, -1, 1, 1]
-        }]
-      }]
-    });
-
-    var cdy2 = CindyJS({
-      scripts: {
-        draw: "colorplot(if(|#|<1,[1,0,0,1],if(|#-[2,0]|<1,[0,0,1,1],[0,0,0,0])));"
-      },
-      ports: [{
-        id: "instance2",
-        transform: [{
-          visibleRect: [-1, -1, 3, 1]
-        }]
-      }]
-    });
-  </script>
-  In the second application two circles should be visible.
-</body>
-
+            var cdy2 = CindyJS({
+                scripts: {
+                    draw: "colorplot(if(|#|<1,[1,0,0,1],if(|#-[2,0]|<1,[0,0,1,1],[0,0,0,0])));",
+                },
+                ports: [
+                    {
+                        id: "instance2",
+                        transform: [
+                            {
+                                visibleRect: [-1, -1, 3, 1],
+                            },
+                        ],
+                    },
+                ],
+            });
+        </script>
+        In the second application two circles should be visible.
+    </body>
 </html>

@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var fs = require("fs");
 var path = require("path");
@@ -48,23 +48,23 @@ var handlers = {
     "exposed.js.map": false,
     "ifs.js": true,
     "ifs.js.map": true,
-    "images": true,
-    "katex": true,
+    images: true,
+    katex: true,
     "katex-plugin.js": true,
-    "midi": true,
+    midi: true,
     "midi-plugin.js": true,
     "ours.js": false,
     "ours.js.map": false,
     "pako.min.js": true,
-    "quickhull3d": true,
-    "soundfonts": true,
+    quickhull3d: true,
+    soundfonts: true,
     "symbolic.js": true,
     "webfont.js": true,
 };
 
 var exitStatus = 0;
 
-process.once('beforeExit', function() {
+process.once("beforeExit", function () {
     process.exit(exitStatus);
 });
 
@@ -75,22 +75,21 @@ function check(err) {
     }
 }
 
-child_process.execFile("git", ["rev-parse", "HEAD"], function(err, stdout, stderr) {
+child_process.execFile("git", ["rev-parse", "HEAD"], function (err, stdout, stderr) {
     if (err) {
         console.log(stdout);
         console.error(stderr);
         throw err;
     }
     var match = /^([0-9a-f]{40})\r?\n?$/.exec(stdout);
-    if (!match)
-        throw Error("Not a valid commit id: " + stdout);
+    if (!match) throw Error("Not a valid commit id: " + stdout);
     head = match[1];
     fs.readdir(inDir, lsDir);
 });
 
 function lsDir(err, files) {
     if (err) throw err;
-    files.forEach(function(filename) {
+    files.forEach(function (filename) {
         var inFile = path.join(inDir, filename);
         var handler = handlers[filename];
         if (handler === undefined) {
@@ -98,8 +97,7 @@ function lsDir(err, files) {
             exitStatus = 2;
             return;
         }
-        if (handler === false)
-            return;
+        if (handler === false) return;
         if (handler === true) {
             fs.stat(inFile, copy.bind(null, inFile, path.join(outDir, filename)));
             return;
@@ -127,22 +125,27 @@ function map(name, err, content) {
     }
     var root = map.sourceRoot || ".";
     map.sourceRoot = "https://raw.githubusercontent.com/CindyJS/CindyJS/" + head + "/";
-    map.sources = map.sources.map(function(src) {
+    map.sources = map.sources.map(function (src) {
         if (/^ \[synthetic:.*\] $/.test(src)) return src;
         if (/^lib|node_modules/.test(src)) return src;
         return ppath.normalize(ppath.join("build/js", root, src));
     });
-    map.sourcesContent = map.sources.map(function(src) {
+    map.sourcesContent = map.sources.map(function (src) {
         if (!/^build/.test(src)) return null;
         return fs.readFileSync(src, "utf-8");
     });
     var keys = Object.keys(map);
-    keys.sort(function(a, b) {
-        return (mapKeys.indexOf(b) - mapKeys.indexOf(a)) || (a > b ? 1 : a < b ? -1 : 0);
+    keys.sort(function (a, b) {
+        return mapKeys.indexOf(b) - mapKeys.indexOf(a) || (a > b ? 1 : a < b ? -1 : 0);
     });
-    content = "{" + keys.map(function(key) {
-        return JSON.stringify(key) + ":" + JSON.stringify(map[key]);
-    }).join(",\n ") + "}\n";
+    content =
+        "{" +
+        keys
+            .map(function (key) {
+                return JSON.stringify(key) + ":" + JSON.stringify(map[key]);
+            })
+            .join(",\n ") +
+        "}\n";
     fs.writeFile(path.join(outDir, name), content, check);
 }
 
@@ -156,19 +159,20 @@ function copy(inPath, outPath, err, stats) {
 }
 
 function copyDir(inPath, outPath) {
-    var created = false, filesList = null;
-    fs.mkdir(outPath, function(err) {
+    var created = false,
+        filesList = null;
+    fs.mkdir(outPath, function (err) {
         if (err) throw err;
         created = true;
         if (filesList) next();
     });
-    fs.readdir(inPath, function(err, files) {
+    fs.readdir(inPath, function (err, files) {
         if (err) throw err;
         filesList = files;
         if (created) next();
     });
     function next() {
-        filesList.forEach(function(filename) {
+        filesList.forEach(function (filename) {
             var inFile = path.join(inPath, filename);
             var outFile = path.join(outPath, filename);
             fs.stat(inFile, copy.bind(null, inFile, outFile));

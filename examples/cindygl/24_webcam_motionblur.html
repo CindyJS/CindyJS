@@ -1,46 +1,40 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Webcam in Cindy JS</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            video = camera video();
+            createimage("motionblur", 800, 600);
+            colorplot("motionblur", 0);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (image ready(video),
+              //draw image (A, B, video);
+              f = 0.05;
+              colorplot("motionblur", f*imagergb(video, #)+(1-f)*imagergb("motionblur", #));
+            );
 
-<head>
-<title>Webcam in Cindy JS</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-video = camera video();
-createimage("motionblur", 800, 600);
-colorplot("motionblur", 0);
+            drawimage(A, B, "motionblur");
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, 20, 15] }] }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0], visible: false },
+                    { name: "B", type: "Free", pos: [20, 0], visible: false },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
 
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-if (image ready(video),
-  //draw image (A, B, video);
-  f = 0.05;
-  colorplot("motionblur", f*imagergb(video, #)+(1-f)*imagergb("motionblur", #));
-);
-
-drawimage(A, B, "motionblur");
-
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform:[{visibleRect:[0,0,20,15]}]}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-  },
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0], visible:false},
-    {name:"B", type:"Free", pos:[20,0], visible:false}
-  ],
-  use: ["CindyGL"]
-});
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:800px; height:600px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 800px; height: 600px; border: 2px solid black"></div>
+    </body>
 </html>

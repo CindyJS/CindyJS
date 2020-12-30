@@ -1,76 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <style type="text/css">
-    * {
-      border: 0;
-      margin: 0;
-      padding: 0;
-    }
-</style>
-  </head>
-    
-	<body style="font-family:Arial;">
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-      
-    </script>
-    
-    <script id="csdraw" type="text/x-cindyscript">
-      M =complex(mouse());
-      
-      
-      
-colorplot(
- z = complex(#);
- t = 0;
- repeat(100,
-   if(|z|<2, 
-    z = z*z+complex(C);
-    t = t+1;
-   );
- );
- t * (0.01,0.02,0.03) //enlight
-);
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <style type="text/css">
+            * {
+                border: 0;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+                  M =complex(mouse());
 
 
-tp(a) := (re(a), im(a));
-    repeat(30,i,
-        draw(tp(M),tp(M*M+complex(C)), color->[1,0,0], alpha->.6-.6*i/30);
-        draw(tp(M), alpha->1-i/30);
-        M = M*M+complex(C);
-      );
-      
-      drawcircle((0,0), 2, color->(0,1,0));
-</script>
-    
 
-    
+            colorplot(
+             z = complex(#);
+             t = 0;
+             repeat(100,
+               if(|z|<2,
+                z = z*z+complex(C);
+                t = t+1;
+               );
+             );
+             t * (0.01,0.02,0.03) //enlight
+            );
 
 
-    <div  id="CSCanvas"></div>
-    <script type="text/javascript">
-        
-        var gslp=[];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:[
-                      {name:"C", type:"Free", pos:[-0.79, -0.184], color:[1,0,0], pinned:false, size:6}
-                    ]
-                    ,
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+            tp(a) := (re(a), im(a));
+                repeat(30,i,
+                    draw(tp(M),tp(M*M+complex(C)), color->[1,0,0], alpha->.6-.6*i/30);
+                    draw(tp(M), alpha->1-i/30);
+                    M = M*M+complex(C);
+                  );
+
+                  drawcircle((0,0), 2, color->(0,1,0));
+        </script>
+
+        <div id="CSCanvas"></div>
+        <script type="text/javascript">
+            var gslp = [];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [{ name: "C", type: "Free", pos: [-0.79, -0.184], color: [1, 0, 0], pinned: false, size: 6 }],
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

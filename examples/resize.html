@@ -1,48 +1,63 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Responsive widget resizing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <style type="text/css">
+            html,
+            body {
+                margin: 0px;
+                padding: 0px;
+                width: 100%;
+                height: 100%;
+            }
+            #CSCanvas {
+                box-sizing: border-box;
+                border: 2px solid #f0f;
+            }
+            #container {
+                box-sizing: border-box;
+                border: 2px solid #090;
+            }
+        </style>
+    </head>
 
-<head>
-<title>Responsive widget resizing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<style type="text/css">
-  html,body { margin: 0px; padding: 0px; width: 100%; height: 100%; }
-  #CSCanvas { box-sizing: border-box; border: 2px solid #f0f; }
-  #container { box-sizing: border-box; border: 2px solid #090; }
-</style>
-</head>
+    <body>
+        <div id="container" style="width: 500px; height: 500px">
+            <div id="CSCanvas" style="width: 100%; height: 100%"></div>
+        </div>
+        <p>Click on page background to resize the above container</p>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        transform: [{ visibleRect: [-1, 1, 1, -1] }],
+                    },
+                ],
+                scripts: "cs*",
+                language: "en",
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0] },
+                    { name: "B", type: "Free", pos: [0.7071, 0.7071] },
+                    { name: "C", type: "CircleMP", args: ["A", "B"] },
+                ],
+            });
 
-<body>
-  <div id="container" style="width:500px; height: 500px">
-    <div id="CSCanvas" style="width:100%; height:100%"></div>
-  </div>
-  <p>Click on page background to resize the above container</p>
-  <script type="text/javascript">
-
-var cdy = CindyJS({
-  ports: [{
-    id: "CSCanvas",
-    transform:[{visibleRect:[-1,1,1,-1]}]
-  }],
-  scripts: "cs*",
-  language: "en",
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0]},
-    {name:"B", type:"Free", pos:[0.7071,0.7071]},
-    {name:"C", type:"CircleMP", args:["A","B"]}
-  ]
-});
-
-var container = document.getElementById("container");
-var w = 500, h = 500;
-document.body.addEventListener("click", function(evnt) {
-  if (evnt.clientX > w || evnt.clientY > h) {
-    container.style.width = (w = evnt.clientX) + "px";
-    container.style.height = (h = evnt.clientY) + "px";
-  }
-}, false);
-
-  </script>
-</body>
-
+            var container = document.getElementById("container");
+            var w = 500,
+                h = 500;
+            document.body.addEventListener(
+                "click",
+                function (evnt) {
+                    if (evnt.clientX > w || evnt.clientY > h) {
+                        container.style.width = (w = evnt.clientX) + "px";
+                        container.style.height = (h = evnt.clientY) + "px";
+                    }
+                },
+                false
+            );
+        </script>
+    </body>
 </html>

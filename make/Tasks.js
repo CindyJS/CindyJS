@@ -12,7 +12,6 @@ var BuildError = require("./BuildError");
 var Task = require("./Task");
 
 module.exports = function Tasks(settings) {
-
     var self = this;
 
     var tasks = {};
@@ -21,11 +20,9 @@ module.exports = function Tasks(settings) {
      * task, without executing it yet. It should call the addJob method
      * and may also call input and output methods.
      */
-    this.task = function(name, deps, definition) {
-        if (["function", "undefined"].indexOf(typeof definition) === -1)
-            throw Error("Invalid arguments for " + name);
-        if (tasks.hasOwnProperty(name))
-            throw Error("Dulicate name " + name);
+    this.task = function (name, deps, definition) {
+        if (["function", "undefined"].indexOf(typeof definition) === -1) throw Error("Invalid arguments for " + name);
+        if (tasks.hasOwnProperty(name)) throw Error("Dulicate name " + name);
         var res = new Task(settings, self, name, deps, definition);
         tasks[name] = res;
         return res;
@@ -33,12 +30,11 @@ module.exports = function Tasks(settings) {
 
     /* Called when all tasks have been defined.
      */
-    this.complete = function() {
+    this.complete = function () {
         for (name in tasks) {
             if (tasks.hasOwnProperty(name)) {
                 var current = tasks[name];
-                if (current.definition)
-                    current.definition();
+                if (current.definition) current.definition();
             }
         }
         if (settings.get("logprefix") === "true") {
@@ -47,16 +43,14 @@ module.exports = function Tasks(settings) {
             for (name in tasks) {
                 if (tasks.hasOwnProperty(name)) {
                     name = tasks[name].abbr || name;
-                    if (len < name.length)
-                        len = name.length;
+                    if (len < name.length) len = name.length;
                 }
             }
             for (name in tasks) {
                 if (tasks.hasOwnProperty(name)) {
                     var task = tasks[name];
                     name = task.abbr || name;
-                    while (name.length < len)
-                        name += " ";
+                    while (name.length < len) name += " ";
                     task.prefix = chalk.blue("[" + name + "]") + " ";
                 }
             }
@@ -65,13 +59,12 @@ module.exports = function Tasks(settings) {
 
     /* Retrieve a task by name. Thows an error if no match is found.
      */
-    this.get = function(name) {
-        if(tasks.hasOwnProperty(name))
-            return tasks[name];
+    this.get = function (name) {
+        if (tasks.hasOwnProperty(name)) return tasks[name];
         var names = Object.keys(tasks);
         names.sort();
         console.log("Valid task names:");
-        names.forEach(function(name) {
+        names.forEach(function (name) {
             console.log("- " + name);
         });
         throw new BuildError("No task named " + name);
@@ -81,26 +74,24 @@ module.exports = function Tasks(settings) {
      * depending on the “parallel” setting.
      * Returns an array of booleans indicating which tasks got run.
      */
-    this.schedule = function(taskNames) {
+    this.schedule = function (taskNames) {
         if (settings.get("parallel") === "true") {
-            return Q.all(taskNames.map(function(name){
-                return this.get(name).promise();
-            }, this));
-        }
-        else {
+            return Q.all(
+                taskNames.map(function (name) {
+                    return this.get(name).promise();
+                }, this)
+            );
+        } else {
             var results = [];
             var promise = Q(results);
-            taskNames.forEach(function(name) {
+            taskNames.forEach(function (name) {
                 var task = this.get(name);
-                promise = promise
-                    .then(task.promise.bind(task))
-                    .then(function(result) {
-                        results.push(result);
-                        return results;
-                    });
+                promise = promise.then(task.promise.bind(task)).then(function (result) {
+                    results.push(result);
+                    return results;
+                });
             }, this);
             return promise;
         }
     };
-
 };

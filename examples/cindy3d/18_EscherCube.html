@@ -1,103 +1,173 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Escher's impossible cube</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("Cindy3D");
+            initCam = true;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            Cam = [-5, 5, -20];
+            interp(a, c, d) := (v = Cam - a; a + (d.x - c.x) / |v| * v);
+            PPP = interp([1, 1, 1], C1, D1);
+            PPM = interp([1, 1, -1], C2, D2);
+            PMM = interp([1, -1, -1], C3, D3);
+            PMP = interp([1, -1, 1], C4, D4);
+            MMP = interp([-1, -1, 1], C5, D5);
+            MMM = interp([-1, -1, -1], C6, D6);
+            MPM = interp([-1, 1, -1], C7, D7);
+            MPP = interp([-1, 1, 1], C8, D8);
+            vs = [PPP, PPM, PMM, PMP, MMP, MMM, MPM, MPP];
 
-<head>
-<title>Escher's impossible cube</title>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="../../build/js/CindyJS.css">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/Cindy3D.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-  use("Cindy3D");
-  initCam = true;
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-Cam = [-5, 5, -20];
-interp(a, c, d) := (v = Cam - a; a + (d.x - c.x) / |v| * v);
-PPP = interp([1, 1, 1], C1, D1);
-PPM = interp([1, 1, -1], C2, D2);
-PMM = interp([1, -1, -1], C3, D3);
-PMP = interp([1, -1, 1], C4, D4);
-MMP = interp([-1, -1, 1], C5, D5);
-MMM = interp([-1, -1, -1], C6, D6);
-MPM = interp([-1, 1, -1], C7, D7);
-MPP = interp([-1, 1, 1], C8, D8);
-vs = [PPP, PPM, PMM, PMP, MMP, MMM, MPM, MPP];
+            begin3d(supersample->2);
+            if (initCam,
+              background3d([0,0,0]);
+              shininess3d(50);
+              lookat3d(Cam, [0, 0, 0], [-1, 100, 0]);
+              fieldofview3d(8°);
+              ambientlight3d(0.3*[1,1,1]);
+            directionallight3d(0, direction->[-2,-1,2],
+                diffuse->0.7*[1,1,1], specular->0.3*[1,1,1]);
+              initCam = false);
+            //forall(vs, draw3d(#, color->[1,0,0], size->5));
+            forall(cycle(vs) ++ [[PPP, PMP], [PPM, MPM], [PMM, MMM], [MMP, MPP]],
+              draw3d(#_1, #_2, color->[0,0.5,1], size->3));
+            end3d();
+        </script>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 632,
+                        height: 200,
+                        transform: [{ visibleRect: [-11, 9, 11, 3] }],
+                    },
+                ],
+                geometry: [
+                    { name: "A1", type: "Free", pos: [-8, 8], visible: false },
+                    { name: "B1", type: "Free", pos: [0, 8], visible: false },
+                    { name: "s1", type: "Segment", args: ["A1", "B1"] },
+                    {
+                        name: "C1",
+                        type: "PointOnSegment",
+                        args: ["s1"],
+                        pos: [-4, 8],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D1", type: "PointOnSegment", args: ["s1"], pos: [-4, 8] },
+                    { name: "A2", type: "Free", pos: [-9, 7], visible: false },
+                    { name: "B2", type: "Free", pos: [-1, 7], visible: false },
+                    { name: "s2", type: "Segment", args: ["A2", "B2"] },
+                    {
+                        name: "C2",
+                        type: "PointOnSegment",
+                        args: ["s2"],
+                        pos: [-5, 7],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D2", type: "PointOnSegment", args: ["s2"], pos: [-5, 7] },
+                    { name: "A3", type: "Free", pos: [-9, 4], visible: false },
+                    { name: "B3", type: "Free", pos: [-1, 4], visible: false },
+                    { name: "s3", type: "Segment", args: ["A3", "B3"] },
+                    {
+                        name: "C3",
+                        type: "PointOnSegment",
+                        args: ["s3"],
+                        pos: [-5, 4],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D3", type: "PointOnSegment", args: ["s3"], pos: [-6, 4] },
+                    { name: "A4", type: "Free", pos: [-8, 5], visible: false },
+                    { name: "B4", type: "Free", pos: [0, 5], visible: false },
+                    { name: "s4", type: "Segment", args: ["A4", "B4"] },
+                    {
+                        name: "C4",
+                        type: "PointOnSegment",
+                        args: ["s4"],
+                        pos: [-4, 5],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D4", type: "PointOnSegment", args: ["s4"], pos: [-2, 5] },
+                    { name: "A5", type: "Free", pos: [2, 5], visible: false },
+                    { name: "B5", type: "Free", pos: [10, 5], visible: false },
+                    { name: "s5", type: "Segment", args: ["A5", "B5"] },
+                    {
+                        name: "C5",
+                        type: "PointOnSegment",
+                        args: ["s5"],
+                        pos: [6, 5],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D5", type: "PointOnSegment", args: ["s5"], pos: [8, 5] },
+                    { name: "A6", type: "Free", pos: [1, 4], visible: false },
+                    { name: "B6", type: "Free", pos: [9, 4], visible: false },
+                    { name: "s6", type: "Segment", args: ["A6", "B6"] },
+                    {
+                        name: "C6",
+                        type: "PointOnSegment",
+                        args: ["s6"],
+                        pos: [5, 4],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D6", type: "PointOnSegment", args: ["s6"], pos: [4, 4] },
+                    { name: "A7", type: "Free", pos: [1, 7], visible: false },
+                    { name: "B7", type: "Free", pos: [9, 7], visible: false },
+                    { name: "s7", type: "Segment", args: ["A7", "B7"] },
+                    {
+                        name: "C7",
+                        type: "PointOnSegment",
+                        args: ["s7"],
+                        pos: [5, 7],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D7", type: "PointOnSegment", args: ["s7"], pos: [5, 7] },
+                    { name: "A8", type: "Free", pos: [2, 8], visible: false },
+                    { name: "B8", type: "Free", pos: [10, 8], visible: false },
+                    { name: "s8", type: "Segment", args: ["A8", "B8"] },
+                    {
+                        name: "C8",
+                        type: "PointOnSegment",
+                        args: ["s8"],
+                        pos: [6, 8],
+                        pinned: true,
+                        size: 2,
+                        color: [0, 0, 1],
+                    },
+                    { name: "D8", type: "PointOnSegment", args: ["s8"], pos: [6, 8] },
+                    {
+                        name: "B",
+                        type: "Button",
+                        text: "Repos",
+                        dock: { corner: "UL", offset: [10, -30] },
+                        script: "initCam=true",
+                    },
+                ],
+            });
+        </script>
+    </head>
 
-begin3d(supersample->2);
-if (initCam,
-  background3d([0,0,0]);
-  shininess3d(50);
-  lookat3d(Cam, [0, 0, 0], [-1, 100, 0]);
-  fieldofview3d(8°);
-  ambientlight3d(0.3*[1,1,1]);
-directionallight3d(0, direction->[-2,-1,2],
-    diffuse->0.7*[1,1,1], specular->0.3*[1,1,1]);
-  initCam = false);
-//forall(vs, draw3d(#, color->[1,0,0], size->5));
-forall(cycle(vs) ++ [[PPP, PMP], [PPM, MPM], [PMM, MMM], [MMP, MPP]],
-  draw3d(#_1, #_2, color->[0,0.5,1], size->3));
-end3d();
-</script>
-<script type="text/javascript">
-  CindyJS({
-    scripts:"cs*",
-    ports: [{
-      id: "CSCanvas",
-      width: 632,
-      height: 200,
-      transform:[{visibleRect:[-11,9,11,3]}],
-    }],
-    geometry: [
-      {name:"A1",type:"Free",pos:[-8,8],visible:false},
-      {name:"B1",type:"Free",pos:[0,8],visible:false},
-      {name:"s1",type:"Segment",args:["A1","B1"]},
-      {name:"C1",type:"PointOnSegment",args:["s1"],pos:[-4,8],pinned:true,size:2,color:[0,0,1]},
-      {name:"D1",type:"PointOnSegment",args:["s1"],pos:[-4,8]},
-      {name:"A2",type:"Free",pos:[-9,7],visible:false},
-      {name:"B2",type:"Free",pos:[-1,7],visible:false},
-      {name:"s2",type:"Segment",args:["A2","B2"]},
-      {name:"C2",type:"PointOnSegment",args:["s2"],pos:[-5,7],pinned:true,size:2,color:[0,0,1]},
-      {name:"D2",type:"PointOnSegment",args:["s2"],pos:[-5,7]},
-      {name:"A3",type:"Free",pos:[-9,4],visible:false},
-      {name:"B3",type:"Free",pos:[-1,4],visible:false},
-      {name:"s3",type:"Segment",args:["A3","B3"]},
-      {name:"C3",type:"PointOnSegment",args:["s3"],pos:[-5,4],pinned:true,size:2,color:[0,0,1]},
-      {name:"D3",type:"PointOnSegment",args:["s3"],pos:[-6,4]},
-      {name:"A4",type:"Free",pos:[-8,5],visible:false},
-      {name:"B4",type:"Free",pos:[0,5],visible:false},
-      {name:"s4",type:"Segment",args:["A4","B4"]},
-      {name:"C4",type:"PointOnSegment",args:["s4"],pos:[-4,5],pinned:true,size:2,color:[0,0,1]},
-      {name:"D4",type:"PointOnSegment",args:["s4"],pos:[-2,5]},
-      {name:"A5",type:"Free",pos:[2,5],visible:false},
-      {name:"B5",type:"Free",pos:[10,5],visible:false},
-      {name:"s5",type:"Segment",args:["A5","B5"]},
-      {name:"C5",type:"PointOnSegment",args:["s5"],pos:[6,5],pinned:true,size:2,color:[0,0,1]},
-      {name:"D5",type:"PointOnSegment",args:["s5"],pos:[8,5]},
-      {name:"A6",type:"Free",pos:[1,4],visible:false},
-      {name:"B6",type:"Free",pos:[9,4],visible:false},
-      {name:"s6",type:"Segment",args:["A6","B6"]},
-      {name:"C6",type:"PointOnSegment",args:["s6"],pos:[5,4],pinned:true,size:2,color:[0,0,1]},
-      {name:"D6",type:"PointOnSegment",args:["s6"],pos:[4,4]},
-      {name:"A7",type:"Free",pos:[1,7],visible:false},
-      {name:"B7",type:"Free",pos:[9,7],visible:false},
-      {name:"s7",type:"Segment",args:["A7","B7"]},
-      {name:"C7",type:"PointOnSegment",args:["s7"],pos:[5,7],pinned:true,size:2,color:[0,0,1]},
-      {name:"D7",type:"PointOnSegment",args:["s7"],pos:[5,7]},
-      {name:"A8",type:"Free",pos:[2,8],visible:false},
-      {name:"B8",type:"Free",pos:[10,8],visible:false},
-      {name:"s8",type:"Segment",args:["A8","B8"]},
-      {name:"C8",type:"PointOnSegment",args:["s8"],pos:[6,8],pinned:true,size:2,color:[0,0,1]},
-      {name:"D8",type:"PointOnSegment",args:["s8"],pos:[6,8]},
-      {name:"B",type:"Button",text:"Repos",dock:{corner:"UL", offset:[10,-30]},script:"initCam=true"},
-    ],
-  });
-</script>
-</head>
-
-<body>
-  <canvas id="Cindy3D" style="border: none;" width="632" height="452"></canvas>
-  <div id="CSCanvas"></div>
-</body>
-
+    <body>
+        <canvas id="Cindy3D" style="border: none" width="632" height="452"></canvas>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

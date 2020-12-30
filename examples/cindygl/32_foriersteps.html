@@ -1,131 +1,121 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            N = 256;
 
-<head>
-<title>Cindy JS Example</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-N = 256;
+            //ASUMING FLOAT TEXTURES
 
-//ASUMING FLOAT TEXTURES
-
-createimage("x", N, N);
-createimage("output", N, N);
-
-
-complex2color(c) := ( //converts a 2 component complex vector to RGBA-color
-  [re(c_1), im(c_1), re(c_2), im(c_2)]
-);
-
-readcomplex(p) := ( //reads a 2 component complex vector
-  color = imagergba((-N/2,-N/2), (N/2,-N/2), "x", p, interpolate->false, repeat->true); //circular domain
-  [(color.r + i*color.g),
-   (color.b + i*color.a)]
-);
-
-reloadimage() := (
-if (!isundefined(image) & imageready(image),
-  colorplot((0,N),(N,N),"x",
-    rgb = imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false);
-    (rgb.r, rgb.g, rgb.b, 0)
-  ),
-  colorplot((0,N),(N,N),"x",
-    c = (complex(#)-complex(B))/(complex(A)-complex(B));
-    r = complex2color(
-      if(0 < re(c) & re(c)<1 & 0 < im(c) & im(c)<1,
-        [mod((4+2*i)*c,1+i), mod((3-1*i)*c,1+i)],
-        [0,0]))
-    )
-  );
-);
-
-output() := (
-  colorplot((0,0),(N,0), "output", 
-    c = imagergba((0,0),(N,0), "x", #, interpolate->false, repeat->true);
-    [abs(c.r),abs(c.g),abs(c.b+c.a)]
-  );
-  drawimage((x,y),(x+N, y), "output");
-  x = x + N;
-);
-
-FFT():=(
-  step = N/2;
-
-  while(step>=1,
-    colorplot((-N/2,-N/2),(N/2,-N/2),"x",
-    
-      l = #; //global index
-      delta = (mod(l.x,step),mod(l.y,step)); //shift
-      k = (l-delta)/step; //local index (within recursion)
-      x00 = readcomplex(2*l - delta + (0,    0));
-      x10 = readcomplex(2*l - delta + (step, 0));
-      x01 = readcomplex(2*l - delta + (0,    step));
-      x11 = readcomplex(2*l - delta + (step, step));
-      
-      complex2color(sqrt(1/4)*(
-        x00
-        + exp((-2*pi*i/N*step)*k.x)*x10
-        + exp((-2*pi*i/N*step)*k.y)*x01
-        + exp((-2*pi*i/N*step)*(k.x+k.y))*x11)
-      )
-    );
-    
-    output();
-    
-    step = step/2;
-  );
-);
-
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-
-reloadimage();
-
-y = N;
-x = 0;
-output();
-FFT();
-
-y = 0;
-x = 0;
-output();
-FFT();
-
-</script>
-
-<script id="csondrop" type="text/x-cindyscript">
-  dropped = dropped();
-  if (!isundefined(dropped_1_1), image = dropped_1_1);
-</script>
-
-<script type="text/javascript">
-
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", transform: [{visibleRect: [0, 0,  2304, 512]}]}],
-  scripts: "cs*",
-  language: "en",
-  geometry: [
-    {name:"A", type:"Free", pos:[256,256]},
-    {name:"B", type:"Free", pos:[0,256.001]}
-  ],
-  use: ["CindyGL"]
-});
-
-</script>
+            createimage("x", N, N);
+            createimage("output", N, N);
 
 
+            complex2color(c) := ( //converts a 2 component complex vector to RGBA-color
+              [re(c_1), im(c_1), re(c_2), im(c_2)]
+            );
 
-</head>
+            readcomplex(p) := ( //reads a 2 component complex vector
+              color = imagergba((-N/2,-N/2), (N/2,-N/2), "x", p, interpolate->false, repeat->true); //circular domain
+              [(color.r + i*color.g),
+               (color.b + i*color.a)]
+            );
 
-<body style="font-family:Arial;">
-  <h1>CindyJS: 2 dimensional FFT by iterating a texture operation</h1>
-   In the first/second row you see how the texture operation is iteratively applied to the image/its Fourier transform.
-   Drag and drop an image into this area.
+            reloadimage() := (
+            if (!isundefined(image) & imageready(image),
+              colorplot((0,N),(N,N),"x",
+                rgb = imagergb((0,0),(N,0),image,(complex(#)-complex(B))/(complex(A)-complex(B))*N,repeat->false);
+                (rgb.r, rgb.g, rgb.b, 0)
+              ),
+              colorplot((0,N),(N,N),"x",
+                c = (complex(#)-complex(B))/(complex(A)-complex(B));
+                r = complex2color(
+                  if(0 < re(c) & re(c)<1 & 0 < im(c) & im(c)<1,
+                    [mod((4+2*i)*c,1+i), mod((3-1*i)*c,1+i)],
+                    [0,0]))
+                )
+              );
+            );
 
-  <div id="CSCanvas" style="width:2304px; height:512px; border:2px solid black"></div>
-</body>
+            output() := (
+              colorplot((0,0),(N,0), "output",
+                c = imagergba((0,0),(N,0), "x", #, interpolate->false, repeat->true);
+                [abs(c.r),abs(c.g),abs(c.b+c.a)]
+              );
+              drawimage((x,y),(x+N, y), "output");
+              x = x + N;
+            );
 
+            FFT():=(
+              step = N/2;
 
+              while(step>=1,
+                colorplot((-N/2,-N/2),(N/2,-N/2),"x",
+
+                  l = #; //global index
+                  delta = (mod(l.x,step),mod(l.y,step)); //shift
+                  k = (l-delta)/step; //local index (within recursion)
+                  x00 = readcomplex(2*l - delta + (0,    0));
+                  x10 = readcomplex(2*l - delta + (step, 0));
+                  x01 = readcomplex(2*l - delta + (0,    step));
+                  x11 = readcomplex(2*l - delta + (step, step));
+
+                  complex2color(sqrt(1/4)*(
+                    x00
+                    + exp((-2*pi*i/N*step)*k.x)*x10
+                    + exp((-2*pi*i/N*step)*k.y)*x01
+                    + exp((-2*pi*i/N*step)*(k.x+k.y))*x11)
+                  )
+                );
+
+                output();
+
+                step = step/2;
+              );
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+
+            reloadimage();
+
+            y = N;
+            x = 0;
+            output();
+            FFT();
+
+            y = 0;
+            x = 0;
+            output();
+            FFT();
+        </script>
+
+        <script id="csondrop" type="text/x-cindyscript">
+            dropped = dropped();
+            if (!isundefined(dropped_1_1), image = dropped_1_1);
+        </script>
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, 2304, 512] }] }],
+                scripts: "cs*",
+                language: "en",
+                geometry: [
+                    { name: "A", type: "Free", pos: [256, 256] },
+                    { name: "B", type: "Free", pos: [0, 256.001] },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: 2 dimensional FFT by iterating a texture operation</h1>
+        In the first/second row you see how the texture operation is iteratively applied to the image/its Fourier
+        transform. Drag and drop an image into this area.
+
+        <div id="CSCanvas" style="width: 2304px; height: 512px; border: 2px solid black"></div>
+    </body>
 </html>

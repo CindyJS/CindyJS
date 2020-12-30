@@ -1,135 +1,87 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-    <script type="text/javascript">
-CindyJS({
-  "scripts": "cs*",
-  "defaultAppearance": {},
-  "geometry": [
-    {
-      "name": "A",
-      "type": "Free",
-      "pos": [
-        2.145695364238411,
-        -4.0,
-        -0.6622516556291391
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "B",
-      "type": "Free",
-      "pos": [
-        -1.4545454545454546,
-        -4.0,
-        -0.6060606060606061
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C",
-      "type": "Free",
-      "pos": [
-        0.36363636363636365,
-        -4.0,
-        1.5151515151515151
-      ],
-      "color": [
-        1.0,
-        0.0,
-        0.0
-      ],
-      "labeled": true
-    },
-    {
-      "name": "C0",
-      "type": "Compass",
-      "color": [
-        0.0,
-        0.0,
-        1.0
-      ],
-      "args": [
-        "A",
-        "B",
-        "C"
-      ],
-      "size": 1,
-      "printname": "$C_{0}$"
-    },
-    {
-      "name": "a",
-      "type": "Segment",
-      "pos": [
-        0.06243032329988855,
-        -0.62876254180602,
-        4.0
-      ],
-      "color": [
-        0.0,
-        0.0,
-        1.0
-      ],
-      "args": [
-        "A",
-        "B"
-      ],
-      "labeled": true,
-      "size": 1
-    }
-  ],
-  "ports": [
-    {
-      "id": "CSCanvas",
-      "width": 789,
-      "height": 495,
-      "transform": [
-        {
-          "visibleRect": [
-            -9.04,
-            9.32,
-            22.52,
-            -10.48
-          ]
-        }
-      ],
-      "background": "rgb(168,176,192)"
-    }
-  ]
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {},
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [2.145695364238411, -4.0, -0.6622516556291391],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [-1.4545454545454546, -4.0, -0.6060606060606061],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [0.36363636363636365, -4.0, 1.5151515151515151],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C0",
+                        type: "Compass",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["A", "B", "C"],
+                        size: 1,
+                        printname: "$C_{0}$",
+                    },
+                    {
+                        name: "a",
+                        type: "Segment",
+                        pos: [0.06243032329988855, -0.62876254180602, 4.0],
+                        color: [0.0, 0.0, 1.0],
+                        args: ["A", "B"],
+                        labeled: true,
+                        size: 1,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 789,
+                        height: 495,
+                        transform: [
+                            {
+                                visibleRect: [-9.04, 9.32, 22.52, -10.48],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

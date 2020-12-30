@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-                </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Two charges</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
 
             n=20;
             linesize(2);
@@ -39,36 +35,22 @@
                           )
 
                    );
+        </script>
 
-
-            </script>
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", type: "Free", pos: [-4, -2], color: [1, 0, 0], size: 7 },
+                { name: "B", type: "Free", pos: [6, 4], color: [0, 1, 0], size: 7 },
+            ];
+            CindyJS({
+                canvasname: "CSCanvas",
+                movescript: "csmove",
+                transform: [{ scale: 0.5 }, { translate: [0, 0] }],
 
-            var gslp=[
-                      {name:"A",  type:"Free", pos:[-4,-2],color:[1,0,0],size:7},
-                      {name:"B", type:"Free", pos:[6,4],color:[0,1,0],size:7}
-                      ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        transform:[{scale:.5},{translate:[0,0]}],
-
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-
-
-
-
-
-
-	</body>
+                geometry: gslp,
+            });
+        </script>
+    </body>
 </html>

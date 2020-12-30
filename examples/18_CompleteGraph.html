@@ -1,60 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-            <link rel="stylesheet" href="../css/cindy.css">
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Complete Graph</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
-n=round(|(B.x+10)*5|);
-            f(x):=[sin(x),cos(x)]*6+A;
-            steps=2*pi*(1..n)/n;
-            pts=apply(steps,f(#));
-            segs=pairs(pts);
-            drawall(segs,alpha->1/n*5);
-			drawall(pts,size->4);
-
+        <script id="csmove" type="text/x-cindyscript">
+            n=round(|(B.x+10)*5|);
+                        f(x):=[sin(x),cos(x)]*6+A;
+                        steps=2*pi*(1..n)/n;
+                        pts=apply(steps,f(#));
+                        segs=pairs(pts);
+                        drawall(segs,alpha->1/n*5);
+            			drawall(pts,size->4);
         </script>
 
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
-
-
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [0, 0, 1] },
+                { name: "B", kind: "P", type: "Free", pos: [-9, 8, 1] },
+            ];
 
-           	var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[0,0,1]},
-                      {name:"B", kind:"P", type:"Free", pos:[-9,8,1]},
-                ];
-
-
-
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-
-
-
-
-
-	</body>
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
+        </script>
+    </body>
 </html>

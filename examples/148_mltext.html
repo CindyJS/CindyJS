@@ -1,43 +1,39 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Multi-line text</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../build/js/katex-plugin.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            drawtext((0, 0), "A1
+            A2
+            A3
+            A4
+            A5", size->20);
+        </script>
+        <script type="text/javascript">
+            for (var i = 1; i <= 2; ++i)
+                CindyJS({
+                    ports: [{ id: "CSCanvas" + i, width: 500, height: 500, axes: true }],
+                    scripts: "cs*",
+                    language: "en",
+                    defaultAppearance: {},
+                    use: i === 2 ? ["katex"] : [],
+                    geometry: [
+                        { name: "A", type: "Free", pos: [0, 0], size: 1 },
+                        { name: "B", type: "Free", pos: [0, -4.6], size: 1 },
+                        { name: "T0", type: "Text", pos: [2, 0], size: 20, text: "B1\nB2\nB3\nB4\nB5" },
+                        { name: "T1", type: "Text", pos: [4, 0], size: 20, text: "C1\n$C_2$\nC3\n$C\n_4$\nC5" },
+                        { name: "B0", type: "Button", pos: [-5, 0], size: 20, text: "D1\n$D_2$\nD3" },
+                    ],
+                });
+        </script>
+    </head>
 
-<head>
-<title>Multi-line text</title>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="../build/js/CindyJS.css">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../build/js/katex-plugin.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-drawtext((0, 0), "A1
-A2
-A3
-A4
-A5", size->20);
-</script>
-<script type="text/javascript">
-
-for(var i = 1; i <= 2; ++i)
-CindyJS({
-  ports: [{id: "CSCanvas" + i, width: 500, height: 500, axes:true}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {},
-  use: i === 2 ? ["katex"] : [],
-  geometry: [
-    {name:"A", type:"Free", pos:[0,0], size:1},
-    {name:"B", type:"Free", pos:[0,-4.6], size:1},
-    {name:"T0", type:"Text", pos:[2,0], size:20, text:"B1\nB2\nB3\nB4\nB5"},
-    {name:"T1", type:"Text", pos:[4,0], size:20, text:"C1\n$C_2$\nC3\n$C\n_4$\nC5"},
-    {name:"B0", type:"Button", pos:[-5,0], size:20, text:"D1\n$D_2$\nD3"}
-  ]
-});
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas1" style="border:2px solid black"></div>
-  <div id="CSCanvas2" style="border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas1" style="border: 2px solid black"></div>
+        <div id="CSCanvas2" style="border: 2px solid black"></div>
+    </body>
 </html>

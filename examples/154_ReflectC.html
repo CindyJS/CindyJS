@@ -1,57 +1,137 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Circle inversion</title>
-    <link rel="stylesheet" href="../build/js/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "B", type: "Free", pos: [4.0, 0.4444444444444444, 0.4444444444444444], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C", type: "Free", pos: [4.0, 4.0, 0.5], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "D", type: "Free", pos: [0.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C0", type: "CircleBy3", color: [0.098, 0.62, 0.306], args: ["B", "C", "D"], size: 2, printname: "$C_{0}$"},
-    {name: "A", type: "CenterOfConic", args: ["C0"], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "E", type: "Free", pos: [4.0, -2.742857142857143, -2.857142857142857], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "Tr0", type: "TrReflectionC", color: [0.0, 0.0, 1.0], args: ["C0"], dock: {offset: [0.0, -0.0]}},
-    {name: "F", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr0", "E"], labeled: true},
-    {name: "G", type: "Free", pos: [4.0, 2.857142857142857, 0.5714285714285714], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "H", type: "Free", pos: [4.0, 1.5, 0.5], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "a", type: "Segment", color: [0.7, 0.0, 0.7], args: ["G", "H"], labeled: true},
-    {name: "C1", type: "TrMoebiusSegment", color: [0.7, 0.0, 0.7], args: ["Tr0", "a"], printname: "$C_{1}$", labeled: true},
-    {name: "K", type: "Free", pos: [4.0, 0.6666666666666666, 0.6666666666666666], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C2", type: "CircleByRadius", pos: {xx: 0.027777777777777776, yy: 0.027777777777777776, zz: 1.0, xy: 0.0, xz: -0.3333333333333333, yz: 0.05555555555555555}, color: [0.0, 0.0, 1.0], radius: 1.0, args: ["K"], printname: "$C_{2}$"},
-    {name: "C3", type: "TrMoebiusCircle", color: [0.0, 0.0, 1.0], args: ["Tr0", "C2"], printname: "$C_{3}$"},
-    {name: "L", type: "CenterOfConic", args: ["C3"], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "b", type: "FreeLine", pos: [4.0, -1.1428571428571428, -1.2114285714285715], color: [0.5, 0.0, 0.0], labeled: true},
-    {name: "C4", type: "TrMoebiusL", color: [0.5, 0.0, 0.0], args: ["Tr0", "b"], printname: "$C_{4}$", labeled: true}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 350,
-    transform: [{visibleRect: [-9.06, 9.34, 18.14, -4.66]}],
-    axes: true,
-    grid: 1.0,
-    snap: true,
-    background: "rgb(168,176,192)"
-  }],
-  csconsole: false,
-  cinderella: {build: 1892, version: [2, 9, 1892]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Circle inversion</title>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, 0.4444444444444444, 0.4444444444444444],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "C", type: "Free", pos: [4.0, 4.0, 0.5], color: [1.0, 0.0, 0.0], labeled: true },
+                    { name: "D", type: "Free", pos: [0.0, -4.0, -1.0], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "C0",
+                        type: "CircleBy3",
+                        color: [0.098, 0.62, 0.306],
+                        args: ["B", "C", "D"],
+                        size: 2,
+                        printname: "$C_{0}$",
+                    },
+                    { name: "A", type: "CenterOfConic", args: ["C0"], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "E",
+                        type: "Free",
+                        pos: [4.0, -2.742857142857143, -2.857142857142857],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "Tr0",
+                        type: "TrReflectionC",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["C0"],
+                        dock: { offset: [0.0, -0.0] },
+                    },
+                    { name: "F", type: "TrMoebiusP", color: [1.0, 0.0, 0.0], args: ["Tr0", "E"], labeled: true },
+                    {
+                        name: "G",
+                        type: "Free",
+                        pos: [4.0, 2.857142857142857, 0.5714285714285714],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "H", type: "Free", pos: [4.0, 1.5, 0.5], color: [1.0, 0.0, 0.0], labeled: true },
+                    { name: "a", type: "Segment", color: [0.7, 0.0, 0.7], args: ["G", "H"], labeled: true },
+                    {
+                        name: "C1",
+                        type: "TrMoebiusSegment",
+                        color: [0.7, 0.0, 0.7],
+                        args: ["Tr0", "a"],
+                        printname: "$C_{1}$",
+                        labeled: true,
+                    },
+                    {
+                        name: "K",
+                        type: "Free",
+                        pos: [4.0, 0.6666666666666666, 0.6666666666666666],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C2",
+                        type: "CircleByRadius",
+                        pos: {
+                            xx: 0.027777777777777776,
+                            yy: 0.027777777777777776,
+                            zz: 1.0,
+                            xy: 0.0,
+                            xz: -0.3333333333333333,
+                            yz: 0.05555555555555555,
+                        },
+                        color: [0.0, 0.0, 1.0],
+                        radius: 1.0,
+                        args: ["K"],
+                        printname: "$C_{2}$",
+                    },
+                    {
+                        name: "C3",
+                        type: "TrMoebiusCircle",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["Tr0", "C2"],
+                        printname: "$C_{3}$",
+                    },
+                    { name: "L", type: "CenterOfConic", args: ["C3"], color: [1.0, 0.0, 0.0], labeled: true },
+                    {
+                        name: "b",
+                        type: "FreeLine",
+                        pos: [4.0, -1.1428571428571428, -1.2114285714285715],
+                        color: [0.5, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C4",
+                        type: "TrMoebiusL",
+                        color: [0.5, 0.0, 0.0],
+                        args: ["Tr0", "b"],
+                        printname: "$C_{4}$",
+                        labeled: true,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.66] }],
+                        axes: true,
+                        grid: 1.0,
+                        snap: true,
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                cinderella: { build: 1892, version: [2, 9, 1892] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

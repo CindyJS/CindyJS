@@ -1,47 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Euler-Line</h1>
 
+        <script id="csmove" type="text/x-cindyscript"></script>
 
-        <script id='csmove' type='text/x-cindyscript'>
-
-        </script>
-
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-
-            var gslp=[
-
-                      {name:"A", type:"Free", pos:[1,2],color:[1,1,1]},
-                      {name:"B", type:"Free", pos:[3,3],color:[1,1,1]},
-                      {name:"C", type:"Free", pos:[0,-3],color:[1,1,1]},
-                      {name:"E", type:"Free", pos:[-2,-1],color:[1,1,1]},
-                      {name:"F", type:"Free", pos:[3,1],color:[1,1,1]},
-                    //  {name:"c", type:"CircleMP", args:["A","B"],color:[0,0,1],size:4},
-                      {name:"d", type:"CircleBy3", args:["A","B","C"],color:[0,0,1],size:4},
-                      {name:"c", type:"Join", args:["F","E"],color:[.4,0.4,0.4],size:4},
-                      {name:"S", type:"IntersectLC", args:["c","d"]},
-                      {name:"Y", type:"SelectP", args:["S"],index:1,color:[1,0,0],size:6},
-                      {name:"Z", type:"SelectP", args:["S"],index:2,color:[0,1,0],size:6}
-                      ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
+            var gslp = [
+                { name: "A", type: "Free", pos: [1, 2], color: [1, 1, 1] },
+                { name: "B", type: "Free", pos: [3, 3], color: [1, 1, 1] },
+                { name: "C", type: "Free", pos: [0, -3], color: [1, 1, 1] },
+                { name: "E", type: "Free", pos: [-2, -1], color: [1, 1, 1] },
+                { name: "F", type: "Free", pos: [3, 1], color: [1, 1, 1] },
+                //  {name:"c", type:"CircleMP", args:["A","B"],color:[0,0,1],size:4},
+                { name: "d", type: "CircleBy3", args: ["A", "B", "C"], color: [0, 0, 1], size: 4 },
+                { name: "c", type: "Join", args: ["F", "E"], color: [0.4, 0.4, 0.4], size: 4 },
+                { name: "S", type: "IntersectLC", args: ["c", "d"] },
+                { name: "Y", type: "SelectP", args: ["S"], index: 1, color: [1, 0, 0], size: 6 },
+                { name: "Z", type: "SelectP", args: ["S"], index: 2, color: [0, 1, 0], size: 6 },
+            ];
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
         </script>
-
-	</body>
+    </body>
 </html>

@@ -6,22 +6,22 @@ function evaluate(a) {
     if (a === undefined) {
         return nada;
     }
-    if (a.ctype === 'infix') {
+    if (a.ctype === "infix") {
         return a.impl(a.args, {}, a);
     }
-    if (a.ctype === 'variable') {
+    if (a.ctype === "variable") {
         return evaluate(namespace.getvar(a.name));
     }
-    if (a.ctype === 'function') {
+    if (a.ctype === "function") {
         callStack.push(a);
         a = eval_helper.evaluate(a.oper, a.args, a.modifs);
         callStack.pop();
         return a;
     }
-    if (a.ctype === 'void') {
+    if (a.ctype === "void") {
         return nada;
     }
-    if (a.ctype === 'field') {
+    if (a.ctype === "field") {
         var obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
             return Accessor.getField(obj.value, a.key);
@@ -34,7 +34,7 @@ function evaluate(a) {
         }
         return nada;
     }
-    if (a.ctype === 'userdata') {
+    if (a.ctype === "userdata") {
         var uobj = evaluate(a.obj);
         var key = General.string(niceprint(evaluate(a.key)));
         if (key.value === "_?_") key = nada;
@@ -50,12 +50,9 @@ function evaluate(a) {
     return a;
 }
 
-
 function evaluateAndVal(a) {
-
-
     var x = evaluate(a);
-    if (x.ctype === 'geo') {
+    if (x.ctype === "geo") {
         var val = x.value;
         if (val.kind === "P") {
             return Accessor.getField(val, "xy");
@@ -63,14 +60,13 @@ function evaluateAndVal(a) {
         if (val.kind === "V") {
             return val.value;
         }
-
     }
     return x; //TODO Implement this
 }
 
 function evaluateAndHomog(a) {
     var x = evaluate(a);
-    if (x.ctype === 'geo') {
+    if (x.ctype === "geo") {
         var val = x.value;
         if (val.kind === "P") {
             return Accessor.getField(val, "homog");
@@ -78,61 +74,57 @@ function evaluateAndHomog(a) {
         if (val.kind === "L") {
             return Accessor.getField(val, "homog");
         }
-
     }
     if (List._helper.isNumberVecN(x, 3)) {
         return x;
     }
 
     if (List._helper.isNumberVecN(x, 2)) {
-        var y = List.turnIntoCSList([
-            x.value[0], x.value[1], CSNumber.real(1)
-        ]);
-        if (x.usage)
-            y = General.withUsage(y, x.usage);
+        var y = List.turnIntoCSList([x.value[0], x.value[1], CSNumber.real(1)]);
+        if (x.usage) y = General.withUsage(y, x.usage);
         return y;
     }
 
     return nada;
 }
 
-
 //*******************************************************
 // this function shows an expression tree on the console
 //*******************************************************
 
 function report(a, i) {
-    var prep = new Array(i + 1).join('.'),
-        els, j;
-    if (a.ctype === 'infix') {
+    var prep = new Array(i + 1).join("."),
+        els,
+        j;
+    if (a.ctype === "infix") {
         console.log(prep + "INFIX: " + a.oper);
         console.log(prep + "ARG 1 ");
         report(a.args[0], i + 1);
         console.log(prep + "ARG 2 ");
         report(a.args[1], i + 1);
     }
-    if (a.ctype === 'number') {
+    if (a.ctype === "number") {
         console.log(prep + "NUMBER: " + CSNumber.niceprint(a));
     }
-    if (a.ctype === 'variable') {
+    if (a.ctype === "variable") {
         console.log(prep + "VARIABLE: " + a.name);
     }
-    if (a.ctype === 'undefined') {
+    if (a.ctype === "undefined") {
         console.log(prep + "UNDEF");
     }
-    if (a.ctype === 'void') {
+    if (a.ctype === "void") {
         console.log(prep + "VOID");
     }
-    if (a.ctype === 'string') {
+    if (a.ctype === "string") {
         console.log(prep + "STRING: " + a.value);
     }
-    if (a.ctype === 'shape') {
+    if (a.ctype === "shape") {
         console.log(prep + "SHAPE: " + a.type);
     }
-    if (a.ctype === 'modifier') {
+    if (a.ctype === "modifier") {
         console.log(prep + "MODIF: " + a.key);
     }
-    if (a.ctype === 'list') {
+    if (a.ctype === "list") {
         console.log(prep + "LIST ");
         els = a.value;
         for (j = 0; j < els.length; j++) {
@@ -140,7 +132,7 @@ function report(a, i) {
             report(els[j], i + 1);
         }
     }
-    if (a.ctype === 'function') {
+    if (a.ctype === "function") {
         console.log(prep + "FUNCTION: " + a.oper);
         els = a.args;
         for (j = 0; j < els.length; j++) {
@@ -153,10 +145,9 @@ function report(a, i) {
             report(els[name], i + 1);
         }
     }
-    if (a.ctype === 'error') {
+    if (a.ctype === "error") {
         console.log(prep + "ERROR: " + a.message);
     }
-
 }
 
 var usedFunctions = {};
@@ -166,8 +157,7 @@ function analyse(code) {
     parser.usedFunctions = usedFunctions;
     parser.infixmap = infixmap;
     var res = parser.parse(code);
-    for (var name in parser.usedVariables)
-        namespace.create(name);
+    for (var name in parser.usedVariables) namespace.create(name);
     return res;
 }
 
@@ -180,19 +170,26 @@ function labelCode(code, label) {
     return {
         ctype: "infix",
         args: [],
-        impl: function() {
-            callStack = [{
-                oper: label
-            }];
+        impl: function () {
+            callStack = [
+                {
+                    oper: label,
+                },
+            ];
             var res = evaluate(code);
             callStack = [];
             return res;
-        }
+        },
     };
 }
 
 function printStackTrace(msg) {
-    csconsole.err(msg + callStack.map(function(frame) {
-        return "\n  at " + frame.oper;
-    }).join("\n"));
+    csconsole.err(
+        msg +
+            callStack
+                .map(function (frame) {
+                    return "\n  at " + frame.oper;
+                })
+                .join("\n")
+    );
 }

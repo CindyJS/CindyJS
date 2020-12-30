@@ -1,106 +1,100 @@
 var conjectures = [];
 
-
 function guessDuplicate(el) {
-    if (guessDuplicate.hasOwnProperty(el.kind))
-        guessDuplicate[el.kind](el);
+    if (guessDuplicate.hasOwnProperty(el.kind)) guessDuplicate[el.kind](el);
 }
 guessDuplicate._helper = {};
 
 // check if point-point or line-line p/q are duplicates
-guessDuplicate._helper.duplicatePPLL = function(p, q) {
+guessDuplicate._helper.duplicatePPLL = function (p, q) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [p, q];
         },
-        toString: function() {
+        toString: function () {
             var nameMap = {
-                "P": "point",
-                "L": "line"
+                P: "point",
+                L: "line",
             };
             return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
         },
         apply: markAsDuplicate(p, q),
-        holds: function() {
+        holds: function () {
             var dist = List.projectiveDistMinScal(p.homog, q.homog);
             return dist < CSNumber.epsbig;
-        }
+        },
     };
 };
 
-
 // check if point/line sets are duplicates
-guessDuplicate._helper.duplicatePsLs = function(p, q) {
+guessDuplicate._helper.duplicatePsLs = function (p, q) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [p, q];
         },
-        toString: function() {
+        toString: function () {
             var nameMap = {
-                "Ps": "point set",
-                "Ls": "line set"
+                Ps: "point set",
+                Ls: "line set",
             };
             return nameMap[p.kind] + " " + p.name + " is duplicate of " + q.name;
         },
         apply: markAsDuplicate(p, q),
-        holds: function() {
+        holds: function () {
             var pv = p.results.value;
             var qv = q.results.value;
             var truth = guessDuplicate._helper.isSetEq(pv, qv, List.projectiveDistMinScal);
             return truth;
-        }
+        },
     };
 };
 
-
 // check if two conics are duplicates
-guessDuplicate._helper.duplicateCC = function(C0, C1) {
+guessDuplicate._helper.duplicateCC = function (C0, C1) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [C0, C1];
         },
-        toString: function() {
+        toString: function () {
             return "Conic " + C0.name + " is duplicate of " + C1.name;
         },
         apply: markAsDuplicate(C0, C1),
-        holds: function() {
+        holds: function () {
             var dist = List.conicDist(C0.matrix, C1.matrix);
             return dist < CSNumber.epsbig;
-        }
+        },
     };
 };
 
-
 // check if two sets of conics are duplicates
-guessDuplicate._helper.duplicateCs = function(Cs0, Cs1) {
+guessDuplicate._helper.duplicateCs = function (Cs0, Cs1) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [Cs0, Cs1];
         },
-        toString: function() {
+        toString: function () {
             return "Conic set" + Cs0.name + " is duplicate of " + Cs1.name;
         },
         apply: markAsDuplicate(Cs0, Cs1),
-        holds: function() {
+        holds: function () {
             var res0 = Cs0.results;
             var res1 = Cs1.results;
             return guessDuplicate._helper.isSetEq(res0, res1, List.conicDist);
-        }
+        },
     };
 };
 
-
 // segments
-guessDuplicate._helper.duplicateSS = function(p, q) {
+guessDuplicate._helper.duplicateSS = function (p, q) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [p, q];
         },
-        toString: function() {
+        toString: function () {
             return "Segment " + p.name + " is duplicate of " + q.name;
         },
         apply: markAsDuplicate(p, q),
-        holds: function() {
+        holds: function () {
             var p0 = p.startpos;
             var p1 = p.endpos;
 
@@ -114,12 +108,12 @@ guessDuplicate._helper.duplicateSS = function(p, q) {
             dist2 = dist2 + List.projectiveDistMinScal(p0, q1);
 
             return Math.min(dist1, dist2) < CSNumber.epsbig;
-        }
+        },
     };
 };
 
-guessDuplicate.P = function(p) {
-    csgeo.points.forEach(function(q) {
+guessDuplicate.P = function (p) {
+    csgeo.points.forEach(function (q) {
         if (p.name === q.name) return;
         var conjecture = guessDuplicate._helper.duplicatePPLL(p, q);
         if (conjecture.holds()) {
@@ -128,8 +122,8 @@ guessDuplicate.P = function(p) {
     });
 };
 
-guessDuplicate.Ps = function(ps) {
-    csgeo.sets.points.forEach(function(qs) {
+guessDuplicate.Ps = function (ps) {
+    csgeo.sets.points.forEach(function (qs) {
         if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
@@ -139,8 +133,8 @@ guessDuplicate.Ps = function(ps) {
     });
 };
 
-guessDuplicate.Ls = function(ps) {
-    csgeo.sets.lines.forEach(function(qs) {
+guessDuplicate.Ls = function (ps) {
+    csgeo.sets.lines.forEach(function (qs) {
         if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicatePsLs(ps, qs);
@@ -150,9 +144,8 @@ guessDuplicate.Ls = function(ps) {
     });
 };
 
-
-guessDuplicate.Cs = function(ps) {
-    csgeo.sets.conics.forEach(function(qs) {
+guessDuplicate.Cs = function (ps) {
+    csgeo.sets.conics.forEach(function (qs) {
         if (ps.name === qs.name) return;
 
         var conjecture = guessDuplicate._helper.duplicateCs(ps, qs);
@@ -162,8 +155,8 @@ guessDuplicate.Cs = function(ps) {
     });
 };
 
-guessDuplicate.L = function(p) {
-    csgeo.lines.forEach(function(q) {
+guessDuplicate.L = function (p) {
+    csgeo.lines.forEach(function (q) {
         if (p.name === q.name) return;
         if (p.kind !== q.kind) return; // Don't compare lines and segments
 
@@ -174,8 +167,8 @@ guessDuplicate.L = function(p) {
     });
 };
 
-guessDuplicate.S = function(p) {
-    csgeo.lines.forEach(function(q) {
+guessDuplicate.S = function (p) {
+    csgeo.lines.forEach(function (q) {
         if (p.name === q.name) return;
         if (q.kind !== "S") return; // only compare segments
 
@@ -186,9 +179,8 @@ guessDuplicate.S = function(p) {
     });
 };
 
-
-guessDuplicate.C = function(p) {
-    csgeo.conics.forEach(function(q) {
+guessDuplicate.C = function (p) {
+    csgeo.conics.forEach(function (q) {
         if (p.name === q.name) return;
         var conjecture = guessDuplicate._helper.duplicateCC(p, q);
         if (conjecture.holds()) {
@@ -197,9 +189,9 @@ guessDuplicate.C = function(p) {
     });
 };
 
-// checks if two arrays are permutations of each other 
+// checks if two arrays are permutations of each other
 // elements are compares using the 'cmp' using JavaScript's native number types
-guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
+guessDuplicate._helper.isSetEq = function (arrA, arrB, cmp) {
     var A = arrA.slice(),
         B = arrB.slice();
 
@@ -207,7 +199,7 @@ guessDuplicate._helper.isSetEq = function(arrA, arrB, cmp) {
     if (A.length === 0 && B.length === 0) return true;
     var Afront = A.shift();
     // find best matching index
-    var idx = B.reduce(function(iMax, x, i, arr) {
+    var idx = B.reduce(function (iMax, x, i, arr) {
         return cmp(x, Afront) < cmp(arr[iMax], Afront) ? i : iMax;
     }, 0); // initial value
 
@@ -225,39 +217,35 @@ function guessIncidences(el) {
     }
 }
 
-guessIncidences.P = function(p) {
-    csgeo.lines.forEach(function(l) {
+guessIncidences.P = function (p) {
+    csgeo.lines.forEach(function (l) {
         var conjecture = incidentPL(p, l);
-        if (conjecture.holds())
-            conjectures.push(conjecture);
+        if (conjecture.holds()) conjectures.push(conjecture);
     });
-    csgeo.conics.forEach(function(c) {
+    csgeo.conics.forEach(function (c) {
         var conjecture = incidentPC(p, c);
-        if (conjecture.holds())
-            conjectures.push(conjecture);
+        if (conjecture.holds()) conjectures.push(conjecture);
     });
 };
 
-guessIncidences.L = function(l) {
-    csgeo.points.forEach(function(p) {
+guessIncidences.L = function (l) {
+    csgeo.points.forEach(function (p) {
         var conjecture = incidentPL(p, l);
-        if (conjecture.holds())
-            conjectures.push(conjecture);
+        if (conjecture.holds()) conjectures.push(conjecture);
     });
 };
 
 guessIncidences.S = guessIncidences.L;
 
-guessIncidences.C = function(c) {
-    csgeo.points.forEach(function(p) {
+guessIncidences.C = function (c) {
+    csgeo.points.forEach(function (p) {
         var conjecture = incidentPC(p, c);
-        if (conjecture.holds())
-            conjectures.push(conjecture);
+        if (conjecture.holds()) conjectures.push(conjecture);
     });
 };
 
 function applyIncidence(a, b) {
-    return function() {
+    return function () {
         a.incidences.push(b.name);
         b.incidences.push(a.name);
     };
@@ -265,44 +253,44 @@ function applyIncidence(a, b) {
 
 // mark p as duplicate of q
 function markAsDuplicate(p, q) {
-    return function() {
+    return function () {
         p.Duplicate = q;
     };
 }
 
 function incidentPL(p, l) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [p, l];
         },
-        toString: function() {
+        toString: function () {
             return "point " + p.name + " incident line " + l.name;
         },
         apply: applyIncidence(p, l),
-        holds: function() {
+        holds: function () {
             var pn = List.scaldiv(List.abs(p.homog), p.homog);
             var ln = List.scaldiv(List.abs(l.homog), l.homog);
             var prod = CSNumber.abs(List.scalproduct(pn, ln));
-            return (prod.value.real < CSNumber.epsbig);
-        }
+            return prod.value.real < CSNumber.epsbig;
+        },
     };
 }
 
 function incidentPC(p, c) {
     return {
-        getInvolved: function() {
+        getInvolved: function () {
             return [p, c];
         },
-        toString: function() {
+        toString: function () {
             return "point " + p.name + " incident conic " + c.name;
         },
         apply: applyIncidence(p, c),
-        holds: function() {
+        holds: function () {
             var erg = General.mult(c.matrix, p.homog);
             erg = General.mult(p.homog, erg);
             erg = CSNumber.abs(erg);
-            return (erg.value.real < CSNumber.epsbig);
-        }
+            return erg.value.real < CSNumber.epsbig;
+        },
     };
 }
 
@@ -318,17 +306,17 @@ function checkConjectures() {
     // filter free objects which are involved in conjectures
     var involved;
 
-    var recalcInvolved = function() {
+    var recalcInvolved = function () {
         involved = {};
-        conjectures.forEach(function(con) {
+        conjectures.forEach(function (con) {
             var invs = con.getInvolved();
             var incis;
-            invs.forEach(function(el) {
+            invs.forEach(function (el) {
                 if (!involved[el.name]) {
                     involved[el.name] = true;
                     // also add incidences of involved objects
                     incis = findAllIncis(el, {});
-                    incis.forEach(function(name) {
+                    incis.forEach(function (name) {
                         involved[name] = true;
                     });
                 }
@@ -337,8 +325,8 @@ function checkConjectures() {
     };
 
     // recursively find all incidences to an geo object
-    var findAllIncis = function(el, map) {
-        el.incidences.forEach(function(iels) {
+    var findAllIncis = function (el, map) {
+        el.incidences.forEach(function (iels) {
             if (!map[iels]) {
                 map[iels] = true;
                 findAllIncis(csgeo.csnames[iels], map);
@@ -349,21 +337,22 @@ function checkConjectures() {
 
     recalcInvolved();
 
-    // for jshint move the function definition outside loop 
-    var checkCon = function(con) {
+    // for jshint move the function definition outside loop
+    var checkCon = function (con) {
         return con.holds();
     };
 
-    // add defining elements 
-    Object.keys(involved).forEach(function(inv) {
+    // add defining elements
+    Object.keys(involved).forEach(function (inv) {
         var n = csgeo.csnames[inv].args;
-        if (typeof(n) === 'undefined') return;
-        n.forEach(function(name) {
+        if (typeof n === "undefined") return;
+        n.forEach(function (name) {
             involved[name] = true;
         });
     });
 
-    var emove, nconject = conjectures.length;
+    var emove,
+        nconject = conjectures.length;
     for (var kk = 0; kk < nummoves; kk++) {
         for (var name in involved) {
             var el = csgeo.csnames[name];
@@ -383,20 +372,18 @@ function checkConjectures() {
         console.log("dropped ", nconject - conjectures.length, " conjectures");
     }
 
-
     //restoreGeo
     if (!debug) {
         stateIn.set(stateArrays.prover);
         recalcAll();
     }
 
-
     for (var i = 0; i < conjectures.length; ++i) {
         conjectures[i].apply();
     }
     conjectures = [];
     if (debug) {
-        csgeo.gslp.forEach(function(el) {
+        csgeo.gslp.forEach(function (el) {
             console.log(el.name, el.incidences);
         });
     }

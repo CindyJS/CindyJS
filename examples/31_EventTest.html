@@ -1,103 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            	<script src="../src/js/lib/jquery.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script src="../src/js/lib/jquery.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
+    <body style="font-family: Arial">
+        <h1 style="margin-left: 50px">Event tester</h1>
 
-            </head>
-
-	<body style="font-family:Arial;">
-
-        <h1 style="margin-left:50px;">Event tester</h1>
-
-        <script id='keyDown' type='text/x-cindyscript'>
+        <script id="keyDown" type="text/x-cindyscript">
             list2=list2++[mouse()];
         </script>
 
-
-        <script id='mouseDown' type='text/x-cindyscript'>
-             list=list++[mouse()];
-             pt1=mouse();
+        <script id="mouseDown" type="text/x-cindyscript">
+            list=list++[mouse()];
+            pt1=mouse();
         </script>
 
-        <script id='mouseUp' type='text/x-cindyscript'>
-             list2=list2++[mouse()];
+        <script id="mouseUp" type="text/x-cindyscript">
+            list2=list2++[mouse()];
         </script>
 
-         <script id='mouseDrag' type='text/x-cindyscript'>
-             pt2=mouse();
+        <script id="mouseDrag" type="text/x-cindyscript">
+            pt2=mouse();
         </script>
 
-          <script id='tick' type='text/x-cindyscript'>
-             pt0=(sin(w),cos(w))*3;
-             w=w+1°;
-
+        <script id="tick" type="text/x-cindyscript">
+            pt0=(sin(w),cos(w))*3;
+            w=w+1°;
         </script>
 
-
-        <script id='initialization' type='text/x-cindyscript'>
-             list=[];
-             list2=[];
-             size=4;
-             larger():=(size=size+1;repaint());
-             smaller():=(size=size-1;repaint());
-             pt1=(0,0);
-             pt2=(0,0);
-             pt0=(0,0);
-             w=0;
-
+        <script id="initialization" type="text/x-cindyscript">
+            list=[];
+            list2=[];
+            size=4;
+            larger():=(size=size+1;repaint());
+            smaller():=(size=size-1;repaint());
+            pt1=(0,0);
+            pt2=(0,0);
+            pt0=(0,0);
+            w=0;
         </script>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
-           clrscr();
-           drawall(list,size->size);
-           drawall(list2,size->size,color->(1,0,0));
-           draw(pt1,pt2);
-           draw(pt0);
-
-
+        <script id="csmove" type="text/x-cindyscript">
+            clrscr();
+            drawall(list,size->size);
+            drawall(list2,size->size,color->(1,0,0));
+            draw(pt1,pt2);
+            draw(pt0);
         </script>
 
-
-
-<div onkeyup="displayunicode(event)">
-        <div  id="CSCanvas" style="width:700px; height:500px; border:2px solid #000000" ></div>
-</div>
+        <div onkeyup="displayunicode(event)">
+            <div id="CSCanvas" style="width: 700px; height: 500px; border: 2px solid #000000"></div>
+        </div>
         <script>
+            var gslp = [];
 
-            var gslp=[ ];
-
-            var cdy = CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        keydownscript:"keyDown",
-                        mousedownscript:"mouseDown",
-                        mouseupscript:"mouseUp",
-                        mousedragscript:"mouseDrag",
-                        initscript:"initialization",
-                        tickscript:"tick",
-                        //geometry:gslp
-                        });
-
-
+            var cdy = CindyJS({
+                canvasname: "CSCanvas",
+                movescript: "csmove",
+                keydownscript: "keyDown",
+                mousedownscript: "mouseDown",
+                mouseupscript: "mouseUp",
+                mousedragscript: "mouseDrag",
+                initscript: "initialization",
+                tickscript: "tick",
+                //geometry:gslp
+            });
         </script>
 
+        <button onclick="cdy.evokeCS('larger()')" type="button" style="position: absolute; top: 620px; left: 60px">
+            Larger
+        </button>
 
+        <button onclick="cdy.evokeCS('smaller()')" type="button" style="position: absolute; top: 620px; left: 210px">
+            Smaller
+        </button>
 
-
-        <button onclick="cdy.evokeCS('larger()')" type="button" style="position:absolute; top:620px;left:60px" >Larger</button>
-
-        <button onclick="cdy.evokeCS('smaller()')" type="button" style="position:absolute; top:620px;left:210px" >Smaller</button>
-
-
-        <button onclick="cdy.play()" type="button" style="position:absolute; top:650px;left:60px" >Play</button>
-        <button onclick="cdy.pause()" type="button" style="position:absolute; top:650px;left:110px" >Pause</button>
-        <button onclick="cdy.stop()" type="button" style="position:absolute; top:650px;left:170px" >Stop</button>
-
-
-	</body>
+        <button onclick="cdy.play()" type="button" style="position: absolute; top: 650px; left: 60px">Play</button>
+        <button onclick="cdy.pause()" type="button" style="position: absolute; top: 650px; left: 110px">Pause</button>
+        <button onclick="cdy.stop()" type="button" style="position: absolute; top: 650px; left: 170px">Stop</button>
+    </body>
 </html>

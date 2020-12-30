@@ -1,155 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-      <p>
-        On the left side you see the computations that are done for <a href="09_ifs_sierpinski.html">a classical IFS</a>,
-        on the right side you see the internal computations that are done for a <a href="12_kleinian.html">2 generation Kleinian group</a>.
-      </p>
-    <script id="csinit" type="text/x-cindyscript">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-      ta = 1.9 + 0.1*i;
-      tb = 2;
-      
-      //Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright 
-      tab = ta*tb/2-i*sqrt(-((ta*tb/2)^2-ta^2-tb^2));
-      z0 = ((tab-2)*tb)/(tb*tab-2*ta+2*i*tab);
-      a = [
-        [ta/2,(ta*tab-2*tb+4*i)/((2*tab+4)*z0)],
-        [(ta*tab-2*tb-4*i)*z0/(2*tab-4),ta/2]
-      ];
-      b = [
-        [(tb-2*i)/2,tb/2],
-        [tb/2,(tb+2*i)/2]
-      ];
-      
-      b = a*b; //replace b by a*b for better results
-      
-      A = inverse(a);
-      B = inverse(b);
-      
-      
-        w1 = [[.5, exp(0*pi*i/3)],[0,1]];
-        w2 = [[.5, exp(2*pi*i/3)],[0,1]];
-        w3 = [[.5, exp(4*pi*i/3)],[0,1]];
-        
-      createimage("klein", 500, 500);
-      createimage("sierp", 500, 500);
-      
-    </script>
-    <script id="csmove" type="text/x-cindyscript">
-        fillcircletree(A, B, C) := (
-          l1 = join(A, B);
-          l2 = join(A, C);
-          m1 = (A+B)/2;
-          m2 = (A+C)/2;
-          p1 = perp(l1, m1);
-          p2 = perp(l2, m2);
-          mid = meet(p1,p2);
-          canvas((-1.1,-1.1),(1.1,-1.1),"klein",
-            fillcircle(mid.xy, |mid.xy,A.xy|, color->(0,0,.8));
-          )
-        );
-        
-        moeb(M, c) := (
-          erg = M*[c, 1];
-          erg = erg_1/erg_2;
-          (re(erg),im(erg))
-        );
-      
-        
-        draw([AP, BP], color->(0,0,0),size->2);
-        y=CM.y;y=round(min((max((y,1)),5)));CM.xy=(1,y);
-        depth = round(|BP,CM|);
-        drawtext(CM+(0.1,0.1),depth);
-        
-        S = .5;
-        ST = 1/3;
-        F = 0.3;
-        FI = 1-F;
-        clearimage("klein");
-        clearimage("sierp");
-        
-        cayley(p, d, forbidden, str, M) := (
-          if(d<5,
-            
-            if(d == depth,
-              fillcircle(p, 1.8*(S^d), color->(1,.7,0), alpha->.5);
-              fillcircletree(moeb(M,-.2),moeb(M,-.4),moeb(M,-.3+.1*i));
+    <body style="font-family: Arial">
+        <p>
+            On the left side you see the computations that are done for
+            <a href="09_ifs_sierpinski.html">a classical IFS</a>, on the right side you see the internal computations
+            that are done for a <a href="12_kleinian.html">2 generation Kleinian group</a>.
+        </p>
+        <script id="csinit" type="text/x-cindyscript">
+
+            ta = 1.9 + 0.1*i;
+            tb = 2;
+
+            //Grandma's recipe from Indra's Pearls: The Vision of Felix Klein, David Mumford, ‎Caroline Series, ‎David Wright
+            tab = ta*tb/2-i*sqrt(-((ta*tb/2)^2-ta^2-tb^2));
+            z0 = ((tab-2)*tb)/(tb*tab-2*ta+2*i*tab);
+            a = [
+              [ta/2,(ta*tab-2*tb+4*i)/((2*tab+4)*z0)],
+              [(ta*tab-2*tb-4*i)*z0/(2*tab-4),ta/2]
+            ];
+            b = [
+              [(tb-2*i)/2,tb/2],
+              [tb/2,(tb+2*i)/2]
+            ];
+
+            b = a*b; //replace b by a*b for better results
+
+            A = inverse(a);
+            B = inverse(b);
+
+
+              w1 = [[.5, exp(0*pi*i/3)],[0,1]];
+              w2 = [[.5, exp(2*pi*i/3)],[0,1]];
+              w3 = [[.5, exp(4*pi*i/3)],[0,1]];
+
+            createimage("klein", 500, 500);
+            createimage("sierp", 500, 500);
+        </script>
+        <script id="csmove" type="text/x-cindyscript">
+            fillcircletree(A, B, C) := (
+              l1 = join(A, B);
+              l2 = join(A, C);
+              m1 = (A+B)/2;
+              m2 = (A+C)/2;
+              p1 = perp(l1, m1);
+              p2 = perp(l2, m2);
+              mid = meet(p1,p2);
+              canvas((-1.1,-1.1),(1.1,-1.1),"klein",
+                fillcircle(mid.xy, |mid.xy,A.xy|, color->(0,0,.8));
+              )
             );
-            drawtext(p, str, size->60*(S^d), align->"mid");
-            forall([("a", [1, 0], "A", a), ("A", [-1,0], "a", A), ("b", [0,1], "B", b), ("B", [0,-1], "b", B)], t,
-              if(t_1 != forbidden,
-                dd = t_2*(S^d)*2;
-                op = p + dd;
 
-                draw([F*p+FI*op, F*op+FI*p], color->(0,0,0), size->20*(S^d), alpha->.2);
-                cayley(op, d+1, t_3, t_1+str, t_4*M);
-                
+            moeb(M, c) := (
+              erg = M*[c, 1];
+              erg = erg_1/erg_2;
+              (re(erg),im(erg))
+            );
+
+
+            draw([AP, BP], color->(0,0,0),size->2);
+            y=CM.y;y=round(min((max((y,1)),5)));CM.xy=(1,y);
+            depth = round(|BP,CM|);
+            drawtext(CM+(0.1,0.1),depth);
+
+            S = .5;
+            ST = 1/3;
+            F = 0.3;
+            FI = 1-F;
+            clearimage("klein");
+            clearimage("sierp");
+
+            cayley(p, d, forbidden, str, M) := (
+              if(d<5,
+
+                if(d == depth,
+                  fillcircle(p, 1.8*(S^d), color->(1,.7,0), alpha->.5);
+                  fillcircletree(moeb(M,-.2),moeb(M,-.4),moeb(M,-.3+.1*i));
+                );
+                drawtext(p, str, size->60*(S^d), align->"mid");
+                forall([("a", [1, 0], "A", a), ("A", [-1,0], "a", A), ("b", [0,1], "B", b), ("B", [0,-1], "b", B)], t,
+                  if(t_1 != forbidden,
+                    dd = t_2*(S^d)*2;
+                    op = p + dd;
+
+                    draw([F*p+FI*op, F*op+FI*p], color->(0,0,0), size->20*(S^d), alpha->.2);
+                    cayley(op, d+1, t_3, t_1+str, t_4*M);
+
+                  );
+                );
               );
             );
-          );
-        );
-        
-        cayley((16,6), 0, "e", "", [[1,0],[0,1]]);
-        drawtext((16,6), "id", size->40, align->"mid");
-        
-        
-        tree(p, d, str, M) := (
-          if(d<5,
-            
-            if(d == depth,
-              fillcircle(p, 1.8*(ST^d), color->(1,.7,0), alpha->.5);
-              canvas((-2.1,-2.1),(2.1,-2.1),"sierp",
-                fillcircle(moeb(M,0), 2*(.5)^d, color->(.3,.2,.4));
+
+            cayley((16,6), 0, "e", "", [[1,0],[0,1]]);
+            drawtext((16,6), "id", size->40, align->"mid");
+
+
+            tree(p, d, str, M) := (
+              if(d<5,
+
+                if(d == depth,
+                  fillcircle(p, 1.8*(ST^d), color->(1,.7,0), alpha->.5);
+                  canvas((-2.1,-2.1),(2.1,-2.1),"sierp",
+                    fillcircle(moeb(M,0), 2*(.5)^d, color->(.3,.2,.4));
+                  );
+                );
+                drawtext(p, str, size->120*(ST^d), align->"mid");
+                forall([("w₁", [-1, -1.3], 0, w1), ("w₂", [0,-1.3],0, w2), ("w₃", [1, -1.3],0, w3)], t,
+                    dd = t_2*(ST^d)*2;
+                    op = p + dd;
+                    draw([F*p+FI*op, F*op+FI*p], color->(0,0,0), size->20*(ST^d), alpha->.2);
+                    tree(op, d+1, t_1+str, t_4*M);
+                );
               );
             );
-            drawtext(p, str, size->120*(ST^d), align->"mid");
-            forall([("w₁", [-1, -1.3], 0, w1), ("w₂", [0,-1.3],0, w2), ("w₃", [1, -1.3],0, w3)], t,
-                dd = t_2*(ST^d)*2;
-                op = p + dd;
-                draw([F*p+FI*op, F*op+FI*p], color->(0,0,0), size->20*(ST^d), alpha->.2);
-                tree(op, d+1, t_1+str, t_4*M);
-            );
-          );
-        );
-        
 
-        tree((5,9), 0, "", [[1,0],[0,1]]);
-        drawtext((5,9), "id", size->40, align->"mid");
-        
-        drawimage((3,0.5),(7,0.5), "sierp");
-        drawimage((8,-1),(16,-1), "klein");
-        
-        draw((9,0), (9,10), color->(0,0,0));
-        //draw((1,0), (1,10), color->(0,0,0));
-        
-    </script>
-    
-    <div  id="CSCanvas" style="border:2px solid black"></div>
-    <script type="text/javascript">
-        
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry: [
-                      
-    {name:"AP", type:"Free", pos:[1,1],color:[0,0,0],pinned:false,size:6, visible:false},
-    {name:"BP", type:"Free", pos:[1,5],color:[0,0,0],pinned:false,size:6, visible:false},
-    {name:"CM", type:"Free", pos:[1,5],color:[1,0,0],pinned:false,size:6},
-                    ],
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 1000,
-                      height: 500,
-                      transform: [ { visibleRect: [0, 0, 20, 10] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+
+            tree((5,9), 0, "", [[1,0],[0,1]]);
+            drawtext((5,9), "id", size->40, align->"mid");
+
+            drawimage((3,0.5),(7,0.5), "sierp");
+            drawimage((8,-1),(16,-1), "klein");
+
+            draw((9,0), (9,10), color->(0,0,0));
+            //draw((1,0), (1,10), color->(0,0,0));
+        </script>
+
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+        <script type="text/javascript">
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [
+                    { name: "AP", type: "Free", pos: [1, 1], color: [0, 0, 0], pinned: false, size: 6, visible: false },
+                    { name: "BP", type: "Free", pos: [1, 5], color: [0, 0, 0], pinned: false, size: 6, visible: false },
+                    { name: "CM", type: "Free", pos: [1, 5], color: [1, 0, 0], pinned: false, size: 6 },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 1000,
+                        height: 500,
+                        transform: [{ visibleRect: [0, 0, 20, 10] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

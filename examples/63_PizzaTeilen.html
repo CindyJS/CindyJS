@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
+    <head>
+        <meta charset="utf-8" />
         <title>Cindy JS</title>
         <script type="text/javascript" src="../build/js/Cindy.js"></script>
-        <link rel="stylesheet" href="../css/cindy.css">
+        <link rel="stylesheet" href="../css/cindy.css" />
     </head>
 
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: A simple sunflower</h1>
 
-        <script id='init' type='text/x-cindyscript'>
+        <script id="init" type="text/x-cindyscript">
             pts=allpoints();
             forall(pts,p,p.xy=(-1000,-1000));
             n=3;
@@ -35,11 +34,9 @@
               if(posy==-2,posy=-5;posx=posx+1);
               i=i+1;
             )
-
-
         </script>
 
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
 
             pts=allpoints();
             square(i,j):=[(i,j),(i,j+1),(i+1,j+1),(i+1,j)];
@@ -73,40 +70,24 @@
             drawtext((9,2),bruch1/ggt,size->30);
             drawtext((9,1),bruch2/ggt,size->30);
             draw((8.7,1.7),(10,1.7),size->4,color->(0,0,0));
+        </script>
 
-
-            </script>
-
-
-
-        <div  id="CSCanvas" style="width:700px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 700px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
+            gslp = [];
+            for (var i = 0; i < 100; i++) {
+                gslp.push({ name: "A" + i, kind: "P", type: "Free", pos: [i * 0.5, 0, 1] });
+            }
 
-            gslp=[];
-            for(var i=0;i<100;i++) {
-              gslp.push({name:"A"+i, kind:"P", type:"Free", pos:[i*.5,0,1]});
-
-            };
-
-
-
-            CindyJS({canvasname:"CSCanvas",
-                        defaultAppearance: {pointColor: [1,0.7,0]},
-                        movescript:"csmove",
-                        initscript:"init",
-                        geometry:gslp,
-                        transform:[{scale:2},{translate:[-4,1]}],
-
-                    });
-
-
-
-
-
-            </script>
-
-
-
-	</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                defaultAppearance: { pointColor: [1, 0.7, 0] },
+                movescript: "csmove",
+                initscript: "init",
+                geometry: gslp,
+                transform: [{ scale: 2 }, { translate: [-4, 1] }],
+            });
+        </script>
+    </body>
 </html>

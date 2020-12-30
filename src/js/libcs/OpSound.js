@@ -1,10 +1,10 @@
 var OpSound = {
     lines: {},
     audioCtx: null,
-    getAudioContext: function() {
+    getAudioContext: function () {
         if (this.audioCtx) return this.audioCtx;
         if (!window.AudioContext && !window.webkitAudioContext) {
-            console.warn('Web Audio API not supported in this browser');
+            console.warn("Web Audio API not supported in this browser");
         } else {
             //this.audioCtx = new window.AudioContext() || new window.webkitAudioContext();
             let a = window.AudioContext || window.webkitAudioContext;
@@ -13,13 +13,13 @@ var OpSound = {
         return this.audioCtx;
     },
 
-    handleModif: function(modif, modifType, defaultValue) {
+    handleModif: function (modif, modifType, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
             if (erg.ctype === modifType) {
-                if (erg.ctype === 'number') {
+                if (erg.ctype === "number") {
                     return erg.value.real;
-                } else if (erg.ctype === 'list') {
+                } else if (erg.ctype === "list") {
                     let cslist = erg.value;
                     let jslist = [];
                     for (let i = 0; i < cslist.length; i++) {
@@ -35,7 +35,7 @@ var OpSound = {
         }
     },
 
-    handleLineModif: function(modif, defaultValue) {
+    handleLineModif: function (modif, defaultValue) {
         if (modif !== undefined) {
             let erg = evaluate(modif);
             return niceprint(erg);
@@ -43,7 +43,7 @@ var OpSound = {
         return defaultValue;
     },
 
-    getBufferNode: function(wave, duration) {
+    getBufferNode: function (wave, duration) {
         let audioCtx = this.getAudioContext();
         if (duration * audioCtx.sampleRate > wave.length) {
             let newwave = [];
@@ -61,7 +61,7 @@ var OpSound = {
         return bufferNode;
     },
 
-    createMonoOscillator: function(freq, phaseshift) {
+    createMonoOscillator: function (freq, phaseshift) {
         let oscNode = this.getAudioContext().createOscillator();
         if (phaseshift !== 0) {
             let real = new Float32Array(2);
@@ -70,18 +70,18 @@ var OpSound = {
             imag[1] = Math.cos(phaseshift);
 
             let wave = this.getAudioContext().createPeriodicWave(real, imag, {
-                disableNormalization: true
+                disableNormalization: true,
             });
             oscNode.setPeriodicWave(wave);
         } else {
-            oscNode.type = 'sine';
+            oscNode.type = "sine";
         }
         oscNode.mono = true;
         oscNode.frequency.value = freq;
         return oscNode;
     },
 
-    createWaveOscillator: function(freq, harmonics, phaseshiftarr) {
+    createWaveOscillator: function (freq, harmonics, phaseshiftarr) {
         let oscNode = this.getAudioContext().createOscillator();
         let real = new Float32Array(harmonics.length + 1);
         let imag = new Float32Array(harmonics.length + 1);
@@ -90,17 +90,17 @@ var OpSound = {
             real[i + 1] = harmonics[i] * Math.sin(phaseshiftarr[i]);
         }
         let wave = this.getAudioContext().createPeriodicWave(real, imag, {
-            disableNormalization: true
+            disableNormalization: true,
         });
         oscNode.setPeriodicWave(wave);
         oscNode.frequency.value = freq;
         return oscNode;
     },
 
-    cleanup: function() {
+    cleanup: function () {
         for (let id in this.lines) {
-            if (this.lines[id].lineType === 'sin') {
-                if (this.lines[id].oscNodes.every(oscGainPair => !oscGainPair.oscNode.isplaying)) {
+            if (this.lines[id].lineType === "sin") {
+                if (this.lines[id].oscNodes.every((oscGainPair) => !oscGainPair.oscNode.isplaying)) {
                     delete this.lines[id];
                 } else {
                     for (let i = 0; i < this.lines[id].oscNodes.length; i++) {
@@ -112,23 +112,20 @@ var OpSound = {
         }
     },
 
-    registerInput: function(audioNode) {
-        if (!audioNode.cnt)
-            audioNode.cnt = 1;
-        else
-            audioNode.cnt++;
+    registerInput: function (audioNode) {
+        if (!audioNode.cnt) audioNode.cnt = 1;
+        else audioNode.cnt++;
     },
 
-    deregisterInput: function(audioNode) {
-        if (audioNode.cnt)
-            audioNode.cnt--;
+    deregisterInput: function (audioNode) {
+        if (audioNode.cnt) audioNode.cnt--;
     },
 
-    hasRegisteredInput: function(audioNode) {
-        return (audioNode.cnt && audioNode.cnt !== 0);
+    hasRegisteredInput: function (audioNode) {
+        return audioNode.cnt && audioNode.cnt !== 0;
     },
 
-    playOscillator: function(oscNode, masterGain, gain, attack, duration, release) {
+    playOscillator: function (oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
         gainNode.gain.value = 0;
@@ -137,7 +134,7 @@ var OpSound = {
         OpSound.registerInput(masterGain);
         oscNode.start(0);
         oscNode.isplaying = true;
-        oscNode.onended = function() {
+        oscNode.onended = function () {
             this.isplaying = false;
             gainNode.disconnect();
             OpSound.deregisterInput(masterGain);
@@ -160,11 +157,11 @@ var OpSound = {
 
         return {
             oscNode: oscNode,
-            gainNode: gainNode
+            gainNode: gainNode,
         };
     },
 
-    softStop: function(oscGainPair, release) {
+    softStop: function (oscGainPair, release) {
         let audioCtx = this.getAudioContext();
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
@@ -173,7 +170,7 @@ var OpSound = {
         this.triggerStop(oscGainPair.oscNode, release);
     },
 
-    extendDuration: function(oscGainPair, duration, release) {
+    extendDuration: function (oscGainPair, duration, release) {
         let audioCtx = this.getAudioContext();
         oscGainPair.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         oscGainPair.gainNode.gain.setValueAtTime(oscGainPair.gainNode.gain.value, audioCtx.currentTime);
@@ -183,23 +180,23 @@ var OpSound = {
         this.triggerStop(oscGainPair.oscNode, duration + release);
     },
 
-    triggerStop: function(oscNode, time) {
+    triggerStop: function (oscNode, time) {
         //this method overwrites also other triggered stops
         //According to https://webaudio.github.io/web-audio-api/#dom-audioscheduledsourcenode-stop this should also be done by oscNode.stop(audioCtx.currentTime + time)
         //However, in March 2019, Safari apperantly did not support this behaviour.
         if (oscNode.timeoutId) {
             clearTimeout(oscNode.timeoutId);
         }
-        oscNode.timeoutId = setTimeout(function() {
+        oscNode.timeoutId = setTimeout(function () {
             oscNode.stop(0);
         }, 1000 * time + 10);
-    }
+    },
 };
 
 class OscillatorLine {
     constructor(audioCtx) {
         this.audioCtx = audioCtx;
-        this.lineType = 'sin';
+        this.lineType = "sin";
         this.oscNodes = [];
     }
 
@@ -209,9 +206,9 @@ class OscillatorLine {
         else if (modifs[modifName] !== undefined) {
             let erg = evaluate(modifs[modifName]);
             if (erg.ctype === modifType) {
-                if (erg.ctype === 'number') {
+                if (erg.ctype === "number") {
                     val = erg.value.real;
-                } else if (erg.ctype === 'list') {
+                } else if (erg.ctype === "list") {
                     let cslist = erg.value;
                     let jslist = [];
                     for (let i = 0; i < cslist.length; i++) {
@@ -231,12 +228,12 @@ class OscillatorLine {
         this.phaseshift = Array(harmonicsLength).fill(0);
         if (modif !== undefined) {
             let erg = evaluate(modif);
-            if (erg.ctype === 'list') {
+            if (erg.ctype === "list") {
                 let cslist = erg.value;
                 for (let i = 0; i < cslist.length; i++) {
                     this.phaseshift[i] = cslist[i].value.real;
                 }
-            } else if (erg.ctype === 'number') {
+            } else if (erg.ctype === "number") {
                 for (let i = 0; i < harmonicsLength; i++) {
                     this.phaseshift[i] = (i + 1) * erg.value.real;
                 }
@@ -257,7 +254,7 @@ class OscillatorLine {
             if (modifs.phaseshift)
                 console.warn("Ignore phaseshift because the given length does not match with the length of harmonics");
         }
-        this.precompute &= this.partials.every(p => Math.abs(p - 1) < 1e-8);
+        this.precompute &= this.partials.every((p) => Math.abs(p - 1) < 1e-8);
 
         if (this.damp > 0) {
             this.duration = Math.min(this.duration, 6 / this.damp); //exp(-6)<0.003, thus unhearable
@@ -273,17 +270,16 @@ class OscillatorLine {
             this.masterGain.panNode.connect(this.audioCtx.destination);
         }
         //update pan value
-        if (this.masterGain.panNode)
-            this.masterGain.panNode.pan.value = this.pan;
+        if (this.masterGain.panNode) this.masterGain.panNode.pan.value = this.pan;
     }
 
     dampit() {
         this.masterGain.gain.cancelScheduledValues(this.audioCtx.currentTime);
         this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.audioCtx.currentTime);
         if (this.damp > 0) {
-            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, (1 / this.damp));
+            this.masterGain.gain.setTargetAtTime(0, this.audioCtx.currentTime + this.attack, 1 / this.damp);
         } else if (this.damp < 0) {
-            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, (-this.damp));
+            this.masterGain.gain.setTargetAtTime(1, this.audioCtx.currentTime + this.attack, -this.damp);
         }
     }
 
@@ -291,13 +287,21 @@ class OscillatorLine {
         if (this.precompute) {
             this.oscNodes[0] = OpSound.playOscillator(
                 OpSound.createWaveOscillator(this.freq, this.harmonics, this.phaseshift),
-                this.masterGain, 1, this.attack, this.duration, this.release
+                this.masterGain,
+                1,
+                this.attack,
+                this.duration,
+                this.release
             );
         } else {
             for (let i = 0; i < this.harmonics.length; i++) {
                 this.oscNodes[i] = OpSound.playOscillator(
                     OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]),
-                    this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
+                    this.masterGain,
+                    this.harmonics[i],
+                    this.attack,
+                    this.duration,
+                    this.release
                 );
             }
         }
@@ -323,24 +327,36 @@ class OscillatorLine {
                         this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
                         this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
                         OpSound.extendDuration(this.oscNodes[i], this.duration, this.release);
-                    } else { //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
+                    } else {
+                        //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
                         if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && !this.oscNodes[i].oscNode.mono)
                             OpSound.softStop(this.oscNodes[i], this.release);
                         this.oscNodes[i] = OpSound.playOscillator(
-                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]), this.masterGain, this.harmonics[i], this.attack, this.duration, this.release
+                            OpSound.createMonoOscillator(this.partials[i] * (i + 1) * this.freq, this.phaseshift[i]),
+                            this.masterGain,
+                            this.harmonics[i],
+                            this.attack,
+                            this.duration,
+                            this.release
                         );
                     }
                 }
             //stop all unneeded oscillators from  this.oscNodes \ this.harmonics
             for (let i in this.oscNodes) {
-                if (!this.harmonics[i]) { //!this.harmonics[i] also includes this.harmonics[i]===0
+                if (!this.harmonics[i]) {
+                    //!this.harmonics[i] also includes this.harmonics[i]===0
                     //there is no harmonics for this oscillator => stop the corresponding oscillator
                     OpSound.softStop(this.oscNodes[i], this.release);
                     delete this.oscNodes[i];
                 }
             }
         } else {
-            if (this.harmonicsdidnotchange() && this.oscNodes[0] && this.oscNodes[0].oscNode.isplaying && !this.oscNodes[0].oscNode.mono) {
+            if (
+                this.harmonicsdidnotchange() &&
+                this.oscNodes[0] &&
+                this.oscNodes[0].oscNode.isplaying &&
+                !this.oscNodes[0].oscNode.mono
+            ) {
                 this.oscNodes[0].oscNode.frequency.value = this.freq;
                 OpSound.extendDuration(this.oscNodes[0], this.duration, this.release);
             } else {
@@ -362,17 +378,17 @@ class OscillatorLine {
         if (!this.lastharmonics) {
             sameharmonics = false;
         } else {
-            sameharmonics &= (this.lastharmonics.length === this.harmonics.length);
+            sameharmonics &= this.lastharmonics.length === this.harmonics.length;
             for (let i in this.harmonics)
-                if (sameharmonics)
-                    sameharmonics &= (this.harmonics[i] === this.lastharmonics[i]);
+                if (sameharmonics) sameharmonics &= this.harmonics[i] === this.lastharmonics[i];
         }
         return sameharmonics;
     }
 
     evokeplaysin(newLine, restart, modifs) {
         this.cleanparameters(modifs);
-        if (this.duration === 0) { //users can call playsin(...,duration->0) to stop a tone
+        if (this.duration === 0) {
+            //users can call playsin(...,duration->0) to stop a tone
             this.stop();
             return nada;
         }
@@ -393,7 +409,7 @@ class OscillatorLine {
     }
 }
 
-evaluator.stopsound$0 = function() {
+evaluator.stopsound$0 = function () {
     if (OpSound.audioCtx) {
         for (let line in OpSound.lines) {
             OpSound.lines[line].stop();
@@ -404,41 +420,39 @@ evaluator.stopsound$0 = function() {
     }
 };
 
-evaluator.playsin$1 = function(args, modifs) {
+evaluator.playsin$1 = function (args, modifs) {
     let audioCtx = OpSound.getAudioContext();
-
 
     let line = OpSound.handleLineModif(modifs.line, "0");
 
     let newLine = false;
 
-    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'sin') { //initialize
-        if (OpSound.lines[line])
-            OpSound.lines[line].stop();
+    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== "sin") {
+        //initialize
+        if (OpSound.lines[line]) OpSound.lines[line].stop();
         OpSound.lines[line] = new OscillatorLine(audioCtx);
         newLine = true;
     }
     let curline = OpSound.lines[line];
 
     curline.freq = evaluate(args[0]).value.real;
-    curline.handleModif(modifs, "amp", 'number', 0.5);
-    curline.handleModif(modifs, "damp", 'number', 0);
-    curline.handleModif(modifs, "duration", 'number', OpSound.handleModif(modifs.stop, 'number', 1));
-    curline.handleModif(modifs, "harmonics", 'list', [1]);
-    curline.handleModif(modifs, "partials", 'list', [1]);
-    curline.handleModif(modifs, "attack", 'number', 0.01);
-    curline.handleModif(modifs, "release", 'number', 0.01);
-    curline.handleModif(modifs, "pan", 'number', 0);
-    curline.handleModif(modifs, "precompute", 'boolean', false);
-    curline.handleModif(modifs, "phaseshift", 'phaseshift', Array(curline.harmonics.length).fill(0));
-    let restart = OpSound.handleModif(modifs.restart, 'boolean', true);
+    curline.handleModif(modifs, "amp", "number", 0.5);
+    curline.handleModif(modifs, "damp", "number", 0);
+    curline.handleModif(modifs, "duration", "number", OpSound.handleModif(modifs.stop, "number", 1));
+    curline.handleModif(modifs, "harmonics", "list", [1]);
+    curline.handleModif(modifs, "partials", "list", [1]);
+    curline.handleModif(modifs, "attack", "number", 0.01);
+    curline.handleModif(modifs, "release", "number", 0.01);
+    curline.handleModif(modifs, "pan", "number", 0);
+    curline.handleModif(modifs, "precompute", "boolean", false);
+    curline.handleModif(modifs, "phaseshift", "phaseshift", Array(curline.harmonics.length).fill(0));
+    let restart = OpSound.handleModif(modifs.restart, "boolean", true);
 
     curline.evokeplaysin(newLine, restart, modifs);
     return nada;
 };
 
-
-evaluator.playsin$0 = function(args, modifs) {
+evaluator.playsin$0 = function (args, modifs) {
     let erg;
     if (modifs.line !== undefined) {
         let line = OpSound.handleLineModif(modifs.line, "0");
@@ -446,19 +460,24 @@ evaluator.playsin$0 = function(args, modifs) {
         //evaluator.playsin$1([CSNumber.real(OpSound.lines[line].oscNodes[0].oscNode.frequency.value)], modifs);
         if (curline) {
             //overwrite parameters if given
-            curline.handleModif(modifs, "freq", 'number', curline.freq);
-            curline.handleModif(modifs, "amp", 'number', curline.amp);
-            curline.handleModif(modifs, "damp", 'number', curline.damp);
-            curline.handleModif(modifs, "duration", 'number', OpSound.handleModif(modifs.stop, 'number', curline.duration));
-            curline.handleModif(modifs, "harmonics", 'list', curline.harmonics);
-            curline.handleModif(modifs, "partials", 'list', curline.partials);
-            curline.handleModif(modifs, "attack", 'number', curline.attack);
-            curline.handleModif(modifs, "release", 'number', curline.release);
-            curline.handleModif(modifs, "pan", 'number', curline.pan);
-            curline.handleModif(modifs, "precompute", 'boolean', curline.precompute);
-            curline.handleModif(modifs, "phaseshift", 'phaseshift', curline.phaseshift);
+            curline.handleModif(modifs, "freq", "number", curline.freq);
+            curline.handleModif(modifs, "amp", "number", curline.amp);
+            curline.handleModif(modifs, "damp", "number", curline.damp);
+            curline.handleModif(
+                modifs,
+                "duration",
+                "number",
+                OpSound.handleModif(modifs.stop, "number", curline.duration)
+            );
+            curline.handleModif(modifs, "harmonics", "list", curline.harmonics);
+            curline.handleModif(modifs, "partials", "list", curline.partials);
+            curline.handleModif(modifs, "attack", "number", curline.attack);
+            curline.handleModif(modifs, "release", "number", curline.release);
+            curline.handleModif(modifs, "pan", "number", curline.pan);
+            curline.handleModif(modifs, "precompute", "boolean", curline.precompute);
+            curline.handleModif(modifs, "phaseshift", "phaseshift", curline.phaseshift);
 
-            let restart = OpSound.handleModif(modifs.restart, 'boolean', false);
+            let restart = OpSound.handleModif(modifs.restart, "boolean", false);
 
             curline.evokeplaysin(false, restart, modifs);
         }
@@ -466,18 +485,17 @@ evaluator.playsin$0 = function(args, modifs) {
     return nada;
 };
 
-
-evaluator.playfunction$1 = function(args, modifs) {
+evaluator.playfunction$1 = function (args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
     function searchVar(tree) {
         let stack = [];
         stack.push(tree);
-        while (stack.length !== 0) { //DFS with handwritten stack.
+        while (stack.length !== 0) {
+            //DFS with handwritten stack.
             let v = stack.pop();
             if (v.ctype === "variable" && evaluate(v) === nada) {
-                if (["x", "y", "t"].indexOf(v.name) !== -1)
-                    return v.name;
+                if (["x", "y", "t"].indexOf(v.name) !== -1) return v.name;
             }
             if (v.args) {
                 for (let i in v.args) {
@@ -496,15 +514,15 @@ evaluator.playfunction$1 = function(args, modifs) {
     }
 
     let line = OpSound.handleLineModif(modifs.line, "0");
-    let start = OpSound.handleModif(modifs.start, 'number', 0);
-    let amp = OpSound.handleModif(modifs.amp, 'number', 0.5);
-    let damp = OpSound.handleModif(modifs.damp, 'number', 0);
-    let stop = OpSound.handleModif(modifs.stop, 'number', 1);
-    let duration = OpSound.handleModif(modifs.duration, 'number', 1);
-    let attack = OpSound.handleModif(modifs.attack, 'number', 0.01);
-    let release = OpSound.handleModif(modifs.release, 'number', 0.01);
-    let exprt = OpSound.handleModif(modifs.export, 'boolean', false);
-    let silent = OpSound.handleModif(modifs.silent, 'boolean', false);
+    let start = OpSound.handleModif(modifs.start, "number", 0);
+    let amp = OpSound.handleModif(modifs.amp, "number", 0.5);
+    let damp = OpSound.handleModif(modifs.damp, "number", 0);
+    let stop = OpSound.handleModif(modifs.stop, "number", 1);
+    let duration = OpSound.handleModif(modifs.duration, "number", 1);
+    let attack = OpSound.handleModif(modifs.attack, "number", 0.01);
+    let release = OpSound.handleModif(modifs.release, "number", 0.01);
+    let exprt = OpSound.handleModif(modifs.export, "boolean", false);
+    let silent = OpSound.handleModif(modifs.silent, "boolean", false);
 
     let wave = [];
 
@@ -513,20 +531,20 @@ evaluator.playfunction$1 = function(args, modifs) {
             namespace.setvar(runv, CSNumber.real(i / audioCtx.sampleRate));
         }
         let erg = evaluate(v0);
-        wave[i] = erg.value.real * amp * Math.exp(-damp * i / audioCtx.sampleRate);
+        wave[i] = erg.value.real * amp * Math.exp((-damp * i) / audioCtx.sampleRate);
     }
 
     if (!silent) {
-        if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'function') { //initialize
-            if (OpSound.lines[line])
-                OpSound.lines[line].stop();
+        if (!OpSound.lines[line] || OpSound.lines[line].lineType !== "function") {
+            //initialize
+            if (OpSound.lines[line]) OpSound.lines[line].stop();
             OpSound.lines[line] = {
-                lineType: 'function',
+                lineType: "function",
                 bufferNode: OpSound.getBufferNode(wave, duration),
                 masterGain: audioCtx.createGain(),
-                stop: function() {
+                stop: function () {
                     this.bufferNode.stop();
-                }
+                },
             };
             let curline = OpSound.lines[line];
             curline.masterGain.gain.value = 0;
@@ -551,34 +569,32 @@ evaluator.playfunction$1 = function(args, modifs) {
     return nada;
 };
 
-
-evaluator.playwave$1 = function(args, modifs) {
+evaluator.playwave$1 = function (args, modifs) {
     let audioCtx = OpSound.getAudioContext();
 
     let wave = evaluate(args[0]);
     let line = OpSound.handleLineModif(modifs.line, "0");
-    let amp = OpSound.handleModif(modifs.amp, 'number', 0.5);
-    let damp = OpSound.handleModif(modifs.damp, 'number', 0);
-    let duration = OpSound.handleModif(modifs.duration, 'number', 1);
-    let attack = OpSound.handleModif(modifs.attack, 'number', 0.01);
-    let release = OpSound.handleModif(modifs.release, 'number', 0.01);
-    let start = OpSound.handleModif(modifs.start, 'number', 0);
+    let amp = OpSound.handleModif(modifs.amp, "number", 0.5);
+    let damp = OpSound.handleModif(modifs.damp, "number", 0);
+    let duration = OpSound.handleModif(modifs.duration, "number", 1);
+    let attack = OpSound.handleModif(modifs.attack, "number", 0.01);
+    let release = OpSound.handleModif(modifs.release, "number", 0.01);
+    let start = OpSound.handleModif(modifs.start, "number", 0);
 
-    if (wave.ctype !== 'list') {
+    if (wave.ctype !== "list") {
         return nada;
     }
 
-    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== 'wave') {
-        if (OpSound.lines[line])
-            OpSound.lines[line].stop();
+    if (!OpSound.lines[line] || OpSound.lines[line].lineType !== "wave") {
+        if (OpSound.lines[line]) OpSound.lines[line].stop();
 
         OpSound.lines[line] = {
-            lineType: 'wave',
+            lineType: "wave",
             bufferNode: OpSound.getBufferNode(General.unwrap(wave), duration),
             masterGain: audioCtx.createGain(),
-            stop: function() {
+            stop: function () {
                 this.bufferNode.stop();
-            }
+            },
         };
         let curline = OpSound.lines[line];
         curline.masterGain.gain.value = 0;

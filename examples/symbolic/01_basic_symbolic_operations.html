@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>CindyScript command line</title>
-    <meta charset="utf-8"/>
-    <script src="../../build/js/Cindy.js"></script>
-    <script src="../../build/js/symbolic.js"></script>
-    <script id='csinit' type='text/x-cindyscript'>
-          f(x) := x*x+1;
-          print("f(x) := x*x+1");
-          
-          diff(f(x), x, df(x):=#);
-          
-          println("f(5) = " + f(5));
-          println("df(5) = " + df(5));
-          
-          println("deg f = " + degree(f(x), x));
-          println("deg df = " + degree(df(x), x));
-          
-          println("deg x^5*x = " + degree(x^5*x, x));
-          
-          println("degree of k = 6; x^k+y^k+z^k-1 in x, y, z is " + degree(
-            k = 6; x^k+y^k+z^k-1,
-            x,y,z
-          ))
-    </script>
-    <script>
-      var cindy = CindyJS({
-        canvasname:"Cindy",
-        scripts: "cs*",
-        csconsole: true,
-        use: ["symbolic"]
-      });
-    </script>
-  </head>
-  <body>
-    <div id="Cindy" style="display:none; width:1px; height:1px;"></div>
-  </body>
+    <head>
+        <title>CindyScript command line</title>
+        <meta charset="utf-8" />
+        <script src="../../build/js/Cindy.js"></script>
+        <script src="../../build/js/symbolic.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            f(x) := x*x+1;
+            print("f(x) := x*x+1");
+
+            diff(f(x), x, df(x):=#);
+
+            println("f(5) = " + f(5));
+            println("df(5) = " + df(5));
+
+            println("deg f = " + degree(f(x), x));
+            println("deg df = " + degree(df(x), x));
+
+            println("deg x^5*x = " + degree(x^5*x, x));
+
+            println("degree of k = 6; x^k+y^k+z^k-1 in x, y, z is " + degree(
+              k = 6; x^k+y^k+z^k-1,
+              x,y,z
+            ))
+        </script>
+        <script>
+            var cindy = CindyJS({
+                canvasname: "Cindy",
+                scripts: "cs*",
+                csconsole: true,
+                use: ["symbolic"],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="Cindy" style="display: none; width: 1px; height: 1px"></div>
+    </body>
 </html>

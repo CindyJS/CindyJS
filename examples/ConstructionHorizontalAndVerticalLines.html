@@ -1,38 +1,61 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>ConstructionHorizontalAndVerticalLines.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>ConstructionHorizontalAndVerticalLines.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: {}, 
-	geometry: [ 
-		{ name: "a", type: "HorizontalLine", pos: [ 0.0, -1.8518518518518519, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true, size: 1 }, 
-		{ name: "b", type: "VerticalLine", pos: [ -1.0989010989010988, -0.0, 4.0 ], color: [ 1.0, 0.0, 0.0 ], labeled: true, size: 1 } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 350, transform: [ { visibleRect: [ -9.04, 9.32, 18.16, -4.68 ] } ], background: "rgb(168,176,192)" } ] });
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {},
+                geometry: [
+                    {
+                        name: "a",
+                        type: "HorizontalLine",
+                        pos: [0.0, -1.8518518518518519, 4.0],
+                        color: [0.0, 0.0, 1.0],
+                        labeled: true,
+                        size: 1,
+                    },
+                    {
+                        name: "b",
+                        type: "VerticalLine",
+                        pos: [-1.0989010989010988, -0.0, 4.0],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                        size: 1,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 350,
+                        transform: [{ visibleRect: [-9.04, 9.32, 18.16, -4.68] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

@@ -1,255 +1,309 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Cindy JS</title>    
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-  </head>
-    
-  <body style="margin: 0px;">
-      
-      <script id="csmousedown" type="text/x-cindyscript">
-        sx = mouse().x;
-        sy = mouse().y;
-        dragging = sy < Mdate.y-Cdate.radius-.05 % sx<Mdate.x-Cdate.radius-.05;
-      </script>
-      <script id="csmouseup" type="text/x-cindyscript">
-        dragging = false;
-      </script>
-      
-      <script id="csinit" type="text/x-cindyscript">
-      dx = .05; dy =.0;
-      
-      sx = mouse().x;
-      sy = mouse().y;
-      dragging = false;
-    
-      phi = 2.7;
-      lambda = 0.1;
-      dx = 0; dy =0;
-      lasttime = pi; //12:00
-      createimage("acc", 1024, 768);
-      colorplot("acc",(0,0,0,0));
-      </script>
-      
-      <script id="csdraw" type="text/x-cindyscript">
-      //the following is executed for every rendered frame
-      if (dragging,
-          dx = 3 * (sx - mouse().x); dy = 3 * (sy - mouse().y);,
-          dx = 0; dy = 0;
-      );
-      
-      sx = mouse().x;
-      sy = mouse().y;
-      
-      zoom = 0.4;
-      
-      
-      date = mod(-arctan2(Pdate.xy-Mdate.xy)+pi/2,2*pi);
-      
-      declination = arcsin(-sin(23.43693°)*cos(date+10/365*2*pi));
-      //time = 70°;//3:30pm;
-      time = mod(-arctan2(Ptime.xy-Mtime.xy)+90°,360°)/2;
-      if(|mod(lasttime-time+pi,2*pi)-pi|>|mod(lasttime+pi-time+pi,2*pi)-pi|, time=time+pi);
-      lasttime = time;
-      sun = [cos(declination)*sin(time),
-             sin(declination),
-             -cos(declination)*cos(time)]; //for points on equator
-             
-      
-      latitude = 48.1351°;//munich
-      //latitude = 0;//ecuador
-      
-      sun = [[1, 0, 0],
-            [0,cos(latitude),-sin(latitude)],
-            [0,sin(latitude),cos(latitude)]]*sun;
-      sun = sun/|sun|;
-  
-      if(sun!=lastsun,
-        colorplot("acc",
-          old = imagergba("acc",#);
-          forall(1..3, i,
-            old_i = min(old_i, old.a); //clamp by a
-          );
-          .9*old //fading feels smooth
-        );
-          
-      );
-      if(|(dx,dy)|>1e-4,
-        colorplot("acc",(0,0,0,0));,
-      );
-      lastsun = sun;
-      //the rotation matrix: It is modified either if the user is dragging or time passes
-      phi = phi + dx;
-      lambda = lambda + dy;
-      dx = dy = 0;
-      if(lambda>pi/2, lambda=pi/2);
-      if(lambda<-0.15, lambda=-0.15);
-      mat =  
-      (
-        (1,0,0),
-        (0,0,1),
-        (0,1,0)
-      )*
-      (
-          (cos(phi), 0, -sin(phi)),
-          (0, 1, 0),
-          (sin(phi), 0, cos(phi))
-      )*
-      (
-          (1, 0, 0),
-          (0, cos(lambda), -sin(lambda)),
-          (0, sin(lambda), cos(lambda))
-      );
-      
-      
-      
-      box = [
-        [[-10000,-10000,-100],[10000,10000,-1]],
-        [[-1,-1,-1],[-.4,-.4,.8]],
-        [[-1,.4,-1],[-.4,1,.8]],
-        [[.7,-1,-1],[1,-.7,.8]],
-        [[.7,.7,-1],[1,1,.8]],
-        [[-1.1,-1.1,.8],[1.1,1.1,1]],
-        [[-.8,-.8,.2],[.8,.8,.3]],
-        [[-.8,-.8,-.4],[.8,.8,-.3]],
-        [[-.9,-.9,1], [.9,.9,1.05]],
-        [[-.5,-.5,1],[.5,.5,1.3]],
-        
-        [[-1.2,-1.2,-1.2],[1.5,1.2,-.98]]
-        
-      ];
-      
-      randomunitvector() := (
-        regional(r);
-        r = [randomnormal(), randomnormal(), randomnormal()];
-        r/|r|
-      );
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+    </head>
 
-      bestt = 1000;
-      rot(x) := [x_2, x_3, x_1];//x_[2,3,1];
-      hit(a, b, x, v) := (
-        repeat(3, j,
-          t = (if(v.x>0, a.x, b.x)-x.x)/v.x;
-          if(0<t & t<bestt,
-            nx = x+t*v;
-            if(a.y<nx.y & nx.y<b.y & a.z<nx.z & nx.z<b.z, bestt = t; hitdir = j);
-          );
-          a = rot(a); b = rot(b); x = rot(x); v = rot(v);
-        );
-      );
-      
-      skycolor(v) := (
-        grey(max((v*sun),0)^8)
-      );
-      pixelwidth = 2/imagesize("acc")_2;
-      
-      colorplot("acc",
-        acc = imagergba("acc",#);
-        pixel = #;
-        //if(acc.a>.99,acc = acc*0.9);//avoid "overwhite" on 8-bit systems
-        repeat(2,
-          p = pixel+(random(pixelwidth),random(pixelwidth));//antialiasing
-          rd = (sin(.4*p.x), sin(.4*p.y), cos(.4*p.x)*cos(.4*p.y)); //unit length vector of ray direction
-          v = mat*rd;
-          v = v/|v|;
-          x = mat*[0,0,-15*zoom];
-          fact = 6;
-          sky = false;
-          hitnormal = v;
-          color = [0,0,0];
-          repeat(4, nr,
-            if(!sky,
-              bestt = 1e8;
-              hitdir = 0;
-              forall(1..length(box), k,
-                hit(box_k_1, box_k_2, x, v);
+    <body style="margin: 0px">
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = sy < Mdate.y-Cdate.radius-.05 % sx<Mdate.x-Cdate.radius-.05;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+
+        <script id="csinit" type="text/x-cindyscript">
+            dx = .05; dy =.0;
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            phi = 2.7;
+            lambda = 0.1;
+            dx = 0; dy =0;
+            lasttime = pi; //12:00
+            createimage("acc", 1024, 768);
+            colorplot("acc",(0,0,0,0));
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+              //the following is executed for every rendered frame
+              if (dragging,
+                  dx = 3 * (sx - mouse().x); dy = 3 * (sy - mouse().y);,
+                  dx = 0; dy = 0;
               );
-              if(hitdir==1, hitnormal = [-v.x/|v.x|,0,0]);
-              if(hitdir==2, hitnormal = [0,-v.y/|v.y|,0]);
-              if(hitdir==3, hitnormal = [0,0,-v.z/|v.z|]);
-              
-              r = randomunitvector();
-              
-              if(hitdir == 0,
-                //no hit
-                sky = true;
-                v = v/|v|;
-                if(nr == 1, v = v+r/2;);
-                ,
-                //some hit
-                x = x+bestt*v; 
-                v = if(hitnormal*r>0, r, r - 2*(hitnormal*r)*hitnormal);
-                
-                fact = fact*.9;
+
+              sx = mouse().x;
+              sy = mouse().y;
+
+              zoom = 0.4;
+
+
+              date = mod(-arctan2(Pdate.xy-Mdate.xy)+pi/2,2*pi);
+
+              declination = arcsin(-sin(23.43693°)*cos(date+10/365*2*pi));
+              //time = 70°;//3:30pm;
+              time = mod(-arctan2(Ptime.xy-Mtime.xy)+90°,360°)/2;
+              if(|mod(lasttime-time+pi,2*pi)-pi|>|mod(lasttime+pi-time+pi,2*pi)-pi|, time=time+pi);
+              lasttime = time;
+              sun = [cos(declination)*sin(time),
+                     sin(declination),
+                     -cos(declination)*cos(time)]; //for points on equator
+
+
+              latitude = 48.1351°;//munich
+              //latitude = 0;//ecuador
+
+              sun = [[1, 0, 0],
+                    [0,cos(latitude),-sin(latitude)],
+                    [0,sin(latitude),cos(latitude)]]*sun;
+              sun = sun/|sun|;
+
+              if(sun!=lastsun,
+                colorplot("acc",
+                  old = imagergba("acc",#);
+                  forall(1..3, i,
+                    old_i = min(old_i, old.a); //clamp by a
+                  );
+                  .9*old //fading feels smooth
+                );
+
               );
-              //& max(|x_1|,|x_2|)>1
-              if(sun.z<0 & |hitnormal.z+1|<.01, color = color+min(1,max(-sun.z,0))*fact*[1,.8,.7]*.7);
-              //d = max([|x_1|,|x_2|, |x_3|]);
-              
+              if(|(dx,dy)|>1e-4,
+                colorplot("acc",(0,0,0,0));,
+              );
+              lastsun = sun;
+              //the rotation matrix: It is modified either if the user is dragging or time passes
+              phi = phi + dx;
+              lambda = lambda + dy;
+              dx = dy = 0;
+              if(lambda>pi/2, lambda=pi/2);
+              if(lambda<-0.15, lambda=-0.15);
+              mat =
+              (
+                (1,0,0),
+                (0,0,1),
+                (0,1,0)
+              )*
+              (
+                  (cos(phi), 0, -sin(phi)),
+                  (0, 1, 0),
+                  (sin(phi), 0, cos(phi))
+              )*
+              (
+                  (1, 0, 0),
+                  (0, cos(lambda), -sin(lambda)),
+                  (0, sin(lambda), cos(lambda))
+              );
+
+
+
+              box = [
+                [[-10000,-10000,-100],[10000,10000,-1]],
+                [[-1,-1,-1],[-.4,-.4,.8]],
+                [[-1,.4,-1],[-.4,1,.8]],
+                [[.7,-1,-1],[1,-.7,.8]],
+                [[.7,.7,-1],[1,1,.8]],
+                [[-1.1,-1.1,.8],[1.1,1.1,1]],
+                [[-.8,-.8,.2],[.8,.8,.3]],
+                [[-.8,-.8,-.4],[.8,.8,-.3]],
+                [[-.9,-.9,1], [.9,.9,1.05]],
+                [[-.5,-.5,1],[.5,.5,1.3]],
+
+                [[-1.2,-1.2,-1.2],[1.5,1.2,-.98]]
+
+              ];
+
+              randomunitvector() := (
+                regional(r);
+                r = [randomnormal(), randomnormal(), randomnormal()];
+                r/|r|
+              );
+
+              bestt = 1000;
+              rot(x) := [x_2, x_3, x_1];//x_[2,3,1];
+              hit(a, b, x, v) := (
+                repeat(3, j,
+                  t = (if(v.x>0, a.x, b.x)-x.x)/v.x;
+                  if(0<t & t<bestt,
+                    nx = x+t*v;
+                    if(a.y<nx.y & nx.y<b.y & a.z<nx.z & nx.z<b.z, bestt = t; hitdir = j);
+                  );
+                  a = rot(a); b = rot(b); x = rot(x); v = rot(v);
+                );
+              );
+
+              skycolor(v) := (
+                grey(max((v*sun),0)^8)
+              );
+              pixelwidth = 2/imagesize("acc")_2;
+
+              colorplot("acc",
+                acc = imagergba("acc",#);
+                pixel = #;
+                //if(acc.a>.99,acc = acc*0.9);//avoid "overwhite" on 8-bit systems
+                repeat(2,
+                  p = pixel+(random(pixelwidth),random(pixelwidth));//antialiasing
+                  rd = (sin(.4*p.x), sin(.4*p.y), cos(.4*p.x)*cos(.4*p.y)); //unit length vector of ray direction
+                  v = mat*rd;
+                  v = v/|v|;
+                  x = mat*[0,0,-15*zoom];
+                  fact = 6;
+                  sky = false;
+                  hitnormal = v;
+                  color = [0,0,0];
+                  repeat(4, nr,
+                    if(!sky,
+                      bestt = 1e8;
+                      hitdir = 0;
+                      forall(1..length(box), k,
+                        hit(box_k_1, box_k_2, x, v);
+                      );
+                      if(hitdir==1, hitnormal = [-v.x/|v.x|,0,0]);
+                      if(hitdir==2, hitnormal = [0,-v.y/|v.y|,0]);
+                      if(hitdir==3, hitnormal = [0,0,-v.z/|v.z|]);
+
+                      r = randomunitvector();
+
+                      if(hitdir == 0,
+                        //no hit
+                        sky = true;
+                        v = v/|v|;
+                        if(nr == 1, v = v+r/2;);
+                        ,
+                        //some hit
+                        x = x+bestt*v;
+                        v = if(hitnormal*r>0, r, r - 2*(hitnormal*r)*hitnormal);
+
+                        fact = fact*.9;
+                      );
+                      //& max(|x_1|,|x_2|)>1
+                      if(sun.z<0 & |hitnormal.z+1|<.01, color = color+min(1,max(-sun.z,0))*fact*[1,.8,.7]*.7);
+                      //d = max([|x_1|,|x_2|, |x_3|]);
+
+                    );
+                  );
+
+
+                  acc = acc + if(sky,
+                    //(max((x*[1,2,1]/2)^4,0),max((x*[-1,1,2]/2)^6,0),max((x*[1,-1,2]/2)^4,0),1),
+                    color = color+fact*skycolor(v/|v|);
+                    [color_1,color_2,color_3,1],
+                    [0,0,0,1]
+                  )/255;
+                );
+                acc
             );
-          );
-          
-          
-          acc = acc + if(sky,
-            //(max((x*[1,2,1]/2)^4,0),max((x*[-1,1,2]/2)^6,0),max((x*[1,-1,2]/2)^4,0),1),
-            color = color+fact*skycolor(v/|v|);
-            [color_1,color_2,color_3,1], 
-            [0,0,0,1]
-          )/255;
-        );
-        acc
-    );
-      
-      //gamma = 1;
-      colorplot(
-        d = imagergba("acc",#);
-        c = [d.r,d.g,d.b]/d.a;
-        c
-        //[re(c_1^gamma),re(c_2^gamma),re(c_3^gamma)]
-      );
-      fillcircle(Mdate.xy, Cdate.radius, color->[0,0,0], alpha->.4);
-      fillcircle(Mtime.xy, Cdate.radius, color->[0,0,0], alpha->.4);
-      months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      drawtext(Mdate.xy, months_(floor(mod(date/360°,1)*12)+1), color->[1,1,1], align->"mid");
-      fmt(n,d):=(
-        s=("0000"+n);
-        l=length(s);
-        substring(s,(l-d),l)
-      );
-      drawtext(Mtime.xy, floor(mod(time/360°,1)*24) + ":" + fmt(round(mod(time/360°*24*60,60)),2) , color->[1,1,1], align->"mid");
-      </script>
 
-      <div  id="CSCanvas" style="border:0px"></div>
-      
-      <script type="text/javascript">
-          var cdy = CindyJS({canvasname:"CSCanvas",
-                      scripts: "cs*",
-                      animation: {autoplay: true},
-                      csconsole: false,
-                      use : ["CindyGL"],
-                      geometry: [
-                        { name: "Mdate", type: "Free", pos: [ 0.45,0.5 ], visible:false, pinned: true }, 
-                        { name: "Cdatet", type: "CircleByRadius", radius: 0.15, args: [ "Mdate" ], color:[1,1,1], size:4, pinned: true}, 
-                        { name: "Cdate", type: "CircleByRadius", radius: 0.15, args: [ "Mdate" ], color:[0,0,0], size: 2, pinned: true}, 
-                        
-                        { name: "Pdate", printname: "date", type: "PointOnCircle", pos: [ .8,.5 ], color: [ 1.0, 1.0, 1.0 ], narrow: true, color: [1,1,1], size:8, args:[ "Cdate" ], labeled: false }, 
+              //gamma = 1;
+              colorplot(
+                d = imagergba("acc",#);
+                c = [d.r,d.g,d.b]/d.a;
+                c
+                //[re(c_1^gamma),re(c_2^gamma),re(c_3^gamma)]
+              );
+              fillcircle(Mdate.xy, Cdate.radius, color->[0,0,0], alpha->.4);
+              fillcircle(Mtime.xy, Cdate.radius, color->[0,0,0], alpha->.4);
+              months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+              drawtext(Mdate.xy, months_(floor(mod(date/360°,1)*12)+1), color->[1,1,1], align->"mid");
+              fmt(n,d):=(
+                s=("0000"+n);
+                l=length(s);
+                substring(s,(l-d),l)
+              );
+              drawtext(Mtime.xy, floor(mod(time/360°,1)*24) + ":" + fmt(round(mod(time/360°*24*60,60)),2) , color->[1,1,1], align->"mid");
+        </script>
 
-                        { name: "Mtime", type: "Free", pos: [ 0.8,0.5 ], visible:false, pinned: true }, 
-                        { name: "Ctimet", type: "CircleByRadius", radius: 0.15, args: [ "Mtime" ], color:[1,1,1], size:4, pinned: true}, 
-                        { name: "Ctime", type: "CircleByRadius", radius: 0.15, args: [ "Mtime" ], color:[0,0,0], size:2, pinned: true}, 
-                        { name: "Ptime", printname: "time", type: "PointOnCircle", pos: [ .82,.6231 ], color: [ 1.0, 1.0, 1.0 ], narrow: true, color: [1,1,1], size:8, args:[ "Ctime" ], labeled: false }
-                      ],
-                      ports: [{
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                csconsole: false,
+                use: ["CindyGL"],
+                geometry: [
+                    { name: "Mdate", type: "Free", pos: [0.45, 0.5], visible: false, pinned: true },
+                    {
+                        name: "Cdatet",
+                        type: "CircleByRadius",
+                        radius: 0.15,
+                        args: ["Mdate"],
+                        color: [1, 1, 1],
+                        size: 4,
+                        pinned: true,
+                    },
+                    {
+                        name: "Cdate",
+                        type: "CircleByRadius",
+                        radius: 0.15,
+                        args: ["Mdate"],
+                        color: [0, 0, 0],
+                        size: 2,
+                        pinned: true,
+                    },
+
+                    {
+                        name: "Pdate",
+                        printname: "date",
+                        type: "PointOnCircle",
+                        pos: [0.8, 0.5],
+                        color: [1.0, 1.0, 1.0],
+                        narrow: true,
+                        color: [1, 1, 1],
+                        size: 8,
+                        args: ["Cdate"],
+                        labeled: false,
+                    },
+
+                    { name: "Mtime", type: "Free", pos: [0.8, 0.5], visible: false, pinned: true },
+                    {
+                        name: "Ctimet",
+                        type: "CircleByRadius",
+                        radius: 0.15,
+                        args: ["Mtime"],
+                        color: [1, 1, 1],
+                        size: 4,
+                        pinned: true,
+                    },
+                    {
+                        name: "Ctime",
+                        type: "CircleByRadius",
+                        radius: 0.15,
+                        args: ["Mtime"],
+                        color: [0, 0, 0],
+                        size: 2,
+                        pinned: true,
+                    },
+                    {
+                        name: "Ptime",
+                        printname: "time",
+                        type: "PointOnCircle",
+                        pos: [0.82, 0.6231],
+                        color: [1.0, 1.0, 1.0],
+                        narrow: true,
+                        color: [1, 1, 1],
+                        size: 8,
+                        args: ["Ctime"],
+                        labeled: false,
+                    },
+                ],
+                ports: [
+                    {
                         id: "CSCanvas",
                         width: 1024,
                         height: 768,
-                        transform: [ { visibleRect: [ -1, -0.75, 1, 0.75 ] } ]
-                      }]
-          });
-      </script>
-
-  </body>
+                        transform: [{ visibleRect: [-1, -0.75, 1, 0.75] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

@@ -71,8 +71,7 @@ var attributesToClone = [
 ];
 
 function savePos(el) {
-    if (!(/^Select/.test(el.type) || geoOps[el.type].isMovable))
-        return null; // Fully determined by arguments, no position needed
+    if (!(/^Select/.test(el.type) || geoOps[el.type].isMovable)) return null; // Fully determined by arguments, no position needed
     var unwrap = General.unwrap;
     var sum = CSNumber.add;
     switch (el.kind) {
@@ -108,7 +107,7 @@ function saveGeoElement(el) {
 
     var defel = {
         pinned: false,
-        movable: true
+        movable: true,
     };
 
     if (el.kind === "P") {
@@ -130,15 +129,13 @@ function saveGeoElement(el) {
         polygonDefault(defel);
     }
 
-
-    attributesToClone.forEach(function(key) {
+    attributesToClone.forEach(function (key) {
         if (!el.hasOwnProperty(key)) return;
         var val = General.unwrap(el[key]);
         var defval = General.unwrap(defel[key]);
         if (val !== null && val !== undefined && val !== defval && JSON.stringify(val) !== JSON.stringify(defval)) {
             res[key] = val;
         }
-
     });
     if (el.kind === "P" && (!el.movable || el.pinned) && res.color) {
         var undim = CSNumber.real(1 / defaultAppearance.dimDependent);
@@ -152,14 +149,14 @@ function saveGeoElement(el) {
 
 function saveGeoState() {
     var res = [];
-    csgeo.gslp.forEach(function(el) {
+    csgeo.gslp.forEach(function (el) {
         if (el.tmp) return;
         res.push(saveGeoElement(el));
     });
     return res;
 }
 
-globalInstance.saveState = function() {
+globalInstance.saveState = function () {
     return {
         geometry: saveGeoState(),
     };

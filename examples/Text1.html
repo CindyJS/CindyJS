@@ -1,63 +1,134 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Dock1.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Dock1.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="xcsdraw" type="text/x-cindyscript">
-drawtext(A.xy,"foobarbaz",offset->[8,9]);
-drawtext(D.xy,"|BC|= "+dist0+"!",offset->[3,3]);
-drawtext(Text1.xy,"bazz");
-//forall(inspect(Text0),println(#));
-drawtext(screenbounds()_1, "123456", offset->[10,-60]);
-</script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="xcsdraw" type="text/x-cindyscript">
+            drawtext(A.xy,"foobarbaz",offset->[8,9]);
+            drawtext(D.xy,"|BC|= "+dist0+"!",offset->[3,3]);
+            drawtext(Text1.xy,"bazz");
+            //forall(inspect(Text0),println(#));
+            drawtext(screenbounds()_1, "123456", offset->[10,-60]);
+        </script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, textsize: 12.0 }, 
-	angleUnit: "°", 
-	geometry: [ 
-		{ name: "A", type: "Free", pos: [ 4.0, -1.5094339622641508, -0.9433962264150942 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "B", type: "Free", pos: [ 4.0, 2.6451612903225805, 1.6129032258064515 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "C", type: "Free", pos: [ 4.0, 0.5569620253164557, 0.4219409282700422 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "D", type: "Mid", color: [ 1.0, 0.0, 0.0 ], args: [ "B", "C" ], size: 0.0 }, 
-		{ name: "dist0", type: "Dist", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ] }, 
-		{ name: "Text0", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "A" ], text: "foobar", dock: { to: "A", offset: [ 8.0, 9.0 ] } }, 
-		{ name: "Text1", type: "Text", pos: [ 4.0, 3.6708860759493662, 0.6329113924050632 ], color: [ 0.0, 0.0, 0.0 ], text: "baz" }, 
-		{ name: "Text2", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "D", "dist0" ], text: "|@$\"B\"@$\"C\"|= @#\"dist0\"", dock: { to: "D", offset: [ 3.0, 3.0 ] } }, 
-		{ name: "Text3", type: "Text", color: [ 0.0, 0.0, 0.0 ], text: "1234", dock: { corner: "UL", offset: [ 10.0, -60.0 ] } }, 
-		{ name: "E", type: "Free", pos: [ 4.0, 2.945736434108527, 0.7751937984496123 ], color: [ 1.0, 0.0, 0.0 ], labeled: true }, 
-		{ name: "a", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "C" ], clip: "inci" }, 
-		{ name: "b", type: "Join", color: [ 0.0, 0.0, 1.0 ], args: [ "B", "E" ], clip: "inci" }, 
-		{ name: "α0", type: "Angle", color: [ 0.0, 0.0, 1.0 ], args: [ "a", "b", "B" ], angle: -2.4175393227414417 }, 
-		{ name: "Text4", type: "Text", color: [ 0.0, 0.0, 0.0 ], args: [ "B", "α0" ], text: "<)@$\"a\"@$\"b\"= @#\"α0\"", dock: { to: "B", offset: [ 8.0, 8.0 ] } } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 322, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -3.54 ] } ], background: "rgb(168,176,192)" } ], 
-	cinderella: { build: 1822, version: [ 2, 9, 1822 ] },
-	oninit: function(cdy) {
-		console.log(cdy.saveState());
-	}
-	});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0, textsize: 12.0 },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [4.0, -1.5094339622641508, -0.9433962264150942],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, 2.6451612903225805, 1.6129032258064515],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [4.0, 0.5569620253164557, 0.4219409282700422],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "D", type: "Mid", color: [1.0, 0.0, 0.0], args: ["B", "C"], size: 0.0 },
+                    { name: "dist0", type: "Dist", color: [0.0, 0.0, 1.0], args: ["B", "C"] },
+                    {
+                        name: "Text0",
+                        type: "Text",
+                        color: [0.0, 0.0, 0.0],
+                        args: ["A"],
+                        text: "foobar",
+                        dock: { to: "A", offset: [8.0, 9.0] },
+                    },
+                    {
+                        name: "Text1",
+                        type: "Text",
+                        pos: [4.0, 3.6708860759493662, 0.6329113924050632],
+                        color: [0.0, 0.0, 0.0],
+                        text: "baz",
+                    },
+                    {
+                        name: "Text2",
+                        type: "Text",
+                        color: [0.0, 0.0, 0.0],
+                        args: ["D", "dist0"],
+                        text: '|@$"B"@$"C"|= @#"dist0"',
+                        dock: { to: "D", offset: [3.0, 3.0] },
+                    },
+                    {
+                        name: "Text3",
+                        type: "Text",
+                        color: [0.0, 0.0, 0.0],
+                        text: "1234",
+                        dock: { corner: "UL", offset: [10.0, -60.0] },
+                    },
+                    {
+                        name: "E",
+                        type: "Free",
+                        pos: [4.0, 2.945736434108527, 0.7751937984496123],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "a", type: "Join", color: [0.0, 0.0, 1.0], args: ["B", "C"], clip: "inci" },
+                    { name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["B", "E"], clip: "inci" },
+                    {
+                        name: "α0",
+                        type: "Angle",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["a", "b", "B"],
+                        angle: -2.4175393227414417,
+                    },
+                    {
+                        name: "Text4",
+                        type: "Text",
+                        color: [0.0, 0.0, 0.0],
+                        args: ["B", "α0"],
+                        text: '<)@$"a"@$"b"= @#"α0"',
+                        dock: { to: "B", offset: [8.0, 8.0] },
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 322,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -3.54] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1822, version: [2, 9, 1822] },
+                oninit: function (cdy) {
+                    console.log(cdy.saveState());
+                },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

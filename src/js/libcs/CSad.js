@@ -1,6 +1,6 @@
 var CSad = {};
 
-CSad.printArr = function(erg) {
+CSad.printArr = function (erg) {
     var n = erg.value.length;
     var ttemp = [];
     var ttempi = [];
@@ -11,12 +11,11 @@ CSad.printArr = function(erg) {
         if (ttempi[k] !== 0) printimag = true;
     }
     console.log(ttemp);
-    if (printimag)
-        console.log(ttempi);
+    if (printimag) console.log(ttempi);
 };
 
 // array which contains only n zeros
-CSad.zero = function(n) {
+CSad.zero = function (n) {
     var erg = [];
     var zero = CSNumber.real(0);
 
@@ -28,29 +27,29 @@ CSad.zero = function(n) {
 };
 
 // csad number type [x0, 0, 0, ...]
-CSad.number = function(x0, n) {
+CSad.number = function (x0, n) {
     var erg = CSad.zero(n);
     erg.value[0] = x0;
     return erg;
 };
 
 // csad variables [x0, 1, 0, ....]
-CSad.variable = function(x0, n) {
+CSad.variable = function (x0, n) {
     var erg = CSad.zero(n);
     erg.value[0] = x0;
     erg.value[1] = CSNumber.real(1);
     return erg;
 };
 
-CSad.add = function(a, b) {
+CSad.add = function (a, b) {
     return List.add(a, b);
 };
 
-CSad.sub = function(a, b) {
+CSad.sub = function (a, b) {
     return List.sub(a, b);
 };
 
-CSad.mult = function(f, g) {
+CSad.mult = function (f, g) {
     if (f.value.length !== g.value.length) {
         console.error("dims don't fit return nada");
         return nada;
@@ -71,8 +70,7 @@ CSad.mult = function(f, g) {
     return erg;
 };
 
-
-CSad.pow = function(a, b) {
+CSad.pow = function (a, b) {
     if (b.value.real < 0 || b.value.real !== Math.floor(b.value.real)) {
         return CSad.root(a, b);
     } else {
@@ -85,7 +83,7 @@ CSad.pow = function(a, b) {
 };
 
 // (f)^r for float r
-CSad.root = function(f, r) {
+CSad.root = function (f, r) {
     var zero = CSNumber.real(0);
     var one = CSNumber.real(1);
     var rOne = CSNumber.add(one, r);
@@ -116,11 +114,10 @@ CSad.root = function(f, r) {
 
     //    CSad.printArr(erg);
     return erg;
-
 };
 
 // return first nonzero indexes of f and g starting from k
-CSad.findFirstNoneZero = function(f, g, k) {
+CSad.findFirstNoneZero = function (f, g, k) {
     var idxf = Infinity;
     var idxg = Infinity;
     var myEps = 1e-12;
@@ -144,7 +141,7 @@ CSad.findFirstNoneZero = function(f, g, k) {
 //CSad.trimArr = function(f, g) {};
 
 // f / g
-CSad.div = function(f, g) {
+CSad.div = function (f, g) {
     if (f.value.length !== g.value.length) {
         console.log("dims don't fit - return nada");
         return nada;
@@ -162,14 +159,13 @@ CSad.div = function(f, g) {
     for (var k = 0; k < le; k++) {
         // L'Hospitals rule
         var indxs = CSad.findFirstNoneZero(f, g, k);
-        if (k < indxs[0] && (indxs[0] === indxs[1]) && indxs[0] !== Infinity) {
+        if (k < indxs[0] && indxs[0] === indxs[1] && indxs[0] !== Infinity) {
             //console.log("apply l Hospital", k);
             f.value.splice(k, indxs[0]);
             g.value.splice(k, indxs[0]);
             erg.value.splice(k, indxs[0]);
             le = le - indxs[0];
         }
-
 
         ges = f.value[k];
         for (var i = 0; i < k; i++) {
@@ -186,7 +182,7 @@ CSad.div = function(f, g) {
     return erg;
 };
 
-CSad.exp = function(f) {
+CSad.exp = function (f) {
     var zero = CSNumber.real(0);
     var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
@@ -207,7 +203,7 @@ CSad.exp = function(f) {
     return erg;
 };
 
-CSad.log = function(f) {
+CSad.log = function (f) {
     var zero = CSNumber.real(0);
     var le = f.value.length;
     var erg = CSad.zero(CSNumber.real(le));
@@ -234,7 +230,7 @@ CSad.log = function(f) {
     return erg;
 };
 
-CSad.sincos = function(f) {
+CSad.sincos = function (f) {
     var zero = CSNumber.real(0);
     var le = f.value.length;
     var ergsin = CSad.zero(CSNumber.real(le));
@@ -269,21 +265,19 @@ CSad.sincos = function(f) {
     CSad.sinsave = ergsin;
     CSad.cossave = ergcos;
     return [ergsin, ergcos];
-
 };
 
-CSad.sin = function(f) {
+CSad.sin = function (f) {
     var erg = CSad.sincos(f);
     return erg[0];
 };
 
-CSad.cos = function(f) {
+CSad.cos = function (f) {
     var erg = CSad.sincos(f);
     return erg[1];
 };
 
-
-CSad.faculty = function(n) {
+CSad.faculty = function (n) {
     var erg = [];
     erg[0] = CSNumber.real(1);
     var val = 1;
@@ -295,12 +289,12 @@ CSad.faculty = function(n) {
     return erg;
 };
 
-
-CSad.diff = function(prog, varname, x0, grade) {
+CSad.diff = function (prog, varname, x0, grade) {
     var erg;
 
     if (prog.ctype === "variable") {
-        if (prog.name !== varname) { // if we have different variable than run variable substitute with right val
+        if (prog.name !== varname) {
+            // if we have different variable than run variable substitute with right val
             erg = CSad.number(evaluate(prog), grade);
         } else {
             erg = CSad.variable(x0, grade);
@@ -312,7 +306,10 @@ CSad.diff = function(prog, varname, x0, grade) {
             return CSad.mult(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade));
         }
         if (prog.oper === "^") {
-            return CSad.pow(CSad.diff(prog.args[0], varname, x0, grade), CSad.diff(prog.args[1], varname, x0, grade).value[0]); // .value[0] since we only want the exponent
+            return CSad.pow(
+                CSad.diff(prog.args[0], varname, x0, grade),
+                CSad.diff(prog.args[1], varname, x0, grade).value[0]
+            ); // .value[0] since we only want the exponent
         }
 
         if (prog.oper === "/") {
@@ -325,7 +322,6 @@ CSad.diff = function(prog, varname, x0, grade) {
             console.log("infix not found", prog.oper);
             return nada;
         }
-
     } else if (prog.ctype === "function") {
         if (prog.oper === "exp$1") {
             return CSad.exp(CSad.diff(prog.args[0], varname, x0, grade));
@@ -345,10 +341,9 @@ CSad.diff = function(prog, varname, x0, grade) {
     }
 
     return erg;
-
 };
 
-CSad.adevaluate = function(prog, varname, x0, grade) {
+CSad.adevaluate = function (prog, varname, x0, grade) {
     var ergarr = CSad.diff(prog, varname, x0, grade);
     var facs = CSad.faculty(grade);
     for (var i = 2; i < ergarr.value.length; i++) {
@@ -361,7 +356,7 @@ CSad.adevaluate = function(prog, varname, x0, grade) {
     return ergarr;
 };
 
-CSad.autodiff = function(ffunc, varname, xarr, grade) {
+CSad.autodiff = function (ffunc, varname, xarr, grade) {
     var erg = [];
     var le = xarr.value.length;
 

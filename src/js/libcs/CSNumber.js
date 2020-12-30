@@ -6,11 +6,11 @@ CSNumber._helper = {};
 CSNumber._helper.roundingfactor = 1e4;
 CSNumber._helper.angleroundingfactor = 1e1;
 
-CSNumber._helper.niceround = function(a, roundingfactor) {
+CSNumber._helper.niceround = function (a, roundingfactor) {
     return Math.round(a * roundingfactor) / roundingfactor;
 };
 
-CSNumber.niceprint = function(a, roundingfactor) {
+CSNumber.niceprint = function (a, roundingfactor) {
     roundingfactor = roundingfactor || CSNumber._helper.roundingfactor;
     if (a.usage === "Angle") {
         return CSNumber._helper.niceangle(a);
@@ -24,7 +24,7 @@ CSNumber.niceprint = function(a, roundingfactor) {
     if (imag > 0) {
         return "" + real + " + i*" + imag;
     } else {
-        return "" + real + " - i*" + (-imag);
+        return "" + real + " - i*" + -imag;
     }
 };
 
@@ -33,52 +33,50 @@ var angleUnitName = angleUnit.replace(/\s+/g, ""); // unit may contain space
 var TWOPI = Math.PI * 2;
 var PERTWOPI = 1 / TWOPI;
 var angleUnits = {
-    "rad": TWOPI,
+    rad: TWOPI,
     "°": 360,
-    "deg": 360,
-    "degree": 360,
-    "gra": 400,
-    "grad": 400,
-    "turn": 1,
-    "cyc": 1,
-    "rev": 1,
-    "rot": 1,
-    "π": 2,
-    "pi": 2,
-    "quad": 4,
+    deg: 360,
+    degree: 360,
+    gra: 400,
+    grad: 400,
+    turn: 1,
+    cyc: 1,
+    rev: 1,
+    rot: 1,
+    π: 2,
+    pi: 2,
+    quad: 4,
 };
 
-CSNumber._helper.niceangle = function(a) {
+CSNumber._helper.niceangle = function (a) {
     var unit = angleUnits[angleUnitName];
-    if (!unit)
-        return CSNumber.niceprint(General.withUsage(a, null));
-    if (typeof unit === "function")
-        return unit(a);
+    if (!unit) return CSNumber.niceprint(General.withUsage(a, null));
+    if (typeof unit === "function") return unit(a);
     var num = CSNumber.niceprint(
         CSNumber.realmult(unit * PERTWOPI, a),
-        unit > 200 ? CSNumber._helper.angleroundingfactor : null);
-    if (num.indexOf("i*") === -1)
-        return num + angleUnit;
+        unit > 200 ? CSNumber._helper.angleroundingfactor : null
+    );
+    if (num.indexOf("i*") === -1) return num + angleUnit;
     return "(" + num + ")" + angleUnit;
 };
 
-CSNumber.complex = function(r, i) {
+CSNumber.complex = function (r, i) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.real = function(r) {
+CSNumber.real = function (r) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': 0
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: 0,
+        },
     };
 };
 
@@ -90,156 +88,148 @@ CSNumber.infinity = CSNumber.complex(Infinity, Infinity);
 
 CSNumber.nan = CSNumber.complex(NaN, NaN);
 
-CSNumber._helper.input = function(a) {
-    if (typeof a === "object")
-        return CSNumber.complex(+a.r, +a.i);
-    else
-        return CSNumber.real(+a);
+CSNumber._helper.input = function (a) {
+    if (typeof a === "object") return CSNumber.complex(+a.r, +a.i);
+    else return CSNumber.real(+a);
 };
 
-CSNumber.argmax = function(a, b) {
+CSNumber.argmax = function (a, b) {
     var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
-    return (n1 < n2 ? b : a);
+    return n1 < n2 ? b : a;
 };
 
-
-CSNumber.max = function(a, b) {
+CSNumber.max = function (a, b) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': Math.max(a.value.real, b.value.real),
-            'imag': Math.max(a.value.imag, b.value.imag)
-        }
+        ctype: "number",
+        value: {
+            real: Math.max(a.value.real, b.value.real),
+            imag: Math.max(a.value.imag, b.value.imag),
+        },
     };
 };
 
-
-CSNumber.min = function(a, b) {
+CSNumber.min = function (a, b) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': Math.min(a.value.real, b.value.real),
-            'imag': Math.min(a.value.imag, b.value.imag)
-        }
+        ctype: "number",
+        value: {
+            real: Math.min(a.value.real, b.value.real),
+            imag: Math.min(a.value.imag, b.value.imag),
+        },
     };
 };
 
-
-CSNumber.add = function(a, b) {
+CSNumber.add = function (a, b) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real + b.value.real,
-            'imag': a.value.imag + b.value.imag
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real + b.value.real,
+            imag: a.value.imag + b.value.imag,
+        },
     };
 };
 
-CSNumber.sub = function(a, b) {
+CSNumber.sub = function (a, b) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real - b.value.real,
-            'imag': a.value.imag - b.value.imag
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real - b.value.real,
+            imag: a.value.imag - b.value.imag,
+        },
     };
 };
 
-CSNumber.neg = function(a) {
+CSNumber.neg = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': -a.value.real,
-            'imag': -a.value.imag
-        }
+        ctype: "number",
+        value: {
+            real: -a.value.real,
+            imag: -a.value.imag,
+        },
     };
 };
 
-
-CSNumber.re = function(a) {
+CSNumber.re = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real,
-            'imag': 0
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real,
+            imag: 0,
+        },
     };
 };
 
-CSNumber.im = function(a) {
+CSNumber.im = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.imag,
-            'imag': 0
-        }
+        ctype: "number",
+        value: {
+            real: a.value.imag,
+            imag: 0,
+        },
     };
 };
 
-CSNumber.conjugate = function(a) {
+CSNumber.conjugate = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real,
-            'imag': -a.value.imag
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real,
+            imag: -a.value.imag,
+        },
     };
 };
 
-
-CSNumber.round = function(a) {
+CSNumber.round = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': Math.round(a.value.real),
-            'imag': Math.round(a.value.imag)
-        }
+        ctype: "number",
+        value: {
+            real: Math.round(a.value.real),
+            imag: Math.round(a.value.imag),
+        },
     };
 };
 
-CSNumber.ceil = function(a) {
+CSNumber.ceil = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': Math.ceil(a.value.real),
-            'imag': Math.ceil(a.value.imag)
-        }
+        ctype: "number",
+        value: {
+            real: Math.ceil(a.value.real),
+            imag: Math.ceil(a.value.imag),
+        },
     };
 };
 
-CSNumber.floor = function(a) {
+CSNumber.floor = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': Math.floor(a.value.real),
-            'imag': Math.floor(a.value.imag)
-        }
+        ctype: "number",
+        value: {
+            real: Math.floor(a.value.real),
+            imag: Math.floor(a.value.imag),
+        },
     };
 };
 
-
-CSNumber.mult = function(a, b) {
+CSNumber.mult = function (a, b) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real * b.value.real - a.value.imag * b.value.imag,
-            'imag': a.value.real * b.value.imag + a.value.imag * b.value.real
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real * b.value.real - a.value.imag * b.value.imag,
+            imag: a.value.real * b.value.imag + a.value.imag * b.value.real,
+        },
     };
 };
 
-CSNumber.realmult = function(r, c) {
+CSNumber.realmult = function (r, c) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': r * c.value.real,
-            'imag': r * c.value.imag
-        }
+        ctype: "number",
+        value: {
+            real: r * c.value.real,
+            imag: r * c.value.imag,
+        },
     };
 };
 
-CSNumber.multiMult = function(arr) {
+CSNumber.multiMult = function (arr) {
     var erg = arr[0];
     if (erg.ctype !== "number") return nada;
     for (var i = 1; i < arr.length; i++) {
@@ -252,52 +242,50 @@ CSNumber.multiMult = function(arr) {
     return erg;
 };
 
-CSNumber.abs2 = function(a) {
+CSNumber.abs2 = function (a) {
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real * a.value.real + a.value.imag * a.value.imag,
-            'imag': 0
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real * a.value.real + a.value.imag * a.value.imag,
+            imag: 0,
+        },
     };
 };
 
-CSNumber.abs = function(a) {
+CSNumber.abs = function (a) {
     return CSNumber.sqrt(CSNumber.abs2(a));
 };
 
-
-CSNumber.inv = function(a) {
+CSNumber.inv = function (a) {
     var s = a.value.real * a.value.real + a.value.imag * a.value.imag;
     return {
-        "ctype": "number",
-        "value": {
-            'real': a.value.real / s,
-            'imag': -a.value.imag / s
-        }
+        ctype: "number",
+        value: {
+            real: a.value.real / s,
+            imag: -a.value.imag / s,
+        },
     };
 };
 
-
-CSNumber.div = function(a, b) {
+CSNumber.div = function (a, b) {
     var ar = a.value.real;
     var ai = a.value.imag;
     var br = b.value.real;
     var bi = b.value.imag;
     var s = br * br + bi * bi;
     return {
-        "ctype": "number",
-        "value": {
-            'real': (ar * br + ai * bi) / s,
-            'imag': (ai * br - ar * bi) / s
-        }
+        ctype: "number",
+        value: {
+            real: (ar * br + ai * bi) / s,
+            imag: (ai * br - ar * bi) / s,
+        },
     };
 };
 
 CSNumber.eps = 1e-10;
 CSNumber.epsbig = 1e-6;
 
-CSNumber.snap = function(a) {
+CSNumber.snap = function (a) {
     var r = a.value.real;
     var i = a.value.imag;
     if (Math.floor(r + CSNumber.eps) !== Math.floor(r - CSNumber.eps)) {
@@ -307,29 +295,28 @@ CSNumber.snap = function(a) {
         i = Math.round(i);
     }
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
-
 };
 
-CSNumber.exp = function(a) {
+CSNumber.exp = function (a) {
     var n = Math.exp(a.value.real);
     var r = n * Math.cos(a.value.imag);
     var i = n * Math.sin(a.value.imag);
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.cos = function(a) {
+CSNumber.cos = function (a) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.exp(ii);
@@ -343,15 +330,15 @@ CSNumber.cos = function(a) {
     //  if (i * i < 1E-30) i = 0;
     //  if (r * r < 1E-30) r = 0;
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.sin = function(a) {
+CSNumber.sin = function (a) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.exp(ii);
@@ -365,21 +352,22 @@ CSNumber.sin = function(a) {
     //  if (i * i < 1E-30) i = 0;
     //  if (r * r < 1E-30) r = 0;
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.tan = function(a) {
+CSNumber.tan = function (a) {
     var s = CSNumber.sin(a);
     var c = CSNumber.cos(a);
     return CSNumber.div(s, c);
 };
 
-CSNumber.arccos = function(a) { //OK hässlich aber tuts.
+CSNumber.arccos = function (a) {
+    //OK hässlich aber tuts.
     var t2 = CSNumber.mult(a, CSNumber.neg(a));
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
@@ -387,7 +375,8 @@ CSNumber.arccos = function(a) { //OK hässlich aber tuts.
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.arcsin = function(a) { //OK hässlich aber tuts.
+CSNumber.arcsin = function (a) {
+    //OK hässlich aber tuts.
     var t2 = CSNumber.mult(a, CSNumber.neg(a));
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
@@ -395,18 +384,17 @@ CSNumber.arcsin = function(a) { //OK hässlich aber tuts.
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.arctan = function(a) { //OK hässlich aber tuts.
+CSNumber.arctan = function (a) {
+    //OK hässlich aber tuts.
     var t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
     var t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
     var erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
     return General.withUsage(erg, "Angle");
 };
 
-
-CSNumber.arctan2 = function(a, b) {
+CSNumber.arctan2 = function (a, b) {
     var erg;
-    if (b === undefined)
-        erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
+    if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
     else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
         erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
     else {
@@ -417,8 +405,7 @@ CSNumber.arctan2 = function(a, b) {
     return General.withUsage(erg, "Angle");
 };
 
-
-CSNumber.sqrt = function(a) {
+CSNumber.sqrt = function (a) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
@@ -426,15 +413,15 @@ CSNumber.sqrt = function(a) {
     var i = n * Math.sin(w / 2);
     var r = n * Math.cos(w / 2);
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.powRealExponent = function(a, b) {
+CSNumber.powRealExponent = function (a, b) {
     var rr = a.value.real;
     var ii = a.value.imag;
     var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
@@ -442,60 +429,53 @@ CSNumber.powRealExponent = function(a, b) {
     var i = n * Math.sin(w * b);
     var r = n * Math.cos(w * b);
     return {
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     };
 };
 
-CSNumber.log = function(a) {
+CSNumber.log = function (a) {
     var re = a.value.real;
     var im = a.value.imag;
     var s = Math.sqrt(re * re + im * im);
     var i = im;
 
-
     var imag = Math.atan2(im, re);
     if (i < 0) {
-        imag += (2 * Math.PI);
+        imag += 2 * Math.PI;
     }
     if (i === 0 && re < 0) {
         imag = Math.PI;
     }
     if (imag > Math.PI) {
-        imag -= (2 * Math.PI);
+        imag -= 2 * Math.PI;
     }
     var real = Math.log(s);
 
     return CSNumber.snap({
-        "ctype": "number",
-        "value": {
-            'real': real,
-            'imag': imag
-        }
+        ctype: "number",
+        value: {
+            real: real,
+            imag: imag,
+        },
     });
 };
 
-
-CSNumber.pow = function(a, b) {
-    if (CSNumber._helper.isZero(b))
-        return CSNumber.one;
-    if (CSNumber._helper.isZero(a))
-        return CSNumber.zero;
-    if (CSNumber._helper.isReal(b))
-        return CSNumber.powRealExponent(a, b.value.real);
+CSNumber.pow = function (a, b) {
+    if (CSNumber._helper.isZero(b)) return CSNumber.one;
+    if (CSNumber._helper.isZero(a)) return CSNumber.zero;
+    if (CSNumber._helper.isReal(b)) return CSNumber.powRealExponent(a, b.value.real);
     return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
 };
 
-
-CSNumber.mod = function(a, b) {
+CSNumber.mod = function (a, b) {
     var a1 = a.value.real;
     var a2 = b.value.real;
     var b1 = a.value.imag;
     var b2 = b.value.imag;
-
 
     var r = a1 - Math.floor(a1 / a2) * a2;
     var i = b1 - Math.floor(b1 / b2) * b2;
@@ -503,25 +483,24 @@ CSNumber.mod = function(a, b) {
     if (b2 === 0) i = 0;
 
     return CSNumber.snap({
-        "ctype": "number",
-        "value": {
-            'real': r,
-            'imag': i
-        }
+        ctype: "number",
+        value: {
+            real: r,
+            imag: i,
+        },
     });
 };
 
+CSNumber._helper.seed = "NO";
 
-CSNumber._helper.seed = 'NO';
-
-CSNumber._helper.seedrandom = function(a) {
+CSNumber._helper.seedrandom = function (a) {
     a = a - Math.floor(a);
     a = a * 0.8 + 0.1;
     CSNumber._helper.seed = a;
 };
 
-CSNumber._helper.rand = function() {
-    if (CSNumber._helper.seed === 'NO') {
+CSNumber._helper.rand = function () {
+    if (CSNumber._helper.seed === "NO") {
         return Math.random();
     }
     var a = CSNumber._helper.seed;
@@ -531,24 +510,21 @@ CSNumber._helper.rand = function() {
     return a;
 };
 
-CSNumber._helper.randnormal = function() {
+CSNumber._helper.randnormal = function () {
     var a = CSNumber._helper.rand();
     var b = CSNumber._helper.rand();
     return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
 };
 
-
-CSNumber._helper.isEqual = function(a, b) {
-    return (a.value.real === b.value.real) && (a.value.imag === b.value.imag);
+CSNumber._helper.isEqual = function (a, b) {
+    return a.value.real === b.value.real && a.value.imag === b.value.imag;
 };
 
-CSNumber._helper.isLessThan = function(a, b) {
-
-    return (a.value.real < b.value.real ||
-        (a.value.real === b.value.real && a.value.imag < b.value.imag));
+CSNumber._helper.isLessThan = function (a, b) {
+    return a.value.real < b.value.real || (a.value.real === b.value.real && a.value.imag < b.value.imag);
 };
 
-CSNumber._helper.compare = function(a, b) {
+CSNumber._helper.compare = function (a, b) {
     if (CSNumber._helper.isLessThan(a, b)) {
         return -1;
     }
@@ -558,76 +534,74 @@ CSNumber._helper.compare = function(a, b) {
     return 1;
 };
 
-CSNumber._helper.isAlmostEqual = function(a, b, preci) {
+CSNumber._helper.isAlmostEqual = function (a, b, preci) {
     var eps = CSNumber.eps;
-    if (typeof(preci) !== 'undefined') {
+    if (typeof preci !== "undefined") {
         eps = preci;
     }
     var r = a.value.real - b.value.real;
     var i = a.value.imag - b.value.imag;
-    return (r < eps) && (r > -eps) && (i < eps) && (i > -eps);
+    return r < eps && r > -eps && i < eps && i > -eps;
 };
 
-CSNumber._helper.isZero = function(a) {
-    return (a.value.real === 0) && (a.value.imag === 0);
+CSNumber._helper.isZero = function (a) {
+    return a.value.real === 0 && a.value.imag === 0;
 };
 
-CSNumber._helper.isAlmostZero = function(a) {
+CSNumber._helper.isAlmostZero = function (a) {
     var r = a.value.real;
     var i = a.value.imag;
-    return (r < CSNumber.eps) && (r > -CSNumber.eps) && (i < CSNumber.eps) && (i > -CSNumber.eps);
+    return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
 };
 
-
-CSNumber._helper.isReal = function(a) {
-    return (a.value.imag === 0);
+CSNumber._helper.isReal = function (a) {
+    return a.value.imag === 0;
 };
 
-CSNumber._helper.isAlmostReal = function(a) {
+CSNumber._helper.isAlmostReal = function (a) {
     var i = a.value.imag;
     // This implementation follows Cinderella
-    return (i < CSNumber.epsbig) && (i > -CSNumber.epsbig);
+    return i < CSNumber.epsbig && i > -CSNumber.epsbig;
 };
 
-CSNumber._helper.isNaN = function(a) {
-    return (isNaN(a.value.real)) || (isNaN(a.value.imag));
+CSNumber._helper.isNaN = function (a) {
+    return isNaN(a.value.real) || isNaN(a.value.imag);
 };
 
-CSNumber._helper.isFinite = function(z) {
+CSNumber._helper.isFinite = function (z) {
     return isFinite(z.value.real) && isFinite(z.value.imag);
 };
 
-
-CSNumber._helper.isAlmostImag = function(a) {
+CSNumber._helper.isAlmostImag = function (a) {
     var r = a.value.real;
     // This implementation follows Cinderella
-    return (r < CSNumber.epsbig) && (r > -CSNumber.epsbig);
+    return r < CSNumber.epsbig && r > -CSNumber.epsbig;
 };
 
 CSNumber._helper.z3a = CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
 CSNumber._helper.z3b = CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
 CSNumber._helper.cub1 = {
-    "ctype": "list",
-    "value": [CSNumber.one, CSNumber.one, CSNumber.one]
+    ctype: "list",
+    value: [CSNumber.one, CSNumber.one, CSNumber.one],
 };
 CSNumber._helper.cub2 = {
-    "ctype": "list",
-    "value": [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b]
+    ctype: "list",
+    value: [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b],
 };
 CSNumber._helper.cub3 = {
-    "ctype": "list",
-    "value": [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a]
+    ctype: "list",
+    value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
 };
 
 /* Solve the cubic equation ax^3 + bx^2 + cx + d = 0.
  * The result is a JavaScript array of three complex numbers satisfying that equation.
  */
-CSNumber.solveCubic = function(a, b, c, d) {
+CSNumber.solveCubic = function (a, b, c, d) {
     var help = CSNumber._helper.solveCubicHelper(a, b, c, d);
     return [
         List.scalproduct(CSNumber._helper.cub1, help),
         List.scalproduct(CSNumber._helper.cub2, help),
-        List.scalproduct(CSNumber._helper.cub3, help)
+        List.scalproduct(CSNumber._helper.cub3, help),
     ];
 };
 
@@ -636,7 +610,7 @@ CSNumber.solveCubic = function(a, b, c, d) {
  * If this function returns [y1, y2, y3] then the actual solutions are
  * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
  */
-CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
+CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
     // mostly adapted from the cinderella2 source code
 
     var ar = a.value.real;
@@ -665,7 +639,7 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
 
     // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
     var t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
-    var t3i = (t1r * ci + t1i * cr) - 18 * (abr * di + abi * dr);
+    var t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
 
     // aa = 27  a*a
     var aar = 27 * (ar * ar - ai * ai);
@@ -767,23 +741,19 @@ CSNumber._helper.solveCubicHelper = function(a, b, c, d) {
     zr = t2r;
     zi = t2i;
 
-    return List.turnIntoCSList([
-        CSNumber.complex(xr, xi),
-        CSNumber.complex(yr, yi),
-        CSNumber.complex(zr, zi)
-    ]);
+    return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
 };
 
-CSNumber._helper.getRangeRand = function(min, max) {
+CSNumber._helper.getRangeRand = function (min, max) {
     return Math.random() * (max - min) + min;
 };
 
-CSNumber.getRandReal = function(min, max) {
+CSNumber.getRandReal = function (min, max) {
     var real = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.real(real);
 };
 
-CSNumber.getRandComplex = function(min, max) {
+CSNumber.getRandComplex = function (min, max) {
     var real = CSNumber._helper.getRangeRand(min, max);
     var imag = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.complex(real, imag);

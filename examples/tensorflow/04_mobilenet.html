@@ -1,56 +1,56 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>TensorFlow.js in CindyJS: MobileNet</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <!-- Load TensorFlow.js. This is required to use MobileNet. -->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.12.6"></script>
+        <!-- Load the MobileNet model. -->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@0.1.1"></script>
+        <script type="text/javascript" src="mobilenet-plugin.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            video = camera video();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (imageready(video),
+              drawimage((0,0),(1,0),video);
+              classify(video,
+                //callback when objects are predicted
+                predictions=#;
+                //errc(predictions);
+              );
+              if(!isundefined(predictions),
+                forall(1..length(predictions),k,
+                  drawtext((0.05,9/16-k/20),predictions_k, alpha->2*predictions_k_2);
+                );
+              );
+            );
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 1280, height: 720, transform: [{ visibleRect: [0, 0, 1, 9 / 16] }] }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {},
+                geometry: [],
+                use: ["mobilenet"],
+            });
+        </script>
+    </head>
 
-<head>
-<title>TensorFlow.js in CindyJS: MobileNet</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<!-- Load TensorFlow.js. This is required to use MobileNet. -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.12.6"> </script>
-<!-- Load the MobileNet model. -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@0.1.1"> </script>
-<script type="text/javascript" src="mobilenet-plugin.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-video = camera video();
-</script>
-<script id="csdraw" type="text/x-cindyscript">
-if (imageready(video),
-  drawimage((0,0),(1,0),video);
-  classify(video,
-    //callback when objects are predicted
-    predictions=#;
-    //errc(predictions);
-  );
-  if(!isundefined(predictions),
-    forall(1..length(predictions),k,
-      drawtext((0.05,9/16-k/20),predictions_k, alpha->2*predictions_k_2);
-    );
-  );
-);
-
-
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas", 
-    width: 1280,
-    height: 720,
-    transform:[{visibleRect:[0,0,1,9/16]}]}],
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {},
-  geometry: [],
-  use: ["mobilenet"]
-});
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <h1>TensorFlow.js in CindyJS: MobileNet</h1>
-  <div id="CSCanvas"></div>
-  <div>Objects are detected with the <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet">MobileNet Model using TensorFlow.js</a></div>
-  <div>Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are obtained with Firefox or Chrome.</div>
-</body>
-
+    <body style="font-family: Arial">
+        <h1>TensorFlow.js in CindyJS: MobileNet</h1>
+        <div id="CSCanvas"></div>
+        <div>
+            Objects are detected with the
+            <a href="https://github.com/tensorflow/tfjs-models/tree/master/mobilenet"
+                >MobileNet Model using TensorFlow.js</a
+            >
+        </div>
+        <div>
+            Due to WebGL precision problems, TensorFlow.js works less accurate in Safari. Currently, best results are
+            obtained with Firefox or Chrome.
+        </div>
+    </body>
 </html>

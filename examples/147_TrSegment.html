@@ -1,66 +1,150 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-    <script type="text/javascript">
-CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "A", type: "Free", pos: [-3.0745420815461575, -4.0, -0.8051663099978872], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "B", type: "Free", pos: [4.0, 3.101392692906055, 0.8891817177667849], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "C", type: "Free", pos: [4.0, 0.47160309277107115, 0.5920512331626449], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "D", type: "Free", pos: [4.0, 0.9038941078313968, 1.0530441040859113], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "E", type: "Free", pos: [4.0, 2.0432160173996876, 0.45294338595377565], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "F", type: "Free", pos: [4.0, 1.227590092445823, 0.42322970618228334], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "G", type: "Free", pos: [4.0, 2.541528538659443, 0.4688709306079667], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "H", type: "Free", pos: [4.0, 1.6468224548632182, 0.4498864495632496], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "Tr0", type: "TrProjection", color: [0.0, 0.0, 1.0], args: ["A", "E", "B", "F", "C", "G", "D", "H"], dock: {offset: [0.0, -0.0]}},
-    {name: "K", type: "Free", pos: [0.9708542324126544, -0.12152307173642023, -0.20657735220052686], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "L", type: "Free", pos: [0.4660304573052365, -0.7886669277473233, 0.4010238022131235], color: [1.0, 0.0, 0.0], labeled: true},
-    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["K", "L"], labeled: true},
-    {name: "b", type: "TransformSegment", color: [0.0, 1.0, 0.0], size:3, args: ["Tr0", "a"], labeled: true},
-    {name: "M", type: "TransformP", color: [1.0, 0.0, 0.0], args: ["Tr0", "L"], labeled: true},
-    {name: "N", type: "TransformP", color: [1.0, 0.0, 0.0], args: ["Tr0", "K"], labeled: true}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 680,
-    height: 335,
-    transform: [{visibleRect: [-13.525951415292118, 12.538839922200582, 21.883147336129515, -4.905348433279193]}],
-    background: "rgb(168,176,192)"
-  }],
-  cinderella: {build: 1872, version: [2, 9, 1872]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="http://cindyjs.org/dist/v0.7/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [-3.0745420815461575, -4.0, -0.8051663099978872],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, 3.101392692906055, 0.8891817177667849],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [4.0, 0.47160309277107115, 0.5920512331626449],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "D",
+                        type: "Free",
+                        pos: [4.0, 0.9038941078313968, 1.0530441040859113],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "E",
+                        type: "Free",
+                        pos: [4.0, 2.0432160173996876, 0.45294338595377565],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "F",
+                        type: "Free",
+                        pos: [4.0, 1.227590092445823, 0.42322970618228334],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "G",
+                        type: "Free",
+                        pos: [4.0, 2.541528538659443, 0.4688709306079667],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "H",
+                        type: "Free",
+                        pos: [4.0, 1.6468224548632182, 0.4498864495632496],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "Tr0",
+                        type: "TrProjection",
+                        color: [0.0, 0.0, 1.0],
+                        args: ["A", "E", "B", "F", "C", "G", "D", "H"],
+                        dock: { offset: [0.0, -0.0] },
+                    },
+                    {
+                        name: "K",
+                        type: "Free",
+                        pos: [0.9708542324126544, -0.12152307173642023, -0.20657735220052686],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "L",
+                        type: "Free",
+                        pos: [0.4660304573052365, -0.7886669277473233, 0.4010238022131235],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["K", "L"], labeled: true },
+                    {
+                        name: "b",
+                        type: "TransformSegment",
+                        color: [0.0, 1.0, 0.0],
+                        size: 3,
+                        args: ["Tr0", "a"],
+                        labeled: true,
+                    },
+                    { name: "M", type: "TransformP", color: [1.0, 0.0, 0.0], args: ["Tr0", "L"], labeled: true },
+                    { name: "N", type: "TransformP", color: [1.0, 0.0, 0.0], args: ["Tr0", "K"], labeled: true },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 335,
+                        transform: [
+                            {
+                                visibleRect: [
+                                    -13.525951415292118,
+                                    12.538839922200582,
+                                    21.883147336129515,
+                                    -4.905348433279193,
+                                ],
+                            },
+                        ],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1872, version: [2, 9, 1872] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>

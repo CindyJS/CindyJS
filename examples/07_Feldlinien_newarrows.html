@@ -1,73 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-                </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Two charges</h1>
 
+        <script id="csmove" type="text/x-cindyscript">
 
-        <script id='csmove' type='text/x-cindyscript'>
+                        n=10;
+                        linesize(2);
+                        forall((-n)..n,x,
+                               forall((-n)..n,y,
+                                      p=(x,y)*1;
+                                      f1=(p-A)/abs(p-A)^3;
+                                      f2=(p-B)/abs(p-B)^3;
+                                      f=f1-f2;
+                                      s=abs(f);
+                                      if(s>7,s=7);
+                                      c1=abs(f1)/abs(f);
+                                      c2=abs(f2)/abs(f);
+                                      f=f/abs(f)*.35;
+            //                          nn=(-f_2,f_1)*.6;
+                                      col=(c1,c2,0);
+                                      col=col/abs(col)*.7;
+                                      linesize(sqrt(s)*3);
+            			  //draw(p-f*1.5,p+f*.5, arrow->true, arrowshape->"line", arrowsides->"==>", arrowsize->0.7, color->(0,0,1),color->col);
+            			  draw(p-f*1.5,p+f*.5,arrow->true, arrowshape->"line" ,color->col);
+                                      //draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
+                                      //draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
+                                      )
 
-            n=10;
-            linesize(2);
-            forall((-n)..n,x,
-                   forall((-n)..n,y,
-                          p=(x,y)*1;
-                          f1=(p-A)/abs(p-A)^3;
-                          f2=(p-B)/abs(p-B)^3;
-                          f=f1-f2;
-                          s=abs(f);
-                          if(s>7,s=7);
-                          c1=abs(f1)/abs(f);
-                          c2=abs(f2)/abs(f);
-                          f=f/abs(f)*.35;
-//                          nn=(-f_2,f_1)*.6;
-                          col=(c1,c2,0);
-                          col=col/abs(col)*.7;
-                          linesize(sqrt(s)*3);
-			  //draw(p-f*1.5,p+f*.5, arrow->true, arrowshape->"line", arrowsides->"==>", arrowsize->0.7, color->(0,0,1),color->col);
-			  draw(p-f*1.5,p+f*.5,arrow->true, arrowshape->"line" ,color->col);
-                          //draw(p+f*.5,p+nn*.8,color->(0,0,1),alpha->0.9,color->col);
-                          //draw(p+f*.5,p-nn*.8,color->(0,0,1),alpha->0.9,color->col);
-                          )
+                               );
+        </script>
 
-                   );
-
-
-            </script>
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-
-            var gslp=[
-                      {name:"A",  type:"Free", pos:[-4,-2],color:[1,0,0],size:7},
-                      {name:"B", type:"Free", pos:[6,4],color:[0,1,0],size:7}
-                      ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-
-
-
-
-
-
-	</body>
+            var gslp = [
+                { name: "A", type: "Free", pos: [-4, -2], color: [1, 0, 0], size: 7 },
+                { name: "B", type: "Free", pos: [6, 4], color: [0, 1, 0], size: 7 },
+            ];
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
+        </script>
+    </body>
 </html>

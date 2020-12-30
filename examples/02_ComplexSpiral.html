@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: Complex Spiral</h1>
 
-
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript">
 
             a=complex(A.xy)/5;
             c=complex(C.xy)/10;
@@ -26,30 +22,16 @@
                    );
             draw(A);
             draw(C);
-            </script>
+        </script>
 
-
-
-
-
-        <div  id="CSCanvas" style="width:600px; height:600px; border:2px solid #000000"></div>
+        <div id="CSCanvas" style="width: 600px; height: 600px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-
-            var gslp=[
-                      {name:"A", kind:"P", type:"Free", pos:[7,1,1]},
-                      {name:"C", kind:"P", type:"Free", pos:[0,9,1]},
-                      ];
-            CindyJS({canvasname:"CSCanvas",
-                        movescript:"csmove",
-                        geometry:gslp});
-
-
-
-
-
-            </script>
-
-
-	</body>
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [7, 1, 1] },
+                { name: "C", kind: "P", type: "Free", pos: [0, 9, 1] },
+            ];
+            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
+        </script>
+    </body>
 </html>

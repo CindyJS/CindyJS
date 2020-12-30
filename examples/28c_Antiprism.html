@@ -1,144 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Cindy JS</title>
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Antiparallelograms</h1>
+
+        <script id="keyup" type="text/x-cindyscript"></script>
+
+        <script id="down" type="text/x-cindyscript">
+            if(mouse().x<0 & mouse().y>5.8 & mouse().y<6.8,highlight=1);
+            if(mouse().x<0 & mouse().y>4.8 & mouse().y<5.8,highlight=2);
+            if(mouse().x<0 & mouse().y>3.8 & mouse().y<4.8,highlight=3);
+            if(mouse().x<0 & mouse().y>2.8 & mouse().y<3.8,highlight=4);
+            if(mouse().x<0 & mouse().y>1.8 & mouse().y<2.8,highlight=5);
+            if(mouse().x<0 & mouse().y>0.8 & mouse().y<1.8,highlight=6);
+            if(mouse().x<0 &  mouse().y<0.8,highlight=0);
+        </script>
+
+        <script id="init" type="text/x-cindyscript">
+
+            antiprismc(a,b,c):=(
+                                xx=|a-b|^2;
+                                yy=|a-c|^2;
+                                if(yy==0,c=c+0.0000000001);
+                                yy=|a-c|^2;
+
+                                if(yy==0,
+                                   d=b,
+                                   d=((a*b*xx)-(b*c*xx)-(a*c*yy)+(b*c*yy))/(a*xx-c*xx-a*yy+b*yy)
+                                   );
+                                d;
+                                );
+
+            tractrix(a,b,c):=(
+                              bb=a+(b-a)*2;
+                              dd=antiprismc(a,bb,c);
+
+                              (c+dd)/2;
+                              );
+
+            highlight=0;
+        </script>
+        <script id="csmove" type="text/x-cindyscript">
+            javascript("document.onkeydown={}");
+
+            color((0,0,0));
+            anti(a,b,c,high):=(
+              color=(0,0,0);
+              size=1;
+
+              if(high,color=(1,0,0);size=5);
+              regional(d);
+              d=gauss(antiprismc(complex(a),complex(b),complex(c)));
+              draw(a,b,color->color,size->size);
+              draw(b,d,color->color,size->size);
+              draw(c,d,color->color,size->size);
+              draw(a,c,color->color,size->size);
+              draw(d);
+              d;
+            );
+
+            d=anti(A,B,C,highlight==1);
+            e=anti(A,C,D,highlight==3);
+            f=anti(A,D,B,highlight==2);
+
+            k=anti(C,d,e,highlight==5);
+            k=anti(D,e,f,highlight==6);
+            k=anti(B,f,d,highlight==4);
+
+            E.xy=d;
+            F.xy=e;
+            G.xy=f;
+            H.xy=k;
+
+            drawtext(A+(.3,.3),"F");
+            drawtext(B+(.3,.3),"F1");
+            drawtext(C+(.3,.3),"F2");
+            drawtext(D+(.3,.3),"F3");
 
 
-</head>
+            drawtext(E+(.3,.3),"F12",size->12);
+            drawtext(F+(.3,.3),"F23",size->12);
+            drawtext(G+(.3,.3),"F13",size->12);
+            drawtext(H+(.3,.3),"F123",size->12);
 
-<body style="font-family:Arial;">
+            drawtext((-8,6),"antipara(F,F1,F2,F12)",size->16,color->if(highlight==1,(.9,0,0),(0,0,0)));
+            drawtext((-8,5),"antipara(F,F1,F3,F13)",size->16,color->if(highlight==2,(.9,0,0),(0,0,0)));
+            drawtext((-8,4),"antipara(F,F2,F3,F23)",size->16,color->if(highlight==3,(.9,0,0),(0,0,0)));
+            drawtext((-8,3),"antipara(F1,F12,F13,F123)",size->16,color->if(highlight==4,(.9,0,0),(0,0,0)));
+            drawtext((-8,2),"antipara(F2,F12,F23,F123)",size->16,color->if(highlight==5,(.9,0,0),(0,0,0)));
+            drawtext((-8,1),"antipara(F3,F13,F23,F123)",size->16,color->if(highlight==6,(.9,0,0),(0,0,0)));
+            drawtext((-9,-1),"Click above text to highlight anti-parallelograms",size->18);
+            drawtext((-9,-2.5),"Move F, F1, F2, F3",size->18);
+        </script>
 
-<h1>CindyJS: Antiparallelograms</h1>
+        <div id="CSCanvas" style="width: 800px; height: 500px; border: 2px solid #000000"></div>
 
+        <script>
+            var gslp = [];
 
-<script id='keyup' type='text/x-cindyscript'>
+            gslp.push({ name: "A", type: "Free", pos: [5.3182, -3.7774], color: [1, 1, 1] });
+            gslp.push({ name: "B", type: "Free", pos: [7.0826, 4.4235], color: [1, 0.9, 0] });
+            gslp.push({ name: "C", type: "Free", pos: [8.9962, -4.9454], color: [1, 0.9, 0] });
+            gslp.push({ name: "D", type: "Free", pos: [11.3322, -2.1372], color: [1, 0.9, 0] });
+            gslp.push({ name: "E", type: "Free", pos: [0, 0], color: [0.7, 0, 0] });
+            gslp.push({ name: "F", type: "Free", pos: [0, 0], color: [0.7, 0, 0] });
+            gslp.push({ name: "G", type: "Free", pos: [0, 0], color: [0.7, 0, 0] });
+            gslp.push({ name: "H", type: "Free", pos: [0, 0], color: [0, 0, 0] });
 
-
-</script>
-
-<script id='down' type='text/x-cindyscript'>
-if(mouse().x<0 & mouse().y>5.8 & mouse().y<6.8,highlight=1);
-if(mouse().x<0 & mouse().y>4.8 & mouse().y<5.8,highlight=2);
-if(mouse().x<0 & mouse().y>3.8 & mouse().y<4.8,highlight=3);
-if(mouse().x<0 & mouse().y>2.8 & mouse().y<3.8,highlight=4);
-if(mouse().x<0 & mouse().y>1.8 & mouse().y<2.8,highlight=5);
-if(mouse().x<0 & mouse().y>0.8 & mouse().y<1.8,highlight=6);
-if(mouse().x<0 &  mouse().y<0.8,highlight=0);
-
-
-</script>
-
-
-
-<script id='init' type='text/x-cindyscript'>
-
-antiprismc(a,b,c):=(
-                    xx=|a-b|^2;
-                    yy=|a-c|^2;
-                    if(yy==0,c=c+0.0000000001);
-                    yy=|a-c|^2;
-
-                    if(yy==0,
-                       d=b,
-                       d=((a*b*xx)-(b*c*xx)-(a*c*yy)+(b*c*yy))/(a*xx-c*xx-a*yy+b*yy)
-                       );
-                    d;
-                    );
-
-tractrix(a,b,c):=(
-                  bb=a+(b-a)*2;
-                  dd=antiprismc(a,bb,c);
-
-                  (c+dd)/2;
-                  );
-
-highlight=0;
-
-</script>
-<script id='csmove' type='text/x-cindyscript'>
-javascript("document.onkeydown={}");
-
-color((0,0,0));
-anti(a,b,c,high):=(
-  color=(0,0,0);
-  size=1;
-
-  if(high,color=(1,0,0);size=5);
-  regional(d);
-  d=gauss(antiprismc(complex(a),complex(b),complex(c)));
-  draw(a,b,color->color,size->size);
-  draw(b,d,color->color,size->size);
-  draw(c,d,color->color,size->size);
-  draw(a,c,color->color,size->size);
-  draw(d);
-  d;
-);
-
-d=anti(A,B,C,highlight==1);
-e=anti(A,C,D,highlight==3);
-f=anti(A,D,B,highlight==2);
-
-k=anti(C,d,e,highlight==5);
-k=anti(D,e,f,highlight==6);
-k=anti(B,f,d,highlight==4);
-
-E.xy=d;
-F.xy=e;
-G.xy=f;
-H.xy=k;
-
-drawtext(A+(.3,.3),"F");
-drawtext(B+(.3,.3),"F1");
-drawtext(C+(.3,.3),"F2");
-drawtext(D+(.3,.3),"F3");
-
-
-drawtext(E+(.3,.3),"F12",size->12);
-drawtext(F+(.3,.3),"F23",size->12);
-drawtext(G+(.3,.3),"F13",size->12);
-drawtext(H+(.3,.3),"F123",size->12);
-
-drawtext((-8,6),"antipara(F,F1,F2,F12)",size->16,color->if(highlight==1,(.9,0,0),(0,0,0)));
-drawtext((-8,5),"antipara(F,F1,F3,F13)",size->16,color->if(highlight==2,(.9,0,0),(0,0,0)));
-drawtext((-8,4),"antipara(F,F2,F3,F23)",size->16,color->if(highlight==3,(.9,0,0),(0,0,0)));
-drawtext((-8,3),"antipara(F1,F12,F13,F123)",size->16,color->if(highlight==4,(.9,0,0),(0,0,0)));
-drawtext((-8,2),"antipara(F2,F12,F23,F123)",size->16,color->if(highlight==5,(.9,0,0),(0,0,0)));
-drawtext((-8,1),"antipara(F3,F13,F23,F123)",size->16,color->if(highlight==6,(.9,0,0),(0,0,0)));
-drawtext((-9,-1),"Click above text to highlight anti-parallelograms",size->18);
-drawtext((-9,-2.5),"Move F, F1, F2, F3",size->18);
-
-</script>
-
-
-<div  id="CSCanvas" style="width:800px; height:500px; border:2px solid #000000"></div>
-
-<script>
-
-var gslp=[];
-
-
-    gslp.push({name:"A", type:"Free", pos:[5.3182,-3.7774],color:[1,1,1]});
-    gslp.push({name:"B", type:"Free", pos:[7.0826,4.4235],color:[1,.9,0]});
-    gslp.push({name:"C", type:"Free", pos:[8.9962,-4.9454],color:[1,.9,0]});
-    gslp.push({name:"D", type:"Free", pos:[11.3322,-2.1372],color:[1,.9,0]});
-    gslp.push({name:"E", type:"Free", pos:[0,0],color:[.7,0,0]});
-    gslp.push({name:"F", type:"Free", pos:[0,0],color:[.7,0,0]});
-    gslp.push({name:"G", type:"Free", pos:[0,0],color:[.7,0,0]});
-    gslp.push({name:"H", type:"Free", pos:[0,0],color:[0,0,0]});
-
-CindyJS({canvasname:"CSCanvas",
-defaultAppearance: {clip: "inci", overhangLine: 1.2},
-movescript:"csmove",
-mousedownscript:"down",
-keydownscript:"keyup",
-initscript:"init",
-transform:[{scale:1.3},{translate:[2,0]}],
-geometry:gslp});
-
-</script>
-
-</body>
+            CindyJS({
+                canvasname: "CSCanvas",
+                defaultAppearance: { clip: "inci", overhangLine: 1.2 },
+                movescript: "csmove",
+                mousedownscript: "down",
+                keydownscript: "keyup",
+                initscript: "init",
+                transform: [{ scale: 1.3 }, { translate: [2, 0] }],
+                geometry: gslp,
+            });
+        </script>
+    </body>
 </html>

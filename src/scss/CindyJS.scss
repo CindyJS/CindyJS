@@ -84,7 +84,6 @@ $focused-shadow: 0px 0px 3px #06f;
         .CindyJS-button {
             display: inline-block;
         }
-
     } // end baseline
 
     .CindyJS-button {
@@ -109,40 +108,39 @@ $focused-shadow: 0px 0px 3px #06f;
         bottom: 5px;
         left: 5px;
     }
-
 } // end widget
 
 .CindyJS-button {
-
-    input[type=checkbox] {
+    input[type="checkbox"] {
         position: absolute;
         left: -10000px;
     }
 
-    button, label {
+    button,
+    label {
         @extend %button;
         margin: -6px -7px; // compensate padding + border
         padding: 5px 6px;
         border-radius: 4px;
     }
 
-    button:focus, input[type=checkbox]:focus + label {
+    button:focus,
+    input[type="checkbox"]:focus + label {
         box-shadow: $focused-shadow, $button-shadow;
     }
 
-    input[type=checkbox]:checked + label {
+    input[type="checkbox"]:checked + label {
         @extend %button:active;
     }
 
-    button:focus:active, input[type=checkbox]:focus:checked + label {
+    button:focus:active,
+    input[type="checkbox"]:focus:checked + label {
         background-color: #aaafbb;
         box-shadow: $focused-shadow, $checked-shadow;
     }
-
 } // end button
 
 .CindyJS-editabletext {
-
     border: 1px solid #000;
     margin: -4px -4px -1px;
     padding: 4px 4px 1px;
@@ -150,7 +148,6 @@ $focused-shadow: 0px 0px 3px #06f;
     &:focus {
         box-shadow: $focused-shadow;
     }
-
 } // end editabletext
 
 .CindyJS-toolbar {
@@ -167,14 +164,13 @@ $focused-shadow: 0px 0px 3px #06f;
         width: 32px;
         height: 24px;
     }
-
 } // end toolbar
 
 .CindyJS-animcontrols {
     position: absolute;
     background-color: #00f;
     height: 26px + 10px;
-    width: 3*34px;
+    width: 3 * 34px;
 
     .CindyJS-animspeed {
         height: 10px;

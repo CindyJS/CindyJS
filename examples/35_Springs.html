@@ -1,98 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-            <title>Cindy JS</title>
-            <script type="text/javascript" src="../build/js/Cindy.js"></script>
-            <link rel="stylesheet" href="../css/cindy.css">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+    </head>
 
-
-            </head>
-
-	<body style="font-family:Arial;">
-
+    <body style="font-family: Arial">
         <h1>CindyJS: First Physics</h1>
 
-
-        <script id='init' type='text/x-cindyscript'>
-        l=[];
-
+        <script id="init" type="text/x-cindyscript">
+            l=[];
         </script>
 
-        <script id='csmove' type='text/x-cindyscript'>
+        <script id="csmove" type="text/x-cindyscript"></script>
 
-
-
-        </script>
-
-
-        <div  id="CSCanvas" style="width:500px; height:500px; border:2px solid #000000"></div>
-
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
 
         <script type="text/javascript">
-
-            var gslp=[
-                      {name:"A", type:"Free", pos:[-5,5],color:[1,0,0]},
-                      {name:"B", type:"Free", pos:[-4,5],color:[1,.5,.5]},
-                      {name:"C", type:"Free", pos:[-3,5],color:[1,.5,.5]},
-                      {name:"D", type:"Free", pos:[-2,5],color:[1,.5,.5]},
-                      {name:"E", type:"Free", pos:[-1,5],color:[1,.5,.5]},
-                      {name:"F", type:"Free", pos:[0,5],color:[1,.5,.5]},
-                      {name:"G", type:"Free", pos:[1,5],color:[1,.5,.5]},
-                      {name:"H", type:"Free", pos:[2,5],color:[1,.5,.5]},
-                      {name:"I", type:"Free", pos:[3,5],color:[1,.5,.5]},
-                      {name:"J", type:"Free", pos:[4,5],color:[1,.5,.5]},
-                      {name:"K", type:"Free", pos:[5,5],color:[1,0,0]},
-                      {name:"a", type:"Segment", args:["A","B"] },
-                      {name:"b", type:"Segment", args:["B","C"] },
-                      {name:"c", type:"Segment", args:["C","D"] },
-                      {name:"d", type:"Segment", args:["D","E"] },
-                      {name:"e", type:"Segment", args:["E","F"] },
-                      {name:"f", type:"Segment", args:["F","G"] },
-                      {name:"g", type:"Segment", args:["G","H"] },
-                      {name:"h", type:"Segment", args:["H","I"] },
-                      {name:"i", type:"Segment", args:["I","J"] },
-                      {name:"j", type:"Segment", args:["J","K"] }
-
-
-                    ];
-            var physics=[
-                       {behavior:{type:"Environment",gravity:-.2}},
-                       {name:"B", behavior:{type:"Mass",friction:0.1}},
-                       {name:"C", behavior:{type:"Mass",friction:0.1}},
-                       {name:"D", behavior:{type:"Mass",friction:0.1}},
-                       {name:"E", behavior:{type:"Mass",friction:0.1}},
-                       {name:"F", behavior:{type:"Mass",friction:0.1}},
-                       {name:"G", behavior:{type:"Mass",friction:0.1}},
-                       {name:"H", behavior:{type:"Mass",friction:0.1}},
-                       {name:"I", behavior:{type:"Mass",friction:0.1}},
-                       {name:"J", behavior:{type:"Mass",friction:0.1}},
-                       {name:"a", behavior:{type:"Spring"}},
-                       {name:"b", behavior:{type:"Spring"}},
-                       {name:"c", behavior:{type:"Spring"}},
-                       {name:"d", behavior:{type:"Spring"}},
-                       {name:"e", behavior:{type:"Spring"}},
-                       {name:"f", behavior:{type:"Spring"}},
-                       {name:"g", behavior:{type:"Spring"}},
-                       {name:"h", behavior:{type:"Spring"}},
-                       {name:"i", behavior:{type:"Spring"}},
-                       {name:"j", behavior:{type:"Spring"}}
-
-
-                       ];
-            var cdy = CindyJS({canvasname:"CSCanvas",
-                        defaultAppearance: {dimDependent: 0.7},
-                        movescript:"csmove",
-                        initscript:"init",
-                        geometry:gslp,
-                        behavior:physics}
-                        );
-
+            var gslp = [
+                { name: "A", type: "Free", pos: [-5, 5], color: [1, 0, 0] },
+                { name: "B", type: "Free", pos: [-4, 5], color: [1, 0.5, 0.5] },
+                { name: "C", type: "Free", pos: [-3, 5], color: [1, 0.5, 0.5] },
+                { name: "D", type: "Free", pos: [-2, 5], color: [1, 0.5, 0.5] },
+                { name: "E", type: "Free", pos: [-1, 5], color: [1, 0.5, 0.5] },
+                { name: "F", type: "Free", pos: [0, 5], color: [1, 0.5, 0.5] },
+                { name: "G", type: "Free", pos: [1, 5], color: [1, 0.5, 0.5] },
+                { name: "H", type: "Free", pos: [2, 5], color: [1, 0.5, 0.5] },
+                { name: "I", type: "Free", pos: [3, 5], color: [1, 0.5, 0.5] },
+                { name: "J", type: "Free", pos: [4, 5], color: [1, 0.5, 0.5] },
+                { name: "K", type: "Free", pos: [5, 5], color: [1, 0, 0] },
+                { name: "a", type: "Segment", args: ["A", "B"] },
+                { name: "b", type: "Segment", args: ["B", "C"] },
+                { name: "c", type: "Segment", args: ["C", "D"] },
+                { name: "d", type: "Segment", args: ["D", "E"] },
+                { name: "e", type: "Segment", args: ["E", "F"] },
+                { name: "f", type: "Segment", args: ["F", "G"] },
+                { name: "g", type: "Segment", args: ["G", "H"] },
+                { name: "h", type: "Segment", args: ["H", "I"] },
+                { name: "i", type: "Segment", args: ["I", "J"] },
+                { name: "j", type: "Segment", args: ["J", "K"] },
+            ];
+            var physics = [
+                { behavior: { type: "Environment", gravity: -0.2 } },
+                { name: "B", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "C", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "D", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "E", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "F", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "G", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "H", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "I", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "J", behavior: { type: "Mass", friction: 0.1 } },
+                { name: "a", behavior: { type: "Spring" } },
+                { name: "b", behavior: { type: "Spring" } },
+                { name: "c", behavior: { type: "Spring" } },
+                { name: "d", behavior: { type: "Spring" } },
+                { name: "e", behavior: { type: "Spring" } },
+                { name: "f", behavior: { type: "Spring" } },
+                { name: "g", behavior: { type: "Spring" } },
+                { name: "h", behavior: { type: "Spring" } },
+                { name: "i", behavior: { type: "Spring" } },
+                { name: "j", behavior: { type: "Spring" } },
+            ];
+            var cdy = CindyJS({
+                canvasname: "CSCanvas",
+                defaultAppearance: { dimDependent: 0.7 },
+                movescript: "csmove",
+                initscript: "init",
+                geometry: gslp,
+                behavior: physics,
+            });
         </script>
 
-               <button onclick="cdy.play()" type="button" style="position:absolute; top:610px;left:60px" >Play</button>
-        <button onclick="cdy.pause()" type="button" style="position:absolute; top:610px;left:110px" >Pause</button>
-        <button onclick="cdy.stop()" type="button" style="position:absolute; top:610px;left:170px" >Stop</button>
-
-	</body>
+        <button onclick="cdy.play()" type="button" style="position: absolute; top: 610px; left: 60px">Play</button>
+        <button onclick="cdy.pause()" type="button" style="position: absolute; top: 610px; left: 110px">Pause</button>
+        <button onclick="cdy.stop()" type="button" style="position: absolute; top: 610px; left: 170px">Stop</button>
+    </body>
 </html>

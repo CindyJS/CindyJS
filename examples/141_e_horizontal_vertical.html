@@ -1,45 +1,59 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Konstruktion.cdy</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>Konstruktion.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-</script>
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript"></script>
 
-    <script type="text/javascript">
-CindyJS({ 
-	scripts: "cs*", 
-	defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 }, 
-	angleUnit: "°", 
-	geometry: [ 
-		{ name: "a", type: "VerticalLine", pos: [ -2.0, -0.0, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true }, 
-		{ name: "A", type: "Free", pos: [ -2.0, -4.0, -1.0 ], color: [ 1.0, 0.0, 0.0 ], pinned: true, labeled: true }, 
-		{ name: "b", type: "HorizontalLine", pos: [ 0.0, -1.0, 4.0 ], color: [ 0.0, 0.0, 1.0 ], labeled: true } ], 
-	ports: [ 
-		{ id: "CSCanvas", width: 680, height: 335, transform: [ { visibleRect: [ -9.06, 9.34, 18.14, -4.06 ] } ], background: "rgb(168,176,192)" } ], 
-	cinderella: { build: 1820, version: [ 2, 9, 1820 ] } });
-    </script>
-</head>
+        <script type="text/javascript">
+            CindyJS({
+                scripts: "cs*",
+                defaultAppearance: { fontFamily: "sans-serif", lineSize: 1, pointSize: 5.0 },
+                angleUnit: "°",
+                geometry: [
+                    { name: "a", type: "VerticalLine", pos: [-2.0, -0.0, 4.0], color: [0.0, 0.0, 1.0], labeled: true },
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [-2.0, -4.0, -1.0],
+                        color: [1.0, 0.0, 0.0],
+                        pinned: true,
+                        labeled: true,
+                    },
+                    { name: "b", type: "HorizontalLine", pos: [0.0, -1.0, 4.0], color: [0.0, 0.0, 1.0], labeled: true },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 680,
+                        height: 335,
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.14, -4.06] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                cinderella: { build: 1820, version: [2, 9, 1820] },
+            });
+        </script>
+    </head>
 
-<body style="font-family:Arial;">
-<div id="CSCanvas" style="border:2px solid black">
-</div>
-</body>
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
 </html>

@@ -1,48 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Verbatim GLSL-code in colorplot</h1>
-    
-    
-    <script id="csdraw" type="text/x-cindyscript">
-      
-      code = "vec3 c = vec3(h, s, v);
-            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-            res = c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);";
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-      hsv2rgb(h, s, v) := (
-        res = (0,0,0); //initialize as vector
-        verbatimGLSL(code);
-        res
-      );
-      colorplot(pixel = #;
-        hsv2rgb(pixel.x, pixel.y, .8+.2*sin(pixel*(12,-7))) + verbatimglsl("vec3(.3*fract(dot(vec2(14.),pixel)))"));
-    </script>
+    <body style="font-family: Arial">
+        <h1>CindyJS: Verbatim GLSL-code in colorplot</h1>
 
-    <div id="CSCanvas"></div>
-    
-    <script type="text/javascript">
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    animation: {autoplay: false},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 500,
-                      height: 500,
-                      transform: [ { visibleRect: [0,0, 1, 1] } ]
-                    }],
-                    use: ["CindyGL"]
-                  });
-    </script>              
-	</body>
+        <script id="csdraw" type="text/x-cindyscript">
+
+            code = "vec3 c = vec3(h, s, v);
+                  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+                  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+                  res = c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);";
+
+            hsv2rgb(h, s, v) := (
+              res = (0,0,0); //initialize as vector
+              verbatimGLSL(code);
+              res
+            );
+            colorplot(pixel = #;
+              hsv2rgb(pixel.x, pixel.y, .8+.2*sin(pixel*(12,-7))) + verbatimglsl("vec3(.3*fract(dot(vec2(14.),pixel)))"));
+        </script>
+
+        <div id="CSCanvas"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: false },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 500,
+                        height: 500,
+                        transform: [{ visibleRect: [0, 0, 1, 1] }],
+                    },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </body>
 </html>

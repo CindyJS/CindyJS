@@ -1,63 +1,58 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Cindy JS Example - direct conic drawing</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
 
-<head>
-<title>Cindy JS Example - direct conic drawing</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csinit" type="text/x-cindyscript">
+            // Initialization code, executed once up front.
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
 
-// Initialization code, executed once up front.
+            // Conics can be handed over by
 
-</script>
-<script id="csdraw" type="text/x-cindyscript">
+            // array: coefficiencts by order [a, c, f, 2b, 2d, 2e]
 
-// Conics can be handed over by
+            C0 = [-0.31, -0.27, -0.13, 2.8, 0.09, 1];
 
-// array: coefficiencts by order [a, c, f, 2b, 2d, 2e]
+            // matrices
 
-C0 = [-0.31, -0.27, -0.13, 2.8, 0.09, 1];
+            C1 = [[-0.31, -0.13/2, 2.8/2],
+                 [-0.13/2, -0.27, 0.09/2],
+                 [2.8/2, 0.09/2, 1]];
 
-// matrices
+            // non symmetric matrices
 
-C1 = [[-0.31, -0.13/2, 2.8/2],
-     [-0.13/2, -0.27, 0.09/2],
-     [2.8/2, 0.09/2, 1]];
+            C2 = [[-0.31, -0.13, 2.8],
+                 [0, -0.27, 0.09],
+                 [0, 0, 1]];
 
-// non symmetric matrices
+            // drawing command
+            drawconic(C0,alpha->0.3, color->[1,0,0]);
+            drawconic(C1,alpha->0.3, color->[0,1,0]);
+            drawconic(C2,alpha->0.3, color->[0,0,1]);
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/CindyJS documentation for details.
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {
+                    // See GeoBasics.js for possible attributes.
+                },
+                geometry: [
+                    // For allowed types, see GeoOps.js.
+                    // For allowed properties, see csinit in GeoBasics.js.
+                ], // End of geometry array.
+            });
 
-C2 = [[-0.31, -0.13, 2.8],
-     [0, -0.27, 0.09],
-     [0, 0, 1]];
+            // Remove all comments after adjusting this template for your use case.
+        </script>
+    </head>
 
-// drawing command
-drawconic(C0,alpha->0.3, color->[1,0,0]);
-drawconic(C1,alpha->0.3, color->[0,1,0]);
-drawconic(C2,alpha->0.3, color->[0,0,1]);
-
-</script>
-<script type="text/javascript">
-
-var cdy = CindyJS({ // See ref/CindyJS documentation for details.
-  canvasname: "CSCanvas",
-  scripts: "cs*",
-  language: "en",
-  defaultAppearance: {
-    // See GeoBasics.js for possible attributes.
-  },
-  geometry: [
-    // For allowed types, see GeoOps.js.
-    // For allowed properties, see csinit in GeoBasics.js.
-  ] // End of geometry array.
-});
-
-// Remove all comments after adjusting this template for your use case.
-
-</script>
-</head>
-
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:500px; height:500px; border:2px solid black"></div>
-</body>
-
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+    </body>
 </html>

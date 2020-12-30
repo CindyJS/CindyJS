@@ -1,333 +1,363 @@
-
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>Runge-Kutta</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            N = 200; //number of bodies
+            h = .1; //stepsize
+            k = 10; //steps per frame
+            temp = .1;
+            char1 = 1;
+            char2 = 1;
+            r1 = 1.1;
+            r2 = 1.1;
+            friction = .2;
+            temp = .1;
+            pressure = .01;
+            maxforce = 10;
+            zoom = 1;
 
-<head>
-<title>Runge-Kutta</title>
-<meta charset="UTF-8">
-<script type="text/javascript" src="../../build/js/Cindy.js"></script>
-<script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-<script id="csinit" type="text/x-cindyscript">
-N = 200; //number of bodies
-h = .1; //stepsize
-k = 10; //steps per frame
-temp = .1;
-char1 = 1;
-char2 = 1;
-r1 = 1.1;
-r2 = 1.1;
-friction = .2;
-temp = .1;
-pressure = .01;
-maxforce = 10;
-zoom = 1;
+            linearcomb(y, alpha, k) := ( //saves y+alpha*k to "h"
+              colorplot(Lc, Rc, "h",
+                imagergba(Lc, Rc, y, #, interpolate->false) + alpha*imagergba(Lc, Rc, k, #, interpolate->false);
+              );
+              "h" //return value
+            );
 
-linearcomb(y, alpha, k) := ( //saves y+alpha*k to "h"
-  colorplot(Lc, Rc, "h",
-    imagergba(Lc, Rc, y, #, interpolate->false) + alpha*imagergba(Lc, Rc, k, #, interpolate->false);
-  );
-  "h" //return value
-);
+            type(i) := i<=N*char2/max(char1+char2,1); //total charge should be 0
 
-type(i) := i<=N*char2/max(char1+char2,1); //total charge should be 0
+            charge(i) := if(type(i), -char1, char2);  //avoid if: if(type(i), -char1, char2)
+            col(i) := if(type(i), col1, col2);
+            rad(i) := if(type(i), r1, r2);
+            smoothbound(x) := min(max(x/|(x/maxforce,1)|,-maxforce),maxforce); //bound |x| smoothly by maxforce: projection on circle with radius maxforce
 
-charge(i) := if(type(i), -char1, char2);  //avoid if: if(type(i), -char1, char2)
-col(i) := if(type(i), col1, col2);
-rad(i) := if(type(i), r1, r2);
-smoothbound(x) := min(max(x/|(x/maxforce,1)|,-maxforce),maxforce); //bound |x| smoothly by maxforce: projection on circle with radius maxforce
+            evalf(y, res) := ( //evals f(y)=y'. Here y = (x_1,...x_N, v_1,...v_N) and saves result to res
+              colorplot(Lc, Rc, res,
+                i = round(#.x);
+                vi = imagergba(Lc, Rc, y, (i,1), interpolate->false);
+                xi = imagergba(Lc, Rc, y, (i,0), interpolate->false);
+                if(#.y <= .5,
+                  //y_(i,0)'=x_i' = v_i = y_(i,1)
+                  vi - pressure*xi/radius  //pressure: push into middle
+                ,
+                  //y_(i,1)' = v_i' = a_i = F_i/m_i
+                  sum = [0,0,0,0];
+                  ci = charge(i);
+                  ri = rad(i);
+                  repeat(N, j, if(i!=j,
+                    xj =  imagergba(Lc, Rc, y, (j,0), interpolate->false);
+                    r = |xi-xj|;
+                    cj = charge(j);
+                    rj = rad(j);
+                    sum = sum + (xj-xi)*smoothbound(
+                                -ci*cj/(r^3) - 1/((r/(ri+rj))^12)
+                            );
 
-evalf(y, res) := ( //evals f(y)=y'. Here y = (x_1,...x_N, v_1,...v_N) and saves result to res
-  colorplot(Lc, Rc, res,
-    i = round(#.x);
-    vi = imagergba(Lc, Rc, y, (i,1), interpolate->false);
-    xi = imagergba(Lc, Rc, y, (i,0), interpolate->false);
-    if(#.y <= .5,
-      //y_(i,0)'=x_i' = v_i = y_(i,1)
-      vi - pressure*xi/radius  //pressure: push into middle
-    ,
-      //y_(i,1)' = v_i' = a_i = F_i/m_i
-      sum = [0,0,0,0];
-      ci = charge(i);
-      ri = rad(i);
-      repeat(N, j, if(i!=j,
-        xj =  imagergba(Lc, Rc, y, (j,0), interpolate->false);
-        r = |xi-xj|;
-        cj = charge(j);
-        rj = rad(j);
-        sum = sum + (xj-xi)*smoothbound(
-                    -ci*cj/(r^3) - 1/((r/(ri+rj))^12)
-                );
-        
-      ));
-      
-      //ai
-      sum - friction*vi + temp*4*[random()-.5, random()-.5, random()-.5, 0];
-    )
-  );
-);
+                  ));
 
-RKstep() := (
-  evalf("y", "k1");
-  evalf(linearcomb("y", h/2, "k1"), "k2");
-  evalf(linearcomb("y", h/2, "k2"), "k3");
-  evalf(linearcomb("y", h, "k3"), "k4");
-  
-  colorplot(Lc, Rc, "y",
-    imagergba(Lc, Rc, "y", #, interpolate->false) +
-    h/6*(
-      imagergba(Lc, Rc, "k1", #, interpolate->false) +
-      2*imagergba(Lc, Rc, "k2", #, interpolate->false) +
-      2*imagergba(Lc, Rc, "k3", #, interpolate->false) +
-      imagergba(Lc, Rc, "k4", #, interpolate->false)
-    )
-  );
-);
+                  //ai
+                  sum - friction*vi + temp*4*[random()-.5, random()-.5, random()-.5, 0];
+                )
+              );
+            );
 
+            RKstep() := (
+              evalf("y", "k1");
+              evalf(linearcomb("y", h/2, "k1"), "k2");
+              evalf(linearcomb("y", h/2, "k2"), "k3");
+              evalf(linearcomb("y", h, "k3"), "k4");
+
+              colorplot(Lc, Rc, "y",
+                imagergba(Lc, Rc, "y", #, interpolate->false) +
+                h/6*(
+                  imagergba(Lc, Rc, "k1", #, interpolate->false) +
+                  2*imagergba(Lc, Rc, "k2", #, interpolate->false) +
+                  2*imagergba(Lc, Rc, "k3", #, interpolate->false) +
+                  imagergba(Lc, Rc, "k4", #, interpolate->false)
+                )
+              );
+            );
 
 
-reset() := (
-  RKstep(); //for some reason we need this in order to write to textures properly
-  colorplot(Lc, Rc, "y", if(#.y <= .5, radius*2*[random()-.5,random()-.5,random()-.5, 1], [0,0,0,0]));
-);
 
-updateN(n):=(
-  N = n;
-  Lc = [.5,-.5];
-  Rc = [N+.5,-.5];
-  radius = max(5*(N^(1/3)),1);
-  createimage("y", N, 2);
-  createimage("k1", N, 2);
-  createimage("k2", N, 2);
-  createimage("k3", N, 2);
-  createimage("k4", N, 2);
-  createimage("h", N, 2);
-  createimage("p", N, 1);
-  reset();
-);
+            reset() := (
+              RKstep(); //for some reason we need this in order to write to textures properly
+              colorplot(Lc, Rc, "y", if(#.y <= .5, radius*2*[random()-.5,random()-.5,random()-.5, 1], [0,0,0,0]));
+            );
 
-mat = [[1,0,0],[0,1,0],[0,0,1]];
-dragging = false;
-updateN(N);
+            updateN(n):=(
+              N = n;
+              Lc = [.5,-.5];
+              Rc = [N+.5,-.5];
+              radius = max(5*(N^(1/3)),1);
+              createimage("y", N, 2);
+              createimage("k1", N, 2);
+              createimage("k2", N, 2);
+              createimage("k3", N, 2);
+              createimage("k4", N, 2);
+              createimage("h", N, 2);
+              createimage("p", N, 1);
+              reset();
+            );
 
-mv = false;
-</script>
-<script id="csmousedown" type="text/x-cindyscript">
-dragging = mouse().x<8;
-</script>
+            mat = [[1,0,0],[0,1,0],[0,0,1]];
+            dragging = false;
+            updateN(N);
 
-<script id="csmouseup" type="text/x-cindyscript">
-dragging = false;
-</script>
+            mv = false;
+        </script>
+        <script id="csmousedown" type="text/x-cindyscript">
+            dragging = mouse().x<8;
+        </script>
 
-<script id="csdraw" type="text/x-cindyscript">
-if (dragging,
-    dx = -.3 * (sx - mouse().x); dy = -.3 * (sy - mouse().y);
-    mat = (
-        (1, 0, 0),
-        (0, cos(dy), -sin(dy)),
-        (0, sin(dy), cos(dy))
-    ) * (
-        (cos(dx), 0, -sin(dx)),
-        (0, 1, 0),
-        (sin(dx), 0, cos(dx))
-    ) * mat;
-);
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
 
-sx = mouse().x;
-sy = mouse().y;
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = -.3 * (sx - mouse().x); dy = -.3 * (sy - mouse().y);
+                mat = (
+                    (1, 0, 0),
+                    (0, cos(dy), -sin(dy)),
+                    (0, sin(dy), cos(dy))
+                ) * (
+                    (cos(dx), 0, -sin(dx)),
+                    (0, 1, 0),
+                    (sin(dx), 0, cos(dx))
+                ) * mat;
+            );
 
-repeat(k,
-  RKstep()
-);
+            sx = mouse().x;
+            sy = mouse().y;
 
+            repeat(k,
+              RKstep()
+            );
 
 
 
 
-drawtext(S2+(.5,-.2),"radius",size->16);
-drawtext(S+(0,.7),format(r1,1),size->14);
 
-drawtext(T2+(.5,-.2),"radius",size->16);
-drawtext(T+(0,.7),format(r2,1),size->14);
+            drawtext(S2+(.5,-.2),"radius",size->16);
+            drawtext(S+(0,.7),format(r1,1),size->14);
 
-drawtext(R2+(.5,-.2),"charge",size->16);
-drawtext(R+(0,.7),format(char1,0),size->14);
+            drawtext(T2+(.5,-.2),"radius",size->16);
+            drawtext(T+(0,.7),format(r2,1),size->14);
 
-drawtext(U2+(.5,-.2),"charge",size->16);
-drawtext(U+(0,.7),format(char2,0),size->14);
+            drawtext(R2+(.5,-.2),"charge",size->16);
+            drawtext(R+(0,.7),format(char1,0),size->14);
 
-drawtext(V2+(.5,-.2),"friction",size->16);
-drawtext(W2+(.5,-.2),"temperature",size->16);
-drawtext(P2+(.5,-.2),"pressure",size->16);
+            drawtext(U2+(.5,-.2),"charge",size->16);
+            drawtext(U+(0,.7),format(char2,0),size->14);
 
-repeat(char1,r,
-  drawcircle(R,.2+r*.1,color->col1,size->1);
-);
-repeat(char2,r,
-  drawcircle(U,.2+r*.1,color->col2,size->1);
-);
+            drawtext(V2+(.5,-.2),"friction",size->16);
+            drawtext(W2+(.5,-.2),"temperature",size->16);
+            drawtext(P2+(.5,-.2),"pressure",size->16);
 
-
-colorplot(Lc, Rc, "p",
-  mat*imagergb(Lc, Rc, "y", #, interpolate->false)+(0,0,zoom*radius);
-);
-
-x = readpixels("p");
-x = apply(1..N, i, x_i++[i]);
-
-clip(screen()~~halfplane(join((10,10),(10,-10)),(0,0)));
-forall(sort(x, -#_3), p,
-  if(p_3>0,
-    draw(10*(p_1, p_2)/(p_3), color->col(p_5), size->rad(p_5)*300/(p_3), alpha->.9);
-  );
-);
-grestore();
-draw((10,-10),(10,10), color->[0,0,0]);
+            repeat(char1,r,
+              drawcircle(R,.2+r*.1,color->col1,size->1);
+            );
+            repeat(char2,r,
+              drawcircle(U,.2+r*.1,color->col2,size->1);
+            );
 
 
-</script>
+            colorplot(Lc, Rc, "p",
+              mat*imagergb(Lc, Rc, "y", #, interpolate->false)+(0,0,zoom*radius);
+            );
 
-<script id='csmove' type='text/x-cindyscript'>
+            x = readpixels("p");
+            x = apply(1..N, i, x_i++[i]);
 
+            clip(screen()~~halfplane(join((10,10),(10,-10)),(0,0)));
+            forall(sort(x, -#_3), p,
+              if(p_3>0,
+                draw(10*(p_1, p_2)/(p_3), color->col(p_5), size->rad(p_5)*300/(p_3), alpha->.9);
+              );
+            );
+            grestore();
+            draw((10,-10),(10,10), color->[0,0,0]);
+        </script>
 
-if(dragging,
-  if(!isundefined(mover()),
-    if(mv!=mover(),
-      mv = mover();
-      mvxy = mover().xy;
-      ,
-      mover().xy = mvxy;
-    )
-  )
-  ,
-  mv = false;
-);
-
-          x=V.x;
-          if(x<V1.x,x=V1.x);
-          if(x>V2.x,x=V2.x);
-          V.xy=(x,V1.y);
-          friction=|V,V1|/|V1,V2|*.1+1e-3;
+        <script id="csmove" type="text/x-cindyscript">
 
 
+            if(dragging,
+              if(!isundefined(mover()),
+                if(mv!=mover(),
+                  mv = mover();
+                  mvxy = mover().xy;
+                  ,
+                  mover().xy = mvxy;
+                )
+              )
+              ,
+              mv = false;
+            );
 
-          x=W.x;
-          if(x<W1.x,x=W1.x);
-          if(x>W2.x,x=W2.x);
-          W.xy=(x,W1.y);
-          temp=|W,W1|/|W1,W2|*.3;
-          
-          x=P.x;
-          if(x<P1.x,x=P1.x);
-          if(x>P2.x,x=P2.x);
-          P.xy=(x,P1.y);
-          pressure=|P,P1|/|P1,P2|*.2;
-          
-          y=Z.y;
-          if(y<Z1.y,y=Z1.y);
-          if(y>Z2.y,y=Z2.y);
-          Z.xy=(Z1.x, y);
-          zoom=exp(2*|Z,Z2|/|Z1,Z2|-.5);
+                      x=V.x;
+                      if(x<V1.x,x=V1.x);
+                      if(x>V2.x,x=V2.x);
+                      V.xy=(x,V1.y);
+                      friction=|V,V1|/|V1,V2|*.1+1e-3;
 
 
-          x=S.x;
-          if(x<S1.x,x=S1.x);
-          if(x>S2.x,x=S2.x);
-          S.xy=(x,S1.y);
 
-          x=R.x;
-          if(x<R1.x,x=R1.x);
-          if(x>R2.x,x=R2.x);
-          x=round(x*4/|R1,R2|)/4*|R1,R2|;
-          R.xy=(x,R1.y);
-          char1=round(|R,R1|/|R1,R2|*4);
+                      x=W.x;
+                      if(x<W1.x,x=W1.x);
+                      if(x>W2.x,x=W2.x);
+                      W.xy=(x,W1.y);
+                      temp=|W,W1|/|W1,W2|*.3;
 
-          x=T.x;
-          if(x<T1.x,x=T1.x);
-          if(x>T2.x,x=T2.x);
-          T.xy=(x,T1.y);
+                      x=P.x;
+                      if(x<P1.x,x=P1.x);
+                      if(x>P2.x,x=P2.x);
+                      P.xy=(x,P1.y);
+                      pressure=|P,P1|/|P1,P2|*.2;
 
-          x=U.x;
-          if(x<U1.x,x=U1.x);
-          if(x>U2.x,x=U2.x);
-          x=round(x*4/|U1,U2|)/4*|U1,U2|;
-          char2=|U,U1|/|U1,U2|*4;
-          U.xy=(x,U1.y);
-          char2=round(|U,U1|/|U1,U2|*4);
+                      y=Z.y;
+                      if(y<Z1.y,y=Z1.y);
+                      if(y>Z2.y,y=Z2.y);
+                      Z.xy=(Z1.x, y);
+                      zoom=exp(2*|Z,Z2|/|Z1,Z2|-.5);
 
-       r1=|S,S1|/|S1,S2|*1.8+.2;
-       r2=|T,T1|/|T1,T2|*1.8+.2;
-       S.size=r1*5+2;
-       T.size=r2*5+2;
-       
-       sat=[.9999,.7,.6,.5,.0];
-       col1=(1,sat_(char1+1),sat_(char1+1));
-       col2=(sat_(char2+1),sat_(char2+1),1);
-       
-       S.color=col1;
-       R.color=col1;
-       T.color=col2;
-       U.color=col2;
-</script>
-<script type="text/javascript">
-var cdy = CindyJS({
-  ports: [{id: "CSCanvas"}],
-  scripts: "cs*",
-  language: "en",
-  autoplay: true,
-  geometry: [
-    {name:"S1", type:"Free", pos:[12,8],color:[0,0,0],pinned:true,size:2},
-     {name:"S2", type:"Free", pos:[20,8],color:[0,0,0],pinned:true,size:2},
-     {name:"S", type:"Free", pos:[15.5,8],color:[1,0.5,0.5],pinned:false,size:4},
-     {name:"l", type:"Segment", args:["S1","S2"],color:[0,0,0],pinned:false,size:2},
-    {name:"R1", type:"Free", pos:[12,6],color:[0,0,0],pinned:true,size:2},
-     {name:"R2", type:"Free", pos:[20,6],color:[0,0,0],pinned:true,size:2},
-     {name:"R", type:"Free", pos:[14,6],color:[1,1,1],pinned:false,size:4},
-     {name:"m", type:"Segment", args:["R1","R2"],color:[0,0,0],pinned:false,size:2},
-     
-    {name:"T1", type:"Free", pos:[12,2],color:[0,0,0],pinned:true,size:2},
-     {name:"T2", type:"Free", pos:[20,2],color:[0,0,0],pinned:true,size:2},
-     {name:"T", type:"Free", pos:[15.5,2],color:[0.5,0.5,1],pinned:false,size:4},
-     {name:"o", type:"Segment", args:["T1","T2"],color:[0,0,0],pinned:false,size:2},
-    {name:"U1", type:"Free", pos:[12,0],color:[0,0,0],pinned:true,size:2},
-     {name:"U2", type:"Free", pos:[20,0],color:[0,0,0],pinned:true,size:2},
-     {name:"U", type:"Free", pos:[14,0],color:[1,1,1],pinned:false,size:4},
-     {name:"p", type:"Segment", args:["U1","U2"],color:[0,0,0],pinned:false,size:2},
 
-    {name:"V1", type:"Free", pos:[12,-4],color:[0,0,0],pinned:true,size:2},
-     {name:"V2", type:"Free", pos:[20,-4],color:[0,0,0],pinned:true,size:2},
-     {name:"V", type:"Free", pos:[14,-4],color:[1,1,1],pinned:false,size:4},
-     {name:"r", type:"Segment", args:["V1","V2"],color:[0,0,0],pinned:false,size:2},
+                      x=S.x;
+                      if(x<S1.x,x=S1.x);
+                      if(x>S2.x,x=S2.x);
+                      S.xy=(x,S1.y);
 
-     {name:"W1", type:"Free", pos:[12,-6],color:[0,0,0],pinned:true,size:2},
-      {name:"W2", type:"Free", pos:[20,-6],color:[0,0,0],pinned:true,size:2},
-      {name:"W", type:"Free", pos:[12,-6],color:[1,1,1],pinned:false,size:4},
-      {name:"s", type:"Segment", args:["W1","W2"],color:[0,0,0],pinned:false,size:2},
-      
-     {name:"P1", type:"Free", pos:[12,-8],color:[0,0,0],pinned:true,size:2},
-      {name:"P2", type:"Free", pos:[20,-8],color:[0,0,0],pinned:true,size:2},
-      {name:"P", type:"Free", pos:[12.2,-8],color:[1,1,1],pinned:false,size:4},
-      {name:"pl", type:"Segment", args:["P1","P2"],color:[0,0,0],pinned:false,size:2},
-      
-      
-      {name:"Z1", type:"Free", pos:[9,-9],color:[0,0,0],pinned:true,size:2},
-       {name:"Z2", type:"Free", pos:[9,9],color:[0,0,0],pinned:true,size:2},
-       {name:"Z", type:"Free", pos:[9,0],color:[1,1,1],pinned:false,size:8},
-       {name:"zl", type:"Segment", args:["Z1","Z2"],color:[0,0,0],pinned:false,size:2}    
-  ],
-  use: ["CindyGL"]
-});
-</script>
-</head>
+                      x=R.x;
+                      if(x<R1.x,x=R1.x);
+                      if(x>R2.x,x=R2.x);
+                      x=round(x*4/|R1,R2|)/4*|R1,R2|;
+                      R.xy=(x,R1.y);
+                      char1=round(|R,R1|/|R1,R2|*4);
 
-<body style="font-family:Arial;">
-  <div id="CSCanvas" style="width:870px; height:500px; border:2px solid #000000;"></div>
-  <button onclick="cdy.evokeCS('reset()')" type="button">Reset</button>
-  
-  <div>Number of particles: <input type="text" value="200"  onchange="cdy.evokeCS('updateN('+this.value+')');" size="10" style="font-size:18px"></div>
-  <div>RK-steps per frame: <input type="text" value="10"  onchange="cdy.evokeCS('k = '+this.value+'');" size="10" style="font-size:18px"></div>
-  <div>size of a single RK-step: <input type="text" value="0.1"  onchange="cdy.evokeCS('h = '+this.value+'');" size="10" style="font-size:18px"></div>
-  <div>maximal force: <input type="text" value="10"  onchange="cdy.evokeCS('maxforce = '+this.value+'');" size="10" style="font-size:18px"></div>
-</body>
+                      x=T.x;
+                      if(x<T1.x,x=T1.x);
+                      if(x>T2.x,x=T2.x);
+                      T.xy=(x,T1.y);
 
+                      x=U.x;
+                      if(x<U1.x,x=U1.x);
+                      if(x>U2.x,x=U2.x);
+                      x=round(x*4/|U1,U2|)/4*|U1,U2|;
+                      char2=|U,U1|/|U1,U2|*4;
+                      U.xy=(x,U1.y);
+                      char2=round(|U,U1|/|U1,U2|*4);
+
+                   r1=|S,S1|/|S1,S2|*1.8+.2;
+                   r2=|T,T1|/|T1,T2|*1.8+.2;
+                   S.size=r1*5+2;
+                   T.size=r2*5+2;
+
+                   sat=[.9999,.7,.6,.5,.0];
+                   col1=(1,sat_(char1+1),sat_(char1+1));
+                   col2=(sat_(char2+1),sat_(char2+1),1);
+
+                   S.color=col1;
+                   R.color=col1;
+                   T.color=col2;
+                   U.color=col2;
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas" }],
+                scripts: "cs*",
+                language: "en",
+                autoplay: true,
+                geometry: [
+                    { name: "S1", type: "Free", pos: [12, 8], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "S2", type: "Free", pos: [20, 8], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "S", type: "Free", pos: [15.5, 8], color: [1, 0.5, 0.5], pinned: false, size: 4 },
+                    { name: "l", type: "Segment", args: ["S1", "S2"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R1", type: "Free", pos: [12, 6], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "R2", type: "Free", pos: [20, 6], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "R", type: "Free", pos: [14, 6], color: [1, 1, 1], pinned: false, size: 4 },
+                    { name: "m", type: "Segment", args: ["R1", "R2"], color: [0, 0, 0], pinned: false, size: 2 },
+
+                    { name: "T1", type: "Free", pos: [12, 2], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "T2", type: "Free", pos: [20, 2], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "T", type: "Free", pos: [15.5, 2], color: [0.5, 0.5, 1], pinned: false, size: 4 },
+                    { name: "o", type: "Segment", args: ["T1", "T2"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "U1", type: "Free", pos: [12, 0], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "U2", type: "Free", pos: [20, 0], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "U", type: "Free", pos: [14, 0], color: [1, 1, 1], pinned: false, size: 4 },
+                    { name: "p", type: "Segment", args: ["U1", "U2"], color: [0, 0, 0], pinned: false, size: 2 },
+
+                    { name: "V1", type: "Free", pos: [12, -4], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "V2", type: "Free", pos: [20, -4], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "V", type: "Free", pos: [14, -4], color: [1, 1, 1], pinned: false, size: 4 },
+                    { name: "r", type: "Segment", args: ["V1", "V2"], color: [0, 0, 0], pinned: false, size: 2 },
+
+                    { name: "W1", type: "Free", pos: [12, -6], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "W2", type: "Free", pos: [20, -6], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "W", type: "Free", pos: [12, -6], color: [1, 1, 1], pinned: false, size: 4 },
+                    { name: "s", type: "Segment", args: ["W1", "W2"], color: [0, 0, 0], pinned: false, size: 2 },
+
+                    { name: "P1", type: "Free", pos: [12, -8], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "P2", type: "Free", pos: [20, -8], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "P", type: "Free", pos: [12.2, -8], color: [1, 1, 1], pinned: false, size: 4 },
+                    { name: "pl", type: "Segment", args: ["P1", "P2"], color: [0, 0, 0], pinned: false, size: 2 },
+
+                    { name: "Z1", type: "Free", pos: [9, -9], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "Z2", type: "Free", pos: [9, 9], color: [0, 0, 0], pinned: true, size: 2 },
+                    { name: "Z", type: "Free", pos: [9, 0], color: [1, 1, 1], pinned: false, size: 8 },
+                    { name: "zl", type: "Segment", args: ["Z1", "Z2"], color: [0, 0, 0], pinned: false, size: 2 },
+                ],
+                use: ["CindyGL"],
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="width: 870px; height: 500px; border: 2px solid #000000"></div>
+        <button onclick="cdy.evokeCS('reset()')" type="button">Reset</button>
+
+        <div>
+            Number of particles:
+            <input
+                type="text"
+                value="200"
+                onchange="cdy.evokeCS('updateN('+this.value+')');"
+                size="10"
+                style="font-size: 18px"
+            />
+        </div>
+        <div>
+            RK-steps per frame:
+            <input
+                type="text"
+                value="10"
+                onchange="cdy.evokeCS('k = '+this.value+'');"
+                size="10"
+                style="font-size: 18px"
+            />
+        </div>
+        <div>
+            size of a single RK-step:
+            <input
+                type="text"
+                value="0.1"
+                onchange="cdy.evokeCS('h = '+this.value+'');"
+                size="10"
+                style="font-size: 18px"
+            />
+        </div>
+        <div>
+            maximal force:
+            <input
+                type="text"
+                value="10"
+                onchange="cdy.evokeCS('maxforce = '+this.value+'');"
+                size="10"
+                style="font-size: 18px"
+            />
+        </div>
+    </body>
 </html>

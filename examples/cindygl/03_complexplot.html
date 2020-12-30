@@ -1,74 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-  <body style="font-family:Arial;">
-    
-    <h1>CindyJS: Complex Function Plot</h1>
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-    </script>
-    <script id="csmove" type="text/x-cindyscript">
-      f(z) := (
-        (z-complex(A))*(z-complex(B))*(z-complex(C))
-      );
-      
-      hsvToRGB(h, s, v) := (
-        regional(j, p, q, t, f);
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-        h = (h-floor(h))*6;
+    <body style="font-family: Arial">
+        <h1>CindyJS: Complex Function Plot</h1>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+        </script>
+        <script id="csmove" type="text/x-cindyscript">
+            f(z) := (
+              (z-complex(A))*(z-complex(B))*(z-complex(C))
+            );
 
-        j = floor(h);
-        f = h - j;
+            hsvToRGB(h, s, v) := (
+              regional(j, p, q, t, f);
 
-        p = 1 - s;
-        q = 1 - s*f;
-        t = 1 - s*(1-f);
+              h = (h-floor(h))*6;
 
-        if(j == 0, [1, t, p],
-        if(j == 1, [q, 1, p],
-        if(j == 2, [p, 1, t],
-        if(j == 3, [p, q, 1],
-        if(j == 4, [t, p, 1],
-        if(j == 5, [1, p, q]))))))*v
-      );
+              j = floor(h);
+              f = h - j;
 
-      color(z) := ( //what color should be given to a complex number z?
-        regional(n, grey1, grey2);
-        n = 12;
-        z = log(z)/2/pi;
+              p = 1 - s;
+              q = 1 - s*f;
+              t = 1 - s*(1-f);
 
-        zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
+              if(j == 0, [1, t, p],
+              if(j == 1, [q, 1, p],
+              if(j == 2, [p, 1, t],
+              if(j == 3, [p, q, 1],
+              if(j == 4, [t, p, 1],
+              if(j == 5, [1, p, q]))))))*v
+            );
 
-        grey1 = im(zfract);
-        grey2 = re(zfract);
+            color(z) := ( //what color should be given to a complex number z?
+              regional(n, grey1, grey2);
+              n = 12;
+              z = log(z)/2/pi;
 
-        hsvToRGB(im(z), 1., .5+.5*re(sqrt(grey1*grey2)))
-      );
-      
-      colorplot(color(f(z)));
-    </script>
-    
+              zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
 
-    <div  id="CSCanvas" style="width:500px; height:400px;"></div>
-    
-    <script type="text/javascript">
-        var gslp=[
-                  {name:"A", kind:"P", type:"Free", pos:[-2,-1.5]},
-                  {name:"B", kind:"P", type:"Free", pos:[.8,-1.5]},
-                  {name:"C", kind:"P", type:"Free", pos:[.1,.1]},
-                ];
-        CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp
-                    }
-        );
-    </script>              
-  </body>
+              grey1 = im(zfract);
+              grey2 = re(zfract);
+
+              hsvToRGB(im(z), 1., .5+.5*re(sqrt(grey1*grey2)))
+            );
+
+            colorplot(color(f(z)));
+        </script>
+
+        <div id="CSCanvas" style="width: 500px; height: 400px"></div>
+
+        <script type="text/javascript">
+            var gslp = [
+                { name: "A", kind: "P", type: "Free", pos: [-2, -1.5] },
+                { name: "B", kind: "P", type: "Free", pos: [0.8, -1.5] },
+                { name: "C", kind: "P", type: "Free", pos: [0.1, 0.1] },
+            ];
+            CindyJS({ canvasname: "CSCanvas", scripts: "cs*", geometry: gslp });
+        </script>
+    </body>
 </html>

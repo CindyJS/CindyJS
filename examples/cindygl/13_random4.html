@@ -1,48 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-    <title>Cindy JS</title>
-    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-    <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
-    <link rel="stylesheet" href="../../css/cindy.css">
-  </head>
-    
-	<body style="font-family:Arial;">
-    
-    <h1>CindyJS: Random Operator on GPU</h1>
-    
-               
-    <script id="csinit" type="text/x-cindyscript">
-      use("CindyGL");
-			createimage("acc", 512, 512);
-			colorplot("acc", (0,0,0));
-    </script>
-    
-    <script id="csdraw" type="text/x-cindyscript">
-      colorplot("acc",
-				current = imagergb("acc", #);
-				if(|(randomnormal(), randomnormal()) - #|<.2, current+(1,2,3)/10, current)
-			);
-			
-			drawimage((-2,-2),(2,-2),"acc");
-    </script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
 
-    <div  id="CSCanvas"></div>
-    <script type="text/javascript">
-        
-        var gslp=[];
-        cdy = CindyJS({canvasname:"CSCanvas",
-                    scripts: "cs*",
-                    geometry:gslp,
-                    animation: {autoplay: true},
-                    ports: [{
-                      id: "CSCanvas",
-                      width: 512,
-                      height: 512,
-                      transform: [ { visibleRect: [-2, -2, 2, 2] } ]
-                    }]
-                  });
-    </script>              
-	</body>
+    <body style="font-family: Arial">
+        <h1>CindyJS: Random Operator on GPU</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+               use("CindyGL");
+            createimage("acc", 512, 512);
+            colorplot("acc", (0,0,0));
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+               colorplot("acc",
+            	current = imagergb("acc", #);
+            	if(|(randomnormal(), randomnormal()) - #|<.2, current+(1,2,3)/10, current)
+            );
+
+            drawimage((-2,-2),(2,-2),"acc");
+        </script>
+
+        <div id="CSCanvas"></div>
+        <script type="text/javascript">
+            var gslp = [];
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: gslp,
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+            });
+        </script>
+    </body>
 </html>

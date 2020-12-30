@@ -1,27 +1,26 @@
 language: node_js
 node_js:
-  - node
-  - 8
+    - 8
 script: node make build=release alltests
 dist: trusty
 sudo: false
 addons:
-  apt:
-    packages:
-     - default-jdk
+    apt:
+        packages:
+            - default-jdk
 deploy:
-  - provider: script
-    script: tools/travis-deploy.sh
-    on:
-      node: node
-      repo: CindyJS/CindyJS
-      branch: master
-    skip_cleanup: true
-  - provider: script
-    script: tools/travis-deploy.sh
-    on:
-      node: node
-      repo: CindyJS/CindyJS
-      tags: true
-      condition: "${TRAVIS_TAG} == v*([0-9]).*([0-9]).*([0-9])"
-    skip_cleanup: true
+    - provider: script
+      script: tools/travis-deploy.sh
+      on:
+          node: node
+          repo: CindyJS/CindyJS
+          branch: master
+      skip_cleanup: true
+    - provider: script
+      script: tools/travis-deploy.sh
+      on:
+          node: node
+          repo: CindyJS/CindyJS
+          tags: true
+          condition: "${TRAVIS_TAG} == v*([0-9]).*([0-9]).*([0-9])"
+      skip_cleanup: true
