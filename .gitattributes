@@ -53,3 +53,4 @@ Makefile        text
 examples/162_sunflower_crlf.html  eol=crlf
 
 .prettierignore text
+.eslintignore text
