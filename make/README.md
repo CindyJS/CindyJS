@@ -44,7 +44,7 @@ The most important artifact-building tasks are:
 
 In addition to these, there are some tools to help development:
 
--   **jshint** checks the code for possibly problematic patterns
+-   **eslint** checks the code for possibly problematic patterns
 -   **tests** runs some unit tests
 -   **alltest** performs even more tests,
     after changes have been staged or committed

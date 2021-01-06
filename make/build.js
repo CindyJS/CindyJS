@@ -138,27 +138,15 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
-    // Run jshint to detect syntax problems
-    //////////////////////////////////////////////////////////////////////
-
-    task("jshint", ["ours"], function () {
-        this.cmdscript(
-            "jshint",
-            "-c",
-            "Administration/jshint.conf",
-            "--verbose",
-            "--reporter",
-            "tools/jshint-reporter.js",
-            "build/js/ours.js"
-        );
-    });
-
-    //////////////////////////////////////////////////////////////////////
     // Run eslint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
+    task("jshint", [], function () {
+        throw new Error("We replaced jshint with eslint. Please run 'make eslint'");
+    });
 
     task("eslint", ["ours"], function () {
-        this.cmdscript("eslint", "src/js/**/*.js");
+        // this.cmdscript("eslint", "src/js/**/*.js");
+        this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -219,7 +207,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    task("alltests", ["tests", "eslint", "jshint", "deploy", "textattr", "forbidden", "ref"]);
+    task("alltests", ["tests", "eslint", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files
