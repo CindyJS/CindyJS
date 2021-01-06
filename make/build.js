@@ -140,9 +140,6 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
     // Run eslint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
-    task("jshint", [], function () {
-        throw new Error("We replaced jshint with eslint. Please run 'make eslint'");
-    });
 
     task("eslint", ["ours"], function () {
         // this.cmdscript("eslint", "src/js/**/*.js");
