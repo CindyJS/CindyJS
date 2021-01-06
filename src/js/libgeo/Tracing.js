@@ -14,7 +14,7 @@ function assert(condition, message) {
     if (condition) return;
     console.log(msg);
     shutdown();
-    if (typeof alert !== "undefined") alert(msg); // jshint ignore:line
+    if (typeof alert !== "undefined") alert(msg);
     throw new Error(msg);
 }
 

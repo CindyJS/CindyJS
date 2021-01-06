@@ -4302,7 +4302,7 @@ evaluator.javascript$1 = function (args, modifs) {
     var v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
         var s = v0.value;
-        var f = new Function(s); // jshint ignore:line
+        var f = new Function(s);
         f.call(globalInstance); // run code, with CindyJS instance as "this".
     }
     return nada;

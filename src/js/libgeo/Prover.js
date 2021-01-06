@@ -344,7 +344,6 @@ function checkConjectures() {
 
     recalcInvolved();
 
-    // for jshint move the function definition outside loop
     var checkCon = function (con) {
         return con.holds();
     };

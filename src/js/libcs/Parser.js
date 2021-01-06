@@ -1,6 +1,4 @@
-/*jshint -W030 */
 "use strict"; // So this file can be used as a stand-alone node module
-/*jshint +W030 */
 
 // All operators, sorted by precedence level
 var operatorLevels = [
@@ -469,10 +467,8 @@ Tokenizer.prototype.nextInternal = function () {
     this.advanceBy(match[0].length);
     var pos2 = this.curPos();
     var tt;
-    /*jshint -W116 */
     /*eslint-disable no-empty*/
     for (tt = 1; match[tt] == null; ++tt) {} // neither null nor undefined
-    /*jshint +W116 */
     /*eslint-enable no-empty*/
     return {
         start: pos1,

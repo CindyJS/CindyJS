@@ -152,7 +152,7 @@ function setuplisteners(canvas, data) {
     var mousedownevent = null;
     var hasmoved = false;
     if (typeof MutationObserver !== "undefined") MO = MutationObserver;
-    if (!MO && typeof WebKitMutationObserver !== "undefined") MO = WebKitMutationObserver; // jshint ignore: line
+    if (!MO && typeof WebKitMutationObserver !== "undefined") MO = WebKitMutationObserver;
     if (MO) {
         MO = new MO(function (mutations) {
             // Browsers which support MutationObserver likely support contains
@@ -633,7 +633,7 @@ function resizeSensor(element) {
 
 var requestAnimFrame;
 if (instanceInvocationArguments.isNode) {
-    requestAnimFrame = process.nextTick; // jshint ignore:line
+    requestAnimFrame = process.nextTick;
 } else {
     requestAnimFrame =
         window.requestAnimationFrame ||

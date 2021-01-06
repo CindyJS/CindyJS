@@ -376,9 +376,7 @@ evaluator.drawconic$1 = function (args, modifs) {
 // or two pairs [x, y] satisfying ax^2 + bxy + cy^2 = 0
 function solveRealQuadraticHomog(a, b, c) {
     var d = b * b - 4 * a * c;
-    /*jshint -W018 */
     if (!(d >= 0)) return null; // also return null if d is NaN
-    /*jshint +W018 */
     var r = Math.sqrt(d);
     if (b > 0) r = -r;
     return [
