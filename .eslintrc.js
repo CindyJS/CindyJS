@@ -20,8 +20,8 @@ module.exports = {
     },
     rules: {
         "no-unused-vars": ["off"],
-        "no-prototype-builtins": ["warn"],
-        "no-constant-condition": ["warn"],
-        "no-useless-escape": ["warn"],
+        "no-prototype-builtins": ["off"],
+        "no-constant-condition": ["off"],
+        "no-useless-escape": ["off"],
     },
 };
