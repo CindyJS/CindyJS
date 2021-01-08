@@ -495,7 +495,7 @@ geoOps.PointOnLine.updatePosition = function (el, isMover) {
     } else {
         // Also read from last good, which is real,
         // instead of only stateIn which might be complex.
-        setStateIn(el.stateIdx);
+        setStateInIdx(el.stateIdx);
         var tmpIn = stateIn;
         setStateIn(stateLastGood);
         var realPoint = getStateComplexVector(3);
