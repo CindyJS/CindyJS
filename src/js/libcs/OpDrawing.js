@@ -1,5 +1,5 @@
 import { nada, document } from "expose";
-import { csctx, csw, csh, CindyJS, loadExtraPlugin, csscale, canvas, images, loadImage, vscale } from "Setup";
+import { csctx, setCsctx, csw, csh, CindyJS, loadExtraPlugin, csscale, canvas, images, loadImage, vscale } from "Setup";
 import { scheduleUpdate } from "Events";
 import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
@@ -922,6 +922,10 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
 // This is a hook: the following function may get replaced by a plugin.
 var textRendererCanvas = defaultTextRendererCanvas;
 
+function setTextRendererCanvas(canvas) {
+    textRendererCanvas = canvas;
+}
+
 // This is a hook: the following function may get replaced by a plugin.
 var textRendererHtml = function (element, text, font) {
     if (text.indexOf("\n") !== -1) {
@@ -937,6 +941,10 @@ var textRendererHtml = function (element, text, font) {
     }
     element.textContent = text;
 };
+
+function setTextRendererHtml(fct) {
+    textRendererHtml = fct;
+}
 
 eval_helper.drawtext = function (args, modifs, callback) {
     var v0 = evaluateAndVal(args[0]);
@@ -1622,7 +1630,7 @@ evaluator.canvas$4 = function (args, modifs) {
     var localcontext = localcanvas.getContext("2d");
 
     var backupctx = csctx;
-    csctx = localcontext;
+    setCsctx(localcontext);
     csctx.save();
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
@@ -1631,7 +1639,7 @@ evaluator.canvas$4 = function (args, modifs) {
 
     evaluate(prog);
     csctx.restore();
-    csctx = backupctx;
+    setCsctx(backupctx);
 };
 
 evaluator.canvas$5 = function (args, modifs) {
@@ -1692,7 +1700,7 @@ evaluator.canvas$5 = function (args, modifs) {
     var localcontext = localcanvas.getContext("2d");
 
     var backupctx = csctx;
-    csctx = localcontext;
+    setCsctx(localcontext);
     csctx.save();
 
     csctx.transform(a1, a4, a2, a5, a3, a6);
@@ -1701,7 +1709,7 @@ evaluator.canvas$5 = function (args, modifs) {
 
     evaluate(prog);
     csctx.restore();
-    csctx = backupctx;
+    setCsctx(backupctx);
 };
 
 evaluator.screenresolution$0 = function (args, modifs) {
@@ -1714,4 +1722,4 @@ evaluator.layer$1 = function (args, modifs) {
     // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
 };
 
-export { textRendererCanvas, textRendererHtml };
+export { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml };

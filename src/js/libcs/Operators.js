@@ -30,7 +30,7 @@ import { General } from "libcs/General";
 import { evaluator, niceprint, eval_helper, myfunctions } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 import { Accessor } from "libcs/Accessors";
-import { textRendererCanvas, textRendererHtml } from "libcs/OpDrawing";
+import { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml } from "libcs/OpDrawing";
 import { imageFromValue } from "libcs/OpImageDrawing";
 import { evaluate, printStackTrace, evaluateAndVal, evaluateAndHomog, analyse } from "libcs/Evaluator";
 import { CSad } from "libcs/CSad";
@@ -4338,8 +4338,8 @@ evaluator.use$1 = function (args, modifs) {
                     return csport.drawingstate.initialmatrix;
                 },
                 setTextRenderer: function (handlerCanvas, handlerHtml) {
-                    textRendererCanvas = handlerCanvas;
-                    if (handlerHtml) textRendererHtml = handlerHtml;
+                    setTextRendererCanvas(handlerCanvas);
+                    if (handlerHtml) setTextRendererHtml(handlerHtml);
                 },
                 getImage: function (name, lazy) {
                     if (typeof name === "string") name = General.string(name);
@@ -4853,6 +4853,10 @@ evaluator.setsimulationquality$1 = function (args, modifs) {
 var activeButton = null;
 var statusbar = null;
 
+function setStatusBar(bar) {
+    statusbar = bar;
+}
+
 evaluator.createtool$3 = function (args, modifs) {
     var modif;
     var xref = "left";
@@ -5324,6 +5328,7 @@ evaluator.guess$1 = function (args, modifs) {
 
 export {
     statusbar,
+    setStatusBar,
     postfix_numb_degree,
     infix_take,
     infix_pow,

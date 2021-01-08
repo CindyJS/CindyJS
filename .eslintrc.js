@@ -23,6 +23,6 @@ module.exports = {
         "no-prototype-builtins": ["off"],
         "no-constant-condition": ["off"],
         "no-useless-escape": ["off"],
-        "no-import-assign": ["off"],
+        // "no-import-assign": ["off"],
     },
 };

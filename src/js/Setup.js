@@ -8,7 +8,7 @@ import {
 import { window, nada, document, instanceInvocationArguments } from "expose";
 import { General } from "libcs/General";
 import { niceprint, evaluator } from "libcs/Essentials";
-import { statusbar } from "libcs/Operators";
+import { setStatusBar } from "libcs/Operators";
 import { evaluate, analyse, labelCode, usedFunctions } from "libcs/Evaluator";
 import { csport } from "libgeo/GeoState";
 import { csinit } from "libgeo/GeoBasics";
@@ -181,6 +181,10 @@ var csmouse,
     dropped = nada,
     dropPoint = nada;
 
+function setCsctx(ctx) {
+    csctx = ctx;
+}
+
 function canvasWithContainingDiv(elt) {
     var div;
     if (elt.tagName.toLowerCase() !== "canvas") {
@@ -308,9 +312,9 @@ function createCindyNow() {
     }
     if (data.statusbar) {
         if (typeof data.statusbar === "string") {
-            statusbar = document.getElementById(data.statusbar);
+            setStatusBar(document.getElementById(data.statusbar));
         } else {
-            statusbar = data.statusbar;
+            setStatusBar(data.statusbar);
         }
     }
 
@@ -1035,6 +1039,26 @@ function NullConsoleHandler() {
 
 NullConsoleHandler.prototype = new GenericConsoleHandler();
 
+function setSimTick(tick) {
+    simtick = tick;
+}
+
+function setSimTime(time) {
+    simtime = time;
+}
+
+function setSimAccuracy(acc) {
+    simaccuracy = acc;
+}
+
+function setDropped(drop) {
+    dropped = drop;
+}
+
+function setDropPoint(point) {
+    dropPoint = point;
+}
+
 export {
     csgeo,
     shutdownHooks,
@@ -1046,6 +1070,7 @@ export {
     isShutDown,
     csanimating,
     csctx,
+    setCsctx,
     csw,
     csh,
     csgridsize,
@@ -1073,6 +1098,11 @@ export {
     globalInstance,
     simunit,
     setSpeed,
+    setSimAccuracy,
+    setSimTick,
+    setSimTime,
+    setDropped,
+    setDropPoint,
     cssnap,
     cssnapDistance,
     simaccuracy,

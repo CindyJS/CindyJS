@@ -1,5 +1,5 @@
 import { window, document } from "expose";
-import { globalInstance, images, shutdownHooks, csctx, csw, csh, CindyJS } from "Setup";
+import { globalInstance, images, shutdownHooks, csctx, setCsctx, csw, csh, CindyJS } from "Setup";
 import { updateCindy } from "Events";
 
 // SVG Writer creates a string representation, as opposed to DOM manipulation.
@@ -859,7 +859,7 @@ function exportWith(Context) {
     cacheImages(function () {
         var origctx = csctx;
         try {
-            csctx = new Context();
+            setCsctx(new Context());
             csctx.width = csw;
             csctx.height = csh;
             updateCindy();
@@ -868,7 +868,7 @@ function exportWith(Context) {
 
             downloadHelper(exportedCanvasURL);
         } finally {
-            csctx = origctx;
+            setCsctx(origctx);
         }
     });
 }
