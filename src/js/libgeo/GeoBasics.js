@@ -14,6 +14,11 @@ import {
     stateInIdx,
     stateOutIdx,
     stateArrays,
+    setTracingInitial,
+    setStateIn,
+    setStateOut,
+    setStateInIdx,
+    setStateOutIdx,
 } from "libgeo/Tracing";
 import { checkConjectures, guessDuplicate, guessIncidences } from "libgeo/Prover";
 import { geoOps, geoAliases, geoMacros } from "libgeo/GeoOps";
@@ -339,23 +344,26 @@ function addElementNoProof(el) {
 
     if (true || op.stateSize !== 0) {
         stateAlloc(totalStateSize);
-        stateIn = stateOut = stateLastGood;
+        setStateOut(stateLastGood);
+        setStateIn(stateLastGood);
         // initially, stateIn and stateOut are the same, so that initialize can
         // write some state and updatePosition can immediately use it
-        tracingInitial = true;
+        setTracingInitial(true);
         if (op.initialize) {
-            stateInIdx = stateOutIdx = el.stateIdx;
+            setStateOutIdx(el.stateIdx);
+            setStateInIdx(el.stateIdx);
             el.param = op.initialize(el);
             assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully initialized");
         }
-        stateInIdx = stateOutIdx = el.stateIdx;
+        setStateOutIdx(el.stateIdx);
+        setStateInIdx(el.stateIdx);
         op.updatePosition(el, false);
         assert(stateInIdx === el.stateIdx + op.stateSize, "State fully consumed");
         assert(stateOutIdx === el.stateIdx + op.stateSize, "State fully updated");
-        tracingInitial = false;
-        stateIn = stateArrays.in;
+        setTracingInitial(false);
+        setStateIn(stateArrays.in);
         stateIn.set(stateLastGood);
-        stateOut = stateArrays.out;
+        setStateOut(stateArrays.out);
     } else {
         // Do the updatePosition call with correct state handling around it.
     }
