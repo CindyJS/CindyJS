@@ -141,12 +141,17 @@ module.exports = function build(settings, task) {
     // Run eslint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
-    const callEslint = function () {
+    function callEslintOnOurs() {
         this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
-    };
+    }
+
+    function callEslint() {
+        this.cmdscript("eslint", "src/js/**/*.js");
+    }
 
     task("eslint", ["ours"], callEslint);
-    task("jshint", ["ours"], callEslint);
+    task("eslintOurs", ["ours"], callEslintOnOurs);
+    task("jshint", ["ours"], callEslintOnOurs);
 
     //////////////////////////////////////////////////////////////////////
     // Make sure all examples compile
@@ -206,7 +211,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    task("alltests", ["tests", "eslint", "deploy", "textattr", "forbidden", "ref"]);
+    task("alltests", ["tests", "eslint", "eslintOurs", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files
