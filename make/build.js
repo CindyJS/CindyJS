@@ -207,7 +207,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    task("alltests", ["tests", "eslint", "eslintOurs", "deploy", "textattr", "forbidden", "ref"]);
+    task("alltests", ["tests", "eslint", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files
