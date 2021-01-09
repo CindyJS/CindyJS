@@ -141,17 +141,13 @@ module.exports = function build(settings, task) {
     // Run eslint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
-    function callEslintOnOurs() {
-        this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
-    }
+    task("eslint", ["ours"], callEslint);
+    task("jshint", ["ours"], callEslint);
 
     function callEslint() {
         this.cmdscript("eslint", "src/js/**/*.js");
+        this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
     }
-
-    task("eslint", ["ours"], callEslint);
-    task("eslintOurs", ["ours"], callEslintOnOurs);
-    task("jshint", ["ours"], callEslintOnOurs);
 
     //////////////////////////////////////////////////////////////////////
     // Make sure all examples compile
