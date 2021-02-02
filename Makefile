@@ -115,6 +115,7 @@ fwdtargets = \
 	cindyxr \
 	ComplexCurves \
 	deploy \
+	eslint \
 	forbidden \
 	jshint \
 	katex \

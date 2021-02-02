@@ -14,7 +14,7 @@ function assert(condition, message) {
     if (condition) return;
     console.log(msg);
     shutdown();
-    if (typeof alert !== "undefined") alert(msg); // jshint ignore:line
+    if (typeof alert !== "undefined") alert(msg);
     throw new Error(msg);
 }
 
@@ -30,6 +30,14 @@ stateArrayNames.forEach(function (name) {
 var stateIn = stateMasterArray;
 var stateOut = stateMasterArray;
 var stateLastGood = stateMasterArray;
+
+function setStateIn(state) {
+    stateIn = state;
+}
+
+function setStateOut(state) {
+    stateOut = state;
+}
 
 function stateAlloc(newSize) {
     if (newSize === stateLastGood.length) return;
@@ -79,7 +87,19 @@ function stateContinueFromHere() {
 
 var stateInIdx, stateOutIdx;
 
+function setStateInIdx(idx) {
+    stateInIdx = idx;
+}
+
+function setStateOutIdx(idx) {
+    stateOutIdx = idx;
+}
+
 var tracingInitial, tracingFailed, noMoreRefinements;
+
+function setTracingInitial(s) {
+    tracingInitial = s;
+}
 
 var inMouseMove = false;
 
@@ -808,4 +828,9 @@ export {
     tracing2Conics,
     tracing4,
     requestRefinement,
+    setStateIn,
+    setStateOut,
+    setStateInIdx,
+    setStateOutIdx,
+    setTracingInitial,
 };

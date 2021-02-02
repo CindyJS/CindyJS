@@ -45,8 +45,6 @@ import {
 } from "libcs/Operators";
 import { evaluate } from "libcs/Evaluator";
 
-/*jshint -W069 */
-
 var myfunctions = {};
 
 var infixmap = {};
@@ -92,8 +90,6 @@ infixmap[":=_"] = postfix_undefine;
 infixmap["::="] = operator_not_implemented("::=");
 // infixmap['->'] not needed thanks to modifierOp special handling
 infixmap[";"] = infix_semicolon;
-
-/*jshint +W069 */
 
 function operator_not_implemented(name) {
     var first = true;

@@ -1,10 +1,6 @@
 import { window, document } from "expose";
-import { globalInstance, images, shutdownHooks, csctx, csw, csh, CindyJS } from "Setup";
+import { globalInstance, images, shutdownHooks, csctx, setCsctx, csw, csh, CindyJS } from "Setup";
 import { updateCindy } from "Events";
-
-// JSHint doesn't like setters without getters, but we use them anyway
-
-/*jshint -W078 */
 
 // SVG Writer creates a string representation, as opposed to DOM manipulation.
 
@@ -708,8 +704,6 @@ PdfWriterContext.prototype = {
     },
 };
 
-/*jshint +W078 */
-
 function imageToDataURL(img, type) {
     var w = img.width;
     var h = img.height;
@@ -795,7 +789,6 @@ function pngChunks(bytes) {
 /* eslint-disable no-cond-assign */
 function parseColor(spec, cb) {
     var match;
-    /* jshint ignore:start */
     if ((match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
         cb(+match[1], +match[2], +match[3], +match[4]);
     } else if ((match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
@@ -803,7 +796,6 @@ function parseColor(spec, cb) {
     } else {
         throw Error("Can't handle color style " + spec);
     }
-    /* jshint ignore:end */
 }
 /* eslint-enable no-cond-assign */
 
@@ -867,7 +859,7 @@ function exportWith(Context) {
     cacheImages(function () {
         var origctx = csctx;
         try {
-            csctx = new Context();
+            setCsctx(new Context());
             csctx.width = csw;
             csctx.height = csh;
             updateCindy();
@@ -876,7 +868,7 @@ function exportWith(Context) {
 
             downloadHelper(exportedCanvasURL);
         } finally {
-            csctx = origctx;
+            setCsctx(origctx);
         }
     });
 }

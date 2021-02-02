@@ -1,4 +1,4 @@
-import { csgeo, simaccuracy, simtime } from "Setup";
+import { csgeo, simaccuracy, simtime, setSimTime } from "Setup";
 import { cs_simulationstep } from "Events";
 import { labObjects } from "liblab/LabObjects";
 
@@ -110,7 +110,7 @@ lab.tick = function (deltat) {
     deltat = deltat / simaccuracy;
     for (var i = 0; i < simaccuracy; i++) {
         lab.tick1(deltat);
-        simtime += deltat;
+        setSimTime(simtime + deltat);
         cs_simulationstep();
     }
 };

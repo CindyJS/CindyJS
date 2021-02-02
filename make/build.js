@@ -138,20 +138,16 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
-    // Run jshint to detect syntax problems
+    // Run eslint to detect syntax problems
     //////////////////////////////////////////////////////////////////////
 
-    task("jshint", ["ours"], function () {
-        this.cmdscript(
-            "jshint",
-            "-c",
-            "Administration/jshint.conf",
-            "--verbose",
-            "--reporter",
-            "tools/jshint-reporter.js",
-            "build/js/ours.js"
-        );
-    });
+    task("eslint", ["ours"], callEslint);
+    task("jshint", ["ours"], callEslint);
+
+    function callEslint() {
+        this.cmdscript("eslint", "src/js/**/*.js");
+        this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
+    }
 
     //////////////////////////////////////////////////////////////////////
     // Make sure all examples compile
@@ -211,7 +207,7 @@ module.exports = function build(settings, task) {
         ]);
     });
 
-    task("alltests", ["tests", "jshint", "deploy", "textattr", "forbidden", "ref"]);
+    task("alltests", ["tests", "eslint", "deploy", "textattr", "forbidden", "ref"]);
 
     //////////////////////////////////////////////////////////////////////
     // Check that the text property is set for all files

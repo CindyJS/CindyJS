@@ -19,8 +19,9 @@ import {
     simspeed,
     simfactor,
     simtime,
-    dropped,
-    dropPoint,
+    setSimTime,
+    setDropped,
+    setDropPoint,
 } from "Setup";
 import { document, nada, window, instanceInvocationArguments } from "expose";
 import { CSNumber } from "libcs/CSNumber";
@@ -35,6 +36,10 @@ import { csPhysicsInited, lab } from "liblab/LabBasics";
 
 var mouse = {};
 var move;
+
+function setMove(mv) {
+    move = mv;
+}
 
 var cskey = "";
 var cskeycode = 0;
@@ -152,7 +157,7 @@ function setuplisteners(canvas, data) {
     var mousedownevent = null;
     var hasmoved = false;
     if (typeof MutationObserver !== "undefined") MO = MutationObserver;
-    if (!MO && typeof WebKitMutationObserver !== "undefined") MO = WebKitMutationObserver; // jshint ignore: line
+    if (!MO && typeof WebKitMutationObserver !== "undefined") MO = WebKitMutationObserver;
     if (MO) {
         MO = new MO(function (mutations) {
             // Browsers which support MutationObserver likely support contains
@@ -633,7 +638,7 @@ function resizeSensor(element) {
 
 var requestAnimFrame;
 if (instanceInvocationArguments.isNode) {
-    requestAnimFrame = process.nextTick; // jshint ignore:line
+    requestAnimFrame = process.nextTick;
 } else {
     requestAnimFrame =
         window.requestAnimationFrame ||
@@ -828,12 +833,12 @@ function cs_mouseclick(e) {
 function cs_tick(e) {
     var now = Date.now();
     var delta = Math.min(simcap, now - simtick) * simspeed * simfactor;
-    simtick = now;
+    setSimTime(now);
     var time = simtime + delta;
     if (csPhysicsInited && typeof lab !== "undefined") {
         lab.tick(delta);
     }
-    simtime = time;
+    setSimTime(time);
     if (csanimating) {
         evaluate(cscompiled.tick);
     }
@@ -852,11 +857,11 @@ function cs_simulationstop(e) {
 }
 
 function cs_onDrop(lst, pos) {
-    dropped = List.turnIntoCSList(lst);
-    dropPoint = pos;
+    setDropped(List.turnIntoCSList(lst));
+    setDropPoint(pos);
     evaluate(cscompiled.ondrop);
-    dropped = nada;
-    dropPoint = nada;
+    setDropped(nada);
+    setDropPoint(nada);
     scheduleUpdate();
 }
 
@@ -882,4 +887,5 @@ export {
     cs_keyup,
     cs_keytyped,
     cs_simulationstep,
+    setMove,
 };
