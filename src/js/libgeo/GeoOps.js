@@ -142,6 +142,7 @@ geoOps.Segment.setSegmentPos = function(el, line, start, end) {
     startend = List.normalizeMax(startend); // Normalize together!
     el.startpos = startend.value[0];
     el.endpos = startend.value[1];
+    el.farpoint = List.sub(el.startpos,el.endpos);
     // So  midpoint = startpos + endpos
     // and farpoint = startpos - endpos
 };
