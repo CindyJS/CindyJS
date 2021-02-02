@@ -20,14 +20,13 @@
         }
     </style>
     <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="mousemove" type="text/x-cindyscript">
+<script id="csmousemove" type="text/x-cindyscript">
 apply(allelements(),#.alpha=1);
 apply(elementsatmouse(),#.alpha=0);
-repaint();
 </script>
     <script type="text/javascript">
 CindyJS({
-  scripts: "mousemove",
+  scripts: "cs*",
   defaultAppearance: {
     dimDependent: 0.7,
     fontFamily: "sans-serif",
