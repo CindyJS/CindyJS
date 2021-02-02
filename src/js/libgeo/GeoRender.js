@@ -1,3 +1,14 @@
+import { csgeo, vscale, csctx, csw, csh } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import { eval_helper, evaluator, niceprint } from "libcs/Essentials";
+import { textRendererHtml } from "libcs/OpDrawing";
+import { Render2D } from "libcs/Render2D";
+import { csport } from "libgeo/GeoState";
+import { defaultAppearance } from "libgeo/GeoBasics";
+import { geoOps, ifs } from "libgeo/GeoOps";
+
 function drawlabel(el, lbl, pos, lpos, color) {
     var textsize = el.textsize || defaultAppearance.textsize;
     var bold = el.textbold === true;
@@ -390,3 +401,5 @@ function draw_traces() {
         size *= dimfactor;
     }
 }
+
+export { draw_traces, render };

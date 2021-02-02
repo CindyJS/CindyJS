@@ -1,3 +1,9 @@
+import { csctx, csw, csh } from "Setup";
+import { List } from "libcs/List";
+import { eval_helper } from "libcs/Essentials";
+import { evaluate } from "libcs/Evaluator";
+import { csport } from "libgeo/GeoState";
+
 var Render2D = {};
 
 Render2D.handleModifs = function (modifs, handlers) {
@@ -706,3 +712,5 @@ Render2D.unSetDash = function () {
     csctx.setLineDash([]); //Chrome
     csctx.mozDash = []; //FFX
 };
+
+export { Render2D };

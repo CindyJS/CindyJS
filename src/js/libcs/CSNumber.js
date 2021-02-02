@@ -1,3 +1,7 @@
+import { instanceInvocationArguments, nada } from "expose";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+
 //==========================================
 //      Complex Numbers
 //==========================================
@@ -758,3 +762,5 @@ CSNumber.getRandComplex = function (min, max) {
     var imag = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.complex(real, imag);
 };
+
+export { CSNumber, TWOPI };

@@ -1,3 +1,48 @@
+import {
+    csconsole,
+    dump,
+    csgeo,
+    csmouse,
+    csctx,
+    csplay,
+    cspause,
+    csstop,
+    csw,
+    csh,
+    globalInstance,
+    CindyJS,
+    cscompiled,
+    shutdownHooks,
+    simtime,
+    simunit,
+    setSpeed,
+    canvas,
+    dropped,
+    dropPoint,
+} from "Setup";
+import { nada, instanceInvocationArguments, window, document } from "expose";
+import { cskey, cskeycode, multipos, move, multiid, addAutoCleaningEventListener, scheduleUpdate } from "Events";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { Json } from "libcs/Json";
+import { Dict } from "libcs/Dict";
+import { General } from "libcs/General";
+import { evaluator, niceprint, eval_helper, myfunctions } from "libcs/Essentials";
+import { namespace } from "libcs/Namespace";
+import { Accessor } from "libcs/Accessors";
+import { textRendererCanvas, textRendererHtml } from "libcs/OpDrawing";
+import { imageFromValue } from "libcs/OpImageDrawing";
+import { evaluate, printStackTrace, evaluateAndVal, evaluateAndHomog, analyse } from "libcs/Evaluator";
+import { CSad } from "libcs/CSad";
+import { tools, setActiveTool } from "libcs/Tools";
+import { csport, csgstorage } from "libgeo/GeoState";
+import { addElement, removeElement } from "libgeo/GeoBasics";
+import { stateContinueFromHere } from "libgeo/Tracing";
+import { geoOps, geoAliases, geoMacros } from "libgeo/GeoOps";
+import { masses, springs } from "liblab/LabBasics";
+import { labObjects } from "liblab/LabObjects";
+import { PSLQ } from "libcs/PSLQ";
+
 //*******************************************************
 // and here are the definitions of the operators
 //*******************************************************
@@ -5275,4 +5320,45 @@ evaluator.guess$1 = function (args, modifs) {
     }
 
     return nada;
+};
+
+export {
+    statusbar,
+    postfix_numb_degree,
+    infix_take,
+    infix_pow,
+    infix_sqrt,
+    infix_mult,
+    infix_cross,
+    infix_div,
+    infix_add,
+    infix_sub,
+    prefix_not,
+    comp_equals,
+    comp_almostequals,
+    comp_ult,
+    comp_ugt,
+    comp_ge,
+    comp_le,
+    comp_uge,
+    comp_ule,
+    comp_gt,
+    comp_lt,
+    comp_notequals,
+    infix_in,
+    infix_nin,
+    infix_and,
+    infix_or,
+    comp_notalmostequals,
+    infix_sequence,
+    infix_concat,
+    infix_remove,
+    infix_common,
+    infix_append,
+    infix_prepend,
+    infix_assign,
+    infix_define,
+    postfix_undefine,
+    infix_semicolon,
+    minCostMatching,
 };

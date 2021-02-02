@@ -1,3 +1,17 @@
+import { csgeo, globalInstance } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { General } from "libcs/General";
+import {
+    pointDefault,
+    lineDefault,
+    segmentDefault,
+    textDefault,
+    polygonDefault,
+    defaultAppearance,
+} from "libgeo/GeoBasics";
+import { geoOps } from "libgeo/GeoOps";
+
 // Functions to save and restore geometric state
 
 var attributesToClone = [

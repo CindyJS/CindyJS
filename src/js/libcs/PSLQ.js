@@ -346,3 +346,5 @@ class PSLQ {
         return undefined;
     }
 }
+
+export { PSLQ };

@@ -1,3 +1,21 @@
+import {
+    scheduleUpdate,
+    addAutoCleaningEventListener,
+    setuplisteners,
+    cs_simulationstart,
+    cs_simulationstop,
+} from "Events";
+import { window, nada, document, instanceInvocationArguments } from "expose";
+import { General } from "libcs/General";
+import { niceprint, evaluator } from "libcs/Essentials";
+import { statusbar } from "libcs/Operators";
+import { evaluate, analyse, labelCode, usedFunctions } from "libcs/Evaluator";
+import { csport } from "libgeo/GeoState";
+import { csinit } from "libgeo/GeoBasics";
+import { stateArrays, stateIn, recalcAll } from "libgeo/Tracing";
+import { noop } from "libgeo/GeoOps";
+import { csinitphys, csPhysicsInited, csresetphys } from "liblab/LabBasics";
+
 var CindyJS = this; // since this will be turned into a method
 
 var csconsole;
@@ -1016,3 +1034,46 @@ function NullConsoleHandler() {
 }
 
 NullConsoleHandler.prototype = new GenericConsoleHandler();
+
+export {
+    csgeo,
+    shutdownHooks,
+    shutdown,
+    csmouse,
+    cscompiled,
+    loadImage,
+    updateCanvasDimensions,
+    isShutDown,
+    csanimating,
+    csctx,
+    csw,
+    csh,
+    csgridsize,
+    csaxes,
+    cstgrid,
+    simcap,
+    simtick,
+    simspeed,
+    simfactor,
+    simtime,
+    dropped,
+    dropPoint,
+    csconsole,
+    CindyJS,
+    loadExtraPlugin,
+    csscale,
+    canvas,
+    images,
+    vscale,
+    csplay,
+    isFiniteNumber,
+    dump,
+    cspause,
+    csstop,
+    globalInstance,
+    simunit,
+    setSpeed,
+    cssnap,
+    cssnapDistance,
+    simaccuracy,
+};

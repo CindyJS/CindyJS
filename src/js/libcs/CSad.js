@@ -1,3 +1,8 @@
+import { nada } from "expose";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { evaluate } from "libcs/Evaluator";
+
 var CSad = {};
 
 CSad.printArr = function (erg) {
@@ -369,3 +374,5 @@ CSad.autodiff = function (ffunc, varname, xarr, grade) {
     erg = List.turnIntoCSList(erg);
     return erg;
 };
+
+export { CSad };

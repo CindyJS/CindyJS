@@ -1,3 +1,9 @@
+import { nada } from "expose";
+import { General } from "libcs/General";
+import { niceprint } from "libcs/Essentials";
+import { namespace } from "libcs/Namespace";
+import { evaluate } from "libcs/Evaluator";
+
 // CindyScript JSON
 var Json = {};
 Json._helper = {};
@@ -176,3 +182,5 @@ Json._helper.handlePrintException = function (e) {
         console.log("Warning: Dictionary printing failed!");
     }
 };
+
+export { Json };

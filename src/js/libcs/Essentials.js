@@ -1,3 +1,50 @@
+import { nada } from "expose";
+import { csconsole } from "Setup";
+import { CSNumber } from "libcs/CSNumber";
+import { List } from "libcs/List";
+import { Json } from "libcs/Json";
+import { Dict } from "libcs/Dict";
+import { namespace } from "libcs/Namespace";
+import {
+    postfix_numb_degree,
+    infix_take,
+    infix_pow,
+    infix_sqrt,
+    infix_mult,
+    infix_cross,
+    infix_div,
+    infix_add,
+    infix_sub,
+    prefix_not,
+    comp_equals,
+    comp_almostequals,
+    comp_ult,
+    comp_ugt,
+    comp_ge,
+    comp_le,
+    comp_uge,
+    comp_ule,
+    comp_gt,
+    comp_lt,
+    comp_notequals,
+    infix_in,
+    infix_nin,
+    infix_and,
+    infix_or,
+    comp_notalmostequals,
+    infix_sequence,
+    infix_concat,
+    infix_remove,
+    infix_common,
+    infix_append,
+    infix_prepend,
+    infix_assign,
+    infix_define,
+    postfix_undefine,
+    infix_semicolon,
+} from "libcs/Operators";
+import { evaluate } from "libcs/Evaluator";
+
 /*jshint -W069 */
 
 var myfunctions = {};
@@ -223,3 +270,5 @@ eval_helper.equals = function (v0, v1) {
         value: false,
     };
 };
+
+export { niceprint, evaluator, eval_helper, infixmap, myfunctions };
