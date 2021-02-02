@@ -21,7 +21,6 @@
     "iphone-inline-video": "2.0.2",
     "js-beautify": "1.6.8",
     "jshint": "^2.10.2",
-    "leapjs": "github:CindyJS/leapjs",
     "marked": ">=0.3.5 <=0.3.12",
     "mocha": "^5.2.0",
     "node-sass": "^4.12.0",
@@ -81,5 +80,8 @@
   "bugs": {
     "url": "https://github.com/CindyJS/CindyJS/issues"
   },
-  "homepage": "https://github.com/CindyJS/CindyJS#readme"
+  "homepage": "https://github.com/CindyJS/CindyJS#readme",
+  "dependencies": {
+    "leapjs": "^1.1.0"
+  }
 }
