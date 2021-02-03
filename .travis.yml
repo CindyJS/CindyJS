@@ -14,7 +14,7 @@ deploy:
       on:
           node: node
           repo: CindyJS/CindyJS
-          branch: master
+          branch: main
       skip_cleanup: true
     - provider: script
       script: tools/travis-deploy.sh
