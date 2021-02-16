@@ -84,7 +84,7 @@ var OpSound = {
             oscNode.type = "sine";
         }
         oscNode.mono = true;
-        oscNode.frequency.value = freq;
+        oscNode.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
         return oscNode;
     },
 
@@ -100,7 +100,7 @@ var OpSound = {
             disableNormalization: true,
         });
         oscNode.setPeriodicWave(wave);
-        oscNode.frequency.value = freq;
+        oscNode.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
         return oscNode;
     },
 
@@ -135,7 +135,7 @@ var OpSound = {
     playOscillator: function (oscNode, masterGain, gain, attack, duration, release) {
         let audioCtx = this.getAudioContext();
         let gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0;
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         oscNode.connect(gainNode);
         gainNode.connect(masterGain);
         OpSound.registerInput(masterGain);
@@ -277,7 +277,7 @@ class OscillatorLine {
             this.masterGain.panNode.connect(this.audioCtx.destination);
         }
         //update pan value
-        if (this.masterGain.panNode) this.masterGain.panNode.pan.value = this.pan;
+        if (this.masterGain.panNode) this.masterGain.panNode.pan.setValueAtTime(this.pan, this.audioCtx.currentTime);
     }
 
     dampit() {
@@ -331,8 +331,11 @@ class OscillatorLine {
             for (let i = 0; i < this.harmonics.length; i++)
                 if (this.harmonics[i] > 0) {
                     if (this.oscNodes[i] && this.oscNodes[i].oscNode.isplaying && this.oscNodes[i].oscNode.mono) {
-                        this.oscNodes[i].oscNode.frequency.value = this.partials[i] * (i + 1) * this.freq;
-                        this.oscNodes[i].gainNode.gain.value = this.harmonics[i];
+                        this.oscNodes[i].oscNode.frequency.setValueAtTime(
+                            this.partials[i] * (i + 1) * this.freq,
+                            this.audioCtx.currentTime
+                        );
+                        this.oscNodes[i].gainNode.gain.setValueAtTime(this.harmonics[i], this.audioCtx.currentTime);
                         OpSound.extendDuration(this.oscNodes[i], this.duration, this.release);
                     } else {
                         //the oscillator has been stopped or has never been created (or is created through createWaveOscillator)
@@ -364,7 +367,7 @@ class OscillatorLine {
                 this.oscNodes[0].oscNode.isplaying &&
                 !this.oscNodes[0].oscNode.mono
             ) {
-                this.oscNodes[0].oscNode.frequency.value = this.freq;
+                this.oscNodes[0].oscNode.frequency.setValueAtTime(this.freq, this.audioCtx.currentTime);
                 OpSound.extendDuration(this.oscNodes[0], this.duration, this.release);
             } else {
                 this.stopOscillators();
@@ -377,7 +380,7 @@ class OscillatorLine {
         //replace masterGain with a new one (the old one is still needed for smooth fading)
         this.masterGain = this.audioCtx.createGain();
         this.masterGain.connect(this.audioCtx.destination);
-        this.masterGain.gain.value = amp;
+        this.masterGain.gain.setValueAtTime(amp, this.audioCtx.currentTime);
     }
 
     harmonicsdidnotchange() {
@@ -554,7 +557,7 @@ evaluator.playfunction$1 = function (args, modifs) {
                 },
             };
             let curline = OpSound.lines[line];
-            curline.masterGain.gain.value = 0;
+            curline.masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
             curline.masterGain.connect(audioCtx.destination);
             curline.bufferNode.connect(curline.masterGain);
             curline.bufferNode.start(start);
@@ -604,7 +607,7 @@ evaluator.playwave$1 = function (args, modifs) {
             },
         };
         let curline = OpSound.lines[line];
-        curline.masterGain.gain.value = 0;
+        curline.masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
         curline.masterGain.connect(audioCtx.destination);
         curline.bufferNode.connect(curline.masterGain);
         curline.bufferNode.start(0);
