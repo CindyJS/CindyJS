@@ -26,17 +26,14 @@ module.exports = function build(settings, task) {
     // Download Closure Compiler
     //////////////////////////////////////////////////////////////////////
 
-    var closure_zip = "compiler-" + settings.get("closure_version") + ".zip";
-    var closure_url = settings.get("closure_urlbase") + "/" + closure_zip;
-    var closure_archive = "download/arch/" + closure_zip;
-    var closure_jar = "download/closure-compiler/closure-compiler-v" + settings.get("closure_version") + ".jar";
+    const closure_url = `${settings.get("closure_urlbase")}/${settings.get(
+        "closure_version"
+    )}/closure-compiler-${settings.get("closure_version")}.jar`;
 
-    task("closure-zip", [], function () {
-        this.download(closure_url, closure_archive);
-    });
+    const closure_jar = `download/closure-compiler/closure-compiler-${settings.get("closure_version")}.jar`;
 
-    task("closure-jar", ["closure-zip"], function () {
-        this.unzip(closure_archive, closure_jar, "closure-compiler-v" + settings.get("closure_version") + ".jar");
+    task("closure-jar", [], function () {
+        this.download(closure_url, closure_jar);
     });
 
     //////////////////////////////////////////////////////////////////////
@@ -311,7 +308,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/Cindy3D.js.map",
             compilation_level: this.setting("c3d_closure_level"),
             warning_level: this.setting("c3d_closure_warnings"),
@@ -383,7 +380,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyGL.js.map",
             compilation_level: this.setting("cgl_closure_level"),
             warning_level: this.setting("cgl_closure_warnings"),
@@ -475,7 +472,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             compilation_level: "SIMPLE",
             rewrite_polyfills: false,
             warning_level: "DEFAULT",
@@ -502,7 +499,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/QuickHull3D.js.map",
             compilation_level: this.setting("qh3d_closure_level"),
             warning_level: this.setting("qh3d_closure_warnings"),
@@ -572,7 +569,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT_2018",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyPrint.js.map",
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",
@@ -623,7 +620,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT_2018",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyPrintWorker.js.map",
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",
@@ -661,7 +658,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
             language_out: "ECMASCRIPT5_STRICT",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyLeap.js.map",
             compilation_level: "SIMPLE",
             // leap.js compilation throws lots of warnings not in our responsibility
@@ -704,7 +701,7 @@ module.exports = function build(settings, task) {
         var opts = {
             language_in: "ECMASCRIPT_2018",
             language_out: "ECMASCRIPT_2018",
-            dependency_mode: "LOOSE",
+            dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyXR.js.map",
             compilation_level: "SIMPLE",
             warning_level: "DEFAULT",

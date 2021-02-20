@@ -14,11 +14,11 @@ var prevSettingsFile = "build/prev-settings.json";
 module.exports = function Settings() {
     var configSettings = {
         build: "release",
-        closure_urlbase: "http://dl.google.com/closure-compiler",
+        closure_urlbase: "https://repo1.maven.org/maven2/com/google/javascript/closure-compiler",
         closure_language_in: "ECMASCRIPT6_STRICT",
         closure_language_out: "ECMASCRIPT5_STRICT",
         closure_level: "SIMPLE",
-        closure_version: "20180506",
+        closure_version: "v20210202",
         verbose: "true",
         logprefix: "true",
         c3d_closure_level: "ADVANCED",
