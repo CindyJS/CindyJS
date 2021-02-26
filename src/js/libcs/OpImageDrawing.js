@@ -23,7 +23,12 @@ function imageFromValue(val) {
 
 evaluator.imagesize$1 = function (args, modifs) {
     var img = imageFromValue(evaluateAndVal(args[0]));
-    if (!img) {
+
+    var isNumber = function (x) {
+        return typeof x === "number" && Number.isFinite(x);
+    };
+
+    if (img == undefined || !isNumber(img.width) || !isNumber(img.height)) {
         return nada;
     }
     return List.realVector([+img.width, +img.height]);
