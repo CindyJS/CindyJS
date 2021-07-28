@@ -27,3 +27,8 @@ describe("Operators: format", function () {
     itCmd('format(exp(2*pi*i), 2, delimiter->",", truncate->false)', "1,00");
     itCmd('format(exp(2*pi*i), 2, delimiter->",", truncate->true)', "1");
 });
+
+describe("Reverse", function () {
+    itCmd("reverse([1, 2, 3])", "[3, 2, 1]");
+    itCmd('reverse("Hello")', "olleH");
+});
