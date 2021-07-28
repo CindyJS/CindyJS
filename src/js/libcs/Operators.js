@@ -2631,6 +2631,10 @@ evaluator.reverse$1 = function (args, modifs) {
     if (v0.ctype === "list") {
         return List.reverse(v0);
     }
+    if (v0.ctype === "string") {
+        const reversed = Array.from(v0.value).reverse().join("");
+        return General.string(reversed);
+    }
     return nada;
 };
 
