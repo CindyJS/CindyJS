@@ -32,9 +32,9 @@ process.nextTick(processCommandLine);
 
 function open(path) {
     var i = n++;
-    fs.readFile(path, { encoding: "utf8" }, function (err, data) {
+    fs.readFile(path, { encoding: "utf8" }, async function (err, data) {
         if (err) throw err;
-        maps[i] = new sourcemap.SourceMapConsumer(data);
+        maps[i] = await new sourcemap.SourceMapConsumer(data);
         if (--n === 0) done();
     });
 }
