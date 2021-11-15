@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>VAM4.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+<script id="csinit" type="text/x-cindyscript">
+rect(b) := (b:"xy",
+						b:"xy"+(b:"w",0),
+						b:"xy"+(b:"w",b:"h"),
+						b:"xy"+(0,b:"h"));
+
+inrect(rect, point) := and(and(point.x>=(rect_1).x, point.x<=(rect_3).x),and(point.y>=(rect_1).y, point.y<=(rect_3).y));
+
+res = screenresolution();
+r = "REF";
+
+call(obj,s):=(self=obj;self:r:s);
+call(obj,s,p):=(self=obj;param=p;self:r:s);
+obj = [];
+
+;new rectangle(x,y,w,h) := (
+  regional(rect);
+  rect=["Rect",x,y,w,h]; rect:r=[];
+	rect:r:"xy" = (x,y);
+	rect:r:"w" = w;
+	rect:r:"h" = h;
+	rect:r:"color" = grey(.4);
+	rect:r:"draw"  := fillpoly(rect(self:r),color->self:r:"color");
+  rect:r:"info"  := "Rechteck["+self:r:"xy"+"]";
+  rect:r:"hot"   := inrect(rect(self:r),param);
+	rect:r:"click" := (self:r:"color" = (1,1,1)-self:r:"color");
+  obj = obj ++ [rect]; 
+  rect
+);
+
+new rectangle(pos,size) := (
+  new rectangle(pos.x,pos.y,size.x,size.y)
+);
+
+
+
+
+;new circle(x,y,radius) := (
+  regional(circ);
+  circ=["Circle",x,y,radius]; circ:r=[];
+	circ:r:"xy" = (x,y);
+	circ:r:"radius" = radius;
+	circ:r:"color" = grey(1);
+	circ:r:"draw"  := fillcircle(self:r:"xy",self:r:"radius",color->self:r:"color");
+  circ:r:"info"  := "Circle["+self:r:"xy"+"]";
+  circ:r:"hot"   := dist(self:r:"xy",param)<=self:r:"radius";
+	circ:r:"click" := (self:r:"color" = (1,1,1)-self:r:"color");
+  obj = obj ++ [circ]; 
+  circ
+);
+
+new circle(pos,radius) := (
+  new circle(pos.x,pos.y,radius)
+);
+
+
+
+
+;x=new rectangle(1,1,2,1);
+y=new rectangle((4,3),(5,1));
+c = new circle((5,5),3);
+
+x:r:"color"=red(1);
+y:r:"color"=blue(.8);
+
+;
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+if(!isundefined(mover),
+  //err(mover);
+  delta = mouse().xy-oldmouse;
+  mover:r:"xy" = mover:r:"xy"+delta.xy;
+  oldmouse = mouse().xy;
+);
+;
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+hit = select(obj,call(#,"hot",mouse().xy));
+// send "click" to all elements that were hit (do we want this)?
+
+forall(reverse(hit), //println("click "+#);
+  call(#,"click",mouse().xy)
+);
+;
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+if(!isundefined(mover),
+  delta = mouse().xy-oldmouse;
+  mover:r:"xy" = mover:r:"xy"+delta.xy;
+  mover=nada;
+);
+
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+forall(obj, call(#,"draw"));
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+hit = select(obj,call(#,"hot",mouse().xy));
+//err(hit);
+if(length(hit)>0,
+  mover = hit_(-1);
+  oldmouse = mouse().xy;
+);
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    id: "CSCanvas",
+    width: 940,
+    height: 519,
+    transform: [{visibleRect: [-9.06, 9.34, 28.54, -11.42]}],
+    axes: true,
+    background: "rgb(204,204,204)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2036, version: [3, 0, 2036]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
