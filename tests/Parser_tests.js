@@ -113,7 +113,6 @@ describe("CindyScript parser error reporting", function () {
     badCase("f(x.y->8)", "Modifier name must be an identifier at 1:5");
     badCase("f(7):=123", "Function argument must be an identifier at 1:2");
     badCase("f(a,(b)):=123", "Function argument must be an identifier at 1:8");
-    badCase("17:=123", ":= can only be used to define functions or variables at 1:2");
     /* Copy & paste from here:
     badCase('', ': ‘’');
     */
