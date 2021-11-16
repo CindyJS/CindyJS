@@ -753,7 +753,11 @@ function infix_define(args, modifs, self) {
     if (args[0].ctype === "variable") {
         namespace.setvar(args[0].name, args[1]);
     }
-
+    if (args[0].ctype === "userdata") {
+        //console.log("assign "+args[1].ctype+" to "+args[0].ctype);
+        eval_helper.assigncolon(args[0], args[1]);
+        
+    }
     return nada;
 }
 
