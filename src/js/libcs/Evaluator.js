@@ -51,10 +51,10 @@ function evaluate(a) {
         if (key.value === "_?_") key = nada;
 
         if (uobj.ctype === "geo") {
-            return Accessor.getuserData(uobj.value, key);
+            return evaluate(Accessor.getuserData(uobj.value, key));
         }
         if (uobj.ctype === "list" || uobj.ctype === "string") {
-            return Accessor.getuserData(uobj, key);
+            return evaluate(Accessor.getuserData(uobj, key));
         }
         return nada;
     }
