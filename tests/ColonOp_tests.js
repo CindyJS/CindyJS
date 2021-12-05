@@ -15,7 +15,7 @@ var cdy = CindyJS({
     ],
 });
 
-function itCmd(command, expected) {
+function assume(command, expected) {
     it(command, function () {
         String(cdy.niceprint(cdy.evalcs(command))).should.equal(expected);
     });
@@ -31,28 +31,28 @@ describe("ColonOp: Lists", function () {
         cdy.evalcs("b = [1,2,3];"); // no userdata
     });
 
-    itCmd('lst:"age"', "17");
-    itCmd('lst:"list"', "[1, 2, 3]");
-    itCmd('lst:"pt"', "[1, 1]");
-    itCmd("lst:12.3", "4.56");
-    itCmd("lst:1", "1");
-    itCmd("lst:(1+i)", "2");
-    itCmd("lst:[1,2,3]", "10");
+    assume('lst:"age"', "17");
+    assume('lst:"list"', "[1, 2, 3]");
+    assume('lst:"pt"', "[1, 1]");
+    assume("lst:12.3", "4.56");
+    assume("lst:1", "1");
+    assume("lst:(1+i)", "2");
+    assume("lst:[1,2,3]", "10");
 
-    itCmd('lst:"undef"', "___");
-    itCmd("lst:pii", "___");
+    assume('lst:"undef"', "___");
+    assume("lst:pii", "___");
 
     // assigntake
-    itCmd('a:"bla"', "23");
+    assume('a:"bla"', "23");
 
     // references
-    itCmd('t1:"color"', "red");
-    itCmd('t2:"color"', "blue");
+    assume('t1:"color"', "red");
+    assume('t2:"color"', "blue");
 
     // keys
-    itCmd("keys(a)", "[bla]");
-    itCmd("keys(b)", "[]");
-    itCmd("keys(lst)", "[1, age, list, pt, 12.3, 1 + i*1, [1, 2, 3]]");
+    assume("keys(a)", "[bla]");
+    assume("keys(b)", "[]");
+    assume("keys(lst)", "[1, age, list, pt, 12.3, 1 + i*1, [1, 2, 3]]");
 });
 
 describe("ColonOp: GeoOps", function () {
@@ -60,13 +60,37 @@ describe("ColonOp: GeoOps", function () {
         cdy.evalcs('A:"age"=17; A:"list"=lst; A:"pt" = B');
     });
 
-    itCmd('A:"age"', "17");
-    itCmd('A:"list"', "[1, 2, 3]");
-    itCmd('A:"pt"', "[1, 1]");
+    assume('A:"age"', "17");
+    assume('A:"list"', "[1, 2, 3]");
+    assume('A:"pt"', "[1, 1]");
 
-    itCmd('lst:"undef"', "___");
-    itCmd("lst:pii", "___");
+    assume('lst:"undef"', "___");
+    assume("lst:pii", "___");
 
-    itCmd("keys(A)", "[age, list, pt]");
-    itCmd("keys(C)", "[]");
+    assume("keys(A)", "[age, list, pt]");
+    assume("keys(C)", "[]");
+});
+
+describe("UserData for Lists", function() {
+    before(function() {
+        cdy.evalcs('l=[1,2,3];l:"user"="data";');
+        cdy.evalcs('l:"ref"="something";');
+        cdy.evalcs('l:"list"=[4,5,6];')
+        cdy.evalcs('m=l;m_2=3;n=l;');
+        cdy.evalcs('m:"ref"="else";');
+        cdy.evalcs('(l:"list")_2=0;');
+        cdy.evalcs('A=createpoint("A",[0,0])');
+        cdy.evalcs('A:"l" = [3,2,1];x=A;(A:"l")_1 = 1;')
+        cdy.evalcs('n:"list"=[5,5,5];');
+    });
+    assume('l',"[1, 2, 3]");
+    assume('l:"user"',"data");
+    assume('m:"user"',"data");
+    assume('m:"ref"',"else");
+    assume('l:"ref"',"something");
+    assume('l:"list"',"[4, 0, 6]");
+    assume('m:"list"',"[4, 0, 6]");
+    assume('A:"l"',"[1, 2, 1]");
+    assume('x:"l"',"[1, 2, 1]");
+    assume('n:"list"',"[5, 5, 5]");
 });

@@ -547,7 +547,7 @@ eval_helper.assigntake = function (data, what) {
     var lhs = data.args[0];
     var where = evaluate(lhs);
     var ind = evaluateAndVal(data.args[1]);
-    var rhs = nada;
+    var myList = nada;
 
     // TODO fix ind must be number
     if (where.ctype === "list" || where.ctype === "string") {
@@ -557,27 +557,34 @@ eval_helper.assigntake = function (data, what) {
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                var lst = where.value.slice();
-                lst[ind1 - 1] = evaluate(what);
-                rhs = List.turnIntoCSList(lst);
-                // update colon op
-                if (where.userData) rhs.userData = where.userData;
+                if (false) { 
+                    //copy on write – this is wrong semantics
+                    var lst = where.value.slice();
+                    lst[ind1 - 1] = evaluate(what);
+                    myList = List.turnIntoCSList(lst);
+                    // update colon op
+                    if (where.userData) myList.userData = where.userData;
+                } else {
+                    var lst = where.value;
+                    lst[ind1 - 1] = evaluate(what);
+                }
+                
             } else {
                 // string
                 var str = where.value;
                 str = str.substring(0, ind1 - 1) + niceprint(evaluate(what)) + str.substring(ind1, str.length);
-                rhs = General.string(str);
+                myList = General.string(str);
             }
         }
     }
     if (where.ctype === "JSON") {
         const key = niceprint(ind);
         if (niceprint.errorTypes.indexOf(key) === -1) {
-            rhs = Json._helper.ShallowClone(where);
-            rhs.value[key] = evaluate(what);
+            myList = Json._helper.ShallowClone(where);
+            myList.value[key] = evaluate(what);
         }
     }
-    infix_assign([lhs, rhs]);
+    infix_assign([lhs, myList]);
 };
 
 eval_helper.assigndot = function (data, what) {
@@ -725,33 +732,33 @@ eval_helper.assignlist = function (vars, vals) {
 function infix_assign(args, modifs) {
     var u0 = args[0].ctype === "undefined";
     var u1 = args[1].ctype === "undefined";
-    var v1 = evaluate(args[1]);
     if (u0 || u1) {
         return nada;
     }
+    var rhs = evaluate(args[1]);
     if (args[0].ctype === "variable") {
-        namespace.setvar(args[0].name, v1);
+        namespace.setvar(args[0].name, rhs);
     } else if (args[0].ctype === "infix") {
         if (args[0].oper === "_") {
-            // Copy on write
-            eval_helper.assigntake(args[0], v1);
+            // Copy on write --> no more. COW is wrong here due to UserData.
+            eval_helper.assigntake(args[0], rhs);
         } else {
             printStackTrace("Can't use infix expression as lvalue");
         }
     } else if (args[0].ctype === "field") {
-        eval_helper.assigndot(args[0], v1);
+        eval_helper.assigndot(args[0], rhs);
     } else if (args[0].ctype === "userdata") {
-        eval_helper.assigncolon(args[0], v1);
+        eval_helper.assigncolon(args[0], rhs);
     } else if (args[0].ctype === "function" && args[0].oper === "genList") {
-        if (v1.ctype === "list") {
-            eval_helper.assignlist(args[0].args, v1.value);
+        if (rhs.ctype === "list") {
+            eval_helper.assignlist(args[0].args, rhs.value.slice());
         } else {
             printStackTrace("Expected list in rhs of assignment");
         }
     } else {
         printStackTrace("Left hand side of assignment is not a recognized lvalue");
     }
-    return v1;
+    return rhs;
 }
 
 function infix_define(args, modifs, self) {
