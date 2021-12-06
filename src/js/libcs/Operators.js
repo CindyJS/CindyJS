@@ -557,7 +557,7 @@ eval_helper.assigntake = function (data, what) {
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                var lst = where.value.slice();
+                var lst = where.usage === "userData" ? where.value : where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
                 // update colon op
@@ -616,7 +616,11 @@ eval_helper.assigncolon = function (data, what) {
             rhs.userData = tmpObj;
         }
 
-        rhs.userData[key.value] = evaluateAndVal(what);
+        const val = evaluateAndVal(what);
+        if (val.ctype === "list") {
+            val.usage = "userData";
+        }
+        rhs.userData[key.value] = val;
 
         infix_assign([lhs, rhs]);
     } else {
