@@ -1,34 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="utf-8" />
-        <title>Cindy JS</title>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
         <script type="text/javascript" src="../build/js/Cindy.js"></script>
-        <link rel="stylesheet" href="../css/cindy.css" />
+        <script id="csinit" type="text/x-cindyscript">
+            l=[];
+l:"ref" = [];
+l:"ref":"pos" = [1,2];
+x = l;
+x:"ref":"pos" = [2,1];
+
+err(l:"ref":"pos"); //  l:"ref":"pos" ==> [2,1]
+err(x:"ref":"pos"); //  x:"ref":"pos" ==> [2,1]
+            // Initialization code, executed once up front.
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+
+            // Drawing code, executed whenever the canvas gets redrawn.
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/createCindy documentation for details.
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+                language: "en",
+                defaultAppearance: {
+                    // See GeoBasics.js for possible attributes.
+                },
+                geometry: [
+                    { name: "A", type: "Free", pos: [0, 0] },
+                    // For allowed types, see GeoOps.js.
+                    // For allowed properties, see csinit in GeoBasics.js.
+                ], // End of geometry array.
+            });
+
+            // Remove all comments after adjusting this template for your use case.
+        </script>
     </head>
 
     <body style="font-family: Arial">
-        <h1>CindyJS: Angle Bisector</h1>
-
-        <script id="csmove" type="text/x-cindyscript">
-            //  errc(b.angle);
-            //  a.angle=b.angle+90°;
-        </script>
-
-        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid #000000"></div>
-
-        <script type="text/javascript">
-            var gslp = [
-                { name: "A", type: "Free", pos: [2.2, 0], color: [0, 0, 0] },
-                { name: "B", type: "Free", pos: [-1, 3], color: [0, 0, 0] },
-                { name: "C", type: "Free", pos: [2, -3], color: [0, 0, 0] },
-                { name: "a", type: "Through", args: ["A"], dir: [1, 1, 0], color: [0, 0, 1] },
-                { name: "b", type: "Join", args: ["B", "C"], color: [0, 0, 1] },
-                { name: "D", type: "Meet", args: ["a", "b"], color: [0, 0, 1] },
-                { name: "c", type: "CircleMr", args: ["D"], radius: 3, color: [0, 0, 1] },
-                { name: "E", type: "PointOnCircle", args: ["c"], angle: Math.PI / 4, color: [1, 0, 0] },
-            ];
-            CindyJS({ canvasname: "CSCanvas", movescript: "csmove", geometry: gslp });
-        </script>
+        <div id="CSCanvas" style="border: 2px solid black"></div>
     </body>
 </html>

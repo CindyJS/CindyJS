@@ -605,9 +605,10 @@ eval_helper.assigncolon = function (data, what) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         // copy object
-        var rhs = {};
-        for (var i in where) rhs[i] = where[i];
+        // var rhs = {};
+        // for (var i in where) rhs[i] = where[i];
 
+        var rhs = { ...where };
         if (!rhs.userData) rhs.userData = {};
         else {
             // avoid reference copy
@@ -701,6 +702,10 @@ function infix_assign(args, modifs) {
         return nada;
     }
     if (args[0].ctype === "variable") {
+        // restore normal list behavior in case it was extracted of a userData list
+        if (v1.ctype === "list") {
+            v1.usage = undefined;
+        }
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === "infix") {
         if (args[0].oper === "_") {

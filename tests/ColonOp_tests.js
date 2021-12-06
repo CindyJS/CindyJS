@@ -82,6 +82,7 @@ describe("UserData for Lists", function () {
         cdy.evalcs('A=createpoint("A",[0,0])');
         cdy.evalcs('A:"l" = [3,2,1];x=A;(A:"l")_1 = 1;');
         cdy.evalcs('n:"list"=[5,5,5];');
+        cdy.evalcs('mm=[]; mm:"pos" = [1,2]; yy=mm; yy:"pos" = [2,1];');
     });
     itCmd("l", "[1, 2, 3]");
     itCmd('l:"user"', "data");
@@ -93,4 +94,23 @@ describe("UserData for Lists", function () {
     itCmd('A:"l"', "[1, 2, 1]");
     itCmd('x:"l"', "[1, 2, 1]");
     itCmd('n:"list"', "[5, 5, 5]");
+
+    // make sure extracted lists behave the same like normal lists
+    itCmd('ll = l:"list"; ll_2=-1; l:"list"', "[4, 0, 6]");
+
+    itCmd('mm:"pos"', "[1, 2]");
+    itCmd('yy:"pos"', "[1, 2]");
+});
+
+describe("Nested UserData for Lists", function () {
+    before(function () {
+        cdy.evalcs("l=[];");
+        cdy.evalcs('l:"ref" = [];');
+        cdy.evalcs('l:"ref":"pos" = [1,2];');
+        cdy.evalcs("x = l;");
+        cdy.evalcs('x:"ref":"pos" = [2,1];');
+    });
+    itCmd("l", "[1, 2, 3]");
+    itCmd('l:"ref":"pos"', "[2, 1]");
+    itCmd('x:"ref":"pos"', "[2, 1]");
 });
