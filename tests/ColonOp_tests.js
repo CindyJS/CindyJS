@@ -70,3 +70,53 @@ describe("ColonOp: GeoOps", function () {
     itCmd("keys(A)", "[age, list, pt]");
     itCmd("keys(C)", "[]");
 });
+
+describe("UserData for Lists", function () {
+    before(function () {
+        cdy.evalcs('l=[1,2,3];l:"user"="data";');
+        cdy.evalcs('l:"ref"="something";');
+        cdy.evalcs('l:"list"=[4,5,6];');
+        cdy.evalcs("m=l;m_2=3;n=l;");
+        cdy.evalcs('m:"ref"="else";');
+        cdy.evalcs('(l:"list")_2=0;');
+        cdy.evalcs('A=createpoint("A",[0,0])');
+        cdy.evalcs('A:"l" = [3,2,1];x=A;(A:"l")_1 = 1;');
+        cdy.evalcs('n:"list"=[5,5,5];');
+    });
+    itCmd("l", "[1, 2, 3]");
+    itCmd('l:"user"', "data");
+    itCmd('m:"user"', "data");
+    itCmd('m:"ref"', "else");
+    itCmd('l:"ref"', "something");
+    itCmd('l:"list"', "[4, 0, 6]");
+    itCmd('m:"list"', "[4, 0, 6]");
+    itCmd('A:"l"', "[1, 2, 1]");
+    itCmd('x:"l"', "[1, 2, 1]");
+    itCmd('n:"list"', "[5, 5, 5]");
+
+    // make sure extracted lists behave the same like normal lists
+    itCmd('ll = l:"list"; ll_2=-1; l:"list"', "[4, 0, 6]");
+});
+
+describe("Nested UserData for Lists", function () {
+    before(function () {
+        cdy.evalcs("m=[];");
+        cdy.evalcs('m:"pos" = [1,2];');
+        cdy.evalcs("y=m;");
+        cdy.evalcs('y:"pos" = [2,1];');
+    });
+    itCmd('m:"pos"', "[1, 2]");
+    itCmd('y:"pos"', "[2, 1]");
+});
+
+describe("Nested UserData for Lists", function () {
+    before(function () {
+        cdy.evalcs("l=[];");
+        cdy.evalcs('l:"ref" = [];');
+        cdy.evalcs('l:"ref":"pos" = [1,2];');
+        cdy.evalcs("x = l;");
+        cdy.evalcs('x:"ref":"pos" = [2,1];');
+    });
+    itCmd('l:"ref":"pos"', "[2, 1]");
+    itCmd('x:"ref":"pos"', "[2, 1]");
+});
