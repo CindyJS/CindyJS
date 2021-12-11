@@ -100,6 +100,17 @@ describe("UserData for Lists", function () {
 
 describe("Nested UserData for Lists", function () {
     before(function () {
+        cdy.evalcs("m=[];");
+        cdy.evalcs('m:"pos" = [1,2];');
+        cdy.evalcs("y=m;");
+        cdy.evalcs('y:"pos" = [2,1];');
+    });
+    itCmd('m:"pos"', "[1, 2]");
+    itCmd('y:"pos"', "[2, 1]");
+});
+
+describe("Nested UserData for Lists", function () {
+    before(function () {
         cdy.evalcs("l=[];");
         cdy.evalcs('l:"ref" = [];');
         cdy.evalcs('l:"ref":"pos" = [1,2];');
