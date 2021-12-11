@@ -557,7 +557,7 @@ eval_helper.assigntake = function (data, what) {
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                var lst = where.value.slice();
+                var lst = where.internal_usage === "userData" ? where.value : where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
                 // update colon op
@@ -604,19 +604,18 @@ eval_helper.assigncolon = function (data, what) {
     if (where.ctype === "geo" && key) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
-        // copy object
-        var rhs = {};
-        for (var i in where) rhs[i] = where[i];
+        var rhs = { ...where };
 
         if (!rhs.userData) rhs.userData = {};
-        else {
-            // avoid reference copy
-            var tmpObj = {};
-            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
-            rhs.userData = tmpObj;
+        if (where.internal_usage !== "userData") {
+            rhs.userData = { ...rhs.userData };
         }
 
-        rhs.userData[key.value] = evaluateAndVal(what);
+        const val = evaluateAndVal(what);
+        if (val.ctype === "list") {
+            val.internal_usage = "userData";
+        }
+        rhs.userData[key.value] = val;
 
         infix_assign([lhs, rhs]);
     } else {
@@ -697,6 +696,10 @@ function infix_assign(args, modifs) {
         return nada;
     }
     if (args[0].ctype === "variable") {
+        // restore normal list behavior in case it was extracted of a userData list
+        if (v1.ctype === "list") {
+            v1.internal_usage = undefined;
+        }
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === "infix") {
         if (args[0].oper === "_") {
