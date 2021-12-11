@@ -28,18 +28,6 @@
   a = [];
   a:"a" := draw((0,0));
   a:"a";
-  a:"REF" = [];
-  a:"REF":"a" := (draw((1,0)),draw((2,0),color->a:"color"),draw((3,0),color->a:ref:"color"));
-  a:"color" = red(.5);
-  a:"REF":"color" = blue(1);
-  a:"REF":"a";
-  print(a:"color");
-  A=createpoint("A",(0,1));
-  A:"test" = [1,2,3];
-  xx=A;
-  (xx:"test")_2 = 0;
-  println(A:"test");
-
 </script>
     <script type="text/javascript">
 var cdy = CindyJS({
