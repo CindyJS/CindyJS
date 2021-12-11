@@ -604,17 +604,11 @@ eval_helper.assigncolon = function (data, what) {
     if (where.ctype === "geo" && key) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
-        // copy object
-        // var rhs = {};
-        // for (var i in where) rhs[i] = where[i];
-
         var rhs = { ...where };
+
         if (!rhs.userData) rhs.userData = {};
-        else {
-            // avoid reference copy
-            var tmpObj = {};
-            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
-            rhs.userData = tmpObj;
+        if (where.usage !== "userData") {
+            rhs.userData = { ...rhs.userData };
         }
 
         const val = evaluateAndVal(what);
