@@ -772,9 +772,7 @@ Parser.prototype.postprocess = function (expr) {
                         if (arg === null || arg.ctype !== "variable")
                             throw ParseError("Function argument must be an identifier", arg.start || expr.start);
                     });
-                } else if (fun.ctype !== "variable") {
-                    throw ParseError(expr.oper + " can only be used to define " + "functions or variables", expr.start);
-                }
+                } 
             } else if (expr.oper === ",") {
                 throw ParseError("comma may only be used to delimit list elements", expr.start);
             }

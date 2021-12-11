@@ -626,6 +626,39 @@ eval_helper.assigncolon = function (data, what) {
     return nada;
 };
 
+eval_helper.assigncolonNoVal = function (data, what) {
+    var lhs = data.obj;
+    var where = evaluate(lhs);
+
+    var key = General.string(niceprint(evaluate(data.key)));
+    if (key.value === "_?_") key = nada;
+
+    if (where.ctype === "geo" && key) {
+        Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
+        // copy object
+        var rhs = {};
+        for (var i in where) rhs[i] = where[i];
+
+        if (!rhs.userData) rhs.userData = {};
+        else {
+            // avoid reference copy
+            var tmpObj = {};
+            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
+            rhs.userData = tmpObj;
+        }
+
+        rhs.userData[key.value] = what;
+
+        infix_assign([lhs, rhs]);
+    } else {
+        if (!(key && key.ctype === "string")) console.log("Key is undefined");
+        else console.log("User data can only be assigned to geo objects and lists.");
+    }
+
+    return nada;
+};
+
 evaluator.keys$1 = function (args, modifs) {
     var obj = evaluate(args[0]);
     var ctype = obj.ctype;
@@ -756,7 +789,9 @@ function infix_define(args, modifs, self) {
     if (args[0].ctype === "variable") {
         namespace.setvar(args[0].name, args[1]);
     }
-
+    if (args[0].ctype === "userdata") {
+        eval_helper.assigncolonNoVal(args[0], args[1]);        
+    }
     return nada;
 }
 
