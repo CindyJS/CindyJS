@@ -557,7 +557,7 @@ eval_helper.assigntake = function (data, what) {
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                var lst = where.usage === "userData" ? where.value : where.value.slice();
+                var lst = where.internal_usage === "userData" ? where.value : where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
                 // update colon op
@@ -607,13 +607,13 @@ eval_helper.assigncolon = function (data, what) {
         var rhs = { ...where };
 
         if (!rhs.userData) rhs.userData = {};
-        if (where.usage !== "userData") {
+        if (where.internal_usage !== "userData") {
             rhs.userData = { ...rhs.userData };
         }
 
         const val = evaluateAndVal(what);
         if (val.ctype === "list") {
-            val.usage = "userData";
+            val.internal_usage = "userData";
         }
         rhs.userData[key.value] = val;
 
@@ -698,7 +698,7 @@ function infix_assign(args, modifs) {
     if (args[0].ctype === "variable") {
         // restore normal list behavior in case it was extracted of a userData list
         if (v1.ctype === "list") {
-            v1.usage = undefined;
+            v1.internal_usage = undefined;
         }
         namespace.setvar(args[0].name, v1);
     } else if (args[0].ctype === "infix") {
