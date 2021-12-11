@@ -557,8 +557,18 @@ eval_helper.assigntake = function (data, what) {
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                where.value[ind1 - 1] = evaluate(what);
-                myList=where;
+                if (false) { 
+                    //copy on write – this is wrong semantics
+                    var lst = where.value.slice();
+                    lst[ind1 - 1] = evaluate(what);
+                    myList = List.turnIntoCSList(lst);
+                    // update colon op
+                    if (where.userData) myList.userData = where.userData;
+                } else {
+                    var lst = where.value;
+                    lst[ind1 - 1] = evaluate(what);
+                }
+                
             } else {
                 // string
                 var str = where.value;
