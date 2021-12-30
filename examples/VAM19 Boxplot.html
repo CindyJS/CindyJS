@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>VAM19 Boxplot.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+// Helper - übergreifende Funktionen
+
+rect(A,B):=([(A.x,A.y),(A.x,B.y),(B.x,B.y),(B.x,A.y)]);
+myrect(b) := rect(b:r:"xy",b:r:"xy"+(b:r:"w",b:r:"h"));
+myrect() := myrect(self);
+inrect(rect,point) := and(and(point.x>=(rect_1).x, point.x<=(rect_3).x),
+										     and(point.y>=(rect_1).y, point.y<=(rect_3).y));
+onborder(rect,point) := (abs((rect_1).x-point.x)<p10);
+
+// return "left" or "right" if point on left or right border
+resize left := (
+	if (	abs((myrect()_1).x-param.x)<p10	,
+			if(and((myrect()_1).y-p10<=param.y,(myrect()_3).y+p10>=param.y), "left", false) , false)
+); 
+resize right := (
+	if (	abs((myrect()_3).x-param.x)<p10	,
+			if(and((myrect()_1).y-p10<=param.y,(myrect()_3).y+p10>=param.y), "right", false) , false)
+); 
+resize bottom  := (
+	if (	abs((myrect()_1).y-param.y)<p10	,
+			if(and((myrect()_1).x-p10<=param.x,(myrect()_3).x+p10>=param.x), "bottom", false) , false)
+); 
+resize bottom mid := (
+	if (	abs((myrect()_1).y-param.y)<p10	,
+			if(abs(((myrect()_1).x+(myrect()_3).x)/2-param.x)<=p10, "bottom", false), false);
+); 
+resize top := (
+	if (	abs((myrect()_3).y-param.y)<p10	,
+			if(and((myrect()_1).x-p10<=param.x,(myrect()_3).x+p10>=param.x), "top", false) , false)
+); 
+resize top mid := (
+	if (	abs((myrect()_3).y-param.y)<p10	,
+			if(abs(((myrect()_1).x+(myrect()_3).x)/2-param.x)<=p10, "top", false) , false)
+); 
+
+rect resize(type, old, new) :=
+(
+if (type=="left", (set("xy",my("xy")+(new.x-old.x,0));set("w",my("w")-(new.x-old.x))););
+if (type=="right",set("w",my("w")+(new.x-old.x)));
+if (type=="bottom", (set("xy",my("xy")+(0,new.y-old.y));set("h",my("h")-(new.y-old.y))););
+if (type=="top",set("h",my("h")+(new.y-old.y)));
+);
+
+resize lrtbm := [ resize left , resize right , resize top , resize bottom ];
+resize lrtbm := [ resize left , resize right , resize top mid , resize bottom mid ];
+resize lr := [resize left , resize right ];
+
+// Das hier bruahcts doch nicht, oder?
+//x:r:"resizable" := resizelr;
+
+res = screenresolution();
+p10 = 10/res;
+
+//Globale Variablen/Parameter .. nicht anfassen! r, param, self, obj
+r = "REF";
+
+call(obj,s):=(self=obj;self:r:s);
+call(obj,s,p):=(self=obj;param=p;self:r:s);
+set(obj,property,value) := obj:r:property = value;
+set(property,value) := self:r:property = value;
+get(obj,property):= obj:r:property;
+my(string):=self:r:string;
+obj = [];
+
+;new rectangle(x,y,w,h) := (
+  regional(o);
+  o=["rectangle",length(obj)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"w" = w;
+	o:r:"h" = h;
+	o:r:"color" = grey(.4);
+	o:r:"border" = grey(0);
+  o:r:"alpha" = 1;
+	o:r:"draw"  := (fillpoly(myrect(),color->my("color"),alpha->(my("alpha"))),
+								 drawpoly(myrect(),color->my("border")));
+  o:r:"info"  := "Rechteck["+my("xy")+"]";
+  o:r:"hot"   := inrect(myrect(),param);
+	o:r:"click" := set("color",(1,1,1)-my("color"));
+
+	o:r:"resizable" :=[];
+  o:r:"resize"    := rect resize(param_1,param_3,param_4);
+
+  obj = obj ++ [o]; 
+  o
+);
+
+new rectangle(pos,size) := (
+  new rectangle(pos.x,pos.y,size.x,size.y)
+);
+
+
+
+
+;new circle(x,y,radius) := (
+  regional(o);
+  o=["circle",length(object)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"radius" = radius;
+	o:r:"color"  = grey(1);
+	o:r:"draw"  := fillcircle(my("xy"),my("radius"),color->my("color"));
+  o:r:"info"  := "Circle["+my("xy")+"]";
+  o:r:"hot"   := dist(my("xy"),param)<=my("radius");
+	o:r:"click" := (set("color",(1,1,1)-my("color")));
+
+	o:r:"resizable" :=  abs(dist(my("xy"),param)-my("radius"))<=10/res;
+  o:r:"resize" := set("radius",dist(my("xy"),param_3));
+
+  obj = obj ++ [o]; 
+  o
+);
+
+new circle(pos,radius) := (
+  new circle(pos.x,pos.y,radius)
+);
+
+
+
+
+;DtoP(d,xy,wh,c):=(xy.x+wh.x*(d.x-c_1)/(c_2-c_1),
+														xy.y+wh.y*(d.y-c_3)/(c_4-c_3));
+// noch ändern: stattdessden mit map
+
+
+// Helper für Entzerren 1-dim Datenplot
+stagger(l,dx,dy):=
+( d=0;
+	[l_1]++
+	 apply(2..length(l),i,
+		if(l_i_1-l_(i-1)_1<dx,d=d+dy,d=0);
+		//if(d>3*dy,d=0);
+		(l_i_1,l_i_2+d);
+	);
+);
+
+// Helper: Koordinatenachse (demnächst ausbauen für 2D)
+drawcoord(A,B,w1,w2):=
+( 
+	drawall([[A,B]],color->(0,0,0));
+  d=10^floor(log(w2-w1)/log(10)-1.2);
+	Q=perp(B-A)/|B-A|/screenresolution()*10;
+	forall(ceil(w1/d)..floor(w2/d),
+    tick=if(mod(#,10)==0,true,false);
+		P=A+(B-A)*(#*d-w1)/(w2-w1);drawall([[P,P+Q*if(tick,1,.5)]],color->(0,0,0));
+    if(tick,drawtext(P+Q,""+#*d));
+	);
+);
+
+new scatterplot(x,y,w,h,clip,data) := (
+  regional(o);
+  o=["scatterdata",length(obj)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"w" = w;
+	o:r:"h" = h;
+  o:r:"clip" = clip;
+  o:r:"data" = data; 
+	o:r:"color" = grey(.4);
+	o:r:"size" = 4;
+	o:r:"draw"  := (  
+        //err(data);err(my("data"));    /// wann gibts welche Variable ?????
+				fillpoly(myrect(),color->(1,1,1),alpha->0.3);
+				c=my("clip"); 
+				M=map(c_(1,3)++[1],c_(2,3)++[1],c_(1,4)++[1],my("xy")++[1],(my("xy")+(my("w"),0))++[1],(my("xy")+(0,my("h")))++[1]);
+				forall(my("data"),draw(M*(#_1,#_2,1),color->my("color"),size->my("size")););
+			  drawcoord(my("xy"),my("xy")+(my("w"),0),c_1,c_2); 
+			);
+  o:r:"info"  := "Datenpunkte["+my("xy")+"]";
+  o:r:"hot"   := inrect(myrect(),param);
+  o:r:"resize"    := rect resize(param_1,param_3,param_4);
+  obj = obj ++ [o]; 
+  o
+);
+
+new countbox(x,y,w,h) := (
+  regional(o);
+  o=["countbox",length(obj)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"w" = w;
+	o:r:"h" = h;
+	o:r:"border" = grey(0);
+	o:r:"draw"  := (
+				drawpoly(myrect(),color->my("border"));
+				np=sum(apply(
+					select(obj,#_1=="scatterdata"),
+					o,
+					length(select(get(o,"data"),p,inrect(myrect(),DtoP(p,get(o,"xy"),(get(o,"w"),get(o,"h")),get(o,"clip")))));
+				););
+				drawtext(my("xy")+(my("w")/2,my("h")),np,size->20);
+			);
+  o:r:"info"  := "Box["+my("xy")+"]";
+  o:r:"hot"   := inrect(myrect(),param);
+	o:r:"resizable" := resizelr;
+  o:r:"resize"    := rect resize(param_1,param_3,param_4);
+  obj = obj ++ [o]; 
+  o
+);
+
+new boxplot(x,y,w,h) := (
+  regional(o);
+  o=["boxplot",length(obj)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"w" = w;
+	o:r:"h" = h;
+	o:r:"border" = grey(0.5);
+	o:r:"draw"  := (
+				drawall(cycle(myrect()),color->my("border"),dashtype->2);
+				points=flatten(apply(select(obj,#_1=="scatterdata"),o,
+							 	 apply(get(o,"data"),DtoP(#,get(o,"xy"),(get(o,"w"),get(o,"h")),get(o,"clip")));
+							 ););;
+	      inpoints=select(points,inrect(myrect(),#));
+        npoints=length(inpoints); //err(inpoints);
+        if(npoints>4,
+		     q=apply([0.00001,1,2,3,4],ceil(npoints*#/4)); //err(q);
+         forall(q,
+					drawall([[(inpoints_#_1,my("xy").y),(inpoints_#_1,my("xy").y+my("h"))]],color->(0,0,0));
+					);
+         forall(2..length(q),
+					drawtext(((inpoints_(q_#)_1+inpoints_(q_(#-1))_1)/2,my("xy").y+my("h")),q_(#)-q_(#-1),size->10,align->"center");
+				 );
+				 x1=inpoints_1_1;x2=inpoints_(-1)_1;y1=my("xy").y;y2=y1+my("h");
+      	 drawpoly([(x1,y1),(x1,y2),(x2,y2),(x2,y1)],color->(0,0,0));
+        );
+			);
+  o:r:"info"  := "Box["+my("xy")+"]";
+  o:r:"hot"   := inrect(myrect(),param);
+	o:r:"resizable" := resizelr;
+  o:r:"resize"    := rect resize(param_1,param_3,param_4);
+  obj = obj ++ [o]; 
+  o
+);
+;new chiprectangle(x,y,w,h,d) := (
+  regional(o);
+  o=["chiprectangle",length(obj)]; o:r=[];
+	o:r:"xy" = (x,y);
+	o:r:"w" = w;
+	o:r:"h" = h;
+	o:r:"d" = d;
+	o:r:"color" = grey(.4);
+	o:r:"border" = grey(.4);
+  o:r:"alpha" = 0.1;
+	o:r:"draw"  := (fillpoly(myrect(),color->my("color"),alpha->(my("alpha")));
+								  drawpoly(myrect(),color->my("border"));
+									forall(1..floor(my("w")/my("d")+.000001),i,forall(1..floor(my("h")/my("d")+0.00001),j,
+										fillcircle(my("xy")+(0,my("h"))+((i-.5),-(j-.5))*my("d"),my("d")*0.45,color->(1,0,0));
+									)););	
+  o:r:"info"  := "Plättchenrechteck["+my("xy")+"]";
+  o:r:"hot"   := inrect(myrect(),param);
+	o:r:"click" := set("color",(1,1,1)-my("color"));
+
+	o:r:"resizable" := resizelrtbm;
+  o:r:"resize"    := rect resize(param_1,param_3,param_4);
+
+  obj = obj ++ [o]; 
+  o
+);
+;// zufällig erzeugte Daten:
+data1=stagger(apply(sort([3,4,4.1,4.2,5,5,5.3,6,6]),(#,0)),0.01,0.1);
+data2=stagger(apply(sort([2,3,4.1,4.4,5,5,5.6,6,7]),(#,0)),0.01,0.1);
+// fixe daten:
+// data1=[(x,y),.....]
+
+// Parameter: Px,Py linke untere Ecke, w,h: Breite Höhe, (xmin,xmax,ymax,ymax) Koordinaten
+sd1=new scatterplot(0,0,6,1.5,(2,8.01,-1,1),data1);
+sd2=new scatterplot(0,2,6,1.5,(2,8.01,-1,1),data2);
+
+forall(1..5,
+	cb=new countbox(0,5,2,1);
+);
+
+;
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+mouse=mouse().xy;
+delta = mouse-oldmouse;
+
+forall(resizer,
+	forall(#_2,type,
+	   call(#_1,"resize",[type,start,oldmouse,mouse]);
+  );
+);
+
+forall(mover,m,
+  set(m,"xy", get(m,"xy")+delta);
+);
+oldmouse = mouse;
+
+;
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+mouse = mouse().xy;
+
+hit = select(obj,call(#,"hot",mouse));
+
+// send "click" to all elements that were hit (do we want this)?
+
+forall(reverse(hit), //println("click "+#);
+  call(#,"click",mouse)
+);
+;
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+mouse=mouse().xy;
+delta = mouse-oldmouse;
+
+forall(resizer,
+	call(#,"resize",[start,oldmouse,mouse]);
+);
+
+forall(mover,
+  set(mover,"xy", get(mover,"xy")+delta);
+);
+mover=[];
+resizer=[];
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+forall(obj, call(#,"draw"));
+;
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+mouse = mouse().xy;
+start= mouse;
+oldmouse = mouse;
+
+resizable = select(apply(obj,o,(o,select(call(o,"resizable",mouse),o1,o1!=false))),#_2 != []);
+
+//err(resizable);
+if (length(resizable)>0,
+	resizer = [resizable_(-1)],
+	// nothing to resize, so we try to move
+	hit = select(obj,call(#,"hot",mouse));
+	obj=obj--hit++hit; //bring to foreground
+	//err(hit);
+	if(length(hit)>0,
+ 	 	mover = [hit_(-1)];
+	);
+);
+;
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    id: "CSCanvas",
+    width: 1440,
+    height: 664,
+    transform: [{visibleRect: [-4.542487216818701, 7.764556630809988, 15.645961393309328, -1.5445613394157143]}],
+    grid: 0.5,
+    background: "rgb(204,204,204)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2036, version: [3, 0, 2036]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
