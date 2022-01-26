@@ -620,7 +620,7 @@ eval_helper.assigncolon = function (data, what) {
         infix_assign([lhs, rhs]);
     } else {
         if (!(key && key.ctype === "string")) console.log("Key is undefined");
-        else console.log("User data can only be assigned to geo objects and lists.");
+        else console.log("User data " + key.value + " can only be assigned to geo objects and lists, not to "+where.ctype);
     }
 
     return nada;
@@ -653,7 +653,7 @@ eval_helper.assigncolonNoVal = function (data, what) {
         infix_assign([lhs, rhs]);
     } else {
         if (!(key && key.ctype === "string")) console.log("Key is undefined");
-        else console.log("User data can only be assigned to geo objects and lists.");
+        else console.log("User data " + key.value + " can only be assigned to geo objects and lists, not to "+where.ctype);
     }
 
     return nada;

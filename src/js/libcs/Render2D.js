@@ -251,11 +251,11 @@ Render2D.modifHandlers = {
         }
     },
 
-    x_offset: function (v) {
+    xoffset: function (v) {
         if (v.ctype === "number") Render2D.xOffset = v.value.real;
     },
 
-    y_offset: function (v) {
+    yoffset: function (v) {
         if (v.ctype === "number") Render2D.yOffset = v.value.real;
     },
 
@@ -357,8 +357,8 @@ Render2D.textModifs = {
     family: true,
     align: true,
     angle: true,
-    x_offset: true,
-    y_offset: true,
+    xoffset: true,
+    yoffset: true,
     offset: true,
 };
 
