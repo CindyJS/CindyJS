@@ -1036,8 +1036,8 @@ evaluator.drawtable$2 = function (args, modifs) {
         italics: true,
         family: true,
         align: true,
-        x_offset: true,
-        y_offset: true,
+        xoffset: true,
+        yoffset: true,
         offset: true,
         width: function (v) {
             if (v.ctype === "number") sx = v.value.real;

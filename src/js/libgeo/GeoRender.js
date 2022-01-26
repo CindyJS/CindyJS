@@ -22,8 +22,8 @@ function drawlabel(el, lbl, pos, lpos, color) {
 
     var alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
     eval_helper.drawtext([pos, General.wrap(lbl)], {
-        x_offset: General.wrap(factor * lpos.x),
-        y_offset: General.wrap(factor * lpos.y),
+        xoffset: General.wrap(factor * lpos.x),
+        yoffset: General.wrap(factor * lpos.y),
         size: General.wrap(textsize),
         bold: General.wrap(bold),
         italics: General.wrap(italics),
