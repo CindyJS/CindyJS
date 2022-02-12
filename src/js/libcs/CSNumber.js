@@ -1,6 +1,4 @@
 import { instanceInvocationArguments, nada } from "expose";
-import { List } from "libcs/List";
-import { General } from "libcs/General";
 
 //==========================================
 //      Complex Numbers
@@ -54,7 +52,7 @@ var angleUnits = {
 
 CSNumber._helper.niceangle = function (a) {
     var unit = angleUnits[angleUnitName];
-    if (!unit) return CSNumber.niceprint(General.withUsage(a, null));
+    if (!unit) return CSNumber.niceprint({ ...a, usage: null });
     if (typeof unit === "function") return unit(a);
     var num = CSNumber.niceprint(
         CSNumber.realmult(unit * PERTWOPI, a),
@@ -376,7 +374,7 @@ CSNumber.arccos = function (a) {
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
     var erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
-    return General.withUsage(erg, "Angle");
+    return { ...erg, usage: "Angle" };
 };
 
 CSNumber.arcsin = function (a) {
@@ -385,7 +383,7 @@ CSNumber.arcsin = function (a) {
     var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
     var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
     var erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
-    return General.withUsage(erg, "Angle");
+    return { ...erg, usage: "Angle" };
 };
 
 CSNumber.arctan = function (a) {
@@ -393,7 +391,7 @@ CSNumber.arctan = function (a) {
     var t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
     var t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
     var erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
-    return General.withUsage(erg, "Angle");
+    return { ...erg, usage: "Angle" };
 };
 
 CSNumber.arctan2 = function (a, b) {
@@ -406,7 +404,7 @@ CSNumber.arctan2 = function (a, b) {
         var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
         erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
     }
-    return General.withUsage(erg, "Angle");
+    return { ...erg, usage: "Angle" };
 };
 
 CSNumber.sqrt = function (a) {
@@ -595,157 +593,6 @@ CSNumber._helper.cub2 = {
 CSNumber._helper.cub3 = {
     ctype: "list",
     value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
-};
-
-/* Solve the cubic equation ax^3 + bx^2 + cx + d = 0.
- * The result is a JavaScript array of three complex numbers satisfying that equation.
- */
-CSNumber.solveCubic = function (a, b, c, d) {
-    var help = CSNumber._helper.solveCubicHelper(a, b, c, d);
-    return [
-        List.scalproduct(CSNumber._helper.cub1, help),
-        List.scalproduct(CSNumber._helper.cub2, help),
-        List.scalproduct(CSNumber._helper.cub3, help),
-    ];
-};
-
-/* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
- * The returned values are however NOT the solution itself.
- * If this function returns [y1, y2, y3] then the actual solutions are
- * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
- */
-CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
-    // mostly adapted from the cinderella2 source code
-
-    var ar = a.value.real;
-    var ai = a.value.imag;
-    var br = b.value.real;
-    var bi = b.value.imag;
-    var cr = c.value.real;
-    var ci = c.value.imag;
-    var dr = d.value.real;
-    var di = d.value.imag;
-
-    var c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
-    var c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
-
-    // t1 = (4ac - b^2)
-
-    var acr = ar * cr - ai * ci;
-    var aci = ar * ci + ai * cr;
-
-    var t1r = 4 * acr - (br * br - bi * bi);
-    var t1i = 4 * aci - 2 * br * bi;
-
-    // ab = ab
-    var abr = ar * br - ai * bi;
-    var abi = ar * bi + ai * br;
-
-    // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
-    var t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
-    var t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
-
-    // aa = 27  a*a
-    var aar = 27 * (ar * ar - ai * ai);
-    var aai = 54 * (ai * ar);
-
-    // aad =  aa *d = 27 aad
-    var aadr = aar * dr - aai * di;
-    var aadi = aar * di + aai * dr;
-
-    // t1 = b^2
-    var bbr = br * br - bi * bi;
-    var bbi = 2 * br * bi;
-
-    // w = b^3
-    var wr = bbr * br - bbi * bi;
-    var wi = bbr * bi + bbi * br;
-
-    // t2 = aad + 4w = 27aad + 4bbb
-    var t2r = aadr + 4 * wr;
-    var t2i = aadi + 4 * wi;
-
-    // t1 = 27 *(t3 * c + t2 *d)
-    t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
-    t1i = t3r * ci + t3i * cr + t2r * di + t2i * dr;
-
-    // DIS OK!!
-
-    // w = -2 b^3
-    wr *= -2;
-    wi *= -2;
-
-    // w = w + 9 a b c
-    wr += 9 * (abr * cr - abi * ci);
-    wi += 9 * (abr * ci + abi * cr);
-
-    // w = w + -27 a*a d
-    wr -= aadr;
-    wi -= aadi;
-
-    // t1 = (27 dis).Sqrt()
-    t1r *= 27;
-    t1i *= 27;
-    t2r = Math.sqrt(Math.sqrt(t1r * t1r + t1i * t1i));
-    t2i = Math.atan2(t1i, t1r);
-    t1i = t2r * Math.sin(t2i / 2);
-    t1r = t2r * Math.cos(t2i / 2);
-
-    // w = w + a * dis // sqrt war schon oben
-    wr += t1r * ar - t1i * ai;
-    wi += t1r * ai + t1i * ar;
-
-    // w ausgerechnet. Jetz w1 und w2
-    //     w1.assign(wr,wi);
-    //     w2.assign(wr,wi);
-    //     w1.sqrt1_3();
-    //     w2.sqrt2_3();
-    var radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
-    var phi = Math.atan2(wi, wr);
-    var w1i = radius * Math.sin(phi / 3);
-    var w1r = radius * Math.cos(phi / 3);
-
-    radius *= radius;
-    phi *= 2;
-
-    var w2i = radius * Math.sin(phi / 3);
-    var w2r = radius * Math.cos(phi / 3);
-
-    // x = 2 b^2
-    // x = x - 6 ac
-    var xr = 2 * bbr - 6 * acr;
-    var xi = 2 * bbi - 6 * aci;
-
-    //y.assign(-c2).mul(b).mul(w1);
-    var yr = -c2 * (br * w1r - bi * w1i);
-    var yi = -c2 * (br * w1i + bi * w1r);
-
-    //    z.assign(c1).mul(w2);
-    var zr = c1 * w2r;
-    var zi = c1 * w2i;
-
-    //w1.mul(a).mul(3).mul(c2);
-    t1r = c2 * 3 * (w1r * ar - w1i * ai);
-    t1i = c2 * 3 * (w1r * ai + w1i * ar);
-
-    var s = t1r * t1r + t1i * t1i;
-
-    t2r = (xr * t1r + xi * t1i) / s;
-    t2i = (-xr * t1i + xi * t1r) / s;
-    xr = t2r;
-    xi = t2i;
-
-    t2r = (yr * t1r + yi * t1i) / s;
-    t2i = (-yr * t1i + yi * t1r) / s;
-    yr = t2r;
-    yi = t2i;
-
-    t2r = (zr * t1r + zi * t1i) / s;
-    t2i = (-zr * t1i + zi * t1r) / s;
-    zr = t2r;
-    zi = t2i;
-
-    return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
 };
 
 CSNumber._helper.getRangeRand = function (min, max) {
