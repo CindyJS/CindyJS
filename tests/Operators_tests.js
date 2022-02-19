@@ -32,3 +32,9 @@ describe("Reverse", function () {
     itCmd("reverse([1, 2, 3])", "[3, 2, 1]");
     itCmd('reverse("Hello")', "olleH");
 });
+
+describe("if", function() {
+	itCmd('isundefined(if(blabla,"a","b"))',"true");
+	itCmd('if(true,"a","b")',"a");
+	itCmd('if(false,"a","b")',"b");
+})

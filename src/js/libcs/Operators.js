@@ -823,7 +823,7 @@ evaluator.if$3 = function (args, modifs) {
         } else if (args.length === 3) {
             return evaluate(args[2]);
         }
-    } else {
+    } else if (v0.ctype !== "undefined") {
         printStackTrace("Condition for if is not boolean");
     }
 
