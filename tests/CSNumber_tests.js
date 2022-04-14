@@ -222,6 +222,46 @@ describe("Trigonometry", function () {
         assert(CSNumber._helper.isAlmostEqual(log_f_b, CSNumber.log(f_b)));
     });
 
+    it("pow integer - real", function () {
+        const two = CSNumber.real(2);
+        assert(CSNumber._helper.isAlmostEqual(CSNumber.real(4), CSNumber.pow(two, two)));
+        assert(CSNumber._helper.isAlmostEqual(CSNumber.real(0.25), CSNumber.pow(two, CSNumber.neg(two))));
+    });
+
+    it("pow integer - real, large", function () {
+        const randReal = (Math.random() - 0.5) * 10;
+        const randInt = Math.round(Math.random() * 10);
+
+        const csRand = CSNumber.real(randReal);
+
+        const arr = Array(randInt).fill(csRand);
+        const pow = arr.reduce((acc, cur) => CSNumber.mult(acc, cur), CSNumber.one);
+
+        assert(CSNumber._helper.isAlmostEqual(pow, CSNumber.pow(csRand, CSNumber.real(randInt)), eps));
+    });
+
+    it("pow integer - complex, large", function () {
+        const randReal = (Math.random() - 0.5) * 10;
+        const randImag = (Math.random() - 0.5) * 10;
+        const randInt = Math.round(Math.random() * 10);
+
+        const csRand = CSNumber.complex(randReal, randImag);
+
+        const arr = Array(randInt).fill(csRand);
+        const pow = arr.reduce((acc, cur) => CSNumber.mult(acc, cur), CSNumber.one);
+
+        assert(CSNumber._helper.isAlmostEqual(pow, CSNumber.pow(csRand, CSNumber.real(randInt)), eps));
+    });
+
+    it("pow integer - complex", function () {
+        const ten = CSNumber.real(10);
+        const ii = CSNumber.complex(1, 1);
+        const res = CSNumber.complex(0, 32);
+
+        assert(CSNumber._helper.isAlmostEqual(res, CSNumber.pow(ii, ten)));
+        assert(CSNumber._helper.isAlmostEqual(CSNumber.inv(res), CSNumber.pow(ii, CSNumber.neg(ten))));
+    });
+
     it("pow", function () {
         var erg = CSNumber.complex(-0.010503832039336254, -0.099950208042515698);
 

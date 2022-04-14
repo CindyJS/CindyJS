@@ -441,6 +441,15 @@ CSNumber.powRealExponent = function (a, b) {
     };
 };
 
+CSNumber.powIntegerExponent = function (a, n) {
+    if (n < 0) return CSNumber.powIntegerExponent(CSNumber.inv(a), -n);
+    if (n === 0) return CSNumber.one;
+    if (n % 2 === 0) return CSNumber.powIntegerExponent(CSNumber.mult(a, a), n / 2);
+    if (n % 2 === 1) return CSNumber.mult(a, CSNumber.powIntegerExponent(CSNumber.mult(a, a), (n - 1) / 2));
+    // should never happen
+    return nada;
+};
+
 CSNumber.log = function (a) {
     var re = a.value.real;
     var im = a.value.imag;
@@ -468,11 +477,21 @@ CSNumber.log = function (a) {
     });
 };
 
-CSNumber.pow = function (a, b) {
-    if (CSNumber._helper.isZero(b)) return CSNumber.one;
+CSNumber.pow = function (a, n) {
+    if (CSNumber._helper.isZero(n)) return CSNumber.one;
     if (CSNumber._helper.isZero(a)) return CSNumber.zero;
-    if (CSNumber._helper.isReal(b)) return CSNumber.powRealExponent(a, b.value.real);
-    return CSNumber.exp(CSNumber.mult(CSNumber.log(a), b));
+    if ([a, n].every(CSNumber._helper.isReal)) {
+        return CSNumber.real(Math.pow(a.value.real, n.value.real));
+    }
+    if (CSNumber._helper.isReal(n)) {
+        const nn = n.value.real;
+        if (Number.isInteger(nn)) {
+            return CSNumber.powIntegerExponent(a, nn);
+        }
+
+        return CSNumber.powRealExponent(a, nn);
+    }
+    return CSNumber.exp(CSNumber.mult(CSNumber.log(a), n));
 };
 
 CSNumber.mod = function (a, b) {
