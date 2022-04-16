@@ -33,8 +33,8 @@ describe("Reverse", function () {
     itCmd('reverse("Hello")', "olleH");
 });
 
-describe("if", function() {
-	itCmd('isundefined(if(blabla,"a","b"))',"true");
-	itCmd('if(true,"a","b")',"a");
-	itCmd('if(false,"a","b")',"b");
-})
+describe("if", function () {
+    itCmd('isundefined(if(blabla,"a","b"))', "true");
+    itCmd('if(true,"a","b")', "a");
+    itCmd('if(false,"a","b")', "b");
+});
