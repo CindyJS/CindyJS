@@ -91,13 +91,10 @@
         "url": "https://github.com/CindyJS/CindyJS/issues"
     },
     "homepage": "https://github.com/CindyJS/CindyJS#readme",
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "lint-staged": {
         "*.{js,css,html,json}": "prettier --write",
-        "*.{js,ts}": "eslint"
+        "*.{js,ts}": "eslint",
+        "*.js": "eslint --cache --fix",
+        "*.{js,css,md}": "prettier --write"
     }
 }

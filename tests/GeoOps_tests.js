@@ -197,7 +197,7 @@ describe("IntersectLC helper", function () {
         ]);
         var line = List.realVector([0, -2, -6]);
         var pts = geoOps._helper.IntersectLC(line, circle);
-        pts.should.be.an('array');
+        pts.should.be.an("array");
         pts.should.have.length(2);
         var p1 = List.normalizeZ(pts[0]);
         var p2 = List.normalizeZ(pts[1]);
