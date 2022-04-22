@@ -23,14 +23,14 @@ vec3 sphere(in vec3 ray, in vec3 center, in float radius, in float face) {
   return lambda * dir;
 }
 
-void finish(in vec3 pos, in vec3 normal) {
-  shade(pos, normal);
-#ifdef GL_EXT_frag_depth
-  vec4 projPoint = uProjectionMatrix * vec4(pos, 1);
-  gl_FragDepthEXT = (projPoint.z / projPoint.w + 1.0) / 2.0;
-#endif
+void finish(in vec3 pos,in vec3 normal){
+shade(pos,normal);
+vec4 projPoint=uProjectionMatrix*vec4(pos,1);
 #ifdef webgl2
-  vec4 projPoint = uProjectionMatrix * vec4(pos, 1);
-  gl_FragDepth = (projPoint.z / projPoint.w + 1.0) / 2.0;
+gl_FragDepth= (projPoint.z/projPoint.w+1.0) /2.0;
+#else
+#ifdef GL_EXT_frag_depth
+gl_FragDepthEXT= (projPoint.z/projPoint.w+1.0) /2.0;
+#endif
 #endif
 }
