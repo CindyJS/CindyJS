@@ -26,7 +26,7 @@ function getJSONStr() {
 }
 
 function getJSONprettyStr() {
-    return "{age:30, bool:false, cars:[{models:[Fiesta, Focus, Mustang], name:Ford}, {models:[320, X3, X5], name:BMW}, {models:[500, Panda], name:Fiat}], name:Joe, test:circle, undef:___}";
+    return "{age:30, bool:false, cars:[{models:[Fiesta, Focus, Mustang], name:Ford}, {models:[320, X3, X5], name:BMW}, {models:[500, Panda], name:Fiat}], name:Joe, refthing:aa, test:circle, undef:___}";
 }
 
 describe("JSON basic getter / setter", function () {
@@ -35,6 +35,8 @@ describe("JSON basic getter / setter", function () {
         cdy.evalcs("json = " + getJSONStr());
         cdy.evalcs("json.test = circ;");
         cdy.evalcs("json.undef = undef;");
+        cdy.evalcs("other = json;");
+        cdy.evalcs('other.refthing = "aa"');
     });
 
     itCmd("json.name", "Joe");
@@ -43,12 +45,13 @@ describe("JSON basic getter / setter", function () {
     itCmd("json.age", "30");
     itCmd("((json.cars)_1).models_2", "Focus");
     itCmd("json.test", "circle");
+    itCmd("json.refthing", "aa");
 
     // pretty print
     itCmd("json", getJSONprettyStr());
 
     // keys
-    itCmd("keys(json)", "[age, bool, cars, name, test, undef]");
+    itCmd("keys(json)", "[age, bool, cars, name, test, undef, refthing]");
 
     // values
     itCmd('values({"a" : 5, "b" : 2})', "[5, 2]");
