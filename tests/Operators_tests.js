@@ -41,12 +41,6 @@ describe("if", function () {
 
 describe("angles", function () {
     itCmd("-45°", "-45°");
-    itCmd("re(-45°)", "-45°");
-    itCmd("im(-45°)", "0°");
-
-    itCmd("conjugate(-45°)", "45°");
-    itCmd("conjugate(-60°)", "60°");
-    itCmd("round(-45.1°)", "-45°");
-    itCmd("floor(-45.1°)", "-46°");
-    itCmd("ceil(-45.7°)", "-45°");
+    itCmd("round(37°/15°) * 15°", "30°");
+    itCmd("mod(456°, 360°)", "96°");
 });

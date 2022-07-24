@@ -156,7 +156,6 @@ CSNumber.neg = function (a) {
 
 CSNumber.re = function (a) {
     return {
-        ...a,
         ctype: "number",
         value: {
             real: a.value.real,
@@ -167,7 +166,6 @@ CSNumber.re = function (a) {
 
 CSNumber.im = function (a) {
     return {
-        ...a,
         ctype: "number",
         value: {
             real: a.value.imag,
@@ -177,18 +175,8 @@ CSNumber.im = function (a) {
 };
 
 CSNumber.conjugate = function (a) {
-    if (a.usage === "Angle") {
-        return {
-            ...a,
-            value: {
-                real: -a.value.real,
-                imag: 0,
-            },
-        };
-    }
-
     return {
-        ...a,
+        ctype: "number",
         value: {
             real: a.value.real,
             imag: -a.value.imag,
@@ -196,39 +184,34 @@ CSNumber.conjugate = function (a) {
     };
 };
 
-CSNumber._helper.roundingHelper = function (num, roundingFct) {
-    if (num.usage === "Angle") {
-        const multiplier = 180 / Math.PI;
-        const invMultiplier = 1 / multiplier;
-
-        return {
-            ...num,
-            value: {
-                real: invMultiplier * roundingFct(multiplier * num.value.real),
-                imag: invMultiplier * roundingFct(multiplier * num.value.imag),
-            },
-        };
-    }
-
+CSNumber.round = function (a) {
     return {
-        ...num,
+        ctype: "number",
         value: {
-            real: roundingFct(num.value.real),
-            imag: roundingFct(num.value.imag),
+            real: Math.round(a.value.real),
+            imag: Math.round(a.value.imag),
         },
     };
 };
 
-CSNumber.round = function (a) {
-    return CSNumber._helper.roundingHelper(a, Math.round);
-};
-
 CSNumber.ceil = function (a) {
-    return CSNumber._helper.roundingHelper(a, Math.ceil);
+    return {
+        ctype: "number",
+        value: {
+            real: Math.ceil(a.value.real),
+            imag: Math.ceil(a.value.imag),
+        },
+    };
 };
 
 CSNumber.floor = function (a) {
-    return CSNumber._helper.roundingHelper(a, Math.floor);
+    return {
+        ctype: "number",
+        value: {
+            real: Math.floor(a.value.real),
+            imag: Math.floor(a.value.imag),
+        },
+    };
 };
 
 CSNumber.mult = function (a, b) {
@@ -266,7 +249,6 @@ CSNumber.multiMult = function (arr) {
 
 CSNumber.abs2 = function (a) {
     return {
-        ...a,
         ctype: "number",
         value: {
             real: a.value.real * a.value.real + a.value.imag * a.value.imag,
@@ -282,7 +264,6 @@ CSNumber.abs = function (a) {
 CSNumber.inv = function (a) {
     var s = a.value.real * a.value.real + a.value.imag * a.value.imag;
     return {
-        ...a,
         ctype: "number",
         value: {
             real: a.value.real / s,
@@ -319,6 +300,7 @@ CSNumber.snap = function (a) {
         i = Math.round(i);
     }
     return {
+        ...a,
         ctype: "number",
         value: {
             real: r,
@@ -526,6 +508,7 @@ CSNumber.mod = function (a, b) {
     if (b2 === 0) i = 0;
 
     return CSNumber.snap({
+        ...([a, b].every((x) => x.usage === "Angle") && { usage: "Angle" }),
         ctype: "number",
         value: {
             real: r,
