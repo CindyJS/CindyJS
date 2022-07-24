@@ -181,7 +181,7 @@ CSNumber.conjugate = function (a) {
         return {
             ...a,
             value: {
-                real: (angleUnits.grad - a.value.real) % angleUnits.grad,
+                real: -a.value.real,
                 imag: 0,
             },
         };
