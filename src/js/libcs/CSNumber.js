@@ -145,6 +145,7 @@ CSNumber.sub = function (a, b) {
 
 CSNumber.neg = function (a) {
     return {
+        ...a,
         ctype: "number",
         value: {
             real: -a.value.real,
@@ -299,6 +300,7 @@ CSNumber.snap = function (a) {
         i = Math.round(i);
     }
     return {
+        ...a,
         ctype: "number",
         value: {
             real: r,
@@ -506,6 +508,7 @@ CSNumber.mod = function (a, b) {
     if (b2 === 0) i = 0;
 
     return CSNumber.snap({
+        ...([a, b].every((x) => x.usage === "Angle") && { usage: "Angle" }),
         ctype: "number",
         value: {
             real: r,

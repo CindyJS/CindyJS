@@ -1,8 +1,7 @@
 language: node_js
 node_js:
-    - 14
+    - 16
 script: node make build=release alltests
-dist: trusty
 sudo: false
 addons:
     apt:
@@ -14,11 +13,9 @@ deploy:
       on:
           repo: CindyJS/CindyJS
           branch: main
-      skip_cleanup: true
     - provider: script
       script: tools/travis-deploy.sh
       on:
           repo: CindyJS/CindyJS
           tags: true
           condition: "${TRAVIS_TAG} == v*([0-9]).*([0-9]).*([0-9])"
-      skip_cleanup: true

@@ -38,3 +38,9 @@ describe("if", function () {
     itCmd('if(true,"a","b")', "a");
     itCmd('if(false,"a","b")', "b");
 });
+
+describe("angles", function () {
+    itCmd("-45°", "-45°");
+    itCmd("round(37°/15°) * 15°", "30°");
+    itCmd("mod(456°, 360°)", "96°");
+});
