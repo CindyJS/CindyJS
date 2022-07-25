@@ -13,9 +13,11 @@ deploy:
       on:
           repo: CindyJS/CindyJS
           branch: main
+			skip_cleanup: true
     - provider: script
       script: tools/travis-deploy.sh
       on:
           repo: CindyJS/CindyJS
           tags: true
           condition: "${TRAVIS_TAG} == v*([0-9]).*([0-9]).*([0-9])"
+			skip_cleanup: true
