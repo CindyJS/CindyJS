@@ -35,7 +35,7 @@ function evaluate(a) {
     if (a.ctype === "field") {
         var obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
-            return Accessor.getField(obj.value, a.key);
+            return evaluate(Accessor.getField(obj.value, a.key));
         }
         if (obj.ctype === "list") {
             return List.getField(obj, a.key);
@@ -55,6 +55,9 @@ function evaluate(a) {
         }
         if (uobj.ctype === "list" || uobj.ctype === "string") {
             return evaluate(Accessor.getuserData(uobj, key));
+        }
+        if (uobj.ctype === "JSON") {
+            return evaluate(Json.getField(uobj, key.value));
         }
         return nada;
     }

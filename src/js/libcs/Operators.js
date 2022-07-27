@@ -602,7 +602,6 @@ eval_helper.assigndotNoVal = function (data, what) {
         Accessor.setField(where.value, field, what);
     }
     if (where.ctype === "JSON" && typeof field === "string") {
-        console.log(evaluate(what));
         Json.setField(where.value, field, what);
     }
 
@@ -618,6 +617,8 @@ eval_helper.assigncolon = function (data, what) {
 
     if (where.ctype === "geo" && key) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === "JSON" && key) {
+        Json.setField(where.value, key.value, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         var rhs = { ...where };
 
@@ -653,6 +654,8 @@ eval_helper.assigncolonNoVal = function (data, what) {
 
     if (where.ctype === "geo" && key) {
         Accessor.setuserData(where.value, key, evaluate(what));
+    } else if (where.ctype === "JSON" && key) {
+        Json.setField(where.value, key.value, what);
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         // copy object
         var rhs = {};
