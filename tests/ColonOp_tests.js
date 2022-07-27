@@ -120,3 +120,7 @@ describe("Nested UserData for Lists", function () {
     itCmd('l:"ref":"pos"', "[2, 1]");
     itCmd('x:"ref":"pos"', "[2, 1]");
 });
+
+describe("Assign code to JSON objects", function () {
+    itCmd("obj={};obj.code:=(x=x+1);x=5;obj.code;obj.code;x", "7");
+});
