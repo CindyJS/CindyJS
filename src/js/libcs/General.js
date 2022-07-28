@@ -7,7 +7,7 @@ import { niceprint } from "libcs/Essentials";
 //==========================================
 //      Things that apply to several types
 //==========================================
-var General = {};
+const General = {};
 General._helper = {};
 
 General.order = {
@@ -186,8 +186,8 @@ General.wrap = function (v) {
     }
     if (typeof v === "object" && v.length !== undefined) {
         //evtl in List ziehen
-        var li = [];
-        for (var i = 0; i < v.length; i++) {
+        const li = [];
+        for (let i = 0; i < v.length; i++) {
             li[i] = General.wrap(v[i]);
         }
         return List.turnIntoCSList(li);
@@ -252,7 +252,7 @@ General.wrapJSON = function (data) {
             if (data === null) return nada;
             if (Array.isArray(data)) return List.turnIntoCSList(data.map(General.wrapJSON));
             var d = Dict.create();
-            for (var k in data) Dict.put(d, General.string(k), General.wrapJSON(data[k]));
+            for (const k in data) Dict.put(d, General.string(k), General.wrapJSON(data[k]));
             return d;
         default:
             console.log("Failed to convert " + typeof data + " to CindyJS data type");
@@ -266,8 +266,8 @@ General.identity = function (x) {
 
 General.deeplyEqual = function (a, b) {
     if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) return a === b;
-    var cnt = 0;
-    var k;
+    let cnt = 0;
+    let k;
     for (k in a) {
         ++cnt;
         if (!(k in b && General.deeplyEqual(a[k], b[k]))) return false;

@@ -48,7 +48,7 @@ import { PSLQ } from "libcs/PSLQ";
 //*******************************************************
 
 evaluator.version$0 = function (args, modifs) {
-    var ver = ["CindyJS"].concat(version);
+    const ver = ["CindyJS"].concat(version);
     return List.turnIntoCSList(ver.map(General.wrap));
 };
 
@@ -58,7 +58,7 @@ evaluator.clearconsole$0 = function (args, modifs) {
 
 evaluator.err$1 = function (args, modifs) {
     //OK
-    var varname = "",
+    let varname = "",
         s;
     if (args[0].ctype === "variable") {
         varname = args[0].name;
@@ -75,7 +75,7 @@ evaluator.err$1 = function (args, modifs) {
 
 evaluator.errc$1 = function (args, modifs) {
     //OK
-    var s;
+    let s;
     if (args[0].ctype === "variable") {
         // var s=evaluate(args[0].value[0]);
         s = evaluate(namespace.getvar(args[0].name));
@@ -98,7 +98,7 @@ evaluator.println$1 = function (args, modifs) {
 };
 
 evaluator.assert$2 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "boolean") {
         if (v0.value === false) return evaluator.println$1([args[1]], modifs);
     } else {
@@ -120,7 +120,7 @@ evaluator.repeat$2 = function (args, modifs) {
 evaluator.repeat$3 = function (args, modifs) {
     //OK
     function handleModifs() {
-        var erg;
+        let erg;
 
         if (modifs.start !== undefined) {
             erg = evaluate(modifs.start);
@@ -176,9 +176,9 @@ evaluator.repeat$3 = function (args, modifs) {
         }
     }
 
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
 
-    var lauf = "#";
+    let lauf = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             lauf = args[1].name;
@@ -201,8 +201,8 @@ evaluator.repeat$3 = function (args, modifs) {
         }
 
     namespace.newvar(lauf);
-    var erg = nada;
-    for (var i = 0; i < n; i++) {
+    let erg = nada;
+    for (let i = 0; i < n; i++) {
         namespace.setvar(lauf, {
             ctype: "number",
             value: {
@@ -220,10 +220,10 @@ evaluator.repeat$3 = function (args, modifs) {
 evaluator.while$2 = function (args, modifs) {
     //OK
 
-    var prog = args[1];
-    var test = args[0];
-    var bo = evaluate(test);
-    var erg = nada;
+    const prog = args[1];
+    const test = args[0];
+    let bo = evaluate(test);
+    let erg = nada;
     while (bo.ctype !== "list" && bo.value) {
         erg = evaluate(prog);
         bo = evaluate(test);
@@ -241,20 +241,20 @@ evaluator.apply$3 = function (args, modifs) {
 };
 
 evaluator.apply$4 = function (args, modifs) {
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
 
     if (!(v1.ctype === "list" || v1.ctype === "JSON")) {
         return nada;
     }
 
-    var valueVar = "#";
+    let valueVar = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             valueVar = args[1].name;
         }
     }
 
-    var keyVar;
+    let keyVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
             keyVar = args[2].name;
@@ -262,8 +262,8 @@ evaluator.apply$4 = function (args, modifs) {
         }
     }
 
-    var li = v1.value;
-    var erg = v1.ctype === "list" ? [] : {};
+    const li = v1.value;
+    let erg = v1.ctype === "list" ? [] : {};
 
     namespace.newvar(valueVar);
 
@@ -276,7 +276,7 @@ evaluator.apply$4 = function (args, modifs) {
             }
         } else {
             // JSON
-            var res;
+            let res;
             for (let k in li) {
                 namespace.setvar(keyVar, General.string(k));
                 namespace.setvar(valueVar, li[k]);
@@ -314,23 +314,23 @@ evaluator.forall$2 = function (args, modifs) {
 
 evaluator.forall$3 = function (args, modifs) {
     //OK
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
 
     if (!(v1.ctype === "list" || v1.ctype === "JSON")) {
         return nada;
     }
 
-    var runVar = "#";
+    let runVar = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             runVar = args[1].name;
         }
     }
 
-    var li = v1.value;
+    const li = v1.value;
     namespace.newvar(runVar);
 
-    var res;
+    let res;
     if (v1.ctype === "list") {
         for (let i = 0; i < li.length; i++) {
             namespace.setvar(runVar, li[i]);
@@ -353,26 +353,26 @@ evaluator.select$2 = function (args, modifs) {
 
 evaluator.select$3 = function (args, modifs) {
     //OK
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
     if (!(v1.ctype === "list" || v1.ctype === "JSON")) {
         return nada;
     }
 
-    var lauf = "#";
+    let lauf = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             lauf = args[1].name;
         }
     }
 
-    var li = v1.value;
-    var erg, ret, res;
+    const li = v1.value;
+    let erg, ret, res;
     namespace.newvar(lauf);
 
     if (v1.ctype === "list") {
         erg = [];
-        var ct = 0;
-        for (var i = 0; i < li.length; i++) {
+        let ct = 0;
+        for (let i = 0; i < li.length; i++) {
             namespace.setvar(lauf, li[i]);
             res = evaluate(args[2]);
             if (res.ctype === "boolean") {
@@ -390,7 +390,7 @@ evaluator.select$3 = function (args, modifs) {
     } else {
         // JSON
         erg = {};
-        for (var k in li) {
+        for (const k in li) {
             namespace.setvar(lauf, li[k]);
             res = evaluate(args[2]);
             if (res.ctype === "boolean") {
@@ -421,9 +421,9 @@ evaluator.flatten$1 = function (args, modifs) {
             })
         );
     }
-    var lst = evaluateAndVal(args[0]);
+    const lst = evaluateAndVal(args[0]);
     if (lst.ctype !== "list") return lst;
-    var levels = modifs.levels;
+    let levels = modifs.levels;
     if (levels === undefined) {
         levels = 1;
     } else {
@@ -440,8 +440,8 @@ evaluator.flatten$1 = function (args, modifs) {
 
 function infix_semicolon(args, modifs) {
     //OK
-    var u0 = args[0].ctype === "void";
-    var u1 = args[1].ctype === "void";
+    const u0 = args[0].ctype === "void";
+    const u1 = args[1].ctype === "void";
 
     if (u0 && u1) {
         return nada;
@@ -461,7 +461,7 @@ function infix_semicolon(args, modifs) {
 evaluator.createvar$1 = function (args, modifs) {
     //OK
     if (args[0].ctype === "variable") {
-        var v = args[0].name;
+        const v = args[0].name;
         namespace.newvar(v);
     }
     return nada;
@@ -470,9 +470,9 @@ evaluator.createvar$1 = function (args, modifs) {
 evaluator.local = function (args, modifs) {
     //VARIADIC!
 
-    for (var i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
         if (args[i].ctype === "variable") {
-            var v = args[i].name;
+            const v = args[i].name;
             namespace.newvar(v);
         }
     }
@@ -482,9 +482,9 @@ evaluator.local = function (args, modifs) {
 
 evaluator.removevar$1 = function (args, modifs) {
     //OK
-    var ret = evaluate(args[0]);
+    const ret = evaluate(args[0]);
     if (args[0].ctype === "variable") {
-        var v = args[0].name;
+        const v = args[0].name;
         namespace.removevar(v);
     }
     return ret;
@@ -495,11 +495,11 @@ evaluator.release = function (args, modifs) {
 
     if (args.length === 0) return nada;
 
-    var ret = evaluate(args[args.length - 1]);
+    const ret = evaluate(args[args.length - 1]);
 
-    for (var i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
         if (args[i].ctype === "variable") {
-            var v = args[i].name;
+            const v = args[i].name;
             namespace.removevar(v);
         }
     }
@@ -510,9 +510,9 @@ evaluator.release = function (args, modifs) {
 evaluator.regional = function (args, modifs) {
     //VARIADIC!
 
-    for (var i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
         if (args[i].ctype === "variable") {
-            var v = args[i].name;
+            const v = args[i].name;
             namespace.newvar(v);
             namespace.pushVstack(v);
         }
@@ -526,9 +526,9 @@ evaluator.genList = function (args, modifs) {
 };
 
 evaluator.genJSON = function (args, modifs) {
-    var res = {};
-    for (var i = 0; i < args.length; i++) {
-        var atom = Json.GenFromUserDataEl(args[i]);
+    const res = {};
+    for (let i = 0; i < args.length; i++) {
+        const atom = Json.GenFromUserDataEl(args[i]);
         // discard values that have no key
         if (!atom.key) {
             continue;
@@ -544,27 +544,27 @@ evaluator.genJSON = function (args, modifs) {
 
 eval_helper.assigntake = function (data, what) {
     //TODO: Bin nicht ganz sicher obs das so tut
-    var lhs = data.args[0];
-    var where = evaluate(lhs);
-    var ind = evaluateAndVal(data.args[1]);
-    var rhs = nada;
+    const lhs = data.args[0];
+    const where = evaluate(lhs);
+    const ind = evaluateAndVal(data.args[1]);
+    let rhs = nada;
 
     // TODO fix ind must be number
     if (where.ctype === "list" || where.ctype === "string") {
-        var ind1 = Math.floor(ind.value.real);
+        let ind1 = Math.floor(ind.value.real);
         if (ind1 < 0) {
             ind1 = where.value.length + ind1 + 1;
         }
         if (ind1 > 0 && ind1 <= where.value.length) {
             if (where.ctype === "list") {
-                var lst = where.internal_usage === "userData" ? where.value : where.value.slice();
+                const lst = where.internal_usage === "userData" ? where.value : where.value.slice();
                 lst[ind1 - 1] = evaluate(what);
                 rhs = List.turnIntoCSList(lst);
                 // update colon op
                 if (where.userData) rhs.userData = where.userData;
             } else {
                 // string
-                var str = where.value;
+                let str = where.value;
                 str = str.substring(0, ind1 - 1) + niceprint(evaluate(what)) + str.substring(ind1, str.length);
                 rhs = General.string(str);
             }
@@ -581,8 +581,8 @@ eval_helper.assigntake = function (data, what) {
 };
 
 eval_helper.assigndot = function (data, what) {
-    var where = evaluate(data.obj);
-    var field = data.key;
+    const where = evaluate(data.obj);
+    const field = data.key;
 
     if (where.ctype === "geo" && typeof field === "string") {
         Accessor.setField(where.value, field, evaluateAndVal(what));
@@ -595,8 +595,8 @@ eval_helper.assigndot = function (data, what) {
 };
 
 eval_helper.assigndotNoVal = function (data, what) {
-    var where = evaluate(data.obj);
-    var field = data.key;
+    const where = evaluate(data.obj);
+    const field = data.key;
 
     if (where.ctype === "geo" && typeof field === "string") {
         Accessor.setField(where.value, field, what);
@@ -609,10 +609,10 @@ eval_helper.assigndotNoVal = function (data, what) {
 };
 
 eval_helper.assigncolon = function (data, what) {
-    var lhs = data.obj;
-    var where = evaluate(lhs);
+    const lhs = data.obj;
+    const where = evaluate(lhs);
 
-    var key = General.string(niceprint(evaluate(data.key)));
+    let key = General.string(niceprint(evaluate(data.key)));
     if (key.value === "_?_") key = nada;
 
     if (where.ctype === "geo" && key) {
@@ -620,7 +620,7 @@ eval_helper.assigncolon = function (data, what) {
     } else if (where.ctype === "JSON" && key) {
         Json.setField(where.value, key.value, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
-        var rhs = { ...where };
+        const rhs = { ...where };
 
         if (!rhs.userData) rhs.userData = {};
         if (where.internal_usage !== "userData") {
@@ -646,10 +646,10 @@ eval_helper.assigncolon = function (data, what) {
 };
 
 eval_helper.assigncolonNoVal = function (data, what) {
-    var lhs = data.obj;
-    var where = evaluate(lhs);
+    const lhs = data.obj;
+    const where = evaluate(lhs);
 
-    var key = General.string(niceprint(evaluate(data.key)));
+    let key = General.string(niceprint(evaluate(data.key)));
     if (key.value === "_?_") key = nada;
 
     if (where.ctype === "geo" && key) {
@@ -658,14 +658,14 @@ eval_helper.assigncolonNoVal = function (data, what) {
         Json.setField(where.value, key.value, what);
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         // copy object
-        var rhs = {};
-        for (var i in where) rhs[i] = where[i];
+        const rhs = {};
+        for (const i in where) rhs[i] = where[i];
 
         if (!rhs.userData) rhs.userData = {};
         else {
             // avoid reference copy
-            var tmpObj = {};
-            for (var j in rhs.userData) tmpObj[j] = rhs.userData[j];
+            const tmpObj = {};
+            for (const j in rhs.userData) tmpObj[j] = rhs.userData[j];
             rhs.userData = tmpObj;
         }
 
@@ -684,12 +684,12 @@ eval_helper.assigncolonNoVal = function (data, what) {
 };
 
 evaluator.keys$1 = function (args, modifs) {
-    var obj = evaluate(args[0]);
-    var ctype = obj.ctype;
+    const obj = evaluate(args[0]);
+    const ctype = obj.ctype;
     if (ctype === "geo" || ctype === "list" || ctype === "JSON") {
-        var keys = [];
+        let keys = [];
 
-        var data;
+        let data;
         if (ctype === "geo") {
             data = obj.value.userData;
         } else if (ctype === "list") {
@@ -708,7 +708,7 @@ evaluator.keys$1 = function (args, modifs) {
 };
 
 evaluator.values$1 = function (args, modifs) {
-    var obj = evaluate(args[0]);
+    const obj = evaluate(args[0]);
     let ctype = obj.ctype;
     if (ctype === "list") return obj;
 
@@ -734,21 +734,21 @@ evaluator.values$1 = function (args, modifs) {
 };
 
 eval_helper.assignlist = function (vars, vals) {
-    var n = vars.length;
-    var m = vals.length;
+    let n = vars.length;
+    const m = vals.length;
     if (m < n) n = m;
 
-    for (var i = 0; i < n; i++) {
-        var name = vars[i];
-        var val = vals[i];
+    for (let i = 0; i < n; i++) {
+        const name = vars[i];
+        const val = vals[i];
         infix_assign([name, val], []);
     }
 };
 
 function infix_assign(args, modifs) {
-    var u0 = args[0].ctype === "undefined";
-    var u1 = args[1].ctype === "undefined";
-    var v1 = evaluate(args[1]);
+    const u0 = args[0].ctype === "undefined";
+    const u1 = args[1].ctype === "undefined";
+    const v1 = evaluate(args[1]);
     if (u0 || u1) {
         return nada;
     }
@@ -782,19 +782,19 @@ function infix_assign(args, modifs) {
 }
 
 function infix_define(args, modifs, self) {
-    var u0 = args[0].ctype === "undefined";
-    var u1 = args[1].ctype === "undefined";
+    const u0 = args[0].ctype === "undefined";
+    const u1 = args[1].ctype === "undefined";
 
     if (u0 || u1) {
         return nada;
     }
     if (args[0].ctype === "function") {
-        var fname = args[0].oper;
-        var ar = args[0].args;
-        var body = args[1];
-        var generation = 1;
+        const fname = args[0].oper;
+        const ar = args[0].args;
+        const body = args[1];
+        let generation = 1;
         if (myfunctions.hasOwnProperty(fname)) {
-            var previous = myfunctions[fname];
+            const previous = myfunctions[fname];
             if (previous.definer === self) {
                 // Redefinition using the same piece of code changes nothing.
                 // This needs some work once we have closures.
@@ -837,10 +837,10 @@ evaluator.if$2 = function (args, modifs) {
 evaluator.if$3 = function (args, modifs) {
     //OK
 
-    var u0 = args[0].ctype === "undefined";
-    var u1 = args[1].ctype === "undefined";
+    const u0 = args[0].ctype === "undefined";
+    const u1 = args[1].ctype === "undefined";
 
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "boolean") {
         if (v0.value === true) {
             return evaluate(args[1]);
@@ -855,8 +855,8 @@ evaluator.if$3 = function (args, modifs) {
 };
 
 function comp_equals(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
 
     if (v0.ctype === v1.ctype) {
         if (v0.ctype === "number") {
@@ -886,8 +886,8 @@ function comp_notequals(args, modifs) {
 }
 
 function comp_almostequals(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return {
             ctype: "boolean",
@@ -907,7 +907,7 @@ function comp_almostequals(args, modifs) {
         };
     }
     if (v0.ctype === "list" && v1.ctype === "list") {
-        var erg = List.almostequals(v0, v1);
+        const erg = List.almostequals(v0, v1);
         return erg;
     }
     return {
@@ -919,8 +919,8 @@ function comp_almostequals(args, modifs) {
 evaluator.and$2 = infix_and;
 
 function infix_and(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
 
     if (v0.ctype === "boolean" && v1.ctype === "boolean") {
         return {
@@ -935,8 +935,8 @@ function infix_and(args, modifs) {
 evaluator.or$2 = infix_or;
 
 function infix_or(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
 
     if (v0.ctype === "boolean" && v1.ctype === "boolean") {
         return {
@@ -949,8 +949,8 @@ function infix_or(args, modifs) {
 }
 
 evaluator.xor$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
 
     if (v0.ctype === "boolean" && v1.ctype === "boolean") {
         return {
@@ -963,7 +963,7 @@ evaluator.xor$2 = function (args, modifs) {
 };
 
 evaluator.not$1 = function (args, modifs) {
-    var v = evaluateAndVal(args[0]);
+    const v = evaluateAndVal(args[0]);
 
     if (v.ctype === "boolean") {
         return {
@@ -976,7 +976,7 @@ evaluator.not$1 = function (args, modifs) {
 };
 
 function prefix_not(args, modifs) {
-    var v1 = evaluateAndVal(args[1]);
+    const v1 = evaluateAndVal(args[1]);
 
     if (args[0].ctype === "void" && v1.ctype === "boolean") {
         return {
@@ -989,7 +989,7 @@ function prefix_not(args, modifs) {
 }
 
 function postfix_numb_degree(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
 
     if (v0.ctype === "number" && args[1].ctype === "void") {
         return General.withUsage(CSNumber.realmult(Math.PI / 180, v0), "Angle");
@@ -1003,8 +1003,8 @@ function comp_notalmostequals(args, modifs) {
 }
 
 function comp_ugt(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1016,8 +1016,8 @@ function comp_ugt(args, modifs) {
 }
 
 function comp_uge(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1029,8 +1029,8 @@ function comp_uge(args, modifs) {
 }
 
 function comp_ult(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1042,8 +1042,8 @@ function comp_ult(args, modifs) {
 }
 
 function comp_ule(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1055,8 +1055,8 @@ function comp_ule(args, modifs) {
 }
 
 function comp_gt(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1074,8 +1074,8 @@ function comp_gt(args, modifs) {
 }
 
 function comp_ge(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1093,8 +1093,8 @@ function comp_ge(args, modifs) {
 }
 
 function comp_le(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1112,8 +1112,8 @@ function comp_le(args, modifs) {
 }
 
 function comp_lt(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && CSNumber._helper.isAlmostReal(v1))
             return {
@@ -1132,8 +1132,8 @@ function comp_lt(args, modifs) {
 
 function infix_sequence(args, modifs) {
     //OK
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return List.sequence(v0, v1);
     }
@@ -1142,36 +1142,36 @@ function infix_sequence(args, modifs) {
 
 eval_helper.genericListMathGen = function (name, op, emptyval) {
     evaluator[name + "$1"] = function (args, modifs) {
-        var v0 = evaluate(args[0]);
+        const v0 = evaluate(args[0]);
         if (v0.ctype !== "list") {
             return nada;
         }
-        var li = v0.value;
+        const li = v0.value;
         if (li.length === 0) {
             return emptyval;
         }
 
-        var erg = li[0];
-        for (var i = 1; i < li.length; i++) {
+        let erg = li[0];
+        for (let i = 1; i < li.length; i++) {
             erg = op(erg, li[i]);
         }
         return erg;
     };
-    var name$3 = name + "$3";
+    const name$3 = name + "$3";
     evaluator[name + "$2"] = function (args, modifs) {
         return evaluator[name$3]([args[0], null, args[1]]);
     };
     evaluator[name$3] = function (args, modifs) {
-        var v0 = evaluateAndVal(args[0]);
+        const v0 = evaluateAndVal(args[0]);
         if (v0.ctype !== "list") {
             return nada;
         }
-        var li = v0.value;
+        const li = v0.value;
         if (li.length === 0) {
             return emptyval;
         }
 
-        var lauf = "#";
+        let lauf = "#";
         if (args[1] !== null) {
             if (args[1].ctype === "variable") {
                 lauf = args[1].name;
@@ -1180,10 +1180,10 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
 
         namespace.newvar(lauf);
         namespace.setvar(lauf, li[0]);
-        var erg = evaluate(args[2]);
-        for (var i = 1; i < li.length; i++) {
+        let erg = evaluate(args[2]);
+        for (let i = 1; i < li.length; i++) {
             namespace.setvar(lauf, li[i]);
-            var b = evaluate(args[2]);
+            const b = evaluate(args[2]);
             erg = op(erg, b);
         }
         namespace.removevar(lauf);
@@ -1197,26 +1197,26 @@ eval_helper.genericListMathGen("max", General.max, nada);
 eval_helper.genericListMathGen("min", General.min, nada);
 
 evaluator.max$2 = function (args, modifs) {
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
     if (v1.ctype === "list") return evaluator.max$3([v1, null, args[1]]);
-    var v2 = evaluateAndVal(args[1]);
+    const v2 = evaluateAndVal(args[1]);
     return evaluator.max$1([List.turnIntoCSList([v1, v2])]);
 };
 
 evaluator.min$2 = function (args, modifs) {
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
     if (v1.ctype === "list") return evaluator.min$3([v1, null, args[1]]);
-    var v2 = evaluateAndVal(args[1]);
+    const v2 = evaluateAndVal(args[1]);
     return evaluator.min$1([List.turnIntoCSList([v1, v2])]);
 };
 
 evaluator.add$2 = infix_add;
 
 function infix_add(args, modifs) {
-    var v0 = args[0];
+    let v0 = args[0];
     if (v0.ctype !== "void") v0 = evaluateAndVal(v0);
-    var v1 = evaluateAndVal(args[1]);
-    var erg = General.add(v0, v1);
+    const v1 = evaluateAndVal(args[1]);
+    let erg = General.add(v0, v1);
     if (v0.usage === "Angle" && v1.usage === "Angle") erg = General.withUsage(erg, "Angle");
     return erg;
 }
@@ -1224,10 +1224,10 @@ function infix_add(args, modifs) {
 evaluator.sub$2 = infix_sub;
 
 function infix_sub(args, modifs) {
-    var v0 = args[0];
+    let v0 = args[0];
     if (v0.ctype !== "void") v0 = evaluateAndVal(v0);
-    var v1 = evaluateAndVal(args[1]);
-    var erg = General.sub(v0, v1);
+    const v1 = evaluateAndVal(args[1]);
+    let erg = General.sub(v0, v1);
     if (v0.usage === "Angle" && v1.usage === "Angle") erg = General.withUsage(erg, "Angle");
     return erg;
 }
@@ -1235,9 +1235,9 @@ function infix_sub(args, modifs) {
 evaluator.mult$2 = infix_mult;
 
 function infix_mult(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var erg = General.mult(v0, v1);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    let erg = General.mult(v0, v1);
     if (v0.usage === "Angle" && !v1.usage) erg = General.withUsage(erg, "Angle");
     else if (v1.usage === "Angle" && !v0.usage) erg = General.withUsage(erg, "Angle");
     return erg;
@@ -1246,18 +1246,18 @@ function infix_mult(args, modifs) {
 evaluator.div$2 = infix_div;
 
 function infix_div(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v1.ctype === "number" && CSNumber._helper.isZero(v1)) printStackTrace("WARNING: Division by zero!");
-    var erg = General.div(v0, v1);
+    let erg = General.div(v0, v1);
     if (v0.usage === "Angle" && !v1.usage) erg = General.withUsage(erg, "Angle");
     else if (v1.usage === "Angle" && !v0.usage) erg = General.withUsage(erg, "Angle");
     return erg;
 }
 
 evaluator.mod$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return CSNumber.mod(v0, v1);
     }
@@ -1267,8 +1267,8 @@ evaluator.mod$2 = function (args, modifs) {
 evaluator.pow$2 = infix_pow;
 
 function infix_pow(args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return CSNumber.pow(v0, v1);
     }
@@ -1280,7 +1280,7 @@ function infix_pow(args, modifs) {
 ///////////////////////////////
 
 evaluator.exp$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.exp(v0);
     }
@@ -1288,7 +1288,7 @@ evaluator.exp$1 = function (args, modifs) {
 };
 
 evaluator.sin$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.sin(v0);
     }
@@ -1296,7 +1296,7 @@ evaluator.sin$1 = function (args, modifs) {
 };
 
 evaluator.sqrt$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.sqrt(v0);
     }
@@ -1310,14 +1310,14 @@ function infix_sqrt(args, modifs) {
 
 eval_helper.laguerre = function (cs, x, maxiter) {
     if (cs.ctype !== "list") return nada;
-    var n = cs.value.length - 1,
-        i;
+    const n = cs.value.length - 1;
+    let i;
     for (i = 0; i <= n; i++) if (cs.value[i].ctype !== "number") return nada;
     if (x.ctype !== "number") return nada;
-    var rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
-    var a, p, q, s, g, g2, h, r, d1, d2;
-    var tol = 1e-14;
-    for (var iter = 1; iter <= maxiter; iter++) {
+    const rand = [1.0, 0.3141, 0.5926, 0.5358, 0.9793, 0.2385, 0.6264, 0.3383, 0.2795, 0.0288];
+    let a, p, q, s, g, g2, h, r, d1, d2;
+    const tol = 1e-14;
+    for (let iter = 1; iter <= maxiter; iter++) {
         s = CSNumber.zero;
         q = CSNumber.zero;
         p = cs.value[n];
@@ -1353,11 +1353,11 @@ eval_helper.laguerre = function (cs, x, maxiter) {
 // maybe this should become CSNumber._helper.solveQuadratic?
 eval_helper.quadratic_roots = function (cs) {
     if (cs.ctype !== "list") return nada;
-    var a = cs.value[2],
+    const a = cs.value[2],
         b = cs.value[1],
         c = cs.value[0];
     if (CSNumber._helper.isZero(c)) return [CSNumber.zero, CSNumber.neg(CSNumber.div(b, a))];
-    var r = CSNumber.sqrt(CSNumber.sub(CSNumber.mult(b, b), CSNumber.mult(CSNumber.real(4.0), CSNumber.mult(a, c))));
+    let r = CSNumber.sqrt(CSNumber.sub(CSNumber.mult(b, b), CSNumber.mult(CSNumber.real(4.0), CSNumber.mult(a, c))));
     if (CSNumber.re(b) >= 0.0) r = CSNumber.neg(r);
     return [
         CSNumber.div(CSNumber.sub(r, b), CSNumber.mult(CSNumber.real(2.0), a)),
@@ -1366,9 +1366,9 @@ eval_helper.quadratic_roots = function (cs) {
 };
 
 eval_helper.roots = function (cs) {
-    var roots = [];
-    var cs_orig = cs;
-    var n = cs.value.length - 1;
+    let roots = [];
+    const cs_orig = cs;
+    const n = cs.value.length - 1;
     if (n <= 0) return List.turnIntoCSList([]);
     if (CSNumber._helper.isZero(cs.value[n])) {
         roots = eval_helper.roots(List.turnIntoCSList(cs.value.slice(0, n)));
@@ -1377,16 +1377,16 @@ eval_helper.roots = function (cs) {
     if (n === 1) roots[0] = CSNumber.neg(CSNumber.div(cs.value[0], cs.value[1]));
     else if (n === 2) roots = eval_helper.quadratic_roots(cs);
     else {
-        for (var i = 0; i < n - 2; i++) {
+        for (let i = 0; i < n - 2; i++) {
             roots[i] = eval_helper.laguerre(cs, CSNumber.zero, 200);
             roots[i] = eval_helper.laguerre(cs_orig, roots[i], 1);
-            var fx = [];
+            const fx = [];
             fx[n - i] = cs.value[n - i];
-            for (var j = n - i; j > 0; j--) fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
+            for (let j = n - i; j > 0; j--) fx[j - 1] = CSNumber.add(cs.value[j - 1], CSNumber.mult(fx[j], roots[i]));
             fx.shift();
             cs = List.turnIntoCSList(fx);
         }
-        var qroots = eval_helper.quadratic_roots(cs);
+        const qroots = eval_helper.quadratic_roots(cs);
         roots[n - 2] = qroots[0];
         roots[n - 1] = qroots[1];
     }
@@ -1394,18 +1394,18 @@ eval_helper.roots = function (cs) {
 };
 
 evaluator.roots$1 = function (args, modifs) {
-    var cs = evaluateAndVal(args[0]);
+    const cs = evaluateAndVal(args[0]);
     if (cs.ctype === "list") {
-        for (var i = 0; i < cs.value.length; i++) if (cs.value[i].ctype !== "number") return nada;
-        var roots = eval_helper.roots(cs);
+        for (let i = 0; i < cs.value.length; i++) if (cs.value[i].ctype !== "number") return nada;
+        const roots = eval_helper.roots(cs);
         return List.sort1(roots);
     }
     return nada;
 };
 
 evaluator.autodiff$3 = function (args, modifs) {
-    var varname = "x"; // fix this later
-    var ffunc;
+    let varname = "x"; // fix this later
+    let ffunc;
     if (args[0].ctype === "function") {
         ffunc = myfunctions[args[0].oper].body;
         varname = args[0].args[0].name;
@@ -1414,8 +1414,8 @@ evaluator.autodiff$3 = function (args, modifs) {
         printStackTrace("could not parse function");
         return nada;
     }
-    var xarr = evaluateAndVal(args[1]);
-    var grade = evaluateAndVal(args[2]);
+    const xarr = evaluateAndVal(args[1]);
+    let grade = evaluateAndVal(args[2]);
 
     if (grade.value.real < 1) {
         printStackTrace("grade cant be < 1");
@@ -1423,12 +1423,12 @@ evaluator.autodiff$3 = function (args, modifs) {
     }
 
     grade = CSNumber.add(grade, CSNumber.real(1));
-    var erg = CSad.autodiff(ffunc, varname, xarr, grade);
+    const erg = CSad.autodiff(ffunc, varname, xarr, grade);
     return erg;
 };
 
 evaluator.cos$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.cos(v0);
     }
@@ -1436,7 +1436,7 @@ evaluator.cos$1 = function (args, modifs) {
 };
 
 evaluator.tan$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.tan(v0);
     }
@@ -1444,7 +1444,7 @@ evaluator.tan$1 = function (args, modifs) {
 };
 
 evaluator.arccos$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.arccos(v0);
     }
@@ -1452,7 +1452,7 @@ evaluator.arccos$1 = function (args, modifs) {
 };
 
 evaluator.arcsin$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.arcsin(v0);
     }
@@ -1460,7 +1460,7 @@ evaluator.arcsin$1 = function (args, modifs) {
 };
 
 evaluator.arctan$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.arctan(v0);
     }
@@ -1468,8 +1468,8 @@ evaluator.arctan$1 = function (args, modifs) {
 };
 
 evaluator.arctan2$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return CSNumber.arctan2(v0, v1);
     }
@@ -1477,9 +1477,9 @@ evaluator.arctan2$2 = function (args, modifs) {
 };
 
 evaluator.arctan2$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list" && v0.value.length === 2) {
-        var tmp = v0.value;
+        const tmp = v0.value;
         if (tmp[0].ctype === "number" && tmp[1].ctype === "number") {
             return evaluator.arctan2$2(tmp, modifs);
         }
@@ -1488,7 +1488,7 @@ evaluator.arctan2$1 = function (args, modifs) {
 };
 
 evaluator.log$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.log(v0);
     }
@@ -1496,10 +1496,10 @@ evaluator.log$1 = function (args, modifs) {
 };
 
 eval_helper.recursiveGen = function (op) {
-    var numOp = CSNumber[op],
+    const numOp = CSNumber[op],
         listOp = List[op];
     evaluator[op + "$1"] = function (args, modifs) {
-        var v0 = evaluateAndVal(args[0]);
+        const v0 = evaluateAndVal(args[0]);
         if (v0.ctype === "number") {
             return numOp(v0);
         }
@@ -1528,7 +1528,7 @@ evaluator.random$0 = function (args, modifs) {
 };
 
 evaluator.random$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return CSNumber.complex(v0.value.real * CSNumber._helper.rand(), v0.value.imag * CSNumber._helper.rand());
     }
@@ -1536,7 +1536,7 @@ evaluator.random$1 = function (args, modifs) {
 };
 
 evaluator.seedrandom$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         CSNumber._helper.seedrandom(v0.value.real);
     }
@@ -1548,9 +1548,9 @@ evaluator.randomnormal$0 = function (args, modifs) {
 };
 
 evaluator.randominteger$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
-        var r = v0.value.real | 0,
+        let r = v0.value.real | 0,
             i = v0.value.imag | 0;
         r = (r * CSNumber._helper.rand()) | 0;
         i = (i * CSNumber._helper.rand()) | 0;
@@ -1579,7 +1579,7 @@ evaluator.randombool$0 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.isreal$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0)) {
             return {
@@ -1595,7 +1595,7 @@ evaluator.isreal$1 = function (args, modifs) {
 };
 
 evaluator.isinteger$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && v0.value.real === Math.floor(v0.value.real)) {
             return {
@@ -1611,7 +1611,7 @@ evaluator.isinteger$1 = function (args, modifs) {
 };
 
 evaluator.iseven$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && v0.value.real / 2 === Math.floor(v0.value.real / 2)) {
             return {
@@ -1627,7 +1627,7 @@ evaluator.iseven$1 = function (args, modifs) {
 };
 
 evaluator.isodd$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
         if (CSNumber._helper.isAlmostReal(v0) && (v0.value.real - 1) / 2 === Math.floor((v0.value.real - 1) / 2)) {
             return {
@@ -1643,7 +1643,7 @@ evaluator.isodd$1 = function (args, modifs) {
 };
 
 evaluator.iscomplex$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
         return {
             ctype: "boolean",
@@ -1657,7 +1657,7 @@ evaluator.iscomplex$1 = function (args, modifs) {
 };
 
 evaluator.isstring$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
         return {
             ctype: "boolean",
@@ -1671,7 +1671,7 @@ evaluator.isstring$1 = function (args, modifs) {
 };
 
 evaluator.islist$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return {
             ctype: "boolean",
@@ -1685,7 +1685,7 @@ evaluator.islist$1 = function (args, modifs) {
 };
 
 evaluator.ismatrix$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (List._helper.colNumb(v0) !== -1) {
         return {
             ctype: "boolean",
@@ -1699,7 +1699,7 @@ evaluator.ismatrix$1 = function (args, modifs) {
 };
 
 evaluator.iscircle$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.kind === "C" && v0.value.matrix.usage === "Circle") {
         return {
             ctype: "boolean",
@@ -1713,7 +1713,7 @@ evaluator.iscircle$1 = function (args, modifs) {
 };
 
 evaluator.isconic$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.kind === "C") {
         return {
             ctype: "boolean",
@@ -1727,7 +1727,7 @@ evaluator.isconic$1 = function (args, modifs) {
 };
 
 evaluator.isline$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.kind === "L") {
         return {
             ctype: "boolean",
@@ -1741,7 +1741,7 @@ evaluator.isline$1 = function (args, modifs) {
 };
 
 evaluator.ispoint$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.kind === "P") {
         return {
             ctype: "boolean",
@@ -1755,7 +1755,7 @@ evaluator.ispoint$1 = function (args, modifs) {
 };
 
 evaluator.isgeometric$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo") {
         return {
             ctype: "boolean",
@@ -1769,17 +1769,17 @@ evaluator.isgeometric$1 = function (args, modifs) {
 };
 
 evaluator.isnumbermatrix$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     return List.isNumberMatrix(v0);
 };
 
 evaluator.isnumbervector$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     return List.isNumberVector(v0);
 };
 
 evaluator.issun$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Sun") {
         return {
             ctype: "boolean",
@@ -1793,7 +1793,7 @@ evaluator.issun$1 = function (args, modifs) {
 };
 
 evaluator.ismass$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Mass") {
         return {
             ctype: "boolean",
@@ -1807,7 +1807,7 @@ evaluator.ismass$1 = function (args, modifs) {
 };
 
 evaluator.isspring$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Spring") {
         return {
             ctype: "boolean",
@@ -1821,7 +1821,7 @@ evaluator.isspring$1 = function (args, modifs) {
 };
 
 evaluator.isbouncer$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo" && v0.value.behavior !== undefined && v0.value.behavior.type === "Bouncer") {
         return {
             ctype: "boolean",
@@ -1835,7 +1835,7 @@ evaluator.isbouncer$1 = function (args, modifs) {
 };
 
 evaluator.isundefined$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "undefined") {
         return {
             ctype: "boolean",
@@ -1849,7 +1849,7 @@ evaluator.isundefined$1 = function (args, modifs) {
 };
 
 // See AlgoMap.java in the Cinderella codebase, but also geoMacros in GeoOps.js
-var cinderellaAlgoNames = {
+const cinderellaAlgoNames = {
     ArcBy3: "Arc",
     CenterOfConic: "Center",
     ConicBy1p4l: "Conic1P4L",
@@ -1896,11 +1896,11 @@ var cinderellaAlgoNames = {
 };
 
 evaluator.algorithm$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo") {
-        var el = v0.value;
-        var type = el.type;
-        var compat = evaluateAndVal(modifs.compatibility);
+        let el = v0.value;
+        let type = el.type;
+        const compat = evaluateAndVal(modifs.compatibility);
         if (compat.ctype === "string" && /^cinderella$/i.test(compat.value)) {
             if (/^Select/.test(type)) {
                 el = csgeo.csnames[el.args[0]];
@@ -1915,11 +1915,11 @@ evaluator.algorithm$1 = function (args, modifs) {
 };
 
 evaluator.inputs$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "geo") {
-        var el = v0.value;
-        var type = el.type;
-        var res = [];
+        const el = v0.value;
+        const type = el.type;
+        let res = [];
         if (el.args)
             res = el.args.map(function (name) {
                 return {
@@ -1946,10 +1946,10 @@ evaluator.inputs$1 = function (args, modifs) {
 };
 
 evaluator.moveto$2 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "geo") {
-        var el = v0.value;
+        const el = v0.value;
         if (List._helper.isNumberVecN(v1, 2)) {
             Accessor.setField(el, "xy", v1);
         } else if (List._helper.isNumberVecN(v1, 3)) {
@@ -1965,8 +1965,8 @@ evaluator.continuefromhere$0 = function (args, modifs) {
 };
 
 evaluator.matrixrowcolumn$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var n = List._helper.colNumb(v0);
+    const v0 = evaluate(args[0]);
+    const n = List._helper.colNumb(v0);
     if (n !== -1) {
         return List.realVector([v0.value.length, v0.value[0].value.length]);
     }
@@ -1974,13 +1974,13 @@ evaluator.matrixrowcolumn$1 = function (args, modifs) {
 };
 
 evaluator.rowmatrix$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") return List.turnIntoCSList([v0]);
     return nada;
 };
 
 evaluator.columnmatrix$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list")
         return List.turnIntoCSList(
             v0.value.map(function (elt) {
@@ -1991,21 +1991,21 @@ evaluator.columnmatrix$1 = function (args, modifs) {
 };
 
 evaluator.submatrix$3 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
-    var v2 = evaluate(args[2]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
+    const v2 = evaluate(args[2]);
     if (v0.ctype === "list" && v1.ctype === "number" && v2.ctype === "number") {
-        var col = Math.round(v1.value.real);
-        var row = Math.round(v2.value.real);
-        var mat = v0.value.slice();
+        const col = Math.round(v1.value.real);
+        const row = Math.round(v2.value.real);
+        const mat = v0.value.slice();
         if (row > 0 && row <= mat.length) mat.splice(row - 1, 1);
-        var sane = true;
-        var erg = mat.map(function (row1) {
+        let sane = true;
+        const erg = mat.map(function (row1) {
             if (row1.ctype !== "list") {
                 sane = false;
                 return;
             }
-            var row2 = row1.value.slice();
+            const row2 = row1.value.slice();
             if (col > 0 && col <= row2.length) row2.splice(col - 1, 1);
             return List.turnIntoCSList(row2);
         });
@@ -2020,10 +2020,10 @@ evaluator.submatrix$3 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.complex$1 = function (args, modifs) {
-    var a,
-        b,
-        c,
-        v0 = evaluateAndVal(args[0]);
+    let a;
+    let b;
+    let c;
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
         if (List.isNumberVector(v0)) {
             if (v0.value.length === 2) {
@@ -2045,7 +2045,7 @@ evaluator.complex$1 = function (args, modifs) {
 };
 
 evaluator.gauss$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return List.realVector([v0.value.real, v0.value.imag]);
     }
@@ -2055,10 +2055,10 @@ evaluator.gauss$1 = function (args, modifs) {
 evaluator.cross$2 = infix_cross;
 
 function infix_cross(args, modifs) {
-    var v0 = evaluateAndHomog(args[0]);
-    var v1 = evaluateAndHomog(args[1]);
+    const v0 = evaluateAndHomog(args[0]);
+    const v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
-        var erg = List.cross(v0, v1);
+        let erg = List.cross(v0, v1);
         if (v0.usage === "Point" && v1.usage === "Point") {
             erg = General.withUsage(erg, "Line");
         }
@@ -2071,15 +2071,15 @@ function infix_cross(args, modifs) {
 }
 
 evaluator.crossratio$4 = function (args, modifs) {
-    var a0 = evaluate(args[0]);
-    var a1 = evaluate(args[1]);
-    var a2 = evaluate(args[2]);
-    var a3 = evaluate(args[3]);
+    const a0 = evaluate(args[0]);
+    const a1 = evaluate(args[1]);
+    const a2 = evaluate(args[2]);
+    const a3 = evaluate(args[3]);
 
-    var v0 = evaluateAndHomog(a0);
-    var v1 = evaluateAndHomog(a1);
-    var v2 = evaluateAndHomog(a2);
-    var v3 = evaluateAndHomog(a3);
+    const v0 = evaluateAndHomog(a0);
+    const v1 = evaluateAndHomog(a1);
+    const v2 = evaluateAndHomog(a2);
+    const v3 = evaluateAndHomog(a3);
     if (v0 !== nada && v1 !== nada && v2 !== nada && v3 !== nada) {
         // TODO: can't handle four collinear points at infinity
         return List.crossratio3(v0, v1, v2, v3, List.ii);
@@ -2096,52 +2096,52 @@ evaluator.crossratio$4 = function (args, modifs) {
 };
 
 evaluator.para$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var w0 = evaluateAndHomog(v0);
-    var w1 = evaluateAndHomog(v1);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const w0 = evaluateAndHomog(v0);
+    const w1 = evaluateAndHomog(v1);
 
     if (v0 !== nada && v1 !== nada) {
-        var u0 = v0.usage;
-        var u1 = v1.usage;
-        var p = w0;
-        var l = w1;
+        const u0 = v0.usage;
+        const u1 = v1.usage;
+        let p = w0;
+        let l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
             l = w0;
         }
-        var inf = List.linfty;
-        var erg = List.cross(List.cross(inf, l), p);
+        const inf = List.linfty;
+        const erg = List.cross(List.cross(inf, l), p);
         return General.withUsage(erg, "Line");
     }
     return nada;
 };
 
 evaluator.perp$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var w0 = evaluateAndHomog(v0);
-    var w1 = evaluateAndHomog(v1);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const w0 = evaluateAndHomog(v0);
+    const w1 = evaluateAndHomog(v1);
     if (v0 !== nada && v1 !== nada) {
-        var u0 = v0.usage || w0.usage;
-        var u1 = v1.usage || w1.usage;
-        var p = w0;
-        var l = w1;
+        const u0 = v0.usage || w0.usage;
+        const u1 = v1.usage || w1.usage;
+        let p = w0;
+        let l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
             l = w0;
         }
-        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-        var erg = List.cross(tt, p);
+        const tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
+        const erg = List.cross(tt, p);
         return General.withUsage(erg, "Line");
     }
     return nada;
 };
 
 evaluator.perp$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (List._helper.isNumberVecN(v0, 2)) {
-        var erg = List.turnIntoCSList([CSNumber.neg(v0.value[1]), v0.value[0]]);
+        const erg = List.turnIntoCSList([CSNumber.neg(v0.value[1]), v0.value[0]]);
         return erg;
     }
     return nada;
@@ -2154,36 +2154,36 @@ evaluator.perpendicular$2 = evaluator.perp$2;
 evaluator.perpendicular$1 = evaluator.perp$1;
 
 evaluator.meet$2 = function (args, modifs) {
-    var v0 = evaluateAndHomog(args[0]);
-    var v1 = evaluateAndHomog(args[1]);
+    const v0 = evaluateAndHomog(args[0]);
+    const v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
-        var erg = List.cross(v0, v1);
+        const erg = List.cross(v0, v1);
         return General.withUsage(erg, "Point");
     }
     return nada;
 };
 
 evaluator.join$2 = function (args, modifs) {
-    var v0 = evaluateAndHomog(args[0]);
-    var v1 = evaluateAndHomog(args[1]);
+    const v0 = evaluateAndHomog(args[0]);
+    const v1 = evaluateAndHomog(args[1]);
     if (v0 !== nada && v1 !== nada) {
-        var erg = List.cross(v0, v1);
+        const erg = List.cross(v0, v1);
         return General.withUsage(erg, "Line");
     }
     return nada;
 };
 
 evaluator.dist$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var diff = infix_sub([v0, v1], []);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const diff = infix_sub([v0, v1], []);
     return evaluator.abs$1([diff], []);
 };
 
 evaluator.dist_infix = evaluator.dist$2;
 
 evaluator.point$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3) || List._helper.isNumberVecN(v0, 2)) {
         return General.withUsage(v0, "Point");
     }
@@ -2191,7 +2191,7 @@ evaluator.point$1 = function (args, modifs) {
 };
 
 evaluator.line$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (List._helper.isNumberVecN(v0, 3)) {
         return General.withUsage(v0, "Line");
     }
@@ -2199,19 +2199,19 @@ evaluator.line$1 = function (args, modifs) {
 };
 
 evaluator.det$3 = function (args, modifs) {
-    var v0 = evaluateAndHomog(args[0]);
-    var v1 = evaluateAndHomog(args[1]);
-    var v2 = evaluateAndHomog(args[2]);
+    const v0 = evaluateAndHomog(args[0]);
+    const v1 = evaluateAndHomog(args[1]);
+    const v2 = evaluateAndHomog(args[2]);
     if (v0 !== nada && v1 !== nada && v2 !== nada) {
-        var erg = List.det3(v0, v1, v2);
+        const erg = List.det3(v0, v1, v2);
         return erg;
     }
 };
 
 evaluator.det$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
             return List.det(v0);
         }
@@ -2220,9 +2220,9 @@ evaluator.det$1 = function (args, modifs) {
 };
 
 evaluator.eig$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
             return List.eig(v0);
         }
@@ -2231,11 +2231,11 @@ evaluator.eig$1 = function (args, modifs) {
 };
 
 evaluator.eigenvalues$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
-            var erg = List.eig(v0, false);
+            const erg = List.eig(v0, false);
             return erg.value[0]; // return only eigenvals
         }
     }
@@ -2243,9 +2243,9 @@ evaluator.eigenvalues$1 = function (args, modifs) {
 };
 
 evaluator.rank$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
             return List.rank(v0, modifs.precision);
         }
@@ -2254,11 +2254,11 @@ evaluator.rank$1 = function (args, modifs) {
 };
 
 evaluator.kernel$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
-            var erg = List.nullSpace(v0, modifs.precision);
+            const erg = List.nullSpace(v0, modifs.precision);
             return List.transpose(erg);
         }
     }
@@ -2266,11 +2266,11 @@ evaluator.kernel$1 = function (args, modifs) {
 };
 
 evaluator.eigenvectors$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
-            var erg = List.eig(v0);
+            const erg = List.eig(v0);
             return erg.value[1]; // return only eigenvecs
         }
     }
@@ -2278,13 +2278,13 @@ evaluator.eigenvectors$1 = function (args, modifs) {
 };
 
 evaluator.area$3 = function (args, modifs) {
-    var v0 = evaluateAndHomog(args[0]);
-    var v1 = evaluateAndHomog(args[1]);
-    var v2 = evaluateAndHomog(args[2]);
+    let v0 = evaluateAndHomog(args[0]);
+    let v1 = evaluateAndHomog(args[1]);
+    let v2 = evaluateAndHomog(args[2]);
     if (v0 !== nada && v1 !== nada && v2 !== nada) {
-        var z0 = v0.value[2];
-        var z1 = v1.value[2];
-        var z2 = v2.value[2];
+        const z0 = v0.value[2];
+        const z1 = v1.value[2];
+        const z2 = v2.value[2];
         if (
             !CSNumber._helper.isAlmostZero(z0) &&
             !CSNumber._helper.isAlmostZero(z1) &&
@@ -2293,7 +2293,7 @@ evaluator.area$3 = function (args, modifs) {
             v0 = List.scaldiv(z0, v0);
             v1 = List.scaldiv(z1, v1);
             v2 = List.scaldiv(z2, v2);
-            var erg = List.det3(v0, v1, v2);
+            const erg = List.det3(v0, v1, v2);
             return CSNumber.realmult(0.5, erg);
         }
     }
@@ -2301,9 +2301,9 @@ evaluator.area$3 = function (args, modifs) {
 };
 
 evaluator.inverse$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length) {
             return List.inverse(v0);
         }
@@ -2312,10 +2312,10 @@ evaluator.inverse$1 = function (args, modifs) {
 };
 
 evaluator.linearsolve$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "list") {
-        var n = List._helper.colNumb(v0);
+        const n = List._helper.colNumb(v0);
         if (n !== -1 && n === v0.value.length && List._helper.isNumberVecN(v1, n)) {
             return List.linearsolve(v0, v1);
         }
@@ -2323,7 +2323,7 @@ evaluator.linearsolve$2 = function (args, modifs) {
     return nada;
 };
 
-var permutationsFixedList = [
+const permutationsFixedList = [
     [
         // 0
         [],
@@ -2376,7 +2376,7 @@ var permutationsFixedList = [
 ];
 
 function minCostMatching(w) {
-    var n = w.length;
+    const n = w.length;
     if (n === 0) return [];
     if (n === 1) return [0];
     if (n === 2) {
@@ -2384,13 +2384,13 @@ function minCostMatching(w) {
         else return [1, 0];
     }
     if (n > 4) return hungarianMethod(w);
-    var perms = permutationsFixedList[n];
-    var bc = Number.POSITIVE_INFINITY;
-    var bp = perms[0];
-    for (var i = 0; i < perms.length; ++i) {
-        var p = perms[i];
-        var c = 0;
-        for (var j = 0; j < n; ++j) c += w[j][p[j]];
+    const perms = permutationsFixedList[n];
+    let bc = Number.POSITIVE_INFINITY;
+    let bp = perms[0];
+    for (let i = 0; i < perms.length; ++i) {
+        const p = perms[i];
+        let c = 0;
+        for (let j = 0; j < n; ++j) c += w[j][p[j]];
         if (c < bc) {
             bc = c;
             bp = p;
@@ -2407,12 +2407,12 @@ function hungarianMethod(w) {
     // The result is the matched column (inner index) for every row
     // (outer index) of the supplied weight matrix.
 
-    var abs = Math.abs;
-    var n = w.length;
-    var i1, i2;
-    var v1 = new Array(n);
-    var v2 = new Array(n); // the two partitions
-    var e = new Array(n); // excess matrix, zero indicates edge in eq. subgr.
+    const abs = Math.abs;
+    const n = w.length;
+    let i1, i2;
+    const v1 = new Array(n);
+    const v2 = new Array(n); // the two partitions
+    const e = new Array(n); // excess matrix, zero indicates edge in eq. subgr.
     for (i1 = 0; i1 < n; ++i1) e[i1] = new Array(n);
 
     function mkVertex() {
@@ -2446,7 +2446,7 @@ function hungarianMethod(w) {
 
         // Step 2: find a maximal matching in the equality subgraph
         for (i1 = 0; i1 < n; ++i1) v1[i1].matched = v2[i1].matched = -1; // reset
-        var matchsize = 0;
+        let matchsize = 0;
         for (;;) {
             for (i1 = 0; i1 < n; ++i1) {
                 v1[i1].used = v1[i1].leaf = v2[i1].used = v2[i1].leaf = false;
@@ -2455,8 +2455,8 @@ function hungarianMethod(w) {
                 v1[i1].used = v1[i1].leaf = true;
                 v1[i1].prev = -1;
             }
-            var haspath = false;
-            var empty = false;
+            let haspath = false;
+            let empty = false;
             while (!empty) {
                 // follow edges not in matching
                 for (i1 = 0; i1 < n; ++i1) {
@@ -2494,7 +2494,7 @@ function hungarianMethod(w) {
             if (!haspath) break;
 
             // now augment every path found
-            for (var start = 0; start < n; ++start) {
+            for (let start = 0; start < n; ++start) {
                 if (v1[start].matched !== -1 || v1[start].prev === -1) continue;
                 i2 = v1[start].prev;
                 do {
@@ -2527,7 +2527,7 @@ function hungarianMethod(w) {
 
         // Step 4: adjust costs.
         // cost change is minimal cost in the part not covered
-        var eps = Number.POSITIVE_INFINITY;
+        let eps = Number.POSITIVE_INFINITY;
         for (i1 = 0; i1 < n; ++i1) {
             if (v1[i1].used) continue;
             for (i2 = 0; i2 < n; ++i2) {
@@ -2544,7 +2544,7 @@ function hungarianMethod(w) {
     }
 
     // We have a result, so let's format it appropriately
-    var res = new Array(n);
+    const res = new Array(n);
     for (i1 = 0; i1 < n; ++i1) {
         i2 = v1[i1].matched;
         res[i1] = i2;
@@ -2554,7 +2554,7 @@ function hungarianMethod(w) {
     // v1[i1] is definitely not in the cover
     //  => all edges must have their opposite endpoint covered
     function notincover1(i1) {
-        for (var i2 = 0; i2 < n; ++i2) {
+        for (let i2 = 0; i2 < n; ++i2) {
             if (e[i1][i2] > 0 || v2[i2].used) continue;
             v2[i2].used = true;
             notincover1(v2[i2].matched);
@@ -2563,7 +2563,7 @@ function hungarianMethod(w) {
 
     // symmetric to the above
     function notincover2(i2) {
-        for (var i1 = 0; i1 < n; ++i1) {
+        for (let i1 = 0; i1 < n; ++i1) {
             if (e[i1][i2] > 0 || v1[i1].used) continue;
             v1[i1].used = true;
             notincover2(v1[i1].matched);
@@ -2572,13 +2572,13 @@ function hungarianMethod(w) {
 }
 
 evaluator.mincostmatching$1 = function (args, modifs) {
-    var costMatrix = evaluate(args[0]);
+    const costMatrix = evaluate(args[0]);
     if (List.isNumberMatrix(costMatrix).value) {
-        var nr = costMatrix.value.length;
-        var nc = List._helper.colNumb(costMatrix);
-        var size = nr < nc ? nc : nr;
-        var i, j;
-        var w = new Array(size);
+        const nr = costMatrix.value.length;
+        const nc = List._helper.colNumb(costMatrix);
+        const size = nr < nc ? nc : nr;
+        let i, j;
+        const w = new Array(size);
         for (i = 0; i < size; ++i) {
             w[i] = new Array(size);
             for (j = 0; j < size; ++j) {
@@ -2586,8 +2586,8 @@ evaluator.mincostmatching$1 = function (args, modifs) {
                 else w[i][j] = 0;
             }
         }
-        var matching = minCostMatching(w);
-        var res = new Array(nr);
+        const matching = minCostMatching(w);
+        const res = new Array(nr);
         for (i = 0; i < nr; ++i) {
             j = matching[i];
             if (j < nc) res[i] = CSNumber.real(j + 1);
@@ -2603,13 +2603,13 @@ evaluator.mincostmatching$1 = function (args, modifs) {
 ///////////////////////////////
 
 function infix_take(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    let v0 = evaluate(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype !== "string" && v0.ctype !== "JSON") {
         v0 = List.asList(v0);
     }
     if (v0.ctype !== "JSON" && v1.ctype === "number") {
-        var ind = Math.floor(v1.value.real);
+        let ind = Math.floor(v1.value.real);
         if (ind < 0) {
             ind = v0.value.length + ind + 1;
         }
@@ -2636,9 +2636,9 @@ function infix_take(args, modifs) {
     }
     if (v1.ctype === "list") {
         // This is recursive, different from Cinderella
-        var li = [];
-        for (var i = 0; i < v1.value.length; i++) {
-            var v1i = evaluateAndVal(v1.value[i]);
+        const li = [];
+        for (let i = 0; i < v1.value.length; i++) {
+            const v1i = evaluateAndVal(v1.value[i]);
             li[i] = infix_take([v0, v1i], []);
         }
         return List.turnIntoCSList(li);
@@ -2649,7 +2649,7 @@ function infix_take(args, modifs) {
 evaluator.take$2 = infix_take;
 
 evaluator.length$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list" || v0.ctype === "string") {
         return CSNumber.real(v0.value.length);
     }
@@ -2657,7 +2657,7 @@ evaluator.length$1 = function (args, modifs) {
 };
 
 evaluator.pairs$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.pairs(v0);
     }
@@ -2665,7 +2665,7 @@ evaluator.pairs$1 = function (args, modifs) {
 };
 
 evaluator.triples$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.triples(v0);
     }
@@ -2673,7 +2673,7 @@ evaluator.triples$1 = function (args, modifs) {
 };
 
 evaluator.cycle$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.cycle(v0);
     }
@@ -2681,7 +2681,7 @@ evaluator.cycle$1 = function (args, modifs) {
 };
 
 evaluator.consecutive$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.consecutive(v0);
     }
@@ -2689,7 +2689,7 @@ evaluator.consecutive$1 = function (args, modifs) {
 };
 
 evaluator.reverse$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.reverse(v0);
     }
@@ -2701,8 +2701,8 @@ evaluator.reverse$1 = function (args, modifs) {
 };
 
 evaluator.directproduct$2 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "list" && v1.ctype === "list") {
         return List.directproduct(v0, v1);
     }
@@ -2712,13 +2712,13 @@ evaluator.directproduct$2 = function (args, modifs) {
 evaluator.concat$2 = infix_concat;
 
 function infix_concat(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "shape" && v1.ctype === "shape") {
         return eval_helper.shapeconcat(v0, v1);
     }
-    var l0 = List.asList(v0);
-    var l1 = List.asList(v1);
+    const l0 = List.asList(v0);
+    const l1 = List.asList(v1);
     if (l0.ctype === "list" && l1.ctype === "list") {
         return List.concat(l0, l1);
     }
@@ -2728,8 +2728,8 @@ function infix_concat(args, modifs) {
 evaluator.common$2 = infix_common;
 
 function infix_common(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "list" && v1.ctype === "list") {
         return List.set(List.common(v0, v1));
     }
@@ -2742,8 +2742,8 @@ function infix_common(args, modifs) {
 evaluator.remove$2 = infix_remove;
 
 function infix_remove(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "list" && v1.ctype === "list") {
         return List.remove(v0, v1);
     }
@@ -2756,8 +2756,8 @@ function infix_remove(args, modifs) {
 evaluator.append$2 = infix_append;
 
 function infix_append(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "list") {
         return List.append(v0, v1);
     }
@@ -2767,8 +2767,8 @@ function infix_append(args, modifs) {
 evaluator.prepend$2 = infix_prepend;
 
 function infix_prepend(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v1.ctype === "list") {
         return List.prepend(v0, v1);
     }
@@ -2776,8 +2776,8 @@ function infix_prepend(args, modifs) {
 }
 
 evaluator.contains$2 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "list") {
         return List.contains(v0, v1);
     }
@@ -2785,8 +2785,8 @@ evaluator.contains$2 = function (args, modifs) {
 };
 
 function infix_in(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v1.ctype === "list") {
         return List.contains(v1, v0);
     }
@@ -2794,8 +2794,8 @@ function infix_in(args, modifs) {
 }
 
 function infix_nin(args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v1.ctype === "list") {
         return General.not(List.contains(v1, v0));
     }
@@ -2808,22 +2808,22 @@ evaluator.sort$2 = function (args, modifs) {
 
 evaluator.sort$3 = function (args, modifs) {
     //OK
-    var v1 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[0]);
     if (v1.ctype !== "list") {
         return nada;
     }
 
-    var lauf = "#";
+    let lauf = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             lauf = args[1].name;
         }
     }
 
-    var li = v1.value;
-    var erg = [];
+    const li = v1.value;
+    const erg = [];
     namespace.newvar(lauf);
-    var i;
+    let i;
     for (i = 0; i < li.length; i++) {
         namespace.setvar(lauf, li[i]);
         erg[i] = {
@@ -2834,7 +2834,7 @@ evaluator.sort$3 = function (args, modifs) {
     namespace.removevar(lauf);
 
     erg.sort(General.compareResults);
-    var erg1 = [];
+    const erg1 = [];
     for (i = 0; i < li.length; i++) {
         erg1[i] = erg[i].val;
     }
@@ -2846,7 +2846,7 @@ evaluator.sort$3 = function (args, modifs) {
 };
 
 evaluator.sort$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.sort1(v0);
     }
@@ -2854,7 +2854,7 @@ evaluator.sort$1 = function (args, modifs) {
 };
 
 evaluator.set$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
         return List.set(v0);
     }
@@ -2866,7 +2866,7 @@ function gcd(a, b) {
     b = b | 0;
     if (a === 0 && b === 0) return 0;
     while (b !== 0) {
-        var c = a;
+        const c = a;
         a = b;
         b = c % b | 0;
     }
@@ -2874,9 +2874,9 @@ function gcd(a, b) {
 }
 
 evaluator.combinations$2 = function (args, modifs) {
-    var base = evaluate(args[0]);
-    var count = evaluate(args[1]);
-    var n, k, current, res;
+    const base = evaluate(args[0]);
+    const count = evaluate(args[1]);
+    let n, k, current, res;
 
     if (count.ctype === "number") {
         k = count.value.real | 0;
@@ -2887,13 +2887,13 @@ evaluator.combinations$2 = function (args, modifs) {
             if (k === 0) return CSNumber.real(1);
             if (k === 1) return base;
             // compute (n! / (n-k)!) / k! efficiently
-            var numer = 1;
-            var denom = 1;
-            for (var i = 1; i <= k; ++i) {
+            let numer = 1;
+            let denom = 1;
+            for (let i = 1; i <= k; ++i) {
                 // Use "| 0" to indicate integer arithmetic
-                var x = (n - k + i) | 0;
-                var y = i | 0;
-                var g = gcd(x, y) | 0;
+                let x = (n - k + i) | 0;
+                let y = i | 0;
+                let g = gcd(x, y) | 0;
                 x = (x / g) | 0;
                 y = (y / g) | 0;
                 g = gcd(numer, y) | 0;
@@ -2932,8 +2932,8 @@ evaluator.combinations$2 = function (args, modifs) {
 };
 
 evaluator.zeromatrix$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v0.ctype === "number" && v1.ctype === "number") {
         return List.zeromatrix(v0, v1);
     }
@@ -2941,7 +2941,7 @@ evaluator.zeromatrix$2 = function (args, modifs) {
 };
 
 evaluator.zerovector$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         return List.zerovector(v0);
     }
@@ -2949,7 +2949,7 @@ evaluator.zerovector$1 = function (args, modifs) {
 };
 
 evaluator.transpose$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list" && List._helper.colNumb(v0) !== -1) {
         return List.transpose(v0);
     }
@@ -2957,8 +2957,8 @@ evaluator.transpose$1 = function (args, modifs) {
 };
 
 evaluator.row$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v1.ctype === "number" && v0.ctype === "list" && List._helper.colNumb(v0) !== -1) {
         return List.row(v0, v1);
     }
@@ -2966,8 +2966,8 @@ evaluator.row$2 = function (args, modifs) {
 };
 
 evaluator.column$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
     if (v1.ctype === "number" && v0.ctype === "list" && List._helper.colNumb(v0) !== -1) {
         return List.column(v0, v1);
     }
@@ -2979,15 +2979,15 @@ evaluator.column$2 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.dict$0 = function (args, modifs) {
-    var d = Dict.create();
-    for (var key in modifs) if (modifs.hasOwnProperty(key)) Dict.put(d, General.string(key), evaluate(modifs[key]));
+    const d = Dict.create();
+    for (const key in modifs) if (modifs.hasOwnProperty(key)) Dict.put(d, General.string(key), evaluate(modifs[key]));
     return d;
 };
 
 evaluator.put$3 = function (args, modifs) {
-    var d = evaluate(args[0]);
-    var k = evaluate(args[1]);
-    var v = evaluate(args[2]);
+    let d = evaluate(args[0]);
+    const k = evaluate(args[1]);
+    const v = evaluate(args[2]);
     if (d.ctype === "dict") {
         d = Dict.clone(d);
         Dict.put(d, k, v);
@@ -2997,8 +2997,8 @@ evaluator.put$3 = function (args, modifs) {
 };
 
 evaluator.get$2 = function (args, modifs) {
-    var d = evaluate(args[0]);
-    var k = evaluate(args[1]);
+    const d = evaluate(args[0]);
+    const k = evaluate(args[1]);
     if (d.ctype === "dict") {
         return Dict.get(d, k, nada);
     }
@@ -3010,36 +3010,36 @@ evaluator.get$2 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.red$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        var c = Math.min(1, Math.max(0, v0.value.real));
+        const c = Math.min(1, Math.max(0, v0.value.real));
         return List.realVector([c, 0, 0]);
     }
     return nada;
 };
 
 evaluator.green$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        var c = Math.min(1, Math.max(0, v0.value.real));
+        const c = Math.min(1, Math.max(0, v0.value.real));
         return List.realVector([0, c, 0]);
     }
     return nada;
 };
 
 evaluator.blue$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        var c = Math.min(1, Math.max(0, v0.value.real));
+        const c = Math.min(1, Math.max(0, v0.value.real));
         return List.realVector([0, 0, c]);
     }
     return nada;
 };
 
 evaluator.gray$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        var c = Math.min(1, Math.max(0, v0.value.real));
+        const c = Math.min(1, Math.max(0, v0.value.real));
         return List.realVector([c, c, c]);
     }
     return nada;
@@ -3048,7 +3048,7 @@ evaluator.gray$1 = function (args, modifs) {
 evaluator.grey$1 = evaluator.gray$1;
 
 eval_helper.HSVtoRGB = function (h, s, v) {
-    var r, g, b, i, f, p, q, t;
+    let r, g, b, i, f, p, q, t;
     if (h && s === undefined && v === undefined) {
         s = h.s;
         v = h.v;
@@ -3095,9 +3095,9 @@ eval_helper.HSVtoRGB = function (h, s, v) {
 };
 
 evaluator.hue$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "number") {
-        var c = v0.value.real;
+        let c = v0.value.real;
         c = c - Math.floor(c);
         return eval_helper.HSVtoRGB(c, 1, 1);
     }
@@ -3109,16 +3109,16 @@ evaluator.hue$1 = function (args, modifs) {
 ///////////////////////////////
 
 eval_helper.shapeconvert = function (a) {
-    var i, li;
+    let i, li;
     if (a.type === "circle") {
-        var pt = a.value.value[0];
-        var aa = General.div(pt, pt.value[2]);
-        var mx = aa.value[0].value.real;
-        var my = aa.value[1].value.real;
-        var r = a.value.value[1].value.real;
-        var n = 125;
+        const pt = a.value.value[0];
+        const aa = General.div(pt, pt.value[2]);
+        const mx = aa.value[0].value.real;
+        const my = aa.value[1].value.real;
+        const r = a.value.value[1].value.real;
+        const n = 125;
         li = new Array(n);
-        var d = (Math.PI * 2) / n;
+        const d = (Math.PI * 2) / n;
         for (i = 0; i < n; i++) {
             li[i] = {
                 X: mx + Math.cos(i * d) * r,
@@ -3129,11 +3129,11 @@ eval_helper.shapeconvert = function (a) {
         return [li];
     }
     if (a.type === "polygon") {
-        var erg = [];
+        const erg = [];
         for (i = 0; i < a.value.length; i++) {
-            var pol = a.value[i];
+            const pol = a.value[i];
             li = [];
-            for (var j = 0; j < pol.length; j++) {
+            for (let j = 0; j < pol.length; j++) {
                 li[j] = {
                     X: pol[j].X,
                     Y: pol[j].Y,
@@ -3146,19 +3146,19 @@ eval_helper.shapeconvert = function (a) {
 };
 
 eval_helper.shapeop = function (a, b, op) {
-    var convert;
-    var aa = eval_helper.shapeconvert(a);
-    var bb = eval_helper.shapeconvert(b);
-    var scale = 1000;
+    let convert;
+    const aa = eval_helper.shapeconvert(a);
+    const bb = eval_helper.shapeconvert(b);
+    const scale = 1000;
     ClipperLib.JS.ScaleUpPaths(aa, scale);
     ClipperLib.JS.ScaleUpPaths(bb, scale);
-    var cpr = new ClipperLib.Clipper();
+    const cpr = new ClipperLib.Clipper();
     cpr.AddPaths(aa, ClipperLib.PolyType.ptSubject, true);
     cpr.AddPaths(bb, ClipperLib.PolyType.ptClip, true);
-    var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
-    var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
-    var clipType = op;
-    var solution_paths = new ClipperLib.Paths();
+    const subject_fillType = ClipperLib.PolyFillType.pftNonZero;
+    const clip_fillType = ClipperLib.PolyFillType.pftNonZero;
+    const clipType = op;
+    const solution_paths = new ClipperLib.Paths();
     cpr.Execute(clipType, solution_paths, subject_fillType, clip_fillType);
     ClipperLib.JS.ScaleDownPaths(solution_paths, scale);
     //    console.log(JSON.stringify(solution_paths));
@@ -3239,12 +3239,12 @@ evaluator.multiidlist$0 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.translate$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list") {
         if (List.isNumberVector(v0)) {
             if (v0.value.length === 2) {
-                var a = v0.value[0];
-                var b = v0.value[1];
+                const a = v0.value[0];
+                const b = v0.value[1];
                 csport.translate(a.value.real, b.value.real);
                 return nada;
             }
@@ -3254,7 +3254,7 @@ evaluator.translate$1 = function (args, modifs) {
 };
 
 evaluator.rotate$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.rotate(v0.value.real);
         return nada;
@@ -3263,7 +3263,7 @@ evaluator.rotate$1 = function (args, modifs) {
 };
 
 evaluator.scale$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.scale(v0.value.real);
         return nada;
@@ -3272,9 +3272,9 @@ evaluator.scale$1 = function (args, modifs) {
 };
 
 evaluator.greset$0 = function (args, modifs) {
-    var n = csgstorage.stack.length;
+    const n = csgstorage.stack.length;
     csport.greset();
-    for (var i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
         csctx.restore();
     }
     return nada;
@@ -3293,7 +3293,7 @@ evaluator.grestore$0 = function (args, modifs) {
 };
 
 evaluator.color$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list" && List.isNumberVector(v0).value) {
         csport.setcolor(v0);
     }
@@ -3301,7 +3301,7 @@ evaluator.color$1 = function (args, modifs) {
 };
 
 evaluator.linecolor$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list" && List.isNumberVector(v0).value) {
         csport.setlinecolor(v0);
     }
@@ -3309,7 +3309,7 @@ evaluator.linecolor$1 = function (args, modifs) {
 };
 
 evaluator.pointcolor$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "list" && List.isNumberVector(v0).value) {
         csport.setpointcolor(v0);
     }
@@ -3317,7 +3317,7 @@ evaluator.pointcolor$1 = function (args, modifs) {
 };
 
 evaluator.alpha$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.setalpha(v0);
     }
@@ -3325,7 +3325,7 @@ evaluator.alpha$1 = function (args, modifs) {
 };
 
 evaluator.pointsize$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.setpointsize(v0);
     }
@@ -3333,7 +3333,7 @@ evaluator.pointsize$1 = function (args, modifs) {
 };
 
 evaluator.linesize$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.setlinesize(v0);
     }
@@ -3341,7 +3341,7 @@ evaluator.linesize$1 = function (args, modifs) {
 };
 
 evaluator.textsize$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         csport.settextsize(v0);
     }
@@ -3372,20 +3372,20 @@ evaluator.stopanimation$0 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.text$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]); // Cinderella compatible
+    const v0 = evaluateAndVal(args[0]); // Cinderella compatible
     // if (v0 === nada) return nada; // Cinderella compatible
     return General.string(niceprint(v0));
 };
 
 evaluator.replace$3 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
-    var v2 = evaluate(args[2]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
+    const v2 = evaluate(args[2]);
     if (v0.ctype === "string" && v1.ctype === "string" && v2.ctype === "string") {
-        var str0 = v0.value;
-        var str1 = v1.value.replace(/[^A-Za-z0-9]/g, "\\$&");
-        var str2 = v2.value.replace(/\$/g, "$$$$");
-        var regex = new RegExp(str1, "g");
+        let str0 = v0.value;
+        const str1 = v1.value.replace(/[^A-Za-z0-9]/g, "\\$&");
+        const str2 = v2.value.replace(/\$/g, "$$$$");
+        const regex = new RegExp(str1, "g");
         str0 = str0.replace(regex, str2);
         return {
             ctype: "string",
@@ -3395,19 +3395,19 @@ evaluator.replace$3 = function (args, modifs) {
 };
 
 evaluator.replace$2 = function (args, modifs) {
-    var ind;
-    var repl;
-    var keyind;
-    var from;
+    let ind;
+    let repl;
+    let keyind;
+    let from;
 
     /////HELPER/////
     function getReplStr(str, keys, from) {
-        var s = "";
+        let s = "";
         ind = -1;
         keyind = -1;
-        for (var i = 0; i < keys.length; i++) {
-            var s1 = keys[i][0];
-            var a = str.indexOf(s1, from);
+        for (let i = 0; i < keys.length; i++) {
+            const s1 = keys[i][0];
+            const a = str.indexOf(s1, from);
             if (a !== -1) {
                 if (ind === -1) {
                     s = s1;
@@ -3425,13 +3425,13 @@ evaluator.replace$2 = function (args, modifs) {
 
     ////////////////
 
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "string" && v1.ctype === "list") {
-        var s = v0.value;
-        var rules = [];
-        for (var i = 0; i < v1.value.length; i++) {
-            var el = v1.value[i];
+        let s = v0.value;
+        const rules = [];
+        for (let i = 0; i < v1.value.length; i++) {
+            const el = v1.value[i];
             if (
                 el.ctype === "list" &&
                 el.value.length === 2 &&
@@ -3443,7 +3443,7 @@ evaluator.replace$2 = function (args, modifs) {
         }
         ind = -1;
         from = 0;
-        var srep = getReplStr(s, rules, from);
+        let srep = getReplStr(s, rules, from);
         while (ind !== -1) {
             s = s.substring(0, ind) + rules[keyind][1] + s.substring(ind + srep.length, s.length);
             from = ind + rules[keyind][1].length;
@@ -3460,11 +3460,11 @@ evaluator.replace$2 = function (args, modifs) {
 };
 
 evaluator.substring$3 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var v2 = evaluateAndVal(args[2]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const v2 = evaluateAndVal(args[2]);
     if (v0.ctype === "string" && v1.ctype === "number" && v2.ctype === "number") {
-        var s = v0.value;
+        const s = v0.value;
         return {
             ctype: "string",
             value: s.substring(Math.floor(v1.value.real), Math.floor(v2.value.real)),
@@ -3474,26 +3474,26 @@ evaluator.substring$3 = function (args, modifs) {
 };
 
 evaluator.tokenize$2 = function (args, modifs) {
-    var li, i;
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    let li, i;
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "string" && v1.ctype === "string") {
         return evaluator.tokenize$2([v0, List.turnIntoCSList([v1])], modifs);
     }
     if (v0.ctype === "string" && v1.ctype === "list") {
-        var str = v0.value;
+        const str = v0.value;
 
         if (v1.value.length === 0) {
             // This is a leaf
-            var convert = true;
+            let convert = true;
             if (modifs.autoconvert !== undefined) {
-                var erg = evaluate(modifs.autoconvert);
+                const erg = evaluate(modifs.autoconvert);
                 if (erg.ctype === "boolean") {
                     convert = erg.value;
                 }
             }
             if (convert && str !== "") {
-                var fl = Number(str);
+                const fl = Number(str);
                 if (!isNaN(fl)) {
                     return CSNumber.real(fl);
                 }
@@ -3501,9 +3501,9 @@ evaluator.tokenize$2 = function (args, modifs) {
             return General.string(str);
         }
 
-        var head = v1.value[0];
-        var tail = List.turnIntoCSList(v1.value.slice(1));
-        var tokens = str.split(head.value);
+        const head = v1.value[0];
+        const tail = List.turnIntoCSList(v1.value.slice(1));
+        const tokens = str.split(head.value);
         return List.turnIntoCSList(
             tokens.map(function (token) {
                 return evaluator.tokenize$2([General.string(token), tail], modifs);
@@ -3514,47 +3514,47 @@ evaluator.tokenize$2 = function (args, modifs) {
 };
 
 evaluator.indexof$2 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
     if (v0.ctype === "string" && v1.ctype === "string") {
-        var str = v0.value;
-        var code = v1.value;
-        var i = str.indexOf(code);
+        const str = v0.value;
+        const code = v1.value;
+        const i = str.indexOf(code);
         return CSNumber.real(i + 1);
     }
     return nada;
 };
 
 evaluator.indexof$3 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
-    var v1 = evaluate(args[1]);
-    var v2 = evaluate(args[2]);
+    const v0 = evaluate(args[0]);
+    const v1 = evaluate(args[1]);
+    const v2 = evaluate(args[2]);
     if (v0.ctype === "string" && v1.ctype === "string" && v2.ctype === "number") {
-        var str = v0.value;
-        var code = v1.value;
-        var start = Math.round(v2.value.real);
-        var i = str.indexOf(code, start - 1);
+        const str = v0.value;
+        const code = v1.value;
+        const start = Math.round(v2.value.real);
+        const i = str.indexOf(code, start - 1);
         return CSNumber.real(i + 1);
     }
     return nada;
 };
 
 evaluator.parse$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
-        var code = v0.value;
-        var prog = analyse(code);
+        const code = v0.value;
+        const prog = analyse(code);
         return evaluate(prog);
     }
     return nada;
 };
 
 evaluator.unicode$1 = function (args, modifs) {
-    var codepoint, str;
-    var arg = evaluate(args[0]);
-    var base = 16;
+    let codepoint, str;
+    const arg = evaluate(args[0]);
+    let base = 16;
     if (modifs.base) {
-        var b = evaluate(modifs.base);
+        const b = evaluate(modifs.base);
         if (b.ctype === "number") base = b.value.real;
     }
     if (arg.ctype === "string") {
@@ -3569,9 +3569,9 @@ evaluator.unicode$1 = function (args, modifs) {
     } else if (codepoint <= 0xffff) {
         str = String.fromCharCode(codepoint);
     } else {
-        var cp = codepoint - 0x10000;
-        var hi = (cp >> 10) + 0xd800;
-        var lo = (cp & 0x3ff) + 0xdc00;
+        const cp = codepoint - 0x10000;
+        const hi = (cp >> 10) + 0xd800;
+        const lo = (cp & 0x3ff) + 0xdc00;
         str = String.fromCharCode(hi, lo);
     }
     return General.string(str);
@@ -3586,21 +3586,21 @@ function defaultPluralForm(cnt) {
 }
 
 evaluator.international$2 = function (args, modifs) {
-    var arg = evaluate(args[0]);
+    const arg = evaluate(args[0]);
     if (arg.ctype !== "string") return nada;
-    var language = instanceInvocationArguments.language || "en";
-    var tr = instanceInvocationArguments.translations || {};
-    var trl = tr[language] || {};
+    const language = instanceInvocationArguments.language || "en";
+    const tr = instanceInvocationArguments.translations || {};
+    const trl = tr[language] || {};
     if (!trl.hasOwnProperty(arg.value)) return arg;
-    var entry = trl[arg.value];
+    const entry = trl[arg.value];
     if (typeof entry === "string") return General.string(entry);
-    var pluralform = 0;
+    const pluralform = 0;
     if (args[1] === null) return arg;
-    var count = evaluate(args[1]);
+    let count = evaluate(args[1]);
     if (count.ctype === "number") count = count.value.real;
     else count = 0;
-    var pluralFormFunction = trl._pluralFormFunction || defaultPluralForm;
-    var pluralForm = pluralFormFunction(count);
+    const pluralFormFunction = trl._pluralFormFunction || defaultPluralForm;
+    const pluralForm = pluralFormFunction(count);
     if (pluralForm < entry.length) return General.string(entry[pluralForm]);
     return arg;
 };
@@ -3614,9 +3614,9 @@ evaluator.currentlanguage$0 = function (args, modifs) {
 ///////////////////////////////
 
 eval_helper.basismap = function (a, b, c, d) {
-    var mat = List.turnIntoCSList([a, b, c]);
+    let mat = List.turnIntoCSList([a, b, c]);
     mat = List.adjoint3(List.transpose(mat));
-    var vv = General.mult(mat, d);
+    const vv = General.mult(mat, d);
     mat = List.turnIntoCSList([
         General.mult(vv.value[0], a),
         General.mult(vv.value[1], b),
@@ -3626,14 +3626,14 @@ eval_helper.basismap = function (a, b, c, d) {
 };
 
 evaluator.map$8 = function (args, modifs) {
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = evaluateAndHomog(args[1]);
-    var w2 = evaluateAndHomog(args[2]);
-    var w3 = evaluateAndHomog(args[3]);
-    var v0 = evaluateAndHomog(args[4]);
-    var v1 = evaluateAndHomog(args[5]);
-    var v2 = evaluateAndHomog(args[6]);
-    var v3 = evaluateAndHomog(args[7]);
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = evaluateAndHomog(args[1]);
+    const w2 = evaluateAndHomog(args[2]);
+    const w3 = evaluateAndHomog(args[3]);
+    const v0 = evaluateAndHomog(args[4]);
+    const v1 = evaluateAndHomog(args[5]);
+    const v2 = evaluateAndHomog(args[6]);
+    const v3 = evaluateAndHomog(args[7]);
     if (
         v0 !== nada &&
         v1 !== nada &&
@@ -3644,27 +3644,27 @@ evaluator.map$8 = function (args, modifs) {
         w2 !== nada &&
         w3 !== nada
     ) {
-        var m1 = eval_helper.basismap(v0, v1, v2, v3);
-        var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(v0, v1, v2, v3);
+        const m2 = eval_helper.basismap(w0, w1, w2, w3);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
 };
 
 evaluator.map$6 = function (args, modifs) {
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = evaluateAndHomog(args[1]);
-    var w2 = evaluateAndHomog(args[2]);
-    var inf = List.realVector([0, 0, 1]);
-    var cc = List.cross;
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = evaluateAndHomog(args[1]);
+    const w2 = evaluateAndHomog(args[2]);
+    const inf = List.realVector([0, 0, 1]);
+    const cc = List.cross;
 
-    var w3 = cc(cc(w2, cc(inf, cc(w0, w1))), cc(w1, cc(inf, cc(w0, w2))));
+    const w3 = cc(cc(w2, cc(inf, cc(w0, w1))), cc(w1, cc(inf, cc(w0, w2))));
 
-    var v0 = evaluateAndHomog(args[3]);
-    var v1 = evaluateAndHomog(args[4]);
-    var v2 = evaluateAndHomog(args[5]);
-    var v3 = cc(cc(v2, cc(inf, cc(v0, v1))), cc(v1, cc(inf, cc(v0, v2))));
+    const v0 = evaluateAndHomog(args[3]);
+    const v1 = evaluateAndHomog(args[4]);
+    const v2 = evaluateAndHomog(args[5]);
+    const v3 = cc(cc(v2, cc(inf, cc(v0, v1))), cc(v1, cc(inf, cc(v0, v2))));
 
     if (
         v0 !== nada &&
@@ -3676,80 +3676,80 @@ evaluator.map$6 = function (args, modifs) {
         w2 !== nada &&
         w3 !== nada
     ) {
-        var m1 = eval_helper.basismap(v0, v1, v2, v3);
-        var m2 = eval_helper.basismap(w0, w1, w2, w3);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(v0, v1, v2, v3);
+        const m2 = eval_helper.basismap(w0, w1, w2, w3);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
 };
 
 evaluator.map$4 = function (args, modifs) {
-    var ii = List.ii;
-    var jj = List.jj;
+    const ii = List.ii;
+    const jj = List.jj;
 
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = evaluateAndHomog(args[1]);
-    var v0 = evaluateAndHomog(args[2]);
-    var v1 = evaluateAndHomog(args[3]);
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = evaluateAndHomog(args[1]);
+    const v0 = evaluateAndHomog(args[2]);
+    const v1 = evaluateAndHomog(args[3]);
 
     if (v0 !== nada && v1 !== nada && w0 !== nada && w1 !== nada) {
-        var m1 = eval_helper.basismap(v0, v1, ii, jj);
-        var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(v0, v1, ii, jj);
+        const m2 = eval_helper.basismap(w0, w1, ii, jj);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
 };
 
 evaluator.map$2 = function (args, modifs) {
-    var ii = List.ii;
-    var jj = List.jj;
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = General.add(List.realVector([1, 0, 0]), w0);
-    var v0 = evaluateAndHomog(args[1]);
-    var v1 = General.add(List.realVector([1, 0, 0]), v0);
+    const ii = List.ii;
+    const jj = List.jj;
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = General.add(List.realVector([1, 0, 0]), w0);
+    const v0 = evaluateAndHomog(args[1]);
+    const v1 = General.add(List.realVector([1, 0, 0]), v0);
 
     if (v0 !== nada && v1 !== nada && w0 !== nada && w1 !== nada) {
-        var m1 = eval_helper.basismap(v0, v1, ii, jj);
-        var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(v0, v1, ii, jj);
+        const m2 = eval_helper.basismap(w0, w1, ii, jj);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
 };
 
 evaluator.pointreflect$1 = function (args, modifs) {
-    var ii = List.ii;
-    var jj = List.jj;
+    const ii = List.ii;
+    const jj = List.jj;
 
-    var w0 = evaluateAndHomog(args[0]);
-    var w1 = General.add(List.realVector([1, 0, 0]), w0);
-    var v1 = General.add(List.realVector([-1, 0, 0]), w0);
+    const w0 = evaluateAndHomog(args[0]);
+    const w1 = General.add(List.realVector([1, 0, 0]), w0);
+    const v1 = General.add(List.realVector([-1, 0, 0]), w0);
 
     if (v1 !== nada && w0 !== nada && w1 !== nada) {
-        var m1 = eval_helper.basismap(w0, v1, ii, jj);
-        var m2 = eval_helper.basismap(w0, w1, ii, jj);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(w0, v1, ii, jj);
+        const m2 = eval_helper.basismap(w0, w1, ii, jj);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
 };
 
 evaluator.linereflect$1 = function (args, modifs) {
-    var ii = List.ii;
-    var jj = List.jj;
+    const ii = List.ii;
+    const jj = List.jj;
 
-    var w0 = evaluateAndHomog(args[0]);
-    var r0 = List.realVector([Math.random(), Math.random(), Math.random()]);
-    var r1 = List.realVector([Math.random(), Math.random(), Math.random()]);
-    var w1 = List.cross(r0, w0);
-    var w2 = List.cross(r1, w0);
+    const w0 = evaluateAndHomog(args[0]);
+    const r0 = List.realVector([Math.random(), Math.random(), Math.random()]);
+    const r1 = List.realVector([Math.random(), Math.random(), Math.random()]);
+    const w1 = List.cross(r0, w0);
+    const w2 = List.cross(r1, w0);
 
     if (w0 !== nada && w1 !== nada) {
-        var m1 = eval_helper.basismap(w1, w2, ii, jj);
-        var m2 = eval_helper.basismap(w1, w2, jj, ii);
-        var erg = General.mult(m1, List.adjoint3(m2));
+        const m1 = eval_helper.basismap(w1, w2, ii, jj);
+        const m2 = eval_helper.basismap(w1, w2, jj, ii);
+        const erg = General.mult(m1, List.adjoint3(m2));
         return List.normalizeMax(erg);
     }
     return nada;
@@ -3761,10 +3761,10 @@ evaluator.linereflect$1 = function (args, modifs) {
 
 eval_helper.extractPointVec = function (v1) {
     //Eventuell Homogen machen
-    var erg = {};
+    const erg = {};
     erg.ok = false;
     if (v1.ctype === "geo") {
-        var val = v1.value;
+        const val = v1.value;
         if (val.kind === "P") {
             erg.x = Accessor.getField(val, "x");
             erg.y = Accessor.getField(val, "y");
@@ -3777,11 +3777,11 @@ eval_helper.extractPointVec = function (v1) {
         return erg;
     }
 
-    var pt1 = v1.value;
-    var x = 0;
-    var y = 0;
-    var z = 0;
-    var n1, n2, n3;
+    const pt1 = v1.value;
+    const x = 0;
+    const y = 0;
+    const z = 0;
+    let n1, n2, n3;
     if (pt1.length === 2) {
         n1 = pt1[0];
         n2 = pt1[1];
@@ -3811,11 +3811,11 @@ eval_helper.extractPointVec = function (v1) {
 };
 
 evaluator.polygon$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "list") {
-        var li = [];
-        for (var i = 0; i < v0.value.length; i++) {
-            var pt = eval_helper.extractPoint(v0.value[i]);
+        const li = [];
+        for (let i = 0; i < v0.value.length; i++) {
+            const pt = eval_helper.extractPoint(v0.value[i]);
             if (!pt.ok) {
                 return nada;
             }
@@ -3834,14 +3834,14 @@ evaluator.polygon$1 = function (args, modifs) {
 };
 
 evaluator.circle$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var pt = eval_helper.extractPointVec(v0);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const pt = eval_helper.extractPointVec(v0);
 
     if (!pt.ok || v1.ctype !== "number") {
         return nada;
     }
-    var pt2 = List.turnIntoCSList([pt.x, pt.y, pt.z]);
+    const pt2 = List.turnIntoCSList([pt.x, pt.y, pt.z]);
     return {
         ctype: "shape",
         type: "circle",
@@ -3850,19 +3850,19 @@ evaluator.circle$2 = function (args, modifs) {
 };
 
 evaluator.screen$0 = function (args, modifs) {
-    var m = csport.drawingstate.initialmatrix;
-    var transf = function (px, py) {
-        var xx = px - m.tx;
-        var yy = py + m.ty;
-        var x = (xx * m.d - yy * m.b) / m.det;
-        var y = -(-xx * m.c + yy * m.a) / m.det;
-        var erg = {
+    const m = csport.drawingstate.initialmatrix;
+    const transf = function (px, py) {
+        const xx = px - m.tx;
+        const yy = py + m.ty;
+        const x = (xx * m.d - yy * m.b) / m.det;
+        const y = -(-xx * m.c + yy * m.a) / m.det;
+        const erg = {
             X: x,
             Y: y,
         };
         return erg;
     };
-    var erg = [transf(0, 0), transf(csw, 0), transf(csw, csh), transf(0, csh)];
+    const erg = [transf(0, 0), transf(csw, 0), transf(csw, csh), transf(0, csh)];
     return {
         ctype: "shape",
         type: "polygon",
@@ -3871,47 +3871,47 @@ evaluator.screen$0 = function (args, modifs) {
 };
 
 evaluator.halfplane$2 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var w0 = evaluateAndHomog(v0);
-    var w1 = evaluateAndHomog(v1);
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    const w0 = evaluateAndHomog(v0);
+    const w1 = evaluateAndHomog(v1);
     if (v0 !== nada && v1 !== nada) {
-        var u0 = v0.usage;
-        var u1 = v1.usage;
-        var p = w0;
-        var l = w1;
+        const u0 = v0.usage;
+        const u1 = v1.usage;
+        let p = w0;
+        let l = w1;
         if (u0 === "Line" || u1 === "Point") {
             p = w1;
             l = w0;
         }
         //OK im Folgenden lässt sich viel optimieren
-        var tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
-        var erg = List.cross(tt, p);
-        var foot = List.cross(l, erg);
+        const tt = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
+        const erg = List.cross(tt, p);
+        let foot = List.cross(l, erg);
         foot = General.div(foot, foot.value[2]);
         p = General.div(p, p.value[2]);
-        var diff = List.sub(p, foot);
-        var nn = List.abs(diff);
+        let diff = List.sub(p, foot);
+        const nn = List.abs(diff);
         diff = General.div(diff, nn);
 
-        var sx = foot.value[0].value.real;
-        var sy = foot.value[1].value.real;
-        var dx = diff.value[0].value.real * 1000;
-        var dy = diff.value[1].value.real * 1000;
+        const sx = foot.value[0].value.real;
+        const sy = foot.value[1].value.real;
+        const dx = diff.value[0].value.real * 1000;
+        const dy = diff.value[1].value.real * 1000;
 
-        var pp1 = {
+        const pp1 = {
             X: sx + dy / 2,
             Y: sy - dx / 2,
         };
-        var pp2 = {
+        const pp2 = {
             X: sx + dy / 2 + dx,
             Y: sy - dx / 2 + dy,
         };
-        var pp3 = {
+        const pp3 = {
             X: sx - dy / 2 + dx,
             Y: sy + dx / 2 + dy,
         };
-        var pp4 = {
+        const pp4 = {
             X: sx - dy / 2,
             Y: sy + dx / 2,
         };
@@ -3929,7 +3929,7 @@ evaluator.halfplane$2 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.element$1 = function (args, modifs) {
-    var name = evaluate(args[0]);
+    const name = evaluate(args[0]);
     if (name.ctype === "string")
         if (csgeo.csnames.hasOwnProperty(name.value))
             return {
@@ -3941,7 +3941,7 @@ evaluator.element$1 = function (args, modifs) {
 
 // helper for all*(<geoobject>)
 eval_helper.all$1 = function (args, filter) {
-    var arg = evaluate(args[0]);
+    const arg = evaluate(args[0]);
     if (arg.ctype !== "geo") return List.nil; // or nada?
     if (!arg.value.incidences) return List.nil;
     return List.ofGeos(
@@ -4042,66 +4042,66 @@ evaluator.allelements$1 = function (args, modifs) {
 };
 
 evaluator.elementsatmouse$0 = function (args, modifs) {
-    var eps = 0.5;
-    var mouse = List.realVector([csmouse[0], csmouse[1], 1]);
+    const eps = 0.5;
+    const mouse = List.realVector([csmouse[0], csmouse[1], 1]);
 
-    var distMouse = function (p) {
+    const distMouse = function (p) {
         if (CSNumber._helper.isAlmostZero(p.value[2])) return Infinity;
-        var pz = List.normalizeZ(p);
+        const pz = List.normalizeZ(p);
         return List.abs(List.sub(pz, mouse)).value.real;
     };
 
-    var getPerp = function (l) {
-        var fp = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
+    const getPerp = function (l) {
+        const fp = List.turnIntoCSList([l.value[0], l.value[1], CSNumber.zero]);
         return List.normalizeMax(List.cross(mouse, fp));
     };
 
-    var inciPP = function (p) {
+    const inciPP = function (p) {
         return distMouse(p.homog) < eps;
     };
 
-    var inciPL = function (l) {
-        var perp = getPerp(l.homog);
-        var pp = List.normalizeMax(List.cross(l.homog, perp));
-        var d = distMouse(pp);
+    const inciPL = function (l) {
+        const perp = getPerp(l.homog);
+        const pp = List.normalizeMax(List.cross(l.homog, perp));
+        const d = distMouse(pp);
         return d < eps;
     };
 
-    var inciPC = function (c) {
-        var l = General.mult(c.matrix, mouse);
-        var perp = getPerp(l);
-        var sect = geoOps._helper.IntersectLC(perp, c.matrix);
-        var dists = sect.map(function (el) {
+    const inciPC = function (c) {
+        const l = General.mult(c.matrix, mouse);
+        const perp = getPerp(l);
+        const sect = geoOps._helper.IntersectLC(perp, c.matrix);
+        const dists = sect.map(function (el) {
             return distMouse(el);
         });
 
-        var erg = Math.min(dists[0], dists[1]);
+        const erg = Math.min(dists[0], dists[1]);
 
         return erg < eps;
     };
 
-    var points = csgeo.points.filter(inciPP);
+    const points = csgeo.points.filter(inciPP);
 
-    var lines = csgeo.lines.filter(function (el) {
-        var val = inciPL(el);
+    const lines = csgeo.lines.filter(function (el) {
+        let val = inciPL(el);
         // fetch segment
         if (val && el.kind === "S") {
-            var line = el.homog;
-            var tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
-            var cr = List.crossratio3(el.farpoint, el.startpos, el.endpos, mouse, tt).value.real;
+            const line = el.homog;
+            const tt = List.turnIntoCSList([line.value[0], line.value[1], CSNumber.zero]);
+            const cr = List.crossratio3(el.farpoint, el.startpos, el.endpos, mouse, tt).value.real;
             if (cr < 0 || cr > 1) val = false;
         }
 
         return val;
     });
 
-    var conics = csgeo.conics.filter(function (el) {
-        var val = inciPC(el);
+    const conics = csgeo.conics.filter(function (el) {
+        let val = inciPC(el);
         // fetch arc
         if (val && el.isArc) {
-            var cr = List.crossratio3harm(el.startPoint, el.endPoint, el.viaPoint, mouse, List.ii);
-            var m = cr.value[0];
-            var n = cr.value[1];
+            const cr = List.crossratio3harm(el.startPoint, el.endPoint, el.viaPoint, mouse, List.ii);
+            let m = cr.value[0];
+            let n = cr.value[1];
             if (!CSNumber._helper.isAlmostZero(m)) {
                 n = CSNumber.div(n, m);
                 m = CSNumber.real(1);
@@ -4109,11 +4109,11 @@ evaluator.elementsatmouse$0 = function (args, modifs) {
                 m = CSNumber.div(m, n);
                 n = CSNumber.real(1);
             }
-            var nor = List.abs(List.turnIntoCSList([n, m]));
+            const nor = List.abs(List.turnIntoCSList([n, m]));
             m = CSNumber.div(m, nor);
             n = CSNumber.div(n, nor);
 
-            var prod = CSNumber.mult(n, m);
+            let prod = CSNumber.mult(n, m);
             if (m.value.real < 0) prod = CSNumber.neg(prod);
 
             if (prod.value.real < 0) val = false;
@@ -4121,7 +4121,7 @@ evaluator.elementsatmouse$0 = function (args, modifs) {
         return val;
     });
 
-    var elts = points.concat(lines, conics);
+    const elts = points.concat(lines, conics);
 
     return List.ofGeos(elts);
 };
@@ -4129,8 +4129,8 @@ evaluator.elementsatmouse$0 = function (args, modifs) {
 evaluator.incidences$1 = evaluator.allelements$1;
 
 evaluator.createpoint$2 = function (args, modifs) {
-    var name = evaluate(args[0]);
-    var pos = evaluateAndHomog(args[1]);
+    const name = evaluate(args[0]);
+    const pos = evaluateAndHomog(args[1]);
 
     if (name.ctype !== "string") {
         printStackTrace("Name must be a string");
@@ -4142,7 +4142,7 @@ evaluator.createpoint$2 = function (args, modifs) {
         return nada;
     }
 
-    var el = {
+    const el = {
         name: name.value,
         type: "Free",
         labeled: true,
@@ -4156,15 +4156,15 @@ evaluator.createpoint$2 = function (args, modifs) {
 };
 
 evaluator.create$3 = function (args, modifs) {
-    var names = evaluate(args[0]);
-    var type = evaluate(args[1]);
-    var defs = evaluate(args[2]);
-    var emodifs = {};
-    for (var key in modifs) {
+    const names = evaluate(args[0]);
+    let type = evaluate(args[1]);
+    let defs = evaluate(args[2]);
+    const emodifs = {};
+    for (const key in modifs) {
         emodifs[key] = evaluateAndVal(modifs[key]);
     }
 
-    var name, el, i;
+    let name, el, i;
     if (names.ctype === "string") {
         name = names.value;
     } else if (names.ctype !== "list") {
@@ -4180,7 +4180,7 @@ evaluator.create$3 = function (args, modifs) {
                 .join("__")
         );
         el = evaluator.create$3([name, type, defs], emodifs);
-        var ellist = [];
+        const ellist = [];
         if (el !== nada) {
             type = General.string(el.value.kind.replace(/^(.*)s$/, "Select$1"));
             defs = List.turnIntoCSList([General.string(el.value.name)]);
@@ -4214,18 +4214,18 @@ evaluator.create$3 = function (args, modifs) {
         return nada;
     }
 
-    var a = [];
-    var pos = null;
+    const a = [];
+    let pos = null;
 
     for (i = 0; i < defs.value.length; i++) {
-        var def = defs.value[i];
+        const def = defs.value[i];
 
         if (def.ctype === "string") {
             a.push(def.value);
         } else if (def.ctype === "geo") {
             a.push(def.value.name);
         } else {
-            var vec = evaluateAndHomog(def);
+            const vec = evaluateAndHomog(def);
             if (vec !== nada) {
                 pos = vec;
             } else {
@@ -4245,7 +4245,7 @@ evaluator.create$3 = function (args, modifs) {
 
     if (a.length > 0) el.args = a;
 
-    for (var field in emodifs) {
+    for (const field in emodifs) {
         el[field] = General.unwrap(emodifs[field]);
     }
 
@@ -4256,10 +4256,10 @@ evaluator.create$3 = function (args, modifs) {
 };
 
 evaluator.create$2 = function (args, modifs) {
-    var type = evaluate(args[0]);
-    var defs = evaluate(args[1]);
-    var emodifs = {};
-    for (var key in modifs) {
+    let type = evaluate(args[0]);
+    let defs = evaluate(args[1]);
+    const emodifs = {};
+    for (const key in modifs) {
         emodifs[key] = evaluateAndVal(modifs[key]);
     }
 
@@ -4278,17 +4278,17 @@ evaluator.create$2 = function (args, modifs) {
     }
 
     // Detect unsupported operations or missing or incorrect arguments
-    var op = geoOps[type.value];
+    const op = geoOps[type.value];
 
     function getFirstFreeName(kind) {
-        var ans = false;
+        let ans = false;
 
         function useiffree(name) {
             if (!csgeo.csnames[name]) {
                 ans = name;
             }
         }
-        var name, i;
+        let name, i;
         if (kind === "P") {
             for (i = 0; (i < 26) & !ans; i++) {
                 if (i === 8 || i === 9) continue; //skip I and J
@@ -4306,10 +4306,10 @@ evaluator.create$2 = function (args, modifs) {
         return ans;
     }
 
-    var name = General.string(getFirstFreeName(op.kind));
+    let name = General.string(getFirstFreeName(op.kind));
 
     if (defs.value.length > op.signature.length) {
-        var warning =
+        let warning =
             "Operation " +
             type.value +
             " requieres only " +
@@ -4324,7 +4324,7 @@ evaluator.create$2 = function (args, modifs) {
             name.value +
             ". Ignoring the last arguments.";
         if (!emodifs.pos) {
-            var pos = evaluateAndHomog(defs.value[defs.value.length - 1]); //interpret last argument as pos
+            const pos = evaluateAndHomog(defs.value[defs.value.length - 1]); //interpret last argument as pos
             if (pos !== nada) {
                 warning = warning + " Use the last argument as modifier `pos`.";
                 emodifs.pos = pos;
@@ -4334,7 +4334,7 @@ evaluator.create$2 = function (args, modifs) {
         defs = List.turnIntoCSList(defs.value.slice(0, op.signature.length)); //ignore additional defs
     }
 
-    var el = evaluator.create$3([name, type, defs], emodifs);
+    const el = evaluator.create$3([name, type, defs], emodifs);
     if (el !== nada && el.value.kind[1] === "s" && el.value.results) {
         //Ps, Ls, etc.
         type = General.string("Select" + el.value.kind[0]);
@@ -4346,8 +4346,8 @@ evaluator.create$2 = function (args, modifs) {
             return evaluator.create$3([name, type, defs], emodifs);
         } else {
             //if a compound is generated with no pos specified, then the list of all points is returned.
-            var ellist = [];
-            for (var i = 0; i < el.value.results.value.length; i++) {
+            const ellist = [];
+            for (let i = 0; i < el.value.results.value.length; i++) {
                 emodifs.index = CSNumber.real(i + 1);
                 name = General.string(getFirstFreeName(el.value.kind[0]));
                 ellist.push(evaluator.create$3([name, type, defs], emodifs));
@@ -4365,10 +4365,10 @@ evaluator.create$2 = function (args, modifs) {
 ///////////////////////////////
 
 evaluator.javascript$1 = function (args, modifs) {
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
-        var s = v0.value;
-        var f = new Function(s);
+        const s = v0.value;
+        const f = new Function(s);
         f.call(globalInstance); // run code, with CindyJS instance as "this".
     }
     return nada;
@@ -4378,10 +4378,10 @@ evaluator.use$1 = function (args, modifs) {
     function defineFunction(name, arity, impl) {
         evaluator[name.toLowerCase() + "$" + arity] = impl;
     }
-    var v0 = evaluate(args[0]);
+    const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
-        var name = v0.value,
-            cb;
+        const name = v0.value;
+        let cb;
         if (instanceInvocationArguments.plugins) cb = instanceInvocationArguments.plugins[name];
         if (!cb) cb = CindyJS._pluginRegistry[name];
         if (cb) {
@@ -4409,7 +4409,7 @@ evaluator.use$1 = function (args, modifs) {
                 },
                 getImage: function (name, lazy) {
                     if (typeof name === "string") name = General.string(name);
-                    var img = imageFromValue(name);
+                    const img = imageFromValue(name);
                     if (!img) return null;
                     if (!lazy && img.cdyUpdate) img.cdyUpdate();
                     return img;
@@ -4437,19 +4437,19 @@ evaluator.use$1 = function (args, modifs) {
 
 evaluator.format$2 = function (args, modifs) {
     //TODO Angles
-    var v0 = evaluateAndVal(args[0]);
-    var v1 = evaluateAndVal(args[1]);
-    var dec;
+    const v0 = evaluateAndVal(args[0]);
+    const v1 = evaluateAndVal(args[1]);
+    let dec;
 
     // check if we want to truncate - do so by default
-    var truncate = true;
+    let truncate = true;
     if (modifs.truncate) {
-        var modif = evaluate(modifs.truncate);
+        const modif = evaluate(modifs.truncate);
         if (modif.ctype === "boolean") truncate = modif.value;
     }
 
     function fmtNumber(n, trunc) {
-        var erg = n.toFixed(dec),
+        let erg = n.toFixed(dec),
             erg1;
 
         do {
@@ -4457,7 +4457,7 @@ evaluator.format$2 = function (args, modifs) {
             erg = erg.substring(0, erg.length - 1);
         } while (trunc && erg !== "" && erg !== "-" && +erg === +erg1);
 
-        var tmp = "" + erg1;
+        let tmp = "" + erg1;
         // switch delimiter if needed
         if (modifs.delimiter && modifs.delimiter.ctype === "string") {
             tmp = tmp.replace(".", modifs.delimiter.value);
@@ -4466,7 +4466,7 @@ evaluator.format$2 = function (args, modifs) {
     }
 
     function fmt(v, dec) {
-        var r, i, erg;
+        let r, i, erg;
         if (v.ctype === "number") {
             r = fmtNumber(v.value.real, truncate);
             i = fmtNumber(v.value.imag, truncate);
@@ -4505,7 +4505,7 @@ if (!Date.now)
     Date.now = function () {
         return new Date().getTime();
     };
-var epoch = 0;
+let epoch = 0;
 
 evaluator.timestamp$0 = function (args, modifs) {
     return CSNumber.real(Date.now());
@@ -4522,12 +4522,12 @@ evaluator.resetclock$0 = function (args, modifs) {
 };
 
 evaluator.time$0 = function (args, modifs) {
-    var now = new Date();
+    const now = new Date();
     return List.realVector([now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds()]);
 };
 
 evaluator.date$0 = function (args, modifs) {
-    var now = new Date();
+    const now = new Date();
     return List.realVector([now.getFullYear(), now.getMonth() + 1, now.getDate()]);
 };
 
@@ -4536,8 +4536,8 @@ evaluator.simulationtime$0 = function (args, modifs) {
 };
 
 evaluator.settimeout$2 = function (args, modifs) {
-    var delay = evaluate(args[0]); // delay in seconds
-    var code = args[1]; // code to execute, cannot refer to regional variables
+    const delay = evaluate(args[0]); // delay in seconds
+    const code = args[1]; // code to execute, cannot refer to regional variables
     function callback() {
         evaluate(code);
         scheduleUpdate();
@@ -4559,23 +4559,23 @@ eval_helper.formatForWebGL = function (x) {
 };
 
 evaluator.generateWebGL$2 = function (args, modifs) {
-    var f = eval_helper.formatForWebGL;
-    var expr = args[0];
-    var vars = evaluate(args[1]);
+    const f = eval_helper.formatForWebGL;
+    let expr = args[0];
+    const vars = evaluate(args[1]);
     console.log(vars);
     if (vars.ctype !== "list") {
         return nada;
     }
 
-    var varlist = [];
-    for (var i = 0; i < vars.value.length; i++) {
+    const varlist = [];
+    for (let i = 0; i < vars.value.length; i++) {
         if (vars.value[i].ctype === "string") {
             varlist.push(vars.value[i].value);
         }
     }
     console.log("***********");
     console.log(varlist);
-    var li = eval_helper.plotvars(expr);
+    const li = eval_helper.plotvars(expr);
     console.log(li);
 
     if (
@@ -4586,7 +4586,7 @@ evaluator.generateWebGL$2 = function (args, modifs) {
         li.indexOf("e") === -1 &&
         li.indexOf("f") === -1
     ) {
-        var erg = evaluateAndVal(expr);
+        const erg = evaluateAndVal(expr);
         expr = erg;
     }
 
@@ -4606,7 +4606,7 @@ evaluator.generateWebGL$2 = function (args, modifs) {
     if (expr.ctype === "string" || expr.ctype === "void") {
         return expr;
     }
-    var a, b;
+    let a, b;
     if (expr.args.length === 2) {
         if (expr.ctype === "infix" || expr.ctype === "function") {
             a = evaluator.compileToWebGL$1([expr.args[0]], {});
@@ -4720,10 +4720,10 @@ evaluator.generateWebGL$2 = function (args, modifs) {
 };
 
 evaluator.compileToWebGL$1 = function (args, modifs) {
-    var a, b;
-    var f = eval_helper.formatForWebGL;
-    var expr = args[0];
-    var li = eval_helper.plotvars(expr);
+    let a, b;
+    const f = eval_helper.formatForWebGL;
+    let expr = args[0];
+    const li = eval_helper.plotvars(expr);
 
     if (
         li.indexOf("a") === -1 &&
@@ -4733,7 +4733,7 @@ evaluator.compileToWebGL$1 = function (args, modifs) {
         li.indexOf("e") === -1 &&
         li.indexOf("f") === -1
     ) {
-        var erg = evaluateAndVal(expr);
+        const erg = evaluateAndVal(expr);
         expr = erg;
     }
 
@@ -4869,7 +4869,7 @@ evaluator.compileToWebGL$1 = function (args, modifs) {
 /************************************/
 
 evaluator.setsimulationspeed$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         setSpeed(v0.value.real);
     }
@@ -4877,7 +4877,7 @@ evaluator.setsimulationspeed$1 = function (args, modifs) {
 };
 
 evaluator.setsimulationaccuracy$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         if (typeof labObjects !== "undefined" && typeof labObjects.env !== "undefined") {
             labObjects.env.accuracy = Math.max(1, v0.value.real | 0);
@@ -4887,10 +4887,10 @@ evaluator.setsimulationaccuracy$1 = function (args, modifs) {
 };
 
 evaluator.setsimulationquality$1 = function (args, modifs) {
-    var v0 = evaluateAndVal(args[0]);
+    const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "number") {
         if (typeof labObjects !== "undefined" && typeof labObjects.env !== "undefined") {
-            var qual = v0.value.real;
+            const qual = v0.value.real;
             if (qual === 0) {
                 labObjects.env.errorbound = 0.01;
                 labObjects.env.lowestdeltat = 0.00001;
@@ -4916,19 +4916,19 @@ evaluator.setsimulationquality$1 = function (args, modifs) {
     return nada;
 };
 
-var activeButton = null;
-var statusbar = null;
+let activeButton = null;
+let statusbar = null;
 
 function setStatusBar(bar) {
     statusbar = bar;
 }
 
 evaluator.createtool$3 = function (args, modifs) {
-    var modif;
-    var xref = "left";
-    var yref = "top";
+    let modif;
+    let xref = "left";
+    let yref = "top";
 
-    var space = null;
+    let space = null;
     if (modifs.space) {
         modif = evaluate(modifs.space);
         if (modif.ctype === "number") {
@@ -4936,7 +4936,7 @@ evaluator.createtool$3 = function (args, modifs) {
         }
     }
 
-    var toolbar = null;
+    let toolbar = null;
     if (modifs.toolbar) {
         modif = evaluate(modifs.toolbar);
         if (modif.ctype === "string") {
@@ -4946,7 +4946,7 @@ evaluator.createtool$3 = function (args, modifs) {
     }
     if (!toolbar) {
         if (modifs.reference) {
-            var ref = evaluate(modifs.reference);
+            const ref = evaluate(modifs.reference);
             if (ref.ctype === "string") {
                 switch (ref.value) {
                     case "UR":
@@ -4964,14 +4964,14 @@ evaluator.createtool$3 = function (args, modifs) {
         toolbar = document.createElement("div");
         toolbar.className = "CindyJS-toolbar";
         canvas.parentNode.appendChild(toolbar);
-        var x = evaluate(args[1]);
-        var y = evaluate(args[2]);
+        const x = evaluate(args[1]);
+        const y = evaluate(args[2]);
         if (x.ctype === "number") toolbar.style[xref] = x.value.real + "px";
         if (y.ctype === "number") toolbar.style[yref] = y.value.real + "px";
         if (space !== null) toolbar.style.margin = -space + "px";
     }
 
-    var names = evaluate(args[0]);
+    let names = evaluate(args[0]);
     if (names.ctype === "string") {
         names = [[names.value]];
     } else if (names.ctype === "list") {
@@ -4999,15 +4999,15 @@ evaluator.createtool$3 = function (args, modifs) {
         modif = evaluate(modifs.flipped);
         if (modif.ctype === "boolean" && modif.value) {
             printStackTrace("Flipping");
-            var ncols = 0;
-            var nrows = names.length;
+            let ncols = 0;
+            const nrows = names.length;
             names.forEach(function (row) {
                 if (row.length > ncols) ncols = row.length;
             });
-            var flipped = [];
-            for (var i = 0; i < ncols; ++i) {
+            const flipped = [];
+            for (let i = 0; i < ncols; ++i) {
                 flipped[i] = [];
-                for (var j = 0; j < nrows; ++j) {
+                for (let j = 0; j < nrows; ++j) {
                     flipped[i][j] = names[j][i] || null;
                 }
             }
@@ -5018,7 +5018,7 @@ evaluator.createtool$3 = function (args, modifs) {
     if (yref === "bottom") names.reverse();
     names.forEach(function (row) {
         if (xref === "right") row.reverse();
-        var rowElt = document.createElement("div");
+        const rowElt = document.createElement("div");
         toolbar.appendChild(rowElt);
         row.forEach(function (name) {
             if (!tools.hasOwnProperty(name)) {
@@ -5026,13 +5026,13 @@ evaluator.createtool$3 = function (args, modifs) {
                 name = null;
             }
             if (name === null) {
-                var spacer = document.createElement("span");
+                const spacer = document.createElement("span");
                 spacer.className = "CindyJS-spacer";
                 rowElt.appendChild(spacer);
                 return;
             }
-            var button = document.createElement("button");
-            var img = document.createElement("img");
+            const button = document.createElement("button");
+            const img = document.createElement("img");
             img.src = CindyJS.getBaseDir() + "images/" + name + ".png";
             button.appendChild(img);
 
@@ -5062,22 +5062,22 @@ evaluator.droppoint$0 = function () {
 };
 
 evaluator.parsecsv$1 = function (args, modifs) {
-    var autoconvert = true;
-    var mcon = evaluateAndVal(modifs.autoconvert);
+    let autoconvert = true;
+    const mcon = evaluateAndVal(modifs.autoconvert);
     if (mcon.ctype === "boolean") autoconvert = mcon.value;
 
-    var delim = null;
-    var md = evaluateAndVal(modifs.delimiter);
+    let delim = null;
+    const md = evaluateAndVal(modifs.delimiter);
     if (md.ctype === "string" && /^[^\"\r\n]$/.test(md.value)) delim = md.value;
 
-    var str = evaluateAndVal(args[0]);
+    let str = evaluateAndVal(args[0]);
     if (str.ctype !== "string") {
         printStackTrace("CSV data is not a string");
         return nada;
     }
     str = str.value;
 
-    var re = '(?:"((?:[^"]+|"")*)"|([^]*?))(\r\n|(,)|[\r\n]|$)';
+    let re = '(?:"((?:[^"]+|"")*)"|([^]*?))(\r\n|(,)|[\r\n]|$)';
     // captures:  1             1  2     2 3     4 4         3
     if (delim) {
         // see replace$3
@@ -5086,12 +5086,12 @@ evaluator.parsecsv$1 = function (args, modifs) {
     }
     re = new RegExp(re, "g");
 
-    var row = [];
-    var data = [];
-    var ncols = null;
+    let row = [];
+    const data = [];
+    let ncols = null;
     while (re.lastIndex < str.length) {
-        var match = re.exec(str);
-        var itm = match[2];
+        let match = re.exec(str);
+        let itm = match[2];
         if (typeof match[1] === "string") itm = match[1].replace(/""/g, '"');
         if (!autoconvert) itm = General.string(itm);
         else if (/^[Tt]rue$/.test(itm)) itm = General.bool(true);
@@ -5109,9 +5109,9 @@ evaluator.parsecsv$1 = function (args, modifs) {
             if (ncols === null) ncols = row.length;
             if (ncols < row.length) {
                 ncols = row.length;
-                for (var i = 0; i < data.length; ++i) for (var j = data[i].length; j < ncols; ++j) data[i][j] = nada;
+                for (let i = 0; i < data.length; ++i) for (let j = data[i].length; j < ncols; ++j) data[i][j] = nada;
             } else if (ncols > row.length) {
-                for (var k = row.length; k < ncols; ++k) row[k] = nada;
+                for (let k = row.length; k < ncols; ++k) row[k] = nada;
             }
             data.push(row);
             row = [];
@@ -5125,15 +5125,15 @@ evaluator.load$2 = function (args, modifs) {
 };
 
 evaluator.load$3 = function (args, modifs) {
-    var varname = "#";
+    let varname = "#";
     if (args[1] !== null) {
         if (args[1].ctype === "variable") {
             varname = args[1].name;
         }
     }
-    var arg0 = evaluateAndVal(args[0]);
-    var url = null;
-    var req = null;
+    const arg0 = evaluateAndVal(args[0]);
+    let url = null;
+    let req = null;
     if (arg0.ctype === "string" && /^https?:\/\//.test(arg0.value)) {
         url = arg0.value;
     }
@@ -5148,7 +5148,7 @@ evaluator.load$3 = function (args, modifs) {
 
     function handleStateChange() {
         if (req.readyState !== XMLHttpRequest.DONE) return;
-        var value;
+        let value;
         if (req.status === 200) {
             value = General.string(String(req.responseText));
         } else {
@@ -5164,7 +5164,7 @@ evaluator.load$3 = function (args, modifs) {
 };
 
 evaluator.removeelement$1 = function (args, modifs) {
-    var arg = evaluate(args[0]);
+    const arg = evaluate(args[0]);
     if (arg.ctype === "geo") removeElement(arg.value.name);
     else console.log("argument of removeelement is undefined or not of type <geo>");
 };

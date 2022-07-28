@@ -3,14 +3,14 @@ import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { evaluate } from "libcs/Evaluator";
 
-var CSad = {};
+const CSad = {};
 
 CSad.printArr = function (erg) {
-    var n = erg.value.length;
-    var ttemp = [];
-    var ttempi = [];
-    var printimag = false;
-    for (var k = 0; k < n; k++) {
+    const n = erg.value.length;
+    const ttemp = [];
+    const ttempi = [];
+    let printimag = false;
+    for (let k = 0; k < n; k++) {
         ttemp[k] = erg.value[k].value.real;
         ttempi[k] = erg.value[k].value.imag;
         if (ttempi[k] !== 0) printimag = true;
@@ -21,10 +21,10 @@ CSad.printArr = function (erg) {
 
 // array which contains only n zeros
 CSad.zero = function (n) {
-    var erg = [];
-    var zero = CSNumber.real(0);
+    const erg = [];
+    const zero = CSNumber.real(0);
 
-    for (var i = 0; i < n.value.real; i++) {
+    for (let i = 0; i < n.value.real; i++) {
         erg[i] = zero;
     }
 
@@ -33,14 +33,14 @@ CSad.zero = function (n) {
 
 // csad number type [x0, 0, 0, ...]
 CSad.number = function (x0, n) {
-    var erg = CSad.zero(n);
+    const erg = CSad.zero(n);
     erg.value[0] = x0;
     return erg;
 };
 
 // csad variables [x0, 1, 0, ....]
 CSad.variable = function (x0, n) {
-    var erg = CSad.zero(n);
+    const erg = CSad.zero(n);
     erg.value[0] = x0;
     erg.value[1] = CSNumber.real(1);
     return erg;
@@ -60,12 +60,12 @@ CSad.mult = function (f, g) {
         return nada;
     }
 
-    var le = f.value.length;
-    var erg = CSad.zero(CSNumber.real(le));
+    const le = f.value.length;
+    const erg = CSad.zero(CSNumber.real(le));
 
-    var ges = CSNumber.real(0);
-    for (var k = 0; k < le; k++) {
-        for (var i = 0; i <= k; i++) {
+    let ges = CSNumber.real(0);
+    for (let k = 0; k < le; k++) {
+        for (let i = 0; i <= k; i++) {
             ges = CSNumber.add(ges, CSNumber.mult(f.value[i], g.value[k - i]));
         } // end inner
         erg.value[k] = ges;
@@ -79,8 +79,8 @@ CSad.pow = function (a, b) {
     if (b.value.real < 0 || b.value.real !== Math.floor(b.value.real)) {
         return CSad.root(a, b);
     } else {
-        var temp = a;
-        for (var i = 1; i < b.value.real; i++) {
+        let temp = a;
+        for (let i = 1; i < b.value.real; i++) {
             temp = CSad.mult(temp, a);
         }
         return temp;
@@ -89,21 +89,21 @@ CSad.pow = function (a, b) {
 
 // (f)^r for float r
 CSad.root = function (f, r) {
-    var zero = CSNumber.real(0);
-    var one = CSNumber.real(1);
-    var rOne = CSNumber.add(one, r);
+    const zero = CSNumber.real(0);
+    const one = CSNumber.real(1);
+    const rOne = CSNumber.add(one, r);
 
-    var le = f.value.length;
-    var erg = CSad.zero(CSNumber.real(le));
+    const le = f.value.length;
+    const erg = CSad.zero(CSNumber.real(le));
     erg.value[0] = CSNumber.pow(f.value[0], r);
 
-    var sum = zero;
-    var inner;
-    var ges, csK;
-    for (var k = 1; k < le; k++) {
+    let sum = zero;
+    let inner;
+    let ges, csK;
+    for (let k = 1; k < le; k++) {
         csK = CSNumber.real(k);
         ges = f.value[k];
-        for (var i = 1; i <= k; i++) {
+        for (let i = 1; i <= k; i++) {
             inner = CSNumber.mult(rOne, CSNumber.real(i));
             inner = CSNumber.div(inner, csK);
             inner = CSNumber.sub(inner, one);
@@ -123,17 +123,17 @@ CSad.root = function (f, r) {
 
 // return first nonzero indexes of f and g starting from k
 CSad.findFirstNoneZero = function (f, g, k) {
-    var idxf = Infinity;
-    var idxg = Infinity;
-    var myEps = 1e-12;
-    for (var i = k; i < f.value.length; i++) {
+    let idxf = Infinity;
+    let idxg = Infinity;
+    const myEps = 1e-12;
+    for (let i = k; i < f.value.length; i++) {
         if (CSNumber.abs2(f.value[i]).value.real > myEps) {
             idxf = i;
             break;
         }
     }
 
-    for (var j = k; j < g.value.length; j++) {
+    for (let j = k; j < g.value.length; j++) {
         if (CSNumber.abs2(g.value[j]).value.real > myEps) {
             idxg = j;
             break;
@@ -152,18 +152,18 @@ CSad.div = function (f, g) {
         return nada;
     }
 
-    var le = f.value.length;
-    var myEps = 1e-16;
-    var zero = CSNumber.real(0);
-    var erg = CSad.zero(CSNumber.real(le));
+    let le = f.value.length;
+    const myEps = 1e-16;
+    const zero = CSNumber.real(0);
+    const erg = CSad.zero(CSNumber.real(le));
 
-    var sum = zero;
-    var ges = zero;
+    let sum = zero;
+    let ges = zero;
 
     // loop over all coefficients
-    for (var k = 0; k < le; k++) {
+    for (let k = 0; k < le; k++) {
         // L'Hospitals rule
-        var indxs = CSad.findFirstNoneZero(f, g, k);
+        const indxs = CSad.findFirstNoneZero(f, g, k);
         if (k < indxs[0] && indxs[0] === indxs[1] && indxs[0] !== Infinity) {
             //console.log("apply l Hospital", k);
             f.value.splice(k, indxs[0]);
@@ -173,7 +173,7 @@ CSad.div = function (f, g) {
         }
 
         ges = f.value[k];
-        for (var i = 0; i < k; i++) {
+        for (let i = 0; i < k; i++) {
             sum = CSNumber.add(sum, CSNumber.mult(erg.value[i], g.value[k - i]));
         } // end inner
 
@@ -188,15 +188,15 @@ CSad.div = function (f, g) {
 };
 
 CSad.exp = function (f) {
-    var zero = CSNumber.real(0);
-    var le = f.value.length;
-    var erg = CSad.zero(CSNumber.real(le));
+    const zero = CSNumber.real(0);
+    const le = f.value.length;
+    const erg = CSad.zero(CSNumber.real(le));
 
-    var sum = zero;
-    var inner;
+    let sum = zero;
+    let inner;
     erg.value[0] = CSNumber.exp(f.value[0]);
-    for (var k = 1; k < le; k++) {
-        for (var i = 1; i <= k; i++) {
+    for (let k = 1; k < le; k++) {
+        for (let i = 1; i <= k; i++) {
             inner = CSNumber.mult(CSNumber.real(i), f.value[i]);
             inner = CSNumber.mult(inner, erg.value[k - i]);
             sum = CSNumber.add(sum, inner);
@@ -209,17 +209,17 @@ CSad.exp = function (f) {
 };
 
 CSad.log = function (f) {
-    var zero = CSNumber.real(0);
-    var le = f.value.length;
-    var erg = CSad.zero(CSNumber.real(le));
+    const zero = CSNumber.real(0);
+    const le = f.value.length;
+    const erg = CSad.zero(CSNumber.real(le));
     erg.value[0] = CSNumber.log(f.value[0]);
 
-    var sum = zero;
-    var ges;
-    var inner;
-    for (var k = 1; k < le; k++) {
+    let sum = zero;
+    let ges;
+    let inner;
+    for (let k = 1; k < le; k++) {
         ges = f.value[k];
-        for (var i = 1; i < k; i++) {
+        for (let i = 1; i < k; i++) {
             inner = CSNumber.mult(CSNumber.real(i), erg.value[i]);
             inner = CSNumber.mult(inner, f.value[k - i]);
             sum = CSNumber.add(sum, inner);
@@ -236,20 +236,20 @@ CSad.log = function (f) {
 };
 
 CSad.sincos = function (f) {
-    var zero = CSNumber.real(0);
-    var le = f.value.length;
-    var ergsin = CSad.zero(CSNumber.real(le));
-    var ergcos = CSad.zero(CSNumber.real(le));
+    const zero = CSNumber.real(0);
+    const le = f.value.length;
+    const ergsin = CSad.zero(CSNumber.real(le));
+    const ergcos = CSad.zero(CSNumber.real(le));
     ergsin.value[0] = CSNumber.sin(f.value[0]);
     ergcos.value[0] = CSNumber.cos(f.value[0]);
 
-    var sumcos = zero;
-    var sumsin = zero;
-    var insin, incos, inboth;
-    var numk;
-    for (var k = 1; k < le; k++) {
+    let sumcos = zero;
+    let sumsin = zero;
+    let insin, incos, inboth;
+    let numk;
+    for (let k = 1; k < le; k++) {
         numk = CSNumber.real(k);
-        for (var i = 1; i <= k; i++) {
+        for (let i = 1; i <= k; i++) {
             inboth = CSNumber.mult(CSNumber.real(i), f.value[i]);
             insin = CSNumber.mult(inboth, ergcos.value[k - i]);
             incos = CSNumber.mult(inboth, ergsin.value[k - i]);
@@ -273,20 +273,20 @@ CSad.sincos = function (f) {
 };
 
 CSad.sin = function (f) {
-    var erg = CSad.sincos(f);
+    const erg = CSad.sincos(f);
     return erg[0];
 };
 
 CSad.cos = function (f) {
-    var erg = CSad.sincos(f);
+    const erg = CSad.sincos(f);
     return erg[1];
 };
 
 CSad.faculty = function (n) {
-    var erg = [];
+    let erg = [];
     erg[0] = CSNumber.real(1);
-    var val = 1;
-    for (var i = 1; i <= n.value.real; i++) {
+    let val = 1;
+    for (let i = 1; i <= n.value.real; i++) {
         val = i * val;
         erg[i] = CSNumber.real(val);
     }
@@ -295,7 +295,7 @@ CSad.faculty = function (n) {
 };
 
 CSad.diff = function (prog, varname, x0, grade) {
-    var erg;
+    let erg;
 
     if (prog.ctype === "variable") {
         if (prog.name !== varname) {
@@ -349,9 +349,9 @@ CSad.diff = function (prog, varname, x0, grade) {
 };
 
 CSad.adevaluate = function (prog, varname, x0, grade) {
-    var ergarr = CSad.diff(prog, varname, x0, grade);
-    var facs = CSad.faculty(grade);
-    for (var i = 2; i < ergarr.value.length; i++) {
+    const ergarr = CSad.diff(prog, varname, x0, grade);
+    const facs = CSad.faculty(grade);
+    for (let i = 2; i < ergarr.value.length; i++) {
         ergarr.value[i] = CSNumber.mult(ergarr.value[i], facs.value[i]);
     }
 
@@ -362,11 +362,11 @@ CSad.adevaluate = function (prog, varname, x0, grade) {
 };
 
 CSad.autodiff = function (ffunc, varname, xarr, grade) {
-    var erg = [];
-    var le = xarr.value.length;
+    let erg = [];
+    const le = xarr.value.length;
 
-    var arr;
-    for (var i = 0; i < le; i++) {
+    let arr;
+    for (let i = 0; i < le; i++) {
         arr = CSad.adevaluate(ffunc, varname, xarr.value[i], grade);
         erg[i] = arr;
     }

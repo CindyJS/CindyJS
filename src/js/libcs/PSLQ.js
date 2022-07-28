@@ -221,7 +221,7 @@ class PSLQ {
     //  @return Vektor [a_0, a_1, ..., a_n-1], if converged undefined otherwise
 
     static doPSLQ(inx, prec) {
-        var n = inx.length;
+        const n = inx.length;
 
         // Initialize
         let x = [];
@@ -264,7 +264,7 @@ class PSLQ {
         PSLQMatrix.mult(B, Dinv, B);
 
         //var gen2DArrays = (m,n) => [...Array(m)].map(x => Array(n));
-        var gen2DArrays = function (m, n) {
+        const gen2DArrays = function (m, n) {
             let arr = new Array(m);
             for (let i = 0; i < n; i++) arr[i] = [];
             return arr;

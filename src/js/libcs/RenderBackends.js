@@ -27,7 +27,7 @@ function SvgWriterContext() {
 
 SvgWriterContext.prototype = {
     set fillStyle(style) {
-        var self = this;
+        const self = this;
         parseColor(style, function (r, g, b, a) {
             self._fill = "#" + padStr(r.toString(16), 2) + padStr(g.toString(16), 2) + padStr(b.toString(16), 2);
             self._fillOpacity = a === 255 ? null : a;
@@ -35,7 +35,7 @@ SvgWriterContext.prototype = {
     },
 
     set strokeStyle(style) {
-        var self = this;
+        const self = this;
         parseColor(style, function (r, g, b, a) {
             self._stroke = "#" + padStr(r.toString(16), 2) + padStr(g.toString(16), 2) + padStr(b.toString(16), 2);
             self._strokeOpacity = a === 255 ? null : a;
@@ -77,11 +77,11 @@ SvgWriterContext.prototype = {
     },
 
     arc: function (x, y, r, a1, a2, dir) {
-        var x1 = r * Math.cos(a1) + x;
-        var y1 = r * Math.sin(a1) + y;
-        var x2 = r * Math.cos(a2) + x;
-        var y2 = r * Math.sin(a2) + y;
-        var covered = dir ? a1 - a2 : a2 - a1;
+        const x1 = r * Math.cos(a1) + x;
+        const y1 = r * Math.sin(a1) + y;
+        const x2 = r * Math.cos(a2) + x;
+        const y2 = r * Math.sin(a2) + y;
+        const covered = dir ? a1 - a2 : a2 - a1;
         if (covered >= 2 * Math.PI) {
             // draw in two arcs since the endpoints of a single arc
             // must not coincide as they would in this case
@@ -107,7 +107,7 @@ SvgWriterContext.prototype = {
                 y1
             );
         } else {
-            var largeArc = covered > Math.PI ? 1 : 0;
+            const largeArc = covered > Math.PI ? 1 : 0;
             this._pathcmd(this._path.length ? "L" : "M", x1, y1, "A", r, r, 0, largeArc, dir ? 1 : 0, x2, y2);
         }
     },
@@ -127,8 +127,8 @@ SvgWriterContext.prototype = {
     },
 
     _attrs: function (dict) {
-        var res = "";
-        for (var key in dict) if (dict[key] !== null) res += " " + key + '="' + dict[key] + '"';
+        let res = "";
+        for (const key in dict) if (dict[key] !== null) res += " " + key + '="' + dict[key] + '"';
         return res;
     },
 
@@ -201,10 +201,10 @@ SvgWriterContext.prototype = {
 
     drawImage: function (img, x, y) {
         if (arguments.length !== 3) throw Error("SvgWriterContext only supports " + "3-argument version of drawImage");
-        var idx = this._imgcache.indexOf(img);
+        let idx = this._imgcache.indexOf(img);
         if (idx === -1) {
             idx = this._imgcache.length;
-            var data;
+            let data;
             if (img.cachedDataURL) {
                 data = img.cachedDataURL;
             } else {
@@ -230,7 +230,7 @@ SvgWriterContext.prototype = {
 
     toBlob: function () {
         while (this._saveStack.length > 1 || this._saveStack[0] !== "") this.restore();
-        var str =
+        const str =
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n' +
             '<svg xmlns="http://www.w3.org/2000/svg" ' +
             'xmlns:xlink="http://www.w3.org/1999/xlink" ' +
@@ -288,8 +288,8 @@ PdfWriterContext.prototype = {
     },
 
     _setAlpha: function (alpha, prefix, param) {
-        var val = Math.round(255 * alpha * this._globalAlpha);
-        var name = prefix + val;
+        const val = Math.round(255 * alpha * this._globalAlpha);
+        const name = prefix + val;
         this._extGState[name] = "<< /" + param + " " + val / 255 + " >>";
         this._cmd("/" + name, "gs");
         return alpha;
@@ -302,7 +302,7 @@ PdfWriterContext.prototype = {
     },
 
     set fillStyle(style) {
-        var self = this;
+        const self = this;
         parseColor(style, function (r, g, b, a) {
             self._cmd(r / 255, g / 255, b / 255, "rg");
             self._setAlpha((self._fillAlpha = a), "Af", "ca");
@@ -310,7 +310,7 @@ PdfWriterContext.prototype = {
     },
 
     set strokeStyle(style) {
-        var self = this;
+        const self = this;
         parseColor(style, function (r, g, b, a) {
             self._cmd(r / 255, g / 255, b / 255, "RG");
             self._setAlpha((self._strokeAlpha = a), "As", "CA");
@@ -388,7 +388,7 @@ PdfWriterContext.prototype = {
 
     arc: function (x, y, r, a1, a2, dir) {
         if (a1 === 0 && a2 === 2 * Math.PI) {
-            var k = this._kappa * r;
+            const k = this._kappa * r;
             this.moveTo(x + r, y);
             this.bezierCurveTo(x + r, y + k, x + k, y + r, x, y + r);
             this.bezierCurveTo(x - k, y + r, x - r, y + k, x - r, y);
@@ -405,8 +405,8 @@ PdfWriterContext.prototype = {
 
     _usePath: function (cmd) {
         if (this._pathUsed) {
-            var prev = this._body[this._pathUsed];
-            var combined = {
+            const prev = this._body[this._pathUsed];
+            const combined = {
                 "S + f": "B",
                 "f + S": "B",
                 "W n + S": "W S",
@@ -450,8 +450,8 @@ PdfWriterContext.prototype = {
     },
 
     rotate: function (rad) {
-        var c = Math.cos(rad);
-        var s = Math.sin(rad);
+        const c = Math.cos(rad);
+        const s = Math.sin(rad);
         this.transform(c, s, -s, c, 0, 0);
     },
 
@@ -468,8 +468,8 @@ PdfWriterContext.prototype = {
             return {
                 error: "Not a base64-encoded PNG file",
             };
-        var bytes = base64Decode(dataURL.substr(22));
-        var chunks = pngChunks(bytes);
+        const bytes = base64Decode(dataURL.substr(22));
+        const chunks = pngChunks(bytes);
         console.log(
             "PNG chunks:",
             chunks.map(function (chunk) {
@@ -479,17 +479,17 @@ PdfWriterContext.prototype = {
 
         // Read header
         if (chunks[0].type !== "IHDR") throw Error("Image does not start with an IHDR");
-        var ihdr = chunks[0].data;
-        var width = ((ihdr[0] << 24) | (ihdr[1] << 16) | (ihdr[2] << 8) | ihdr[3]) >>> 0;
-        var height = ((ihdr[4] << 24) | (ihdr[5] << 16) | (ihdr[6] << 8) | ihdr[7]) >>> 0;
-        var bitDepth = ihdr[8];
-        var colorType = ihdr[9];
-        var palette = (colorType & 1) !== 0;
-        var grayscale = (colorType & 2) === 0;
-        var alpha = (colorType & 4) !== 0;
-        var compressionMethod = ihdr[10];
-        var filterMethod = ihdr[11];
-        var interlaceMethod = ihdr[12];
+        const ihdr = chunks[0].data;
+        const width = ((ihdr[0] << 24) | (ihdr[1] << 16) | (ihdr[2] << 8) | ihdr[3]) >>> 0;
+        const height = ((ihdr[4] << 24) | (ihdr[5] << 16) | (ihdr[6] << 8) | ihdr[7]) >>> 0;
+        const bitDepth = ihdr[8];
+        const colorType = ihdr[9];
+        const palette = (colorType & 1) !== 0;
+        const grayscale = (colorType & 2) === 0;
+        const alpha = (colorType & 4) !== 0;
+        const compressionMethod = ihdr[10];
+        const filterMethod = ihdr[11];
+        const interlaceMethod = ihdr[12];
         if (compressionMethod !== 0) throw Error("Unsupported PNG compression method: " + compressionMethod);
         if (filterMethod !== 0) throw Error("Unsupported PNG filter method: " + filterMethod);
         if (interlaceMethod !== 0)
@@ -501,9 +501,9 @@ PdfWriterContext.prototype = {
                 error: "Indexed PNG image not supported",
             };
 
-        var smask = null;
-        var numColors = grayscale ? 1 : 3;
-        var idats = chunks
+        let smask = null;
+        const numColors = grayscale ? 1 : 3;
+        let idats = chunks
             .filter(function (chunk) {
                 return chunk.type === "IDAT";
             })
@@ -511,25 +511,25 @@ PdfWriterContext.prototype = {
                 return chunk.data;
             });
         if (alpha) {
-            var pako = window.pako;
-            var inflate = new pako.Inflate();
-            var i;
+            const pako = window.pako;
+            const inflate = new pako.Inflate();
+            let i;
             for (i = 0; i < idats.length; ++i) inflate.push(idats[i], i + 1 === idats.length);
             if (inflate.err) throw Error(inflate.err);
-            var rgba = inflate.result;
-            var bytesPerComponent = bitDepth >>> 3;
-            var bytesPerPixel = (numColors + 1) * bytesPerComponent;
-            var bytesPerLine = width * bytesPerPixel + 1;
+            const rgba = inflate.result;
+            const bytesPerComponent = bitDepth >>> 3;
+            const bytesPerPixel = (numColors + 1) * bytesPerComponent;
+            const bytesPerLine = width * bytesPerPixel + 1;
             if (rgba.length !== height * bytesPerLine) throw Error("Data length mismatch");
-            var colorBytesPerPixel = numColors * bytesPerComponent;
-            var rgb = new Uint8Array(height * (width * colorBytesPerPixel + 1));
-            var mask = new Uint8Array(height * (width * bytesPerComponent + 1));
-            var a = 0;
-            var b = 0;
-            var c = 0;
-            for (var y = 0; y < height; ++y) {
+            const colorBytesPerPixel = numColors * bytesPerComponent;
+            const rgb = new Uint8Array(height * (width * colorBytesPerPixel + 1));
+            let mask = new Uint8Array(height * (width * bytesPerComponent + 1));
+            let a = 0;
+            let b = 0;
+            let c = 0;
+            for (let y = 0; y < height; ++y) {
                 rgb[b++] = mask[c++] = rgba[a++];
-                for (var x = 0; x < width; ++x) {
+                for (let x = 0; x < width; ++x) {
                     for (i = 0; i < colorBytesPerPixel; ++i) rgb[b++] = rgba[a++];
                     for (i = 0; i < bytesPerComponent; ++i) mask[c++] = rgba[a++];
                 }
@@ -558,11 +558,11 @@ PdfWriterContext.prototype = {
             idats = [pako.deflate(rgb)]; // continue with color only
         }
 
-        var len = 0;
+        let len = 0;
         idats.forEach(function (chunk) {
             len += chunk.length;
         });
-        var xobj = this._obj(
+        const xobj = this._obj(
             [
                 this._dict({
                     Type: "/XObject",
@@ -590,11 +590,11 @@ PdfWriterContext.prototype = {
 
     drawImage: function (img, x, y) {
         if (arguments.length !== 3) throw Error("PdfWriterContext only supports " + "3-argument version of drawImage");
-        var idx = this._imgcache.indexOf(img);
+        let idx = this._imgcache.indexOf(img);
         if (idx === -1) {
             idx = this._imgcache.length;
             this._imgcache.push(img);
-            var xobj = this._png(img.cachedDataURL || "");
+            let xobj = this._png(img.cachedDataURL || "");
             if (xobj.hasOwnProperty("error")) xobj = this._png(imageToDataURL(img));
             if (xobj.hasOwnProperty("error")) throw Error(xobj.error);
             this._xobjects["img" + idx] = xobj.ref;
@@ -607,8 +607,8 @@ PdfWriterContext.prototype = {
     },
 
     _dict: function (dict) {
-        var res = "<<";
-        for (var key in dict) res += " /" + key + " " + dict[key];
+        let res = "<<";
+        for (const key in dict) res += " /" + key + " " + dict[key];
         return res + " >>";
     },
 
@@ -621,10 +621,10 @@ PdfWriterContext.prototype = {
         obj.index = idx;
         obj.ref = idx + " 0 R";
         obj.offset = this._offset;
-        var len = 0;
+        let len = 0;
         obj.unshift(idx + " 0 obj\n");
         obj.push("\nendobj\n");
-        for (var i = 0; i < obj.length; ++i) len += obj[i].length;
+        for (let i = 0; i < obj.length; ++i) len += obj[i].length;
         this._offset += len;
         this._objects.push(obj);
         return obj;
@@ -637,8 +637,8 @@ PdfWriterContext.prototype = {
 
     toBlob: function () {
         // See PDF reference 1.7 Appendix G
-        var i;
-        var mediaBox = "[" + [0, -this.height, this.width, 0].join(" ") + "]";
+        let i;
+        const mediaBox = "[" + [0, -this.height, this.width, 0].join(" ") + "]";
         this._obj(
             {
                 Type: "/Catalog",
@@ -668,8 +668,8 @@ PdfWriterContext.prototype = {
             },
             3
         );
-        var body = this._body.join("\n");
-        var buf = new Uint8Array(body.length);
+        let body = this._body.join("\n");
+        const buf = new Uint8Array(body.length);
         for (i = 0; i < body.length; ++i) buf[i] = body.charCodeAt(i) & 0xff;
         body = window.pako.deflate(buf);
         this._strm(
@@ -679,15 +679,15 @@ PdfWriterContext.prototype = {
             body,
             4
         );
-        var objects = this._objects;
-        var byIndex = [];
+        let objects = this._objects;
+        const byIndex = [];
         for (i = 1; i < objects.length; ++i) byIndex[objects[i].index] = objects[i];
-        var xref = "xref\n0 " + byIndex.length + "\n";
+        let xref = "xref\n0 " + byIndex.length + "\n";
         for (i = 0; i < byIndex.length; ++i) {
             if (!byIndex[i]) xref += "0000000000 65535 f \n";
             else xref += padStr(String(byIndex[i].offset), 10) + " 00000 n \n";
         }
-        var trailer =
+        const trailer =
             "trailer\n" +
             this._dict({
                 Size: byIndex.length,
@@ -705,16 +705,16 @@ PdfWriterContext.prototype = {
 };
 
 function imageToDataURL(img, type) {
-    var w = img.width;
-    var h = img.height;
-    var c = document.createElement("canvas");
+    const w = img.width;
+    const h = img.height;
+    const c = document.createElement("canvas");
     c.setAttribute("width", w);
     c.setAttribute("height", h);
     c.setAttribute("style", "display:none;");
-    var mainCanvas = globalInstance.canvas;
+    const mainCanvas = globalInstance.canvas;
     mainCanvas.parentNode.insertBefore(c, mainCanvas.nextSibling);
     try {
-        var ctx = c.getContext("2d");
+        const ctx = c.getContext("2d");
         ctx.drawImage(img, 0, 0, w, h);
         return c.toDataURL(type || "image/png");
     } finally {
@@ -723,10 +723,10 @@ function imageToDataURL(img, type) {
 }
 
 function base64Decode(str) {
-    var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     str = str.replace(new RegExp("[^" + alphabet + "]+", "g"), "");
-    var bytes = new Uint8Array((str.length * 3) >> 2);
-    var i, j, a, b, c, d;
+    const bytes = new Uint8Array((str.length * 3) >> 2);
+    let i, j, a, b, c, d;
     for (i = 0, j = 0; i + 3 < str.length; i += 4) {
         a = alphabet.indexOf(str.charAt(i));
         b = alphabet.indexOf(str.charAt(i + 1));
@@ -765,15 +765,15 @@ function pngChunks(bytes) {
     }
     if (bytes.length < 57) throw Error("Too short to be a PNG file");
     if (u32be(0) !== 0x89504e47 || u32be(4) !== 0x0d0a1a0a) throw Error("PNG signature missing");
-    var chunks = [];
-    var pos = 8;
+    const chunks = [];
+    let pos = 8;
     while (pos < bytes.length) {
         if (pos + 12 > bytes.length) throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
-        var len = u32be(pos);
+        const len = u32be(pos);
         if (len >= 0x80000000) throw Error("Chunk too long");
-        var end = pos + 12 + len;
+        const end = pos + 12 + len;
         if (end > bytes.length) throw Error("Incomplete chunk at offset 0x" + pos.toString(16));
-        var type = bytes.subarray(pos + 4, pos + 8);
+        let type = bytes.subarray(pos + 4, pos + 8);
         type = String.fromCharCode.apply(String, type);
         chunks.push({
             len: len,
@@ -788,7 +788,7 @@ function pngChunks(bytes) {
 
 /* eslint-disable no-cond-assign */
 function parseColor(spec, cb) {
-    var match;
+    let match;
     if ((match = /^rgba\(([0-9.]+), *([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
         cb(+match[1], +match[2], +match[3], +match[4]);
     } else if ((match = /^rgb\(([0-9.]+), *([0-9.]+), *([0-9.]+)\)$/.exec(spec))) {
@@ -800,9 +800,9 @@ function parseColor(spec, cb) {
 /* eslint-enable no-cond-assign */
 
 function cacheImages(cb) {
-    var toCache = 1;
+    let toCache = 1;
     Object.keys(images).forEach(function (name) {
-        var img = images[name].value.img;
+        const img = images[name].value.img;
         if (img.cachedDataURL !== undefined) return;
         if (!img.src) return;
         if (img.src.substr(0, 5) === "data:") {
@@ -811,12 +811,12 @@ function cacheImages(cb) {
         }
         ++toCache;
         img.cachedDataURL = null;
-        var req = new XMLHttpRequest();
+        const req = new XMLHttpRequest();
         req.responseType = "blob";
         req.onreadystatechange = function () {
             if (req.readyState !== XMLHttpRequest.DONE) return;
             if (req.status === 200) {
-                var reader = new FileReader();
+                const reader = new FileReader();
                 reader.onloadend = function () {
                     img.cachedDataURL = reader.result;
                     console.log("Cached data for image " + img.src);
@@ -840,7 +840,7 @@ function padStr(str, len, chr) {
     return str;
 }
 
-var exportedCanvasURL = null;
+let exportedCanvasURL = null;
 
 function releaseExportedObject() {
     if (exportedCanvasURL !== null) {
@@ -857,13 +857,13 @@ shutdownHooks.push(releaseExportedObject);
 // Note: See https://github.com/eligrey/FileSaver.js/ for saving Blobs
 function exportWith(Context) {
     cacheImages(function () {
-        var origctx = csctx;
+        const origctx = csctx;
         try {
             setCsctx(new Context());
             csctx.width = csw;
             csctx.height = csh;
             updateCindy();
-            var blob = csctx.toBlob();
+            const blob = csctx.toBlob();
             exportedCanvasURL = window.URL.createObjectURL(blob);
 
             downloadHelper(exportedCanvasURL);
@@ -888,7 +888,7 @@ globalInstance.exportPNG = function () {
 };
 
 var downloadHelper = function (data) {
-    var a = document.createElement("a");
+    const a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
     a.href = data;

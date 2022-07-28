@@ -5,7 +5,7 @@ import { niceprint, evaluator } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 import { evaluate } from "libcs/Evaluator";
 
-var OpSound = {
+const OpSound = {
     lines: {},
     audioCtx: null,
     getAudioContext: function () {

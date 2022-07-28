@@ -4,7 +4,7 @@ import { eval_helper } from "libcs/Essentials";
 import { evaluate } from "libcs/Evaluator";
 import { csport } from "libgeo/GeoState";
 
-var Render2D = {};
+const Render2D = {};
 
 Render2D.handleModifs = function (modifs, handlers) {
     // Reset stuff first
@@ -37,9 +37,9 @@ Render2D.handleModifs = function (modifs, handlers) {
     Render2D.noborder = false;
 
     // Process handlers
-    var key, handler;
+    let key, handler;
     for (key in modifs) {
-        var val = modifs[key];
+        const val = modifs[key];
         if (!val) continue; // may happen when called internally
         handler = handlers[key];
         if (!handler) {
@@ -121,8 +121,8 @@ Render2D.modifHandlers = {
 
     dashpattern: function (v) {
         if (v.ctype === "list") {
-            var pat = [];
-            for (var i = 0, j = 0; i < v.value.length; i++) {
+            const pat = [];
+            for (let i = 0, j = 0; i < v.value.length; i++) {
                 if (v.value[i].ctype === "number") pat[j++] = v.value[i].value.real;
             }
             Render2D.dashing = Render2D.setDash.bind(null, pat);
@@ -130,7 +130,7 @@ Render2D.modifHandlers = {
     },
 
     dashtype: function (v) {
-        var type;
+        let type;
         if (v.ctype === "number") {
             type = Math.floor(v.value.real);
         } else if (v.ctype === "string") {
@@ -138,13 +138,13 @@ Render2D.modifHandlers = {
         } else {
             return;
         }
-        var pat = Render2D.dashTypes[type];
+        const pat = Render2D.dashTypes[type];
         if (pat) Render2D.dashing = Render2D.setDash.bind(null, pat);
     },
 
     dashing: function (v) {
         if (v.ctype === "number") {
-            var si = Math.floor(v.value.real);
+            const si = Math.floor(v.value.real);
             Render2D.dashing = Render2D.setDash.bind(null, [si * 2, si]);
         }
     },
@@ -168,7 +168,7 @@ Render2D.modifHandlers = {
         if (v.ctype !== "string") {
             console.error("arrowshape needs to be of type string");
         } else if (!Render2D.arrowShapes.hasOwnProperty(v.value)) {
-            var allowed = Object.keys(Render2D.arrowShapes);
+            let allowed = Object.keys(Render2D.arrowShapes);
             allowed.sort();
             allowed = allowed.join(", ");
             console.error("arrowshape needs to be one of " + allowed);
@@ -237,7 +237,7 @@ Render2D.modifHandlers = {
 
     align: function (v) {
         if (v.ctype === "string") {
-            var s = v.value;
+            const s = v.value;
             // TODO: Use values suitable for csctx.textAlign here
             if (s === "left") Render2D.align = 0;
             if (s === "right") Render2D.align = 1;
@@ -364,9 +364,9 @@ Render2D.textModifs = {
 
 Render2D.makeColor = function (colorraw, alpha) {
     if (alpha === undefined) alpha = Render2D.alpha;
-    var r = Math.floor(colorraw[0] * 255);
-    var g = Math.floor(colorraw[1] * 255);
-    var b = Math.floor(colorraw[2] * 255);
+    const r = Math.floor(colorraw[0] * 255);
+    const g = Math.floor(colorraw[1] * 255);
+    const b = Math.floor(colorraw[2] * 255);
     return "rgba(" + r + "," + g + "," + b + "," + alpha + ")";
 };
 
@@ -422,15 +422,15 @@ Render2D.arrowShapes = {
 };
 
 Render2D.clipSegment = function (pt1, pt2) {
-    var dx = pt2.x - pt1.x;
-    var dy = pt2.y - pt1.y;
-    var clipPoints = Render2D.clipLineCore(-dy, dx, pt1.x * pt2.y - pt2.x * pt1.y);
+    const dx = pt2.x - pt1.x;
+    const dy = pt2.y - pt1.y;
+    const clipPoints = Render2D.clipLineCore(-dy, dx, pt1.x * pt2.y - pt2.x * pt1.y);
     if (clipPoints.length !== 2) return [];
-    var q1 = clipPoints[0];
-    var q2 = clipPoints[1];
-    var factor = 1 / (dx * dx + dy * dy);
-    var dot1 = ((q1.x - pt1.x) * dx + (q1.y - pt1.y) * dy) * factor;
-    var dot2 = ((q2.x - pt1.x) * dx + (q2.y - pt1.y) * dy) * factor;
+    let q1 = clipPoints[0];
+    let q2 = clipPoints[1];
+    const factor = 1 / (dx * dx + dy * dy);
+    const dot1 = ((q1.x - pt1.x) * dx + (q1.y - pt1.y) * dy) * factor;
+    const dot2 = ((q2.x - pt1.x) * dx + (q2.y - pt1.y) * dy) * factor;
     if (dot1 < 0) q1 = pt1;
     if (dot1 > 1) q1 = pt2;
     if (dot2 < 0) q2 = pt1;
@@ -440,17 +440,17 @@ Render2D.clipSegment = function (pt1, pt2) {
 };
 
 Render2D.drawsegcore = function (pt1, pt2) {
-    var m = csport.drawingstate.matrix;
-    var endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
-    var endpoint1y = pt1.x * m.c - pt1.y * m.d - m.ty;
-    var endpoint2x = pt2.x * m.a - pt2.y * m.b + m.tx;
-    var endpoint2y = pt2.x * m.c - pt2.y * m.d - m.ty;
-    var overhang1 = Render2D.overhang;
-    var overhang2 = 1 - overhang1;
-    var overhang1x = overhang1 * endpoint1x + overhang2 * endpoint2x;
-    var overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
-    var overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
-    var overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
+    const m = csport.drawingstate.matrix;
+    const endpoint1x = pt1.x * m.a - pt1.y * m.b + m.tx;
+    const endpoint1y = pt1.x * m.c - pt1.y * m.d - m.ty;
+    const endpoint2x = pt2.x * m.a - pt2.y * m.b + m.tx;
+    const endpoint2y = pt2.x * m.c - pt2.y * m.d - m.ty;
+    const overhang1 = Render2D.overhang;
+    const overhang2 = 1 - overhang1;
+    let overhang1x = overhang1 * endpoint1x + overhang2 * endpoint2x;
+    let overhang1y = overhang1 * endpoint1y + overhang2 * endpoint2y;
+    let overhang2x = overhang1 * endpoint2x + overhang2 * endpoint1x;
+    let overhang2y = overhang1 * endpoint2y + overhang2 * endpoint1y;
 
     if (
         overhang1x < 0 ||
@@ -463,7 +463,7 @@ Render2D.drawsegcore = function (pt1, pt2) {
         overhang2y > csh
     ) {
         // clip to canvas boundary (up to line size)
-        var res = Render2D.clipSegment(
+        const res = Render2D.clipSegment(
             {
                 x: overhang1x,
                 y: overhang1y,
@@ -492,18 +492,18 @@ Render2D.drawsegcore = function (pt1, pt2) {
         return;
     }
 
-    var dx = endpoint2x - endpoint1x;
-    var dy = endpoint2y - endpoint1y;
-    var hs = Render2D.headlen / Math.sqrt(dx * dx + dy * dy);
-    var hx = dx * hs;
-    var hy = dy * hs;
-    var pos_fac1 = Render2D.arrowposition;
-    var pos_fac2 = 1 - pos_fac1;
-    var tip1x = pos_fac1 * overhang1x + pos_fac2 * overhang2x;
-    var tip1y = pos_fac1 * overhang1y + pos_fac2 * overhang2y;
-    var tip2x = pos_fac1 * overhang2x + pos_fac2 * overhang1x;
-    var tip2y = pos_fac1 * overhang2y + pos_fac2 * overhang1y;
-    var arrowSides = Render2D.arrowSides;
+    const dx = endpoint2x - endpoint1x;
+    const dy = endpoint2y - endpoint1y;
+    const hs = Render2D.headlen / Math.sqrt(dx * dx + dy * dy);
+    const hx = dx * hs;
+    const hy = dy * hs;
+    const pos_fac1 = Render2D.arrowposition;
+    const pos_fac2 = 1 - pos_fac1;
+    const tip1x = pos_fac1 * overhang1x + pos_fac2 * overhang2x;
+    const tip1y = pos_fac1 * overhang1y + pos_fac2 * overhang2y;
+    const tip2x = pos_fac1 * overhang2x + pos_fac2 * overhang1x;
+    const tip2y = pos_fac1 * overhang2y + pos_fac2 * overhang1y;
+    const arrowSides = Render2D.arrowSides;
 
     csctx.beginPath();
 
@@ -543,10 +543,10 @@ Render2D.drawsegcore = function (pt1, pt2) {
     }
 
     function draw_arrowhead(tipx, tipy, sign, ratio) {
-        var rx = tipx - ratio * hx + 0.5 * hy;
-        var ry = tipy - ratio * hy - 0.5 * hx;
-        var lx = tipx - ratio * hx - 0.5 * hy;
-        var ly = tipy - ratio * hy + 0.5 * hx;
+        const rx = tipx - ratio * hx + 0.5 * hy;
+        const ry = tipy - ratio * hy - 0.5 * hx;
+        const lx = tipx - ratio * hx - 0.5 * hy;
+        const ly = tipy - ratio * hy + 0.5 * hx;
 
         csctx.beginPath();
         if (Render2D.arrowShape.fill) {
@@ -568,10 +568,10 @@ Render2D.drawsegcore = function (pt1, pt2) {
 };
 
 Render2D.drawpoint = function (pt) {
-    var m = csport.drawingstate.matrix;
+    const m = csport.drawingstate.matrix;
 
-    var xx = pt.x * m.a - pt.y * m.b + m.tx;
-    var yy = pt.x * m.c - pt.y * m.d - m.ty;
+    const xx = pt.x * m.a - pt.y * m.b + m.tx;
+    const yy = pt.x * m.c - pt.y * m.d - m.ty;
 
     csctx.lineWidth = Render2D.psize * 0.3;
     csctx.beginPath();
@@ -590,19 +590,19 @@ Render2D.drawpoint = function (pt) {
 
 Render2D.clipLineCore = function (a, b, c) {
     // clip to canvas boundary (up to line size)
-    var margin = Math.SQRT1_2 * Render2D.lsize;
-    var xMin = 0 - margin;
-    var xMax = csw + margin;
-    var yMax = 0 - margin;
-    var yMin = csh + margin;
-    var distNeg = function (x, y) {
+    const margin = Math.SQRT1_2 * Render2D.lsize;
+    const xMin = 0 - margin;
+    const xMax = csw + margin;
+    const yMax = 0 - margin;
+    const yMin = csh + margin;
+    const distNeg = function (x, y) {
         return x * a + y * b + c < 0;
     };
-    var ul = distNeg(xMin, yMax);
-    var ur = distNeg(xMax, yMax);
-    var ll = distNeg(xMin, yMin);
-    var lr = distNeg(xMax, yMin);
-    var res = [];
+    const ul = distNeg(xMin, yMax);
+    const ur = distNeg(xMax, yMax);
+    const ll = distNeg(xMin, yMin);
+    const lr = distNeg(xMax, yMin);
+    const res = [];
     if (ul !== ur)
         res.push({
             x: (-c - b * yMax) / a,
@@ -629,17 +629,17 @@ Render2D.clipLineCore = function (a, b, c) {
 
 Render2D.clipLine = function (homog) {
     // transformation to canvas coordinates
-    var n = List.normalizeMax(List.productVM(homog, csport.toMat()));
-    var a = n.value[0].value.real;
-    var b = n.value[1].value.real;
-    var c = n.value[2].value.real;
+    const n = List.normalizeMax(List.productVM(homog, csport.toMat()));
+    const a = n.value[0].value.real;
+    const b = n.value[1].value.real;
+    const c = n.value[2].value.real;
     return Render2D.clipLineCore(a, b, c);
 };
 
 Render2D.drawline = function (homog) {
     if (!List._helper.isAlmostReal(homog)) return;
 
-    var res = Render2D.clipLine(homog);
+    const res = Render2D.clipLine(homog);
     if (res.length === 2 && Render2D.lsize >= 0.01) {
         Render2D.preDrawCurve();
         csctx.beginPath();
@@ -651,20 +651,20 @@ Render2D.drawline = function (homog) {
 
 // draws a segment through infinity, consisting of 2 rays
 Render2D.drawRaySegment = function (A, B) {
-    var ptA = eval_helper.extractPoint(A);
-    var ptB = eval_helper.extractPoint(B);
+    const ptA = eval_helper.extractPoint(A);
+    const ptB = eval_helper.extractPoint(B);
     if (!ptA.ok || !ptB.ok) {
         return;
     }
 
-    var dx = ptA.x - ptB.x;
-    var dy = ptA.y - ptB.y;
-    var norm = Math.sqrt(dx * dx + dy * dy);
+    let dx = ptA.x - ptB.x;
+    let dy = ptA.y - ptB.y;
+    const norm = Math.sqrt(dx * dx + dy * dy);
 
     // get points outside canvas (at "infinity")
-    var sc = csport.drawingstate.matrix.sdet;
-    var farAway = 25000 / sc; // 25000px in user coordinates
-    var factor = farAway / norm;
+    const sc = csport.drawingstate.matrix.sdet;
+    const farAway = 25000 / sc; // 25000px in user coordinates
+    const factor = farAway / norm;
     dx = dx * factor;
     dy = dy * factor;
 
@@ -697,9 +697,9 @@ Render2D.dashTypes = {
 };
 
 Render2D.setDash = function (pattern, size) {
-    var s = Math.sqrt(size);
+    const s = Math.sqrt(size);
     pattern = pattern.slice();
-    for (var i = 0; i < pattern.length; i++) {
+    for (let i = 0; i < pattern.length; i++) {
         pattern[i] *= s;
     }
     csctx.webkitLineDash = pattern; //Safari
