@@ -430,7 +430,7 @@ CSNumber.sqrt = function (a) {
 CSNumber.powRealExponent = function (a, b) {
     const rr = a.value.real;
     const ii = a.value.imag;
-    const n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
+    const n = Math.sqrt(rr * rr + ii * ii) ** b;
     const w = Math.atan2(ii, rr);
     const i = n * Math.sin(w * b);
     const r = n * Math.cos(w * b);
@@ -483,7 +483,7 @@ CSNumber.pow = function (a, n) {
     if (CSNumber._helper.isZero(n)) return CSNumber.one;
     if (CSNumber._helper.isZero(a)) return CSNumber.zero;
     if ([a, n].every(CSNumber._helper.isReal)) {
-        return CSNumber.real(Math.pow(a.value.real, n.value.real));
+        return CSNumber.real(a.value.real ** n.value.real);
     }
     if (CSNumber._helper.isReal(n)) {
         const nn = n.value.real;

@@ -231,7 +231,7 @@ class PSLQ {
             x[k] = inx[k] / Math.sqrt(PSLQ.dot(inx, inx));
 
             let rdx = 0;
-            for (let j = k; j < n; ++j) rdx += Math.pow(inx[j], 2);
+            for (let j = k; j < n; ++j) rdx += inx[j] ** 2;
             s[k] = Math.sqrt(rdx);
         }
         PSLQ.scale(s, 1 / s[0]);
@@ -274,7 +274,7 @@ class PSLQ {
             // Step One (nur 3x3)
             let tr = [H[0][0], H[1][1]];
             let r = 0;
-            if (Math.pow(this.GAMMA, 2) * Math.abs(tr[1]) > Math.pow(this.GAMMA, 1) * Math.abs(tr[0])) r = 1;
+            if (this.GAMMA ** 2 * Math.abs(tr[1]) > this.GAMMA ** 1 * Math.abs(tr[0])) r = 1;
 
             let alpha = 0,
                 beta = 0,
@@ -284,7 +284,7 @@ class PSLQ {
                 alpha = H[r][r];
                 beta = H[r + 1][r];
                 lamda = H[r + 1][r + 1];
-                delta = Math.sqrt(Math.pow(beta, 2) + Math.pow(lamda, 2));
+                delta = Math.sqrt(beta ** 2 + lamda ** 2);
             }
 
             // swap row r with r + 1 in x, H, A and B
@@ -334,7 +334,7 @@ class PSLQ {
             // Step Four (stop criterion)
             let crit = [x[0], x[1], x[2], H[0][0], H[1][1]];
             for (let i = 0; i < crit.length; ++i)
-                if (Math.abs(crit[i]) <= Math.pow(10, -prec + 5)) {
+                if (Math.abs(crit[i]) <= 10 ** (-prec + 5)) {
                     // build return value
                     B.transpose();
                     for (let j = 0; j < x.length; ++j) x[j] = -Math.abs(x[j]);

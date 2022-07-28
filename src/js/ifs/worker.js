@@ -152,7 +152,7 @@ function next(d) {
         nextInit = null;
     }
 
-    asm._real(Math.pow(10, age) | 0, 0);
+    asm._real((10 ** age) | 0, 0);
     if (age < 5) ++age;
 
     var ff = /Firefox\/(\d+)\.(\d+)/.exec(navigator.userAgent);

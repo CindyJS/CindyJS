@@ -379,7 +379,7 @@ function draw_traces() {
         var dimfactor = 1;
         if (el.tracedim !== 1) {
             size *= el.tracedim;
-            dimfactor = Math.pow(el.tracedim, -1 / el._traces.length);
+            dimfactor = el.tracedim ** (-1 / el._traces.length);
         }
         var j,
             k = 0;

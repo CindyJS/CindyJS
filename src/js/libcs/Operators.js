@@ -4471,7 +4471,7 @@ evaluator.format$2 = function (args, modifs) {
             r = fmtNumber(v.value.real, truncate);
             i = fmtNumber(v.value.imag, truncate);
             // check if we have imag part
-            if (Math.abs(v.value.imag) < Math.pow(10, -dec)) erg = r;
+            if (Math.abs(v.value.imag) < 10 ** -dec) erg = r;
             else if (i.substring(0, 1) === "-") erg = r + " - i*" + i.substring(1);
             else erg = r + " + i*" + i;
             return {
