@@ -44,3 +44,10 @@ describe("angles", function () {
     itCmd("round(37°/15°) * 15°", "30°");
     itCmd("mod(456°, 360°)", "96°");
 });
+
+describe("sequence", function () {
+    itCmd("-2.5..2.5", "[-2, -1, 0, 1, 2]");
+    itCmd("-1.1..1.4", "[-1, 0, 1]");
+    itCmd("-1.9..1.6", "[-1, 0, 1]");
+    itCmd("sum(1..10)", "55");
+});
