@@ -9,9 +9,9 @@ import { namespace } from "libcs/Namespace";
 import { Accessor } from "libcs/Accessors";
 import { Parser } from "libcs/Parser";
 
-//****************************************************************
-// this function is responsible for evaluation an expression tree
-//****************************************************************
+//*******************************************
+// this function evaluates an expression tree
+//*******************************************
 
 function evaluate(a) {
     if (a === undefined) {
@@ -35,13 +35,13 @@ function evaluate(a) {
     if (a.ctype === "field") {
         var obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
-            return Accessor.getField(obj.value, a.key);
+            return evaluate(Accessor.getField(obj.value, a.key));
         }
         if (obj.ctype === "list") {
             return List.getField(obj, a.key);
         }
         if (obj.ctype === "JSON") {
-            return Json.getField(obj, a.key);
+            return evaluate(Json.getField(obj, a.key));
         }
         return nada;
     }
@@ -55,6 +55,9 @@ function evaluate(a) {
         }
         if (uobj.ctype === "list" || uobj.ctype === "string") {
             return evaluate(Accessor.getuserData(uobj, key));
+        }
+        if (uobj.ctype === "JSON") {
+            return evaluate(Json.getField(uobj, key.value));
         }
         return nada;
     }

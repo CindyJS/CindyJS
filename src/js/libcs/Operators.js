@@ -594,6 +594,20 @@ eval_helper.assigndot = function (data, what) {
     return nada;
 };
 
+eval_helper.assigndotNoVal = function (data, what) {
+    var where = evaluate(data.obj);
+    var field = data.key;
+
+    if (where.ctype === "geo" && typeof field === "string") {
+        Accessor.setField(where.value, field, what);
+    }
+    if (where.ctype === "JSON" && typeof field === "string") {
+        Json.setField(where.value, field, what);
+    }
+
+    return nada;
+};
+
 eval_helper.assigncolon = function (data, what) {
     var lhs = data.obj;
     var where = evaluate(lhs);
@@ -603,6 +617,8 @@ eval_helper.assigncolon = function (data, what) {
 
     if (where.ctype === "geo" && key) {
         Accessor.setuserData(where.value, key, evaluateAndVal(what));
+    } else if (where.ctype === "JSON" && key) {
+        Json.setField(where.value, key.value, evaluateAndVal(what));
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         var rhs = { ...where };
 
@@ -637,7 +653,9 @@ eval_helper.assigncolonNoVal = function (data, what) {
     if (key.value === "_?_") key = nada;
 
     if (where.ctype === "geo" && key) {
-        Accessor.setuserData(where.value, key, evaluateAndVal(what));
+        Accessor.setuserData(where.value, key, evaluate(what));
+    } else if (where.ctype === "JSON" && key) {
+        Json.setField(where.value, key.value, what);
     } else if (where.ctype === "list" || (where.ctype === "string" && key)) {
         // copy object
         var rhs = {};
@@ -791,11 +809,11 @@ function infix_define(args, modifs, self) {
             definer: self,
             generation: generation,
         };
-    }
-    if (args[0].ctype === "variable") {
+    } else if (args[0].ctype === "variable") {
         namespace.setvar(args[0].name, args[1]);
-    }
-    if (args[0].ctype === "userdata") {
+    } else if (args[0].ctype === "field") {
+        eval_helper.assigndotNoVal(args[0], args[1]);
+    } else if (args[0].ctype === "userdata") {
         eval_helper.assigncolonNoVal(args[0], args[1]);
     }
     return nada;
