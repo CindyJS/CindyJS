@@ -821,8 +821,8 @@ eval_helper.drawpolygon = function (args, modifs, df, cycle) {
 
     function drawpolyshape() {
         const polys = v0.value;
-        for (let j = 0; j < polys.length; j++) {
-            const pol = polys[j];
+
+        for (const pol of polys) {
             let i;
             for (i = 0; i < pol.length; i++) {
                 const pt = pol[i];

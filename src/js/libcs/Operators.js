@@ -2387,8 +2387,8 @@ function minCostMatching(w) {
     const perms = permutationsFixedList[n];
     let bc = Number.POSITIVE_INFINITY;
     let bp = perms[0];
-    for (let i = 0; i < perms.length; ++i) {
-        const p = perms[i];
+
+    for (const p of perms) {
         let c = 0;
         for (let j = 0; j < n; ++j) c += w[j][p[j]];
         if (c < bc) {
@@ -2396,6 +2396,7 @@ function minCostMatching(w) {
             bp = p;
         }
     }
+
     return bp;
 }
 
@@ -3430,8 +3431,8 @@ evaluator.replace$2 = function (args, modifs) {
     if (v0.ctype === "string" && v1.ctype === "list") {
         let s = v0.value;
         const rules = [];
-        for (let i = 0; i < v1.value.length; i++) {
-            const el = v1.value[i];
+
+        for (const el of v1.value) {
             if (
                 el.ctype === "list" &&
                 el.value.length === 2 &&
@@ -3441,6 +3442,7 @@ evaluator.replace$2 = function (args, modifs) {
                 rules[rules.length] = [el.value[0].value, el.value[1].value];
             }
         }
+
         ind = -1;
         from = 0;
         let srep = getReplStr(s, rules, from);

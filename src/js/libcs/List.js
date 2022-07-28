@@ -267,8 +267,8 @@ List.append = function (a, b) {
 List.contains = function (a, b) {
     const erg = [];
     const bb = false;
-    for (let i = 0; i < a.value.length; i++) {
-        const cc = a.value[i];
+
+    for (const cc of a.value) {
         if (eval_helper.equals(cc, b).value) {
             return {
                 ctype: "boolean",
@@ -276,6 +276,7 @@ List.contains = function (a, b) {
             };
         }
     }
+
     return {
         ctype: "boolean",
         value: false,
@@ -402,41 +403,41 @@ List.almostequals = function (a1, a2) {
 
 List._helper.isAlmostReal = function (a1) {
     let erg = true;
-    for (let i = 0; i < a1.value.length; i++) {
-        const av1 = a1.value[i];
 
+    for (const av1 of a1.value) {
         if (av1.ctype === "list") {
             erg = erg && List._helper.isAlmostReal(av1);
         } else {
             erg = erg && CSNumber._helper.isAlmostReal(av1);
         }
     }
+
     return erg;
 };
 
 List._helper.isAlmostZero = function (lst) {
-    for (let i = 0; i < lst.value.length; i++) {
-        const elt = lst.value[i];
+    for (const elt of lst.value) {
         if (elt.ctype === "list") {
             if (!List._helper.isAlmostZero(elt)) return false;
         } else {
             if (!CSNumber._helper.isAlmostZero(elt)) return false;
         }
     }
+
     return true;
 };
 
 List._helper.isNaN = function (a1) {
     let erg = false;
-    for (let i = 0; i < a1.value.length; i++) {
-        const av1 = a1.value[i];
 
+    for (const av1 of a1.value) {
         if (av1.ctype === "list") {
             erg = erg || List._helper.isNaN(av1);
         } else {
             erg = erg || CSNumber._helper.isNaN(av1);
         }
     }
+
     return erg;
 };
 
@@ -466,8 +467,8 @@ List.maxval = function (a) {
     //Only for Lists or Lists of Lists that contain numbers
     //Used for Normalize max
     let erg = CSNumber.zero;
-    for (let i = 0; i < a.value.length; i++) {
-        const v = a.value[i];
+
+    for (const v of a.value) {
         if (v.ctype === "number") {
             erg = CSNumber.argmax(erg, v);
         }
@@ -475,6 +476,7 @@ List.maxval = function (a) {
             erg = CSNumber.argmax(erg, List.maxval(v));
         }
     }
+
     return erg;
 };
 
@@ -646,8 +648,8 @@ List.sub = function (a1, a2) {
 
 List.abs2 = function (a1) {
     let erg = 0;
-    for (let i = 0; i < a1.value.length; i++) {
-        const av1 = a1.value[i];
+
+    for (const av1 of a1.value) {
         if (av1.ctype === "number") {
             erg += CSNumber.abs2(av1).value.real;
         } else if (av1.ctype === "list") {

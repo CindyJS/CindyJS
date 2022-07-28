@@ -176,8 +176,7 @@ function setuplisteners(canvas, data) {
     }
 
     function updateMultiPositions(event, initialize) {
-        for (let i = 0; i < event.changedTouches.length; i++) {
-            let touch = event.changedTouches[i];
+        for (let touch of event.changedTouches) {
             let id = getmultiid(touch.identifier);
             if (!initialize && !multipos[id]) continue;
             var rect = canvas.getBoundingClientRect();
@@ -186,6 +185,7 @@ function setuplisteners(canvas, data) {
             var pos = csport.to(x, y);
             multipos[id] = [pos[0], pos[1]];
         }
+
         scheduleUpdate();
     }
 

@@ -28,9 +28,7 @@ function getElementAtMouse(mouse) {
 
     console.log("getElementAtMouse");
 
-    for (let i = 0; i < csgeo.gslp.length; i++) {
-        const el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.pinned || el.visible === false || el.tmp === true) continue;
 
         let dx, dy, dist;
@@ -155,9 +153,7 @@ function getNextFreeName() {
  * Removes all temporary created elements
  */
 function removeTmpElements() {
-    for (let i = 0; i < csgeo.gslp.length; i++) {
-        const el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.tmp === true) {
             removeElement(el.name);
         }
@@ -168,9 +164,7 @@ function removeTmpElements() {
  * Makes tmp elements to regular elements
  */
 function adoptTmpElements() {
-    for (let i = 0; i < csgeo.gslp.length; i++) {
-        const el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.tmp === true) {
             el.tmp = false;
         }

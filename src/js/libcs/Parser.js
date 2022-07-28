@@ -117,8 +117,8 @@ let functionCallPrecedence;
                 infix: true,
                 bare: false,
             };
-            for (let i = 0; i < symbols.length; ++i) {
-                const symbol = symbols[i];
+
+            for (const symbol of symbols) {
                 if (operators.hasOwnProperty(symbol)) throw Error("Duplicate operator: " + symbol);
                 operators[symbol] = descr;
                 operatorSymbols.push(symbol);
@@ -593,8 +593,8 @@ function parseRec(tokens, closing) {
                     fname.ctype = "function";
                     const args = (fname.args = []);
                     const modifs = (fname.modifs = {});
-                    for (let i = 0; i < lst.length; ++i) {
-                        const elt = lst[i];
+
+                    for (const elt of lst) {
                         if (elt && elt.ctype === "infix" && elt.oper === "->") {
                             const id = elt.args[0];
                             if (id.ctype !== "variable")
@@ -604,6 +604,7 @@ function parseRec(tokens, closing) {
                             args.push(elt);
                         }
                     }
+
                     fname.oper = fname.name.toLowerCase() + "$" + fname.args.length;
                 }
                 break;
