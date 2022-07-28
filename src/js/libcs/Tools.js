@@ -347,7 +347,7 @@ function create(type) {
     tmpPoint = addElement(tmpPoint);
 
     element = addElement({
-        type: type,
+        type,
         name: getNextFreeName(),
         labeled: true,
         args: [elements[0].name, tmpPoint.name],

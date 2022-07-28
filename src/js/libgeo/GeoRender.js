@@ -28,8 +28,8 @@ function drawlabel(el, lbl, pos, lpos, color) {
         bold: General.wrap(bold),
         italics: General.wrap(italics),
         family: General.wrap(family),
-        color: color,
-        alpha: alpha,
+        color,
+        alpha,
     });
 }
 
@@ -284,11 +284,11 @@ function drawgeotext(el) {
             outer.style.top = y + "px";
             if (align || inlinebox.style.transform) inlinebox.style.transform = "translateX(" + -100 * align + "%)";
             el._textCache = {
-                text: text,
-                font: font,
-                x: x,
-                y: y,
-                align: align,
+                text,
+                font,
+                x,
+                y,
+                align,
             };
         };
     }

@@ -340,7 +340,7 @@ function formatTraceLog(save) {
     var str = JSON.stringify(traceLog.fullLog);
     var type = save ? "application/octet-stream" : "application/json";
     var blob = new Blob([str], {
-        type: type,
+        type,
     });
     var uri = window.URL.createObjectURL(blob);
     // var uri = 'data:text/html;base64,' + window.btoa(html);

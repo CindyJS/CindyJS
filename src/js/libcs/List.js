@@ -1929,7 +1929,7 @@ List.RRQRdecomp = function (A, precision) {
 
     return {
         Q: QQ,
-        R: R,
+        R,
         P: List.turnIntoCSList(piv),
         rank: CSNumber.real(rank),
     };
@@ -2015,7 +2015,7 @@ List.QRdecomp = function (A) {
     const R = AAA; //General.mult(List.transjugate(QQ), A);
     return {
         Q: QQ,
-        R: R,
+        R,
     };
 };
 
@@ -2181,7 +2181,7 @@ List.LUdecomp = function (AA) {
 
     return {
         LU: A,
-        P: P,
+        P,
         TransPos: tpos,
     };
 };

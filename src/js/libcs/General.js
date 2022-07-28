@@ -236,7 +236,7 @@ General.withUsage = function (v, usage) {
     return {
         ctype: v.ctype,
         value: v.value,
-        usage: usage,
+        usage,
     };
 };
 

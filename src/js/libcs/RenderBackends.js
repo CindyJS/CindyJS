@@ -776,8 +776,8 @@ function pngChunks(bytes) {
         let type = bytes.subarray(pos + 4, pos + 8);
         type = String.fromCharCode.apply(String, type);
         chunks.push({
-            len: len,
-            type: type,
+            len,
+            type,
             data: bytes.subarray(pos + 8, pos + 8 + len),
             crc: u32be(pos + 8 + len),
         });

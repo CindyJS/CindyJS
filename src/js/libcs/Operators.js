@@ -804,10 +804,10 @@ function infix_define(args, modifs, self) {
         }
         myfunctions[fname] = {
             oper: fname,
-            body: body,
+            body,
             arglist: ar,
             definer: self,
-            generation: generation,
+            generation,
         };
     } else if (args[0].ctype === "variable") {
         namespace.setvar(args[0].name, args[1]);
@@ -4148,7 +4148,7 @@ evaluator.createpoint$2 = function (args, modifs) {
         name: name.value,
         type: "Free",
         labeled: true,
-        pos: pos,
+        pos,
     };
 
     return {
@@ -4238,7 +4238,7 @@ evaluator.create$3 = function (args, modifs) {
     }
 
     el = {
-        name: name,
+        name,
         type: type.value,
         labeled: true,
     };
@@ -4393,14 +4393,14 @@ evaluator.use$1 = function (args, modifs) {
             cb({
                 instance: globalInstance,
                 config: instanceInvocationArguments,
-                nada: nada,
-                evaluate: evaluate,
-                cscompiled: cscompiled,
+                nada,
+                evaluate,
+                cscompiled,
                 extractPoint: eval_helper.extractPoint,
-                evaluateAndVal: evaluateAndVal,
-                defineFunction: defineFunction,
+                evaluateAndVal,
+                defineFunction,
                 addShutdownHook: shutdownHooks.push.bind(shutdownHooks),
-                addAutoCleaningEventListener: addAutoCleaningEventListener,
+                addAutoCleaningEventListener,
                 getVariable: namespace.getvar.bind(namespace),
                 getInitialMatrix: function () {
                     return csport.drawingstate.initialmatrix;
@@ -4420,7 +4420,7 @@ evaluator.use$1 = function (args, modifs) {
                     if (!myfunctions.hasOwnProperty(name)) return null;
                     return myfunctions[name];
                 },
-                scheduleUpdate: scheduleUpdate,
+                scheduleUpdate,
             });
             return {
                 ctype: "boolean",

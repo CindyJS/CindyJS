@@ -469,7 +469,7 @@ function loadImage(obj, video) {
         return nada;
     }
     var value = {
-        img: img,
+        img,
         width: NaN,
         height: NaN,
         ready: true,
@@ -521,7 +521,7 @@ function loadImage(obj, video) {
     }
     return {
         ctype: "image",
-        value: value,
+        value,
     };
 }
 
@@ -632,8 +632,8 @@ var loadSvgIcon = function (img, id) {
     loadSvgIcon = function cacheRequest(img, id) {
         // subsequent requests get enqueued while we load the SVG
         iconsToLoad.push({
-            img: img,
-            id: id,
+            img,
+            id,
         });
     };
     loadSvgIcon(img, id); // cache the first request as well
@@ -759,8 +759,8 @@ function backupGeo() {
         }
     }
     backup = {
-        state: state,
-        speeds: speeds,
+        state,
+        speeds,
     };
 }
 
@@ -865,8 +865,8 @@ function shutdown() {
 var globalInstance = {
     config: instanceInvocationArguments,
     startup: createCindyNow,
-    shutdown: shutdown,
-    evokeCS: evokeCS,
+    shutdown,
+    evokeCS,
     play: csplay,
     pause: cspause,
     stop: csstop,
@@ -876,7 +876,7 @@ var globalInstance = {
     parse: function (code) {
         return analyse(code);
     },
-    niceprint: niceprint,
+    niceprint,
     canvas: null, // will be set during startup
 };
 

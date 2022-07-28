@@ -168,11 +168,11 @@ function next(d) {
         t.set(imgData.data);
         postMessage(
             {
-                generation: generation,
+                generation,
                 buffer: imgTransfer,
                 imgPtr: 0,
-                width: width,
-                height: height,
+                width,
+                height,
             },
             [imgTransfer]
         );
@@ -180,7 +180,7 @@ function next(d) {
         createImageBitmap(imgData).then(function (bmp) {
             postMessage(
                 {
-                    generation: generation,
+                    generation,
                     img: bmp,
                 },
                 [bmp]
@@ -189,11 +189,11 @@ function next(d) {
     } else {
         postMessage(
             {
-                generation: generation,
-                buffer: buffer,
-                imgPtr: imgPtr,
-                width: width,
-                height: height,
+                generation,
+                buffer,
+                imgPtr,
+                width,
+                height,
             },
             [buffer]
         );

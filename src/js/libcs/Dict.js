@@ -50,8 +50,8 @@ Dict.clone = function (dict) {
 // Modifying operation
 Dict.put = function (dict, key, value) {
     dict.value[Dict.key(key)] = {
-        key: key,
-        value: value,
+        key,
+        value,
     };
 };
 

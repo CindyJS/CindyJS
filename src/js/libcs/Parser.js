@@ -107,11 +107,11 @@ let functionCallPrecedence;
             const symbols = level[name];
             if (typeof symbols === "boolean") continue;
             const descr = {
-                name: name,
+                name,
                 sym: symbols[0],
-                symbols: symbols,
-                rassoc: rassoc,
-                precedence: precedence,
+                symbols,
+                rassoc,
+                precedence,
                 prefix: false,
                 postfix: false,
                 infix: true,
@@ -413,7 +413,7 @@ function subsup(seq, tok, op, dict) {
     op = operators[op];
     while (seq.length >= 3 && seq[seq.length - 2].precedence <= op.precedence) applyOperator(seq);
     seq.push({
-        op: op,
+        op,
         precedence: op.precedence + (op.rassoc ? 1 : 0),
         start: tok.start,
         end: tok.end,

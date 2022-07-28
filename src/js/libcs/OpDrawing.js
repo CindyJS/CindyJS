@@ -520,8 +520,8 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
 
     function mkp(x, y) {
         return {
-            x: x,
-            y: y,
+            x,
+            y,
         };
     }
 
@@ -547,7 +547,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
             b1: y1,
             b2: y2,
             vertical: true,
-            index: index,
+            index,
             sign: function (y) {
                 return sign(x, y);
             },
@@ -573,7 +573,7 @@ eval_helper.drawconic = function (conicMatrix, modifs) {
             b1: x1,
             b2: x2,
             vertical: false,
-            index: index,
+            index,
             sign: function (x) {
                 return sign(x, y);
             },
@@ -893,10 +893,10 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
             y += lineHeight;
         });
         return {
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
+            left,
+            right,
+            top,
+            bottom,
         };
     }
     const m = ctx.measureText(text);

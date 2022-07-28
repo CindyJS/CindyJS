@@ -348,7 +348,7 @@ function setuplisteners(canvas, data) {
             name = name.replace(/[^]*\/([^\/])/, "$1");
             files[i] = {
                 type: "",
-                name: name,
+                name,
             };
             var req = new XMLHttpRequest();
             req.onreadystatechange = haveHead;

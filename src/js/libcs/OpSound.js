@@ -163,8 +163,8 @@ const OpSound = {
         }
 
         return {
-            oscNode: oscNode,
-            gainNode: gainNode,
+            oscNode,
+            gainNode,
         };
     },
 

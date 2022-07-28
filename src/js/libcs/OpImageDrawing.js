@@ -352,7 +352,7 @@ evaluator.cameravideo$0 = function (args, modifs) {
     function makeconstraints(width) {
         return {
             video: {
-                width: width,
+                width,
                 advanced: [
                     {
                         width: {

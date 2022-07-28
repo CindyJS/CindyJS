@@ -473,8 +473,8 @@ CSNumber.log = function (a) {
     return CSNumber.snap({
         ctype: "number",
         value: {
-            real: real,
-            imag: imag,
+            real,
+            imag,
         },
     });
 };
