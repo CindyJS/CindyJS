@@ -118,22 +118,15 @@ List.fund = List.realMatrix([
 ]);
 
 List.sequence = function (a, b) {
-    var erg = [];
-    var ct = 0;
-    for (var i = Math.round(a.value.real); i < Math.round(b.value.real) + 1; i++) {
-        erg[ct] = {
-            ctype: "number",
-            value: {
-                real: i,
-                imag: 0,
-            },
-        };
-        ct++;
+    const start = Math.ceil(a.value.real);
+    const stop = Math.floor(b.value.real) + 1;
+
+    let res = [];
+    for (let i = start, ct = 0; i < stop; i++, ct++) {
+        res[ct] = CSNumber.real(i);
     }
-    return {
-        ctype: "list",
-        value: erg,
-    };
+
+    return List.turnIntoCSList(res);
 };
 
 List.pairs = function (a) {
