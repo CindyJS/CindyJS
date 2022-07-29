@@ -23,7 +23,7 @@ import {
 import { checkConjectures, guessDuplicate, guessIncidences } from "libgeo/Prover";
 import { geoOps, geoAliases, geoMacros } from "libgeo/GeoOps";
 
-var defaultAppearance = {};
+const defaultAppearance = {};
 defaultAppearance.clip = "none";
 defaultAppearance.pointColor = [1, 0, 0];
 defaultAppearance.lineColor = [0, 0, 1];
@@ -47,7 +47,7 @@ defaultAppearance.lineHeight = 1.45;
  */
 
 function setDefaultAppearance(obj) {
-    var key;
+    let key;
     for (key in obj) if (obj[key] !== null) defaultAppearance[key] = obj[key];
 }
 if (instanceInvocationArguments.defaultAppearance) setDefaultAppearance(instanceInvocationArguments.defaultAppearance);
@@ -55,7 +55,7 @@ if (instanceInvocationArguments.defaultAppearance) setDefaultAppearance(instance
 function csinit(gslp) {
     // establish defaults for geoOps
     Object.keys(geoOps).forEach(function (opName) {
-        var op = geoOps[opName];
+        const op = geoOps[opName];
         assert(op.signature || opName === "_helper", opName + " has no signature");
         if (op.updatePosition !== undefined && op.stateSize === undefined) op.stateSize = 0;
     });
@@ -154,7 +154,7 @@ function segmentDefault(el) {
 }
 
 function textDefault(el) {
-    var size;
+    let size;
     if (el.textsize !== undefined) el.size = el.textsize;
     //else if (el.size !== undefined) el.size = el.size;
     else el.size = defaultAppearance.textsize;
@@ -177,7 +177,7 @@ function addElement(el, removeDuplicates) {
 
     // remove element if it's a proven duplicate
     if (typeof removeDuplicates === "boolean" && removeDuplicates && el.Duplicate) {
-        var dup = el.Duplicate;
+        const dup = el.Duplicate;
         console.log(
             "duplication detected: removing " + el.name + " (type " + el.kind + ") (duplicate of " + dup.name + ")."
         );
@@ -189,13 +189,13 @@ function addElement(el, removeDuplicates) {
 }
 
 function addElementNoProof(el) {
-    var i;
+    let i;
 
     // Adding an existing element moves that element to the given position
     if (csgeo.csnames[el.name] !== undefined) {
         console.log("Element name '" + el.name + "' already exists");
 
-        var existingEl = csgeo.csnames[el.name];
+        const existingEl = csgeo.csnames[el.name];
         if (geoOps[existingEl.type].isMovable && geoOps[existingEl.type].kind === "P")
             movepointscr(existingEl, el.pos, "homog");
 
@@ -208,10 +208,10 @@ function addElementNoProof(el) {
     }
 
     // Expand macros
-    var macro = geoMacros[el.type];
+    const macro = geoMacros[el.type];
     if (macro) {
-        var expansion = macro(el);
-        var res = null;
+        const expansion = macro(el);
+        let res = null;
         for (i = 0; i < expansion.length; ++i) {
             res = addElement(expansion[i]);
         }
@@ -219,9 +219,9 @@ function addElementNoProof(el) {
     }
 
     // Detect unsupported operations or missing or incorrect arguments
-    var op = geoOps[el.type];
-    var isSet = false;
-    var getKind = function (name) {
+    const op = geoOps[el.type];
+    let isSet = false;
+    const getKind = function (name) {
         return csgeo.csnames[name].kind;
     };
 
@@ -264,7 +264,7 @@ function addElementNoProof(el) {
                 return null;
             }
             if (op.signature !== "**" && !isSet) {
-                var argKind = csgeo.csnames[el.args[i]].kind;
+                const argKind = csgeo.csnames[el.args[i]].kind;
                 if (!(op.signature[i] === argKind || (argKind === "S" && op.signature[i] === "L"))) {
                     window.alert(
                         "Wrong argument kind " +
@@ -287,7 +287,7 @@ function addElementNoProof(el) {
 
     csgeo.gslp.push(el);
     csgeo.csnames[el.name] = el;
-    var totalStateSize = stateLastGood.length;
+    let totalStateSize = stateLastGood.length;
     el.kind = op.kind;
     el.stateIdx = totalStateSize;
     totalStateSize += op.stateSize;
@@ -329,16 +329,16 @@ function addElementNoProof(el) {
     }
 
     // collect sets
-    var setsRe = /^[P|L|S|C]s$/; // Ps, Ls, ...
+    const setsRe = /^[P|L|S|C]s$/; // Ps, Ls, ...
 
     if (setsRe.test(el.kind)) {
-        var nameMap = {
+        const nameMap = {
             P: "points",
             L: "lines",
             S: "lines",
             C: "conics",
         };
-        var name = nameMap[el.kind[0]];
+        const name = nameMap[el.kind[0]];
         csgeo.sets[name].push(el);
     }
 
@@ -389,12 +389,12 @@ function removeElement(name) {
     }
 
     // build dependency tree
-    var depTree = {};
-    var cskeys = Object.keys(csgeo.csnames);
+    const depTree = {};
+    const cskeys = Object.keys(csgeo.csnames);
     cskeys.forEach(function (name) {
-        var el = csgeo.csnames[name];
+        const el = csgeo.csnames[name];
         if (!el.hasOwnProperty("args")) return;
-        var args = el.args;
+        const args = el.args;
 
         args.forEach(function (argn) {
             if (!depTree.hasOwnProperty(argn)) {
@@ -405,11 +405,11 @@ function removeElement(name) {
     });
 
     // recursively find all dependencies
-    var recFind = function (elname, map) {
+    const recFind = function (elname, map) {
         map[elname] = true;
         if (!depTree.hasOwnProperty(elname)) return map;
 
-        for (var dn in depTree[elname]) {
+        for (const dn in depTree[elname]) {
             if (!map[dn]) {
                 recFind(dn, map);
             }
@@ -419,19 +419,19 @@ function removeElement(name) {
     };
 
     // collect all objects to delete
-    var delArr = recFind(name, {});
+    const delArr = recFind(name, {});
 
     removeAllElements(delArr);
 }
 
 function removeAllElements(nameMap) {
-    var i,
-        el,
-        debug = false;
-    var keys = Object.keys(nameMap);
+    let i;
+    let el;
+    const debug = false;
+    const keys = Object.keys(nameMap);
     if (debug) console.log("Remove elements: " + String(keys));
 
-    var nameCmp = function (cmpMap, arrn) {
+    const nameCmp = function (cmpMap, arrn) {
         return function (setel) {
             if (cmpMap[setel.name]) {
                 if (debug) console.log("Removed element " + setel.name + " from " + arrn);
@@ -441,12 +441,12 @@ function removeAllElements(nameMap) {
     };
 
     // update incidences
-    var isFiltered = {}; // track filtered arrays
+    const isFiltered = {}; // track filtered arrays
     keys.forEach(function (name) {
-        var allIncis = csgeo.csnames[name].incidences;
+        const allIncis = csgeo.csnames[name].incidences;
         allIncis.forEach(function (iname) {
             if (isFiltered[iname]) return;
-            var incis = csgeo.csnames[iname].incidences;
+            const incis = csgeo.csnames[iname].incidences;
             csgeo.csnames[iname].incidences = incis.filter(function (n) {
                 return !nameMap[n];
             });
@@ -455,13 +455,13 @@ function removeAllElements(nameMap) {
     });
 
     // process GeoArrays
-    var geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
+    const geoArrs = ["conics", "free", "gslp", "ifs", "lines", "points", "polygons", "texts"];
     geoArrs.map(function (arrn) {
         csgeo[arrn] = csgeo[arrn].filter(nameCmp(nameMap, arrn));
     });
 
     // remove from sets of geos -- PointSet (Ps), LineSet (Ls)...
-    for (var sname in csgeo.sets) {
+    for (const sname in csgeo.sets) {
         csgeo.sets[sname] = csgeo.sets[sname].filter(nameCmp(nameMap, "set of " + sname));
     }
 
@@ -476,16 +476,16 @@ function onSegment(p, s) {
     //TODO was ist mit Fernpunkten
     // TODO das ist eine sehr teure implementiereung
     // Geht das einfacher?
-    var el1 = csgeo.csnames[s.args[0]].homog;
-    var el2 = csgeo.csnames[s.args[1]].homog;
-    var elm = p.homog;
+    const el1 = csgeo.csnames[s.args[0]].homog;
+    const el2 = csgeo.csnames[s.args[1]].homog;
+    const elm = p.homog;
 
-    var x1 = CSNumber.div(el1.value[0], el1.value[2]);
-    var y1 = CSNumber.div(el1.value[1], el1.value[2]);
-    var x2 = CSNumber.div(el2.value[0], el2.value[2]);
-    var y2 = CSNumber.div(el2.value[1], el2.value[2]);
-    var xm = CSNumber.div(elm.value[0], elm.value[2]);
-    var ym = CSNumber.div(elm.value[1], elm.value[2]);
+    let x1 = CSNumber.div(el1.value[0], el1.value[2]);
+    let y1 = CSNumber.div(el1.value[1], el1.value[2]);
+    let x2 = CSNumber.div(el2.value[0], el2.value[2]);
+    let y2 = CSNumber.div(el2.value[1], el2.value[2]);
+    let xm = CSNumber.div(elm.value[0], elm.value[2]);
+    let ym = CSNumber.div(elm.value[1], elm.value[2]);
 
     if (
         CSNumber._helper.isAlmostReal(x1) &&
@@ -501,10 +501,10 @@ function onSegment(p, s) {
         y2 = y2.value.real;
         xm = xm.value.real;
         ym = ym.value.real;
-        var d12 = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-        var d1m = Math.sqrt((x1 - xm) * (x1 - xm) + (y1 - ym) * (y1 - ym));
-        var d2m = Math.sqrt((x2 - xm) * (x2 - xm) + (y2 - ym) * (y2 - ym));
-        var dd = d12 - d1m - d2m;
+        const d12 = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        const d1m = Math.sqrt((x1 - xm) * (x1 - xm) + (y1 - ym) * (y1 - ym));
+        const d2m = Math.sqrt((x2 - xm) * (x2 - xm) + (y2 - ym) * (y2 - ym));
+        const dd = d12 - d1m - d2m;
         return dd * dd < 0.000000000000001;
     }
     return false;
@@ -513,7 +513,7 @@ function onSegment(p, s) {
 function isShowing(el, op) {
     el.isshowing = true;
     if (el.args) {
-        for (var i = 0; i < el.args.length; i++) {
+        for (let i = 0; i < el.args.length; i++) {
             if (!csgeo.csnames[el.args[i]].isshowing) {
                 el.isshowing = false;
                 return;
@@ -536,19 +536,19 @@ function isShowing(el, op) {
 var geoDependantsCache = {};
 
 function getGeoDependants(mover) {
-    var deps = geoDependantsCache[mover.name];
+    let deps = geoDependantsCache[mover.name];
     if (deps) return deps;
-    var depSet = {};
-    var k = 0;
+    const depSet = {};
+    let k = 0;
     deps = [];
     depSet[mover.name] = mover;
-    var gslp = csgeo.gslp;
-    for (var i = 0; i < gslp.length; ++i) {
-        var el = gslp[i];
-        var args = el.args;
+    const gslp = csgeo.gslp;
+    for (let i = 0; i < gslp.length; ++i) {
+        const el = gslp[i];
+        const args = el.args;
         if (!args) continue;
-        for (var j = 0; j < args.length; ++j) {
-            var arg = args[j];
+        for (let j = 0; j < args.length; ++j) {
+            const arg = args[j];
             if (depSet.hasOwnProperty(arg)) {
                 depSet[el.name] = el;
                 deps[k++] = el;

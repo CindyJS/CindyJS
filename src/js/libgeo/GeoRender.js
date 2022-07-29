@@ -10,17 +10,17 @@ import { defaultAppearance } from "libgeo/GeoBasics";
 import { geoOps, ifs } from "libgeo/GeoOps";
 
 function drawlabel(el, lbl, pos, lpos, color) {
-    var textsize = el.textsize || defaultAppearance.textsize;
-    var bold = el.textbold === true;
-    var italics = el.textitalics === true;
-    var family = el.text_fontfamily || defaultAppearance.fontFamily;
-    var dist = lpos.x * lpos.x + lpos.y * lpos.y;
-    var factor = 1.0;
+    const textsize = el.textsize || defaultAppearance.textsize;
+    const bold = el.textbold === true;
+    const italics = el.textitalics === true;
+    const family = el.text_fontfamily || defaultAppearance.fontFamily;
+    const dist = lpos.x * lpos.x + lpos.y * lpos.y;
+    let factor = 1.0;
     if (dist > 0) {
         factor = 1.0 + el.size.value.real / Math.sqrt(dist);
     }
 
-    var alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
+    const alpha = el.alpha || CSNumber.real(defaultAppearance.alpha);
     eval_helper.drawtext([pos, General.wrap(lbl)], {
         xoffset: General.wrap(factor * lpos.x),
         yoffset: General.wrap(factor * lpos.y),
@@ -35,7 +35,7 @@ function drawlabel(el, lbl, pos, lpos, color) {
 
 function drawgeopoint(el) {
     if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog)) return;
-    var col = el.color;
+    let col = el.color;
     if (el.behavior) {
         col = el.color; //TODO Anpassen
         // col=List.realVector([0,0,1]);
@@ -48,12 +48,12 @@ function drawgeopoint(el) {
         border: el.border,
     });
     if (el.labeled && !el.tmp) {
-        var lbl = el.printname || el.name || "P";
-        var lpos = el.labelpos || {
+        const lbl = el.printname || el.name || "P";
+        const lpos = el.labelpos || {
             x: 3,
             y: 3,
         };
-        var color = Render2D.makeColor(defaultAppearance.textColor);
+        let color = Render2D.makeColor(defaultAppearance.textColor);
         if (el.noborder.value === true || el.border.value === false) color = col;
         drawlabel(el, lbl, el.homog, lpos, color);
     }
@@ -62,13 +62,13 @@ function drawgeopoint(el) {
 function drawgeoarc(el) {
     if (!el.isshowing || el.visible === false) return;
 
-    var modifs = {};
+    const modifs = {};
     modifs.color = el.color;
     modifs.alpha = el.alpha;
     modifs.size = el.size;
 
     // check if we have filled: true
-    var df = el.filled ? "F" : "D";
+    const df = el.filled ? "F" : "D";
 
     eval_helper.drawarc(el, modifs, df);
 }
@@ -76,7 +76,7 @@ function drawgeoarc(el) {
 function drawgeoconic(el) {
     if (!el.isshowing || el.visible === false) return;
 
-    var modifs = {};
+    const modifs = {};
     modifs.color = el.color;
     modifs.alpha = el.alpha;
     modifs.size = el.size;
@@ -85,11 +85,11 @@ function drawgeoconic(el) {
 }
 
 function drawgeoline(el) {
-    var pt1, pt2;
+    let pt1, pt2;
     if (!el.isshowing || el.visible === false || !List._helper.isAlmostReal(el.homog)) return;
 
     if (el.kind === "S") {
-        var modifs = {
+        const modifs = {
             overhang: el.overhang,
             dashtype: el.dashtype,
             size: el.size,
@@ -101,37 +101,37 @@ function drawgeoline(el) {
             arrowshape: el.arrowshape,
             arrowsides: el.arrowsides,
         };
-        var zz = CSNumber.mult(el.startpos.value[2], CSNumber.conjugate(el.endpos.value[2]));
+        const zz = CSNumber.mult(el.startpos.value[2], CSNumber.conjugate(el.endpos.value[2]));
         if (zz.value.real >= 0) {
             // finite segment
             evaluator.draw$2([el.startpos, el.endpos], modifs);
             if (el.labeled && !el.tmp) {
-                var lbl = el.printname || el.name || "S";
-                var orientedline = List.scalmult(
+                const lbl = el.printname || el.name || "S";
+                const orientedline = List.scalmult(
                     CSNumber.real(
                         Math.sign(el.startpos.value[2].value.real) * Math.sign(el.endpos.value[2].value.real)
                     ),
                     List.cross(el.startpos, el.endpos)
                 );
 
-                var npos = {
+                let npos = {
                     x: orientedline.value[0].value.real,
                     y: orientedline.value[1].value.real,
                 };
 
                 //normalize npos
-                var nposlength = Math.sqrt(npos.x * npos.x + npos.y * npos.y);
+                const nposlength = Math.sqrt(npos.x * npos.x + npos.y * npos.y);
 
                 // TODO: synchronize these constants with Cinderella
                 npos = {
                     x: (8 * npos.x) / nposlength - 3,
                     y: (8 * npos.y) / nposlength - 3,
                 };
-                var lpos = el.labelpos || npos;
-                var color = Render2D.makeColor(defaultAppearance.textColor);
+                const lpos = el.labelpos || npos;
+                const color = Render2D.makeColor(defaultAppearance.textColor);
 
                 // TODO: synchronize these constants with Cinderella
-                var pos = geoOps._helper.midpoint(geoOps._helper.midpoint(el.startpos, el.endpos), el.endpos);
+                const pos = geoOps._helper.midpoint(geoOps._helper.midpoint(el.startpos, el.endpos), el.endpos);
                 drawlabel(el, lbl, pos, lpos, color);
             }
             return;
@@ -157,16 +157,16 @@ function drawgeoline(el) {
     }
     if (el.clip.value === "inci") {
         // Figuring out incident points here.
-        var li = [];
-        var xmin = [+1000000, 0];
-        var xmax = [-1000000, 0];
-        var ymin = [+1000000, 0];
-        var ymax = [-1000000, 0];
-        for (var i = 0; i < el.incidences.length; i++) {
-            var pt = csgeo.csnames[el.incidences[i]].homog;
-            var x = pt.value[0];
-            var y = pt.value[1];
-            var z = pt.value[2];
+        const li = [];
+        let xmin = [+1000000, 0];
+        let xmax = [-1000000, 0];
+        let ymin = [+1000000, 0];
+        let ymax = [-1000000, 0];
+        for (let i = 0; i < el.incidences.length; i++) {
+            const pt = csgeo.csnames[el.incidences[i]].homog;
+            let x = pt.value[0];
+            let y = pt.value[1];
+            const z = pt.value[2];
 
             if (!CSNumber._helper.isAlmostZero(z)) {
                 x = CSNumber.div(x, z);
@@ -215,7 +215,7 @@ function drawgeoline(el) {
     });
 }
 
-var textCornerNames = {
+const textCornerNames = {
     UL: 0,
     UR: 1,
     LR: 2,
@@ -233,16 +233,16 @@ function drawgeotext(el) {
         }
         return;
     }
-    var opts = {
+    const opts = {
         size: el.size,
     };
-    var pos = el.homog;
-    var text = el.text;
-    var getText = geoOps[el.type].getText;
+    let pos = el.homog;
+    let text = el.text;
+    const getText = geoOps[el.type].getText;
     if (getText) text = getText(el);
     else
         text = text.replace(/@[$#]"([^"\\]|\\.)*"/g, function (match) {
-            var name, el2;
+            let name, el2;
             try {
                 name = JSON.parse(match.substring(2));
                 el2 = csgeo.csnames[name];
@@ -258,18 +258,18 @@ function drawgeotext(el) {
                     return niceprint(el2.value);
             }
         });
-    var htmlCallback = null;
+    let htmlCallback = null;
     if (el.html) {
-        var cache = el._textCache || {
+        const cache = el._textCache || {
             text: false,
         };
-        var label = el.html;
-        var inlinebox = label.parentNode;
-        var outer = inlinebox.parentNode;
+        const label = el.html;
+        const inlinebox = label.parentNode;
+        const outer = inlinebox.parentNode;
         htmlCallback = function (text, x, y, align, size) {
             x /= vscale;
             y /= vscale;
-            var font =
+            const font =
                 Render2D.bold + Render2D.italics + Math.round((size / vscale) * 10) / 10 + "px " + Render2D.family;
 
             if (cache.invisible) outer.style.removeProperty("display");
@@ -308,7 +308,7 @@ function drawgeotext(el) {
 
 function drawgeopolygon(el) {
     if (!el.isshowing || el.visible === false) return;
-    var modifs = {
+    const modifs = {
         color: el.color,
         alpha: el.alpha,
         fillcolor: el.fillcolor,
@@ -331,7 +331,7 @@ function drawgeoifs() {
 }
 
 function render() {
-    var i;
+    let i;
 
     for (i = 0; i < csgeo.polygons.length; i++) {
         drawgeopolygon(csgeo.polygons[i]);
@@ -362,7 +362,7 @@ function render() {
 // TODO Lines, ...
 // TODO tracedim
 function draw_traces() {
-    for (var i = 0; i < csgeo.points.length; i++) {
+    for (let i = 0; i < csgeo.points.length; i++) {
         var el = csgeo.points[i];
 
         if (!el.drawtrace) continue;
@@ -388,10 +388,10 @@ function draw_traces() {
     }
 
     function drawIt() {
-        var lev = k++ / el._traces.length;
-        var pos = el._traces[j];
+        const lev = k++ / el._traces.length;
+        const pos = el._traces[j];
         if (pos) {
-            var alpha = elAlpha * lev * lev * lev;
+            const alpha = elAlpha * lev * lev * lev;
             evaluator.draw$1([pos], {
                 size: CSNumber.real(size),
                 color: el.color,

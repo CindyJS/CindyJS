@@ -10,7 +10,7 @@ import { getGeoDependants, isShowing } from "libgeo/GeoBasics";
 import { geoOps } from "libgeo/GeoOps";
 
 function assert(condition, message) {
-    var msg = "Assertion failed: " + message;
+    const msg = "Assertion failed: " + message;
     if (condition) return;
     console.log(msg);
     shutdown();
@@ -18,18 +18,18 @@ function assert(condition, message) {
     throw new Error(msg);
 }
 
-var totalStateSize = 0;
+const totalStateSize = 0;
 // prover: prover is the backup for the state before we start proving, proverTmp will hold states which have been sucessfully traced
-var stateArrayNames = ["in", "out", "good", "backup", "prover"];
+const stateArrayNames = ["in", "out", "good", "backup", "prover"];
 // Initialize all state to zero-length arrays, can be reallocated later on
-var stateMasterArray = new Float64Array(0);
-var stateArrays = {};
+let stateMasterArray = new Float64Array(0);
+const stateArrays = {};
 stateArrayNames.forEach(function (name) {
     stateArrays[name] = stateMasterArray;
 });
-var stateIn = stateMasterArray;
-var stateOut = stateMasterArray;
-var stateLastGood = stateMasterArray;
+let stateIn = stateMasterArray;
+let stateOut = stateMasterArray;
+let stateLastGood = stateMasterArray;
 
 function setStateIn(state) {
     stateIn = state;
@@ -41,8 +41,8 @@ function setStateOut(state) {
 
 function stateAlloc(newSize) {
     if (newSize === stateLastGood.length) return;
-    var offset, i;
-    var states = stateArrayNames.length;
+    let offset, i;
+    const states = stateArrayNames.length;
     if (stateMasterArray.length < newSize * states) {
         // We really need to reallocate memory
         offset = newSize * 2; // include some reserve
@@ -56,7 +56,7 @@ function stateAlloc(newSize) {
     }
     // No array content is deliberately preserved by the above.
     // Now we do preserve the stateLastGood.
-    var oldStateLastGood = stateLastGood;
+    const oldStateLastGood = stateLastGood;
     stateIn = stateArrays.in;
     stateOut = stateArrays.out;
     stateLastGood = stateArrays.good;
@@ -75,17 +75,17 @@ function stateContinueFromHere() {
 
     // Make numbers which are almost real totally real. This avoids
     // accumulating errors in the imaginary part.
-    var n = stateLastGood.length;
-    var abs = Math.abs;
-    var epsInverse = 1e12;
-    for (var i = 0; i < n; i += 2) {
+    const n = stateLastGood.length;
+    const abs = Math.abs;
+    const epsInverse = 1e12;
+    for (let i = 0; i < n; i += 2) {
         if (abs(stateLastGood[i]) > abs(stateLastGood[i + 1]) * epsInverse) {
             stateLastGood[i + 1] = 0;
         }
     }
 }
 
-var stateInIdx, stateOutIdx;
+let stateInIdx, stateOutIdx;
 
 function setStateInIdx(idx) {
     stateInIdx = idx;
@@ -95,15 +95,17 @@ function setStateOutIdx(idx) {
     stateOutIdx = idx;
 }
 
-var tracingInitial, tracingFailed, noMoreRefinements;
+let tracingInitial;
+var tracingFailed;
+let noMoreRefinements;
 
 function setTracingInitial(s) {
     tracingInitial = s;
 }
 
-var inMouseMove = false;
+let inMouseMove = false;
 
-var RefineException = {
+const RefineException = {
     toString: function () {
         return "RefineException";
     },
@@ -129,10 +131,10 @@ function traceMouseAndScripts() {
     }
     inMouseMove = true;
     if (move) {
-        var mover = move.mover;
-        var sx = mouse.x + move.offset.x;
-        var sy = mouse.y + move.offset.y;
-        var pos = List.realVector([sx, sy, 1]);
+        const mover = move.mover;
+        const sx = mouse.x + move.offset.x;
+        const sy = mouse.y + move.offset.y;
+        const pos = List.realVector([sx, sy, 1]);
         traceMover(mover, pos, "mouse");
         move.prev.x = mouse.x;
         move.prev.y = mouse.y;
@@ -160,7 +162,7 @@ function movepointscr(mover, pos, type) {
 
 // Remember the last point which got moved.
 // @todo: be careful with this variable when doing automatic proving.
-var previousMover = null;
+let previousMover = null;
 
 /*
  * traceMover moves mover from current param to param for pos along a complex detour.
@@ -177,28 +179,28 @@ function traceMover(mover, pos, type) {
         stateContinueFromHere(); // make changes up to now permanent
     }
     stateOut.set(stateIn); // copy in to out, for elements we don't recalc
-    var traceLimit = 10000; // keep UI responsive in evil situations
-    var deps = getGeoDependants(mover);
-    var last = -1;
-    var step = 0.9; // two steps with the *1.25 scaling used below
-    var i, el, op;
-    var opMover = geoOps[mover.type];
-    var parameterPath = opMover.parameterPath || defaultParameterPath;
+    let traceLimit = 10000; // keep UI responsive in evil situations
+    const deps = getGeoDependants(mover);
+    let last = -1;
+    let step = 0.9; // two steps with the *1.25 scaling used below
+    let i, el, op;
+    const opMover = geoOps[mover.type];
+    const parameterPath = opMover.parameterPath || defaultParameterPath;
     stateInIdx = mover.stateIdx;
-    var originParam = opMover.getParamFromState(mover);
+    const originParam = opMover.getParamFromState(mover);
     stateInIdx = stateOutIdx = mover.stateIdx;
-    var targetParam = opMover.getParamForInput(mover, pos, type);
+    const targetParam = opMover.getParamForInput(mover, pos, type);
     //console.log("Tracing from " + niceprint(originParam) + " to " + niceprint(targetParam));
-    var t = last + step;
+    let t = last + step;
     while (last !== t) {
         // Rational parametrization of semicircle,
         // see http://jsperf.com/half-circle-parametrization
-        var t2 = t * t;
-        var dt = 0.5 / (1 + t2);
+        const t2 = t * t;
+        const dt = 0.5 / (1 + t2);
         var tc = CSNumber.complex(2 * t * dt + 0.5, (1 - t2) * dt);
         noMoreRefinements = last + 0.5 * step <= last || traceLimit === 0;
         if (traceLimit === 0) console.log("tracing limit Reached");
-        var refining = false;
+        let refining = false;
 
         if (traceLog && traceLog.currentMouseAndScripts) {
             traceLog.currentStep = [];
@@ -250,10 +252,10 @@ function traceMover(mover, pos, type) {
     // use own function to enable compiler optimization
     function traceOneStep() {
         stateInIdx = stateOutIdx = mover.stateIdx;
-        var param = parameterPath(mover, t, tc, originParam, targetParam);
+        const param = parameterPath(mover, t, tc, originParam, targetParam);
         if (traceLog) traceLog.currentParam = param;
 
-        var stateTmp = stateOut;
+        const stateTmp = stateOut;
         stateOut = stateIn;
         opMover.putParamToState(mover, param);
         stateOut = stateTmp;
@@ -287,22 +289,22 @@ function traceMover(mover, pos, type) {
 function recalcAll() {
     stateContinueFromHere();
     noMoreRefinements = true; // avoid exceptions requesting refinements
-    var gslp = csgeo.gslp;
-    for (var k = 0; k < gslp.length; k++) {
-        var el = gslp[k];
-        var op = geoOps[el.type];
+    const gslp = csgeo.gslp;
+    for (let k = 0; k < gslp.length; k++) {
+        const el = gslp[k];
+        const op = geoOps[el.type];
         stateInIdx = stateOutIdx = el.stateIdx;
         op.updatePosition(el, false);
         isShowing(el, op);
     }
-    var stateTmp = stateOut;
+    const stateTmp = stateOut;
     stateOut = stateIn;
     stateIn = stateTmp;
     stateContinueFromHere();
 }
 
 function tracingStateReport(failed) {
-    var arg = instanceInvocationArguments.tracingStateReport;
+    const arg = instanceInvocationArguments.tracingStateReport;
     if (typeof arg === "string") {
         document.getElementById(arg).textContent = failed ? "BAD" : "GOOD";
     }
@@ -337,25 +339,25 @@ function getTraceLog() {
 }
 
 function formatTraceLog(save) {
-    var str = JSON.stringify(traceLog.fullLog);
-    var type = save ? "application/octet-stream" : "application/json";
-    var blob = new Blob([str], {
+    const str = JSON.stringify(traceLog.fullLog);
+    const type = save ? "application/octet-stream" : "application/json";
+    const blob = new Blob([str], {
         type,
     });
-    var uri = window.URL.createObjectURL(blob);
+    const uri = window.URL.createObjectURL(blob);
     // var uri = 'data:text/html;base64,' + window.btoa(html);
     return uri;
 }
 
 function getStateComplexNumber() {
-    var i = stateInIdx;
+    const i = stateInIdx;
     stateInIdx += 2;
     return CSNumber.complex(stateIn[i], stateIn[i + 1]);
 }
 
 function getStateComplexVector(n) {
-    var lst = new Array(n);
-    for (var i = 0; i < n; ++i) lst[i] = getStateComplexNumber();
+    const lst = new Array(n);
+    for (let i = 0; i < n; ++i) lst[i] = getStateComplexNumber();
     return List.turnIntoCSList(lst);
 }
 
@@ -366,32 +368,32 @@ function putStateComplexNumber(c) {
 }
 
 function putStateComplexVector(v) {
-    for (var i = 0, n = v.value.length; i < n; ++i) putStateComplexNumber(v.value[i]);
+    for (let i = 0, n = v.value.length; i < n; ++i) putStateComplexNumber(v.value[i]);
 }
 
 function tracing2(n1, n2) {
-    var o1 = getStateComplexVector(3);
-    var o2 = getStateComplexVector(3);
-    var res = tracing2core(n1, n2, o1, o2);
+    const o1 = getStateComplexVector(3);
+    const o2 = getStateComplexVector(3);
+    const res = tracing2core(n1, n2, o1, o2);
     putStateComplexVector(res[0]);
     putStateComplexVector(res[1]);
     return List.turnIntoCSList(res);
 }
 
 function tracing2core(n1, n2, o1, o2) {
-    var safety = 3;
+    const safety = 3;
 
     if (tracingInitial) return [n1, n2];
 
-    var do1n1 = List.projectiveDistMinScal(o1, n1);
-    var do1n2 = List.projectiveDistMinScal(o1, n2);
-    var do2n1 = List.projectiveDistMinScal(o2, n1);
-    var do2n2 = List.projectiveDistMinScal(o2, n2);
-    var do1o2 = List.projectiveDistMinScal(o1, o2);
-    var dn1n2 = List.projectiveDistMinScal(n1, n2);
-    var cost1 = do1n1 + do2n2;
-    var cost2 = do1n2 + do2n1;
-    var cost, res;
+    const do1n1 = List.projectiveDistMinScal(o1, n1);
+    const do1n2 = List.projectiveDistMinScal(o1, n2);
+    const do2n1 = List.projectiveDistMinScal(o2, n1);
+    const do2n2 = List.projectiveDistMinScal(o2, n2);
+    const do1o2 = List.projectiveDistMinScal(o1, o2);
+    const dn1n2 = List.projectiveDistMinScal(n1, n2);
+    const cost1 = do1n1 + do2n2;
+    const cost2 = do1n2 + do2n1;
+    let cost, res;
 
     // Always sort output: we don't know yet whether it's correct, but
     // it's our best bet.
@@ -403,10 +405,10 @@ function tracing2core(n1, n2, o1, o2) {
         cost = cost1;
     }
 
-    var debug = function () {};
+    let debug = function () {};
     // debug = console.log.bind(console);
     if (traceLog && traceLog.currentStep) {
-        var logRow = [
+        const logRow = [
             traceLog.labelTracing2, //                        1
             General.wrap(traceLog.currentElement.name), //    2
             List.turnIntoCSList(res), //                      3
@@ -470,12 +472,12 @@ function tracing2core(n1, n2, o1, o2) {
 tracing2.stateSize = 12; // two three-element complex vectors
 
 function tracing4(n1, n2, n3, n4) {
-    var o1 = getStateComplexVector(3);
-    var o2 = getStateComplexVector(3);
-    var o3 = getStateComplexVector(3);
-    var o4 = getStateComplexVector(3);
+    const o1 = getStateComplexVector(3);
+    const o2 = getStateComplexVector(3);
+    const o3 = getStateComplexVector(3);
+    const o4 = getStateComplexVector(3);
 
-    var res = tracing4core(n1, n2, n3, n4, o1, o2, o3, o4);
+    const res = tracing4core(n1, n2, n3, n4, o1, o2, o3, o4);
 
     putStateComplexVector(res[0]);
     putStateComplexVector(res[1]);
@@ -486,27 +488,27 @@ function tracing4(n1, n2, n3, n4) {
 tracing4.stateSize = 24; // four three-element complex vectors
 
 function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
-    var debug = function () {};
+    let debug = function () {};
     // var debug = console.log.bind(console);
 
-    var useGreedy = false; // greedy or permutation?
-    var safety;
+    const useGreedy = false; // greedy or permutation?
+    let safety;
 
-    var old_el = [o1, o2, o3, o4];
-    var new_el = [n1, n2, n3, n4];
+    const old_el = [o1, o2, o3, o4];
+    const new_el = [n1, n2, n3, n4];
 
     // first we leave everything to input
     if (tracingInitial) return new_el;
 
-    var res, dist, i, j, distMatrix;
-    var min_cost = 0;
+    let res, dist, i, j, distMatrix;
+    let min_cost = 0;
 
     if (useGreedy) {
         safety = 3;
         res = new_el;
         for (i = 0; i < 4; i++) {
-            var idx = i;
-            var min_dist = List.projectiveDistMinScal(old_el[i], res[i]);
+            let idx = i;
+            let min_dist = List.projectiveDistMinScal(old_el[i], res[i]);
             for (j = i + 1; j < 4; j++) {
                 dist = List.projectiveDistMinScal(old_el[i], res[j]);
                 if (dist < min_dist) {
@@ -515,7 +517,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
                 }
             }
             // swap elements
-            var tmp = res[i];
+            const tmp = res[i];
             res[i] = res[idx];
             res[idx] = tmp;
             min_cost += min_dist;
@@ -533,7 +535,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
             }
         }
 
-        var bestperm = minCostMatching(distMatrix);
+        const bestperm = minCostMatching(distMatrix);
         res = new Array(4);
         for (i = 0; i < 4; ++i) {
             res[i] = new_el[bestperm[i]];
@@ -542,10 +544,10 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     } // end use greedy
 
     // assume now we have machting between res and old_el
-    var need_refine = false;
-    var match_cost = min_cost * safety;
-    var odist = Infinity;
-    var ndist = Infinity;
+    const need_refine = false;
+    const match_cost = min_cost * safety;
+    let odist = Infinity;
+    let ndist = Infinity;
 
     for (i = 0; i < 4; i++) {
         if (need_refine) break;
@@ -566,7 +568,7 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
     }
 
     if (traceLog && traceLog.currentStep) {
-        var logRow = [
+        const logRow = [
             traceLog.labelTracing4, //                        1
             General.wrap(traceLog.currentElement.name), //    2
             List.turnIntoCSList(res), //                      3
@@ -616,22 +618,22 @@ function tracing4core(n1, n2, n3, n4, o1, o2, o3, o4) {
 }
 
 function tracing2X(n1, n2, c1, c2, el) {
-    var OK = 0;
-    var DECREASE_STEP = 1;
-    var INVALID = 2;
-    var tooClose = el.tooClose || OK;
-    var safety = 3;
+    const OK = 0;
+    const DECREASE_STEP = 1;
+    const INVALID = 2;
+    let tooClose = el.tooClose || OK;
+    const safety = 3;
 
-    var do1n1 = List.projectiveDistMinScal(c1, n1);
-    var do1n2 = List.projectiveDistMinScal(c1, n2);
-    var do2n1 = List.projectiveDistMinScal(c2, n1);
-    var do2n2 = List.projectiveDistMinScal(c2, n2);
-    var do1o2 = List.projectiveDistMinScal(c1, c2);
-    var dn1n2 = List.projectiveDistMinScal(n1, n2);
+    const do1n1 = List.projectiveDistMinScal(c1, n1);
+    const do1n2 = List.projectiveDistMinScal(c1, n2);
+    const do2n1 = List.projectiveDistMinScal(c2, n1);
+    const do2n2 = List.projectiveDistMinScal(c2, n2);
+    const do1o2 = List.projectiveDistMinScal(c1, c2);
+    const dn1n2 = List.projectiveDistMinScal(n1, n2);
 
     //Das Kommt jetzt eins zu eins aus Cindy
 
-    var care = do1o2 > 0.000001;
+    const care = do1o2 > 0.000001;
 
     // First we try to assign the points
 
@@ -679,8 +681,8 @@ function tracingSesq(newVecs) {
      * to avoid taking square roots.
      */
 
-    var n = newVecs.length;
-    var i, j;
+    const n = newVecs.length;
+    let i, j;
 
     if (tracingInitial) {
         for (i = 0; i < n; ++i) {
@@ -690,19 +692,19 @@ function tracingSesq(newVecs) {
         return newVecs;
     }
 
-    var oldVecs = new Array(n);
-    var oldNorms = new Array(n);
-    var newNorms = new Array(n);
-    var oldMinCost = 99;
-    var newMinCost = 99;
-    var cost = new Array(n);
+    const oldVecs = new Array(n);
+    const oldNorms = new Array(n);
+    const newNorms = new Array(n);
+    let oldMinCost = 99;
+    let newMinCost = 99;
+    const cost = new Array(n);
     for (i = 0; i < n; ++i) {
         oldVecs[i] = getStateComplexVector(newVecs[i].value.length);
         oldNorms[i] = List.normSquared(oldVecs[i]).value.real;
         newNorms[i] = List.normSquared(newVecs[i]).value.real;
         cost[i] = new Array(n);
     }
-    var p, w;
+    let p, w;
     for (i = 0; i < n; ++i) {
         for (j = 0; j < n; ++j) {
             p = List.sesquilinearproduct(oldVecs[i], newVecs[j]).value;
@@ -718,21 +720,21 @@ function tracingSesq(newVecs) {
             if (newMinCost > 1 - w) newMinCost = 1 - w;
         }
     }
-    var m = minCostMatching(cost);
-    var res = new Array(n);
-    var resCost = 0;
-    var anyNaN = false;
+    const m = minCostMatching(cost);
+    const res = new Array(n);
+    let resCost = 0;
+    let anyNaN = false;
     for (i = 0; i < n; ++i) {
         resCost += cost[i][m[i]];
-        var v = (res[i] = newVecs[m[i]]);
+        const v = (res[i] = newVecs[m[i]]);
         putStateComplexVector(v);
         anyNaN |= List._helper.isNaN(v);
     }
     anyNaN |= isNaN(resCost);
-    var safety = 3;
-    var debug = function () {};
+    const safety = 3;
+    let debug = function () {};
     if (traceLog && traceLog.currentStep) {
-        var logRow = [
+        const logRow = [
             traceLog.labelTracingSesq, //                     1
             General.wrap(traceLog.currentElement.name), //    2
             List.turnIntoCSList(res), //                      3
@@ -789,15 +791,15 @@ function tracingSesq(newVecs) {
 }
 
 function tracing2Conics(c1, c2) {
-    var n1 = geoOps._helper.flattenConicMatrix(c1);
-    var n2 = geoOps._helper.flattenConicMatrix(c2);
-    var o1 = getStateComplexVector(6);
-    var o2 = getStateComplexVector(6);
-    var res = tracing2core(n1, n2, o1, o2);
+    const n1 = geoOps._helper.flattenConicMatrix(c1);
+    const n2 = geoOps._helper.flattenConicMatrix(c2);
+    const o1 = getStateComplexVector(6);
+    const o2 = getStateComplexVector(6);
+    const res = tracing2core(n1, n2, o1, o2);
     putStateComplexVector(res[0]);
     putStateComplexVector(res[1]);
-    var r1 = geoOps._helper.buildConicMatrix(res[0].value);
-    var r2 = geoOps._helper.buildConicMatrix(res[1].value);
+    const r1 = geoOps._helper.buildConicMatrix(res[0].value);
+    const r2 = geoOps._helper.buildConicMatrix(res[1].value);
     return List.turnIntoCSList([r1, r2]);
 }
 

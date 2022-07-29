@@ -2,9 +2,9 @@ import { csgeo, simaccuracy, simtime, setSimTime } from "Setup";
 import { cs_simulationstep } from "Events";
 import { labObjects } from "liblab/LabObjects";
 
-var lab = {};
+const lab = {};
 
-var doPri45 = {};
+const doPri45 = {};
 
 doPri45.a = [
     [],
@@ -20,7 +20,7 @@ doPri45.b1 = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
 doPri45.b2 = [5179 / 57600, 0, 7571 / 16695, 393 / 640, -92097 / 339200, 187 / 2100, 1 / 40];
 doPri45.size = 7; //is this 5, 6 or 7
 
-var fehlberg78 = {};
+const fehlberg78 = {};
 
 fehlberg78.a = [
     [],
@@ -44,15 +44,15 @@ fehlberg78.b2 = [41 / 840, 0, 0, 0, 0, 34 / 105, 9 / 35, 9 / 35, 9 / 280, 9 / 28
 fehlberg78.size = 13;
 
 //var rk = fehlberg78;
-var rk = doPri45;
-var behaviors;
-var masses = [];
-var springs = [];
-var csPhysicsInited = false;
+const rk = doPri45;
+let behaviors;
+let masses = [];
+let springs = [];
+let csPhysicsInited = false;
 
 function csresetphys() {
     behaviors.forEach(function (beh) {
-        var geo = (beh.geo || []).map(function (name) {
+        const geo = (beh.geo || []).map(function (name) {
             return csgeo.csnames[name];
         });
         labObjects[beh.type].reset(beh, geo[0], geo);
@@ -84,8 +84,8 @@ function csinitphys(behavs) {
         var geo = (beh.geo || []).map(function (name) {
             return csgeo.csnames[name];
         });
-        var mainGeo = geo[0]; // may be undefined!
-        var op = labObjects[beh.type];
+        const mainGeo = geo[0]; // may be undefined!
+        const op = labObjects[beh.type];
         if (!op) {
             console.error(beh);
             console.error("Behavior " + beh.type + " not implemented yet");
@@ -108,7 +108,7 @@ function csinitphys(behavs) {
 
 lab.tick = function (deltat) {
     deltat = deltat / simaccuracy;
-    for (var i = 0; i < simaccuracy; i++) {
+    for (let i = 0; i < simaccuracy; i++) {
         lab.tick1(deltat);
         setSimTime(simtime + deltat);
         cs_simulationstep();
@@ -116,10 +116,10 @@ lab.tick = function (deltat) {
 };
 
 lab.tick1 = function (deltat) {
-    var mydeltat = deltat;
+    let mydeltat = deltat;
 
-    var proceeded = 0;
-    var actualdelta;
+    let proceeded = 0;
+    let actualdelta;
 
     while ((deltat > 0 && proceeded < deltat * 0.999) || (deltat < 0 && proceeded > deltat * 0.999)) {
         actualdelta = lab.oneRKStep(mydeltat);
@@ -175,7 +175,7 @@ lab.moveToFinalPos = function () {
 };
 
 lab.oneRKStep = function (mydeltat) {
-    var initRKTimeStep = function (deltat) {
+    const initRKTimeStep = function (deltat) {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].initRK(beh, deltat);
             labObjects[beh.type].storePosition(beh);
@@ -188,7 +188,7 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var setToTimestep = function (j) {
+    const setToTimestep = function (j) {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].setToTimestep(beh, rk.dt[j]);
         });
@@ -199,7 +199,7 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var proceedMotion = function (j) {
+    const proceedMotion = function (j) {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].proceedMotion(beh, rk.dt[j], j, rk.a[j]);
         });
@@ -210,7 +210,7 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var resetForces = function () {
+    const resetForces = function () {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].resetForces(beh);
         });
@@ -221,7 +221,7 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var calculateDelta = function (j) {
+    const calculateDelta = function (j) {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].calculateDelta(beh, j);
         });
@@ -232,10 +232,10 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var calculateError = function (j) {
-        var error = 0;
+    const calculateError = function (j) {
+        let error = 0;
         behaviors.forEach(function (beh) {
-            var j = rk.size;
+            const j = rk.size;
             labObjects[beh.type].proceedMotion(beh, rk.dt[j - 1], j, rk.b1);
             labObjects[beh.type].savePos(beh, j + 1);
             labObjects[beh.type].proceedMotion(beh, rk.dt[j - 1], j, rk.b2);
@@ -260,7 +260,7 @@ lab.oneRKStep = function (mydeltat) {
         //return error;
     };
 
-    var recallInitialPosition = function (j) {
+    const recallInitialPosition = function (j) {
         behaviors.forEach(function (beh) {
             labObjects[beh.type].recallPosition(beh);
         });
@@ -272,18 +272,18 @@ lab.oneRKStep = function (mydeltat) {
         //}
     };
 
-    var rksize = rk.size;
-    var madeIt = false;
+    const rksize = rk.size;
+    let madeIt = false;
     while (!madeIt) {
         initRKTimeStep(mydeltat);
-        for (var j = 0; j < rksize; j++) {
+        for (let j = 0; j < rksize; j++) {
             setToTimestep(j);
             proceedMotion(j);
             resetForces();
             lab.calculateForces();
             calculateDelta(j);
         }
-        var error = calculateError(mydeltat);
+        const error = calculateError(mydeltat);
         //console.log(error);
         //console.log(mydeltat);
         if (error > labObjects.env.errorbound && mydeltat > labObjects.env.lowestdeltat) {

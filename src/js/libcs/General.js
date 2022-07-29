@@ -248,12 +248,13 @@ General.wrapJSON = function (data) {
             return General.string(data);
         case "boolean":
             return General.bool(data);
-        case "object":
+        case "object": {
             if (data === null) return nada;
             if (Array.isArray(data)) return List.turnIntoCSList(data.map(General.wrapJSON));
-            var d = Dict.create();
+            const d = Dict.create();
             for (const k in data) Dict.put(d, General.string(k), General.wrapJSON(data[k]));
             return d;
+        }
         default:
             console.log("Failed to convert " + typeof data + " to CindyJS data type");
             return nada;

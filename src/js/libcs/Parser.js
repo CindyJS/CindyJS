@@ -448,8 +448,8 @@ function parseRec(tokens, closing) {
     parseLoop: while (true) {
         tok = tokens.next();
         switch (tok.toktype) {
-            case "OP":
-                var op = operators[tok.text];
+            case "OP": {
+                let op = operators[tok.text];
                 if (
                     op.sym === "_" &&
                     seq.length &&
@@ -475,6 +475,7 @@ function parseRec(tokens, closing) {
                     parsejsonatom = true;
                 seq.push(tok);
                 break;
+            }
             case "ID":
                 tok.ctype = "variable";
                 tok.name = tok.text;
@@ -506,7 +507,7 @@ function parseRec(tokens, closing) {
             case "BRA": {
                 let bra = brackets.indexOf(tok.text);
                 if (tok.text === closing || bra & 1) break parseLoop;
-                var closer = brackets.charAt(bra + 1);
+                const closer = brackets.charAt(bra + 1);
                 const sub = parseRec(tokens, closer);
                 const ctok = sub.closedBy;
                 if (ctok.text !== closer)

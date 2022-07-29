@@ -2,16 +2,16 @@ import { Module } from "ifs/worker";
 
 Module["asm"] = function (global, env, buffer) {
     "use asm";
-    var a = new global.Int8Array(buffer);
-    var c = new global.Int32Array(buffer);
-    var d = new global.Uint8Array(buffer);
-    var h = new global.Float64Array(buffer);
-    var M = global.Math.abs;
-    var Z = global.Math.imul;
+    const a = new global.Int8Array(buffer);
+    const c = new global.Int32Array(buffer);
+    const d = new global.Uint8Array(buffer);
+    const h = new global.Float64Array(buffer);
+    const M = global.Math.abs;
+    const Z = global.Math.imul;
     function da(b, e) {
         b = b | 0;
         e = e | 0;
-        var f = 0,
+        let f = 0,
             g = 0,
             i = 0,
             j = 0.0,
@@ -175,7 +175,7 @@ Module["asm"] = function (global, env, buffer) {
         o = +o;
         p = +p;
         q = +q;
-        var r = 0,
+        let r = 0,
             s = 0;
         a = (56 + ((a * 56) | 0) + 52) | 0;
         s = c[((c[a >> 2] | 0) + (b << 2)) >> 2] | 0;
@@ -220,7 +220,7 @@ Module["asm"] = function (global, env, buffer) {
         o = +o;
         p = +p;
         q = +q;
-        var r = 0,
+        let r = 0,
             s = 0;
         a = (56 + ((a * 56) | 0) + 52) | 0;
         s = c[((c[a >> 2] | 0) + (b << 2)) >> 2] | 0;
@@ -284,7 +284,7 @@ Module["asm"] = function (global, env, buffer) {
     function fa(a, b) {
         a = a | 0;
         b = b | 0;
-        var d = 0;
+        let d = 0;
         d = (56 + ((a * 56) | 0)) | 0;
         c[d >> 2] = 0;
         c[(d + 4) >> 2] = 0;
