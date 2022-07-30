@@ -60,7 +60,7 @@ CSNumber._helper.niceangle = function (a) {
         CSNumber.realmult(unit * PERTWOPI, a),
         unit > 200 ? CSNumber._helper.angleroundingfactor : null
     );
-    if (num.indexOf("i*") === -1) return num + angleUnit;
+    if (!num.includes("i*")) return num + angleUnit;
     return "(" + num + ")" + angleUnit;
 };
 

@@ -347,7 +347,7 @@ Accessor.setField = function (geo, field, value) {
         }
     }
 
-    if (field === "narrow" && ["P", "C"].indexOf(geo.kind) !== -1) {
+    if (field === "narrow" && ["P", "C"].includes(geo.kind)) {
         if (value.ctype === "boolean") geo.narrow = value.value;
         if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
     }

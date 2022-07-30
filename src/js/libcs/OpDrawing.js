@@ -879,7 +879,7 @@ eval_helper.drawpolygon = function (args, modifs, df, cycle) {
 };
 
 function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
-    if (text.indexOf("\n") !== -1) {
+    if (text.includes("\n")) {
         let left = Infinity;
         let right = -Infinity;
         let top = Infinity;
@@ -928,7 +928,7 @@ function setTextRendererCanvas(canvas) {
 
 // This is a hook: the following function may get replaced by a plugin.
 let textRendererHtml = function (element, text, font) {
-    if (text.indexOf("\n") !== -1) {
+    if (text.includes("\n")) {
         // TODO: find a way to align the element by its FIRST row
         // as Cinderella does it, instead of by the last row as we do now.
         const rows = text.split("\n");
@@ -1170,16 +1170,16 @@ evaluator.plot$2 = function (args, modifs) {
     } else {
         const li = eval_helper.plotvars(v1);
         runv = "#";
-        if (li.indexOf("t") !== -1) {
+        if (li.includes("t")) {
             runv = "t";
         }
-        if (li.indexOf("z") !== -1) {
+        if (li.includes("z")) {
             runv = "z";
         }
-        if (li.indexOf("y") !== -1) {
+        if (li.includes("y")) {
             runv = "y";
         }
-        if (li.indexOf("x") !== -1) {
+        if (li.includes("x")) {
             runv = "x";
         }
     }
@@ -1383,16 +1383,16 @@ evaluator.plotX$1 = function (args, modifs) {
     const v1 = args[0];
     const li = eval_helper.plotvars(v1);
     let runv = "#";
-    if (li.indexOf("t") !== -1) {
+    if (li.includes("t")) {
         runv = "t";
     }
-    if (li.indexOf("z") !== -1) {
+    if (li.includes("z")) {
         runv = "z";
     }
-    if (li.indexOf("y") !== -1) {
+    if (li.includes("y")) {
         runv = "y";
     }
-    if (li.indexOf("x") !== -1) {
+    if (li.includes("x")) {
         runv = "x";
     }
 

@@ -572,7 +572,7 @@ eval_helper.assigntake = function (data, what) {
     }
     if (where.ctype === "JSON") {
         const key = niceprint(ind);
-        if (niceprint.errorTypes.indexOf(key) === -1) {
+        if (!niceprint.errorTypes.includes(key)) {
             rhs = Json._helper.ShallowClone(where);
             rhs.value[key] = evaluate(what);
         }
@@ -2628,7 +2628,7 @@ function infix_take(args, modifs) {
         }
     } else if (v0.ctype === "JSON") {
         let np = niceprint(v1);
-        if (niceprint.errorTypes.indexOf(np) !== -1) {
+        if (niceprint.errorTypes.includes(np)) {
             return nada;
         }
         let val = v0.value[np];
@@ -4581,12 +4581,12 @@ evaluator.generateWebGL$2 = function (args, modifs) {
     console.log(li);
 
     if (
-        li.indexOf("a") === -1 &&
-        li.indexOf("b") === -1 &&
-        li.indexOf("c") === -1 &&
-        li.indexOf("d") === -1 &&
-        li.indexOf("e") === -1 &&
-        li.indexOf("f") === -1
+        !li.includes("a") &&
+        !li.includes("b") &&
+        !li.includes("c") &&
+        !li.includes("d") &&
+        !li.includes("e") &&
+        !li.includes("f")
     ) {
         const erg = evaluateAndVal(expr);
         expr = erg;
@@ -4728,12 +4728,12 @@ evaluator.compileToWebGL$1 = function (args, modifs) {
     const li = eval_helper.plotvars(expr);
 
     if (
-        li.indexOf("a") === -1 &&
-        li.indexOf("b") === -1 &&
-        li.indexOf("c") === -1 &&
-        li.indexOf("d") === -1 &&
-        li.indexOf("e") === -1 &&
-        li.indexOf("f") === -1
+        !li.includes("a") &&
+        !li.includes("b") &&
+        !li.includes("c") &&
+        !li.includes("d") &&
+        !li.includes("e") &&
+        !li.includes("f")
     ) {
         const erg = evaluateAndVal(expr);
         expr = erg;
