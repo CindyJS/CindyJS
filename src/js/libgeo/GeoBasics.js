@@ -543,18 +543,19 @@ function getGeoDependants(mover) {
     deps = [];
     depSet[mover.name] = mover;
     const gslp = csgeo.gslp;
-    for (let i = 0; i < gslp.length; ++i) {
-        const el = gslp[i];
+
+    for (const el of gslp) {
         const args = el.args;
         if (!args) continue;
-        for (let j = 0; j < args.length; ++j) {
-            const arg = args[j];
+
+        for (const arg of args) {
             if (depSet.hasOwnProperty(arg)) {
                 depSet[el.name] = el;
                 deps[k++] = el;
             }
         }
     }
+
     geoDependantsCache[mover.name] = deps;
     /*
     console.log("getGeoDependants(" + mover.name + ") := [" +

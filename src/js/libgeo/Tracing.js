@@ -290,13 +290,14 @@ function recalcAll() {
     stateContinueFromHere();
     noMoreRefinements = true; // avoid exceptions requesting refinements
     const gslp = csgeo.gslp;
-    for (let k = 0; k < gslp.length; k++) {
-        const el = gslp[k];
+
+    for (const el of gslp) {
         const op = geoOps[el.type];
         stateInIdx = stateOutIdx = el.stateIdx;
         op.updatePosition(el, false);
         isShowing(el, op);
     }
+
     const stateTmp = stateOut;
     stateOut = stateIn;
     stateIn = stateTmp;

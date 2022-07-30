@@ -52,8 +52,8 @@ function getmover(mouse) {
     let mov = null;
     let adist = 1000000;
     let diff;
-    for (let i = 0; i < csgeo.free.length; i++) {
-        const el = csgeo.free[i];
+
+    for (const el of csgeo.free) {
         if (el.pinned || el.visible === false || el.tmp === true) continue;
 
         let dx, dy, dist, p;
@@ -132,6 +132,7 @@ function getmover(mouse) {
             };
         }
     }
+
     console.log("Moving " + (mov ? mov.name : "nothing"));
     if (mov === null) return null;
     return {

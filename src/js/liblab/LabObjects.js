@@ -408,8 +408,8 @@ labObjects.Sun = {
         const x1 = beh.x;
         const y1 = beh.y;
         const z1 = beh.z;
-        for (let i = 0; i < masses.length; i++) {
-            const m = masses[i];
+
+        for (const m of masses) {
             const x2 = m.behavior.x;
             const y2 = m.behavior.y;
             const z2 = m.behavior.z;
@@ -553,9 +553,8 @@ labObjects.Gravity = {
         const fx = (xb - xa) * beh.strength;
         const fy = (yb - ya) * beh.strength;
         const fz = 0;
-        for (let i = 0; i < masses.length; i++) {
-            const m = masses[i];
 
+        for (const m of masses) {
             m.behavior.fx += fx * m.behavior.mass;
             m.behavior.fy += fy * m.behavior.mass;
             m.behavior.fz += fz * m.behavior.mass;
@@ -779,9 +778,7 @@ labObjects.Bouncer = {
         const nx = (x1 - x2) / n;
         const ny = (y1 - y2) / n;
 
-        for (let i = 0; i < masses.length; i++) {
-            const mass = masses[i];
-
+        for (const mass of masses) {
             //a1=x1o+i*y1o
             //b1=x2o+i*y2o
             //c1=mass.xo+i*mass.yo
@@ -844,6 +841,7 @@ labObjects.Bouncer = {
                 mass.behavior.vy += nx * ss2 * (1.0 - beh.ydamp);
             }
         }
+
         beh.x1o = x1;
         beh.y1o = y1;
         beh.x2o = x2;

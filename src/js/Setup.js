@@ -121,8 +121,7 @@ function updateCanvasDimensions() {
     csctx.setTransform(1 / vscale, 0, 0, 1 / vscale, 0, 0); // reset
     csport.setMat(25, 0, 0, 25, 250.5, 250.5); // reset
     if (trafos) {
-        for (let i = 0; i < trafos.length; i++) {
-            const trafo = trafos[i];
+        for (const trafo of trafos) {
             const trname = Object.keys(trafo)[0];
             if (trname === "scale") {
                 csscale = trafo.scale;
@@ -752,12 +751,13 @@ function backupGeo() {
     const state = stateArrays.backup;
     state.set(stateIn);
     const speeds = {};
-    for (let i = 0; i < csgeo.points.length; i++) {
-        const el = csgeo.points[i];
+
+    for (const el of csgeo.points) {
         if (typeof el.behavior !== "undefined") {
             speeds[el.name] = [el.behavior.vx, el.behavior.vy, el.behavior.vz];
         }
     }
+
     backup = {
         state,
         speeds,
