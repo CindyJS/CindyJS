@@ -1,9 +1,9 @@
 import { vscale, csw, csh } from "Setup";
 import { List } from "libcs/List";
 
-var csgstorage = {};
+const csgstorage = {};
 
-var csport = {};
+const csport = {};
 csport.drawingstate = {};
 csport.drawingstate.linecolor = "rgb(0,0,255)";
 csport.drawingstate.linecolorraw = [0, 0, 1];
@@ -42,16 +42,16 @@ csport.drawingstate.initialmatrix.sdet = csport.drawingstate.matrix.sdet;
 csport.clone = function (obj) {
     if (obj === null || typeof obj !== "object") return obj;
 
-    var temp = obj.constructor(); // changed
+    const temp = obj.constructor(); // changed
 
-    for (var key in obj) temp[key] = csport.clone(obj[key]);
+    for (const key in obj) temp[key] = csport.clone(obj[key]);
     return temp;
 };
 
 csgstorage.backup = csport.clone(csport.drawingstate);
 csgstorage.stack = [];
 
-var back = csport.clone(csport.drawingstate);
+const back = csport.clone(csport.drawingstate);
 
 csport.reset = function () {
     csport.drawingstate.matrix.a = csport.drawingstate.initialmatrix.a;
@@ -66,27 +66,27 @@ csport.reset = function () {
 
 // Convert homogeneous user coordinates to Euclidean (CSS) pixel coordinates. Scaling due virtualwidth/virtualheight is taken in consideration. Usable for inputs
 csport.from = function (x, y, z) {
-    var xx = x / z;
-    var yy = y / z;
-    var m = csport.drawingstate.matrix;
-    var xxx = xx * m.a - yy * m.b + m.tx;
-    var yyy = xx * m.c - yy * m.d - m.ty;
+    const xx = x / z;
+    const yy = y / z;
+    const m = csport.drawingstate.matrix;
+    const xxx = xx * m.a - yy * m.b + m.tx;
+    const yyy = xx * m.c - yy * m.d - m.ty;
     return [xxx / vscale, yyy / vscale];
 };
 
 // Convert Euclidean (CSS) pixel coordinates to homogeneous user coordinates. Scaling due virtualwidth/virtualheight is taken in consideration. Usable for inputs
 csport.to = function (px, py) {
-    var m = csport.drawingstate.matrix;
-    var xx = px * vscale - m.tx;
-    var yy = py * vscale + m.ty;
-    var x = (xx * m.d - yy * m.b) / m.det;
-    var y = -(-xx * m.c + yy * m.a) / m.det;
+    const m = csport.drawingstate.matrix;
+    const xx = px * vscale - m.tx;
+    const yy = py * vscale + m.ty;
+    const x = (xx * m.d - yy * m.b) / m.det;
+    const y = -(-xx * m.c + yy * m.a) / m.det;
     return [x, y, 1];
 };
 
 // Homogeneous matrix representation of csport.to (without vscale). Suitable for transformations from the canvas-coordinate space.
 csport.toMat = function () {
-    var m = csport.drawingstate.matrix;
+    const m = csport.drawingstate.matrix;
     return List.realMatrix([
         [m.d, -m.b, -m.tx * m.d - m.ty * m.b],
         [m.c, -m.a, -m.tx * m.c - m.ty * m.a],
@@ -98,7 +98,7 @@ csport.dumpTrafo = function () {
     function r(x) {
         return Math.round(x * 1000) / 1000;
     }
-    var m = csport.drawingstate.matrix;
+    const m = csport.drawingstate.matrix;
 
     console.log(
         "a:" +
@@ -122,7 +122,7 @@ csport.dumpTrafo = function () {
 };
 
 csport.setMat = function (a, b, c, d, tx, ty) {
-    var m = csport.drawingstate.matrix;
+    const m = csport.drawingstate.matrix;
     m.a = a;
     m.b = b;
     m.c = c;
@@ -138,13 +138,13 @@ csport.scaleAndOrigin = function (scale, originX, originY) {
 };
 
 csport.visibleRect = function (left, top, right, bottom) {
-    var width = right - left;
-    var height = top - bottom;
-    var scale;
+    const width = right - left;
+    const height = top - bottom;
+    let scale;
     if (csw * height < csh * width) scale = csw / width;
     else scale = csh / height;
-    var originX = (csw - scale * (left + right)) / 2;
-    var originY = (csh - scale * (top + bottom)) / 2;
+    const originX = (csw - scale * (left + right)) / 2;
+    const originY = (csh - scale * (top + bottom)) / 2;
     csport.setMat(scale, 0, 0, scale, originX, originY);
 };
 
@@ -152,7 +152,7 @@ csport.visibleRect = function (left, top, right, bottom) {
 // portion of the matrix is multiplied from the left, but the
 // translation is multiplied from the right. Very confusing!
 csport.applyMat = function (a, b, c, d, tx, ty) {
-    var m = csport.drawingstate.matrix;
+    const m = csport.drawingstate.matrix;
     csport.setMat(
         m.a * a + m.c * b,
         m.b * a + m.d * b,
@@ -168,8 +168,8 @@ csport.translate = function (tx, ty) {
 };
 
 csport.rotate = function (w) {
-    var c = Math.cos(w);
-    var s = Math.sin(w);
+    const c = Math.cos(w);
+    const s = Math.sin(w);
     csport.applyMat(c, s, -s, c, 0, 0);
 };
 
@@ -207,9 +207,9 @@ csport.createnewbackup = function () {
 };
 
 csport.makecolor = function (r, g, b) {
-    var rv = Math.floor(r * 255);
-    var gv = Math.floor(g * 255);
-    var bv = Math.floor(b * 255);
+    const rv = Math.floor(r * 255);
+    const gv = Math.floor(g * 255);
+    const bv = Math.floor(b * 255);
     if (csport.drawingstate.alpha === 1) {
         return "rgb(" + rv + "," + gv + "," + bv + ")";
     } else {
@@ -218,33 +218,33 @@ csport.makecolor = function (r, g, b) {
 };
 
 csport.setcolor = function (co) {
-    var r = co.value[0].value.real;
-    var g = co.value[1].value.real;
-    var b = co.value[2].value.real;
+    const r = co.value[0].value.real;
+    const g = co.value[1].value.real;
+    const b = co.value[2].value.real;
     csport.drawingstate.linecolor = csport.drawingstate.pointcolor = csport.makecolor(r, g, b);
     csport.drawingstate.linecolorraw = csport.drawingstate.pointcolorraw = [r, g, b];
 };
 
 csport.setlinecolor = function (co) {
-    var r = co.value[0].value.real;
-    var g = co.value[1].value.real;
-    var b = co.value[2].value.real;
+    const r = co.value[0].value.real;
+    const g = co.value[1].value.real;
+    const b = co.value[2].value.real;
     csport.drawingstate.linecolor = csport.makecolor(r, g, b);
     csport.drawingstate.linecolorraw = [r, g, b];
 };
 
 csport.settextcolor = function (co) {
-    var r = co.value[0].value.real;
-    var g = co.value[1].value.real;
-    var b = co.value[2].value.real;
+    const r = co.value[0].value.real;
+    const g = co.value[1].value.real;
+    const b = co.value[2].value.real;
     csport.drawingstate.textcolor = csport.makecolor(r, g, b);
     csport.drawingstate.textcolorraw = [r, g, b];
 };
 
 csport.setpointcolor = function (co) {
-    var r = co.value[0].value.real;
-    var g = co.value[1].value.real;
-    var b = co.value[2].value.real;
+    const r = co.value[0].value.real;
+    const g = co.value[1].value.real;
+    const b = co.value[2].value.real;
     csport.drawingstate.pointcolor = csport.makecolor(r, g, b);
     csport.drawingstate.pointcolorraw = [r, g, b];
 };

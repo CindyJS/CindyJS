@@ -6,12 +6,12 @@ import { statusbar } from "libcs/Operators";
 import { csport } from "libgeo/GeoState";
 import { removeElement, addElement } from "libgeo/GeoBasics";
 
-var activeTool = "Move"; // Current selected tool
-var element; // The constructed element
-var elements = []; // Contains all grabbed or temporary created elements (except the constructed "element" above)
-var idx = 0; // Next free index for the elements array
-var pIndex = 0; // Current element index
-var step = 0; // Current step
+let activeTool = "Move"; // Current selected tool
+let element; // The constructed element
+let elements = []; // Contains all grabbed or temporary created elements (except the constructed "element" above)
+let idx = 0; // Next free index for the elements array
+let pIndex = 0; // Current element index
+let step = 0; // Current step
 
 /**
  * Returns the current element at mouse
@@ -22,21 +22,19 @@ var step = 0; // Current step
  * @returns {*}
  */
 function getElementAtMouse(mouse) {
-    var mov = null;
-    var adist = 1000000;
-    var diff;
+    let mov = null;
+    let adist = 1000000;
+    let diff;
 
     console.log("getElementAtMouse");
 
-    for (var i = 0; i < csgeo.gslp.length; i++) {
-        var el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.pinned || el.visible === false || el.tmp === true) continue;
 
-        var dx, dy, dist;
-        var sc = csport.drawingstate.matrix.sdet;
+        let dx, dy, dist;
+        const sc = csport.drawingstate.matrix.sdet;
         if (el.kind === "P") {
-            var p = List.normalizeZ(el.homog);
+            const p = List.normalizeZ(el.homog);
             if (!List._helper.isAlmostReal(p)) continue;
             dx = p.value[0].value.real - mouse.x;
             dy = p.value[1].value.real - mouse.y;
@@ -44,8 +42,8 @@ function getElementAtMouse(mouse) {
             if (el.narrow & (dist > 20 / sc)) dist = 10000;
         } else if (el.kind === "C") {
             //Must be CircleMr
-            var mid = csgeo.csnames[el.args[0]];
-            var rad = 0;
+            const mid = csgeo.csnames[el.args[0]];
+            let rad = 0;
 
             //console.log(el.radius);
 
@@ -69,11 +67,11 @@ function getElementAtMouse(mouse) {
                 console.log(rad);*/
             }
 
-            var xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
-            var yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
+            const xx = CSNumber.div(mid.homog.value[0], mid.homog.value[2]).value.real;
+            const yy = CSNumber.div(mid.homog.value[1], mid.homog.value[2]).value.real;
             dx = xx - mouse.x;
             dy = yy - mouse.y;
-            var ref = Math.sqrt(dx * dx + dy * dy);
+            const ref = Math.sqrt(dx * dx + dy * dy);
 
             dist = ref - rad;
             dx = 0;
@@ -85,10 +83,10 @@ function getElementAtMouse(mouse) {
             dist = dist + 30 / sc;
         } else if (el.kind === "L" || el.kind === "S") {
             //Must be ThroughPoint(Horizontal/Vertical not treated yet)
-            var l = el.homog;
-            var N = CSNumber;
-            var nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])), N.mult(l.value[1], N.conjugate(l.value[1])));
-            var ln = List.scaldiv(N.sqrt(nn), l);
+            const l = el.homog;
+            const N = CSNumber;
+            const nn = N.add(N.mult(l.value[0], N.conjugate(l.value[0])), N.mult(l.value[1], N.conjugate(l.value[1])));
+            const ln = List.scaldiv(N.sqrt(nn), l);
             dist = ln.value[0].value.real * mouse.x + ln.value[1].value.real * mouse.y + ln.value[2].value.real;
             dx = ln.value[0].value.real * dist;
             dy = ln.value[1].value.real * dist;
@@ -129,7 +127,7 @@ function getElementAtMouse(mouse) {
 function setActiveTool(tool) {
     activeTool = tool;
 
-    var actions = tools[activeTool].actions;
+    const actions = tools[activeTool].actions;
 
     if (statusbar) {
         statusbar.textContent = actions[0].tooltip || "";
@@ -155,9 +153,7 @@ function getNextFreeName() {
  * Removes all temporary created elements
  */
 function removeTmpElements() {
-    for (var i = 0; i < csgeo.gslp.length; i++) {
-        var el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.tmp === true) {
             removeElement(el.name);
         }
@@ -168,9 +164,7 @@ function removeTmpElements() {
  * Makes tmp elements to regular elements
  */
 function adoptTmpElements() {
-    for (var i = 0; i < csgeo.gslp.length; i++) {
-        var el = csgeo.gslp[i];
-
+    for (const el of csgeo.gslp) {
         if (el.tmp === true) {
             el.tmp = false;
         }
@@ -184,10 +178,10 @@ function adoptTmpElements() {
  * @param event
  */
 function manage(event) {
-    var actions = tools[activeTool].actions;
+    const actions = tools[activeTool].actions;
 
     if (actions[step].event === event) {
-        var success = actions[step].do();
+        const success = actions[step].do();
 
         if (success) {
             scheduleUpdate();
@@ -266,7 +260,7 @@ function setElementAtMouse(element) {
  * Grabs a point if it is present at mouse or creates a temporary one
  */
 function grabPoint() {
-    var el = getElementAtMouse(mouse);
+    const el = getElementAtMouse(mouse);
 
     if (isPointAtMouse(el)) {
         elements[idx] = el.mover;
@@ -290,7 +284,7 @@ function grabPoint() {
  * @returns {boolean}
  */
 function grabLine() {
-    var el = getElementAtMouse(mouse);
+    const el = getElementAtMouse(mouse);
 
     if (isLineAtMouse(el)) {
         elements[idx] = el.mover;
@@ -309,7 +303,7 @@ function grabLine() {
  * @returns {boolean}
  */
 function grabLineOrConic() {
-    var el = getElementAtMouse(mouse);
+    const el = getElementAtMouse(mouse);
 
     if (isLineAtMouse(el) || isConicAtMouse(el)) {
         elements[idx] = el.mover;
@@ -326,7 +320,7 @@ function grabLineOrConic() {
  * Grabs the last point if it is present at mouse or uses the temporary created one
  */
 function grabLastPoint() {
-    var p2 = getElementAtMouse(mouse);
+    const p2 = getElementAtMouse(mouse);
 
     if (isPointAtMouse(p2)) {
         element.args[1] = p2.mover.name;
@@ -342,7 +336,7 @@ function grabLastPoint() {
  * @param type
  */
 function create(type) {
-    var tmpPoint = {
+    let tmpPoint = {
         type: "Free",
         name: getNextFreeName(),
         labeled: true,
@@ -353,7 +347,7 @@ function create(type) {
     tmpPoint = addElement(tmpPoint);
 
     element = addElement({
-        type: type,
+        type,
         name: getNextFreeName(),
         labeled: true,
         args: [elements[0].name, tmpPoint.name],
@@ -577,7 +571,7 @@ tools.Parallel.actions[0].do = function () {
 tools.Parallel.actions[1] = {};
 tools.Parallel.actions[1].event = "mousemove";
 tools.Parallel.actions[1].do = function () {
-    var tmpPoint = {
+    let tmpPoint = {
         type: "Free",
         name: getNextFreeName(),
         labeled: true,
@@ -615,7 +609,7 @@ tools.Orthogonal.actions[0].event = "mousedown";
 tools.Orthogonal.actions[0].tooltip = "Construct a orthogonal line by dragging a line";
 tools.Orthogonal.actions[0].do = function () {
     if (grabLine()) {
-        var tmpPoint = {
+        let tmpPoint = {
             type: "Free",
             name: getNextFreeName(),
             labeled: true,

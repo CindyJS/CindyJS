@@ -12,7 +12,7 @@ import { geoOps } from "libgeo/GeoOps";
 // and here are the accessors for properties and elements
 //*************************************************************
 
-var Accessor = {};
+const Accessor = {};
 
 Accessor.generalFields = {
     // fieldname translation
@@ -48,7 +48,7 @@ Accessor.setGeoField = function (geoname, field, value) {
 };
 
 Accessor.getField = function (geo, field) {
-    var erg;
+    let erg;
     if (geo.kind === "P") {
         if (field === "xy") {
             erg = List.dehom(geo.homog);
@@ -90,16 +90,16 @@ Accessor.getField = function (geo, field) {
     if (geo.kind === "C") {
         if (field === "radius") {
             //Assumes that we have a circle
-            var s = geo.matrix;
-            var ax = s.value[0].value[0];
-            var az = s.value[0].value[2];
-            var bz = s.value[1].value[2];
-            var cz = s.value[2].value[2];
+            const s = geo.matrix;
+            const ax = s.value[0].value[0];
+            const az = s.value[0].value[2];
+            const bz = s.value[1].value[2];
+            const cz = s.value[2].value[2];
 
-            var n = CSNumber.mult(ax, ax);
-            var aa = CSNumber.div(az, ax);
-            var bb = CSNumber.div(bz, ax);
-            var cc = CSNumber.div(cz, ax);
+            const n = CSNumber.mult(ax, ax);
+            const aa = CSNumber.div(az, ax);
+            const bb = CSNumber.div(bz, ax);
+            const cc = CSNumber.div(cz, ax);
             erg = CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa, aa), CSNumber.mult(bb, bb)), cc));
 
             return erg;
@@ -114,7 +114,7 @@ Accessor.getField = function (geo, field) {
         }
 
         if (field === "center") {
-            var cen = geoOps._helper.CenterOfConic(geo.matrix);
+            let cen = geoOps._helper.CenterOfConic(geo.matrix);
             cen = List.dehom(cen);
             return General.withUsage(cen, "Point");
         }
@@ -202,7 +202,7 @@ Accessor.getField = function (geo, field) {
             return CSNumber.real(geo.behavior.ldiff);
         }
     }
-    var getter = geoOps[geo.type]["get_" + field];
+    const getter = geoOps[geo.type]["get_" + field];
     if (typeof getter === "function") {
         return getter(geo);
     }
@@ -210,7 +210,7 @@ Accessor.getField = function (geo, field) {
 };
 
 Accessor.setField = function (geo, field, value) {
-    var dir;
+    let dir;
 
     if (field === "color" && List._helper.isNumberVecN(value, 3)) {
         geo.color = value;
@@ -347,19 +347,19 @@ Accessor.setField = function (geo, field, value) {
         }
     }
 
-    if (field === "narrow" && ["P", "C"].indexOf(geo.kind) !== -1) {
+    if (field === "narrow" && ["P", "C"].includes(geo.kind)) {
         if (value.ctype === "boolean") geo.narrow = value.value;
         if (value.ctype === "number" && CSNumber._helper.isAlmostReal(value)) geo.narrow = value.value.real;
     }
 
-    var setter = geoOps[geo.type]["set_" + field];
+    const setter = geoOps[geo.type]["set_" + field];
     if (typeof setter === "function") {
         return setter(geo, value);
     }
 };
 
 Accessor.getuserData = function (obj, key) {
-    var val;
+    let val;
     if (key.ctype === "string" && obj.userData && obj.userData[key.value]) val = obj.userData[key.value];
 
     if (val && val.ctype) {

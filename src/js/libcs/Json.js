@@ -5,7 +5,7 @@ import { namespace } from "libcs/Namespace";
 import { evaluate } from "libcs/Evaluator";
 
 // CindyScript JSON
-var Json = {};
+const Json = {};
 Json._helper = {};
 
 Json.turnIntoCSJson = function (a) {
@@ -16,7 +16,7 @@ Json.turnIntoCSJson = function (a) {
 };
 
 Json._helper.ShallowClone = function (o) {
-    var out, v, key;
+    let out, v, key;
     out = Array.isArray(o) ? [] : {};
     for (key in o) {
         v = o[key];
@@ -41,8 +41,8 @@ Json.setField = function (where, field, what) {
 };
 
 Json.GenFromUserDataEl = function (el) {
-    var key = el.key;
-    var obj = el.value;
+    const key = el.key;
+    const obj = el.value;
 
     if (!key || key.ctype !== "string") {
         console.log("Error: JSON keys have to be strings.");
@@ -74,12 +74,12 @@ Json._helper.GenJSONAtom = function (key, val) {
 Json._helper.forall = function (li, runVar, fct, modifs) {
     // JSON
     // default iterate over values in JSON
-    var iteratorType = "value";
-    var res;
+    let iteratorType = "value";
+    let res;
     if (modifs.iterator !== undefined) {
         let it = evaluate(modifs.iterator);
         let iterTypes = ["key", "value", "pair"];
-        if (it.ctype === "string" && iterTypes.indexOf(it.value) !== -1) {
+        if (it.ctype === "string" && iterTypes.includes(it.value)) {
             iteratorType = it.value;
         }
     }
@@ -132,13 +132,13 @@ Json.niceprint = function (el, modifs, options) {
         }
     }
 
-    var visitedMap = options.visitedMap;
+    const visitedMap = options.visitedMap;
     // track a new recursive call
     visitedMap.newLevel = true;
     visitedMap.level += 1;
 
-    var keys = Object.keys(el.value).sort();
-    var jsonString =
+    const keys = Object.keys(el.value).sort();
+    const jsonString =
         "{" +
         keys
             .map(function (key) {

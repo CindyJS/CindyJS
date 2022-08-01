@@ -12,7 +12,7 @@ import { niceprint } from "libcs/Essentials";
  * To keep overhead low, avoid deeply nested data structures as keys.
  */
 
-var Dict = {};
+const Dict = {};
 
 Dict.key = function (x) {
     if (x.ctype === "string") return "s" + x.value.length + ":" + x.value + ";";
@@ -20,7 +20,7 @@ Dict.key = function (x) {
     if (x.ctype === "list") return "l" + x.value.length + ":" + x.value.map(Dict.key).join(",") + ";";
     if (x.ctype === "boolean") return "b" + x.value + ";";
     if (x.ctype === "dict") {
-        var keys = Object.keys(x.value).sort();
+        const keys = Object.keys(x.value).sort();
         return "d" + keys.length + ":" + keys.join(",") + ";";
     }
     if (x.ctype !== "undefined") csconsole.err("Bad dictionary key: " + niceprint(x));
@@ -42,21 +42,21 @@ Dict.create = function () {
 };
 
 Dict.clone = function (dict) {
-    var res = Dict.create();
-    for (var key in dict.value) if (dict.value.hasOwnProperty(key)) res.value[key] = dict.value[key];
+    const res = Dict.create();
+    for (const key in dict.value) if (dict.value.hasOwnProperty(key)) res.value[key] = dict.value[key];
     return res;
 };
 
 // Modifying operation
 Dict.put = function (dict, key, value) {
     dict.value[Dict.key(key)] = {
-        key: key,
-        value: value,
+        key,
+        value,
     };
 };
 
 Dict.get = function (dict, key, dflt) {
-    var kv = dict.value[Dict.key(key)];
+    const kv = dict.value[Dict.key(key)];
     if (kv) return kv.value; // check kv.key?
     return dflt;
 };
@@ -67,7 +67,7 @@ Dict.niceprint = function (dict) {
         Object.keys(dict.value)
             .sort()
             .map(function (key) {
-                var kv = dict.value[key];
+                const kv = dict.value[key];
                 return niceprint(kv.key) + ":" + niceprint(kv.value);
             })
             .join(", ") +

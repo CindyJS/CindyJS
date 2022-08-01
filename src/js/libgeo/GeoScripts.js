@@ -1,1 +1,1 @@
-var geoscripts = {};
+const geoscripts = {};

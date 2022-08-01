@@ -5,7 +5,7 @@ import { General } from "libcs/General";
 //==========================================
 //      Complex Numbers
 //==========================================
-var CSNumber = {};
+const CSNumber = {};
 CSNumber._helper = {};
 CSNumber._helper.roundingfactor = 1e4;
 CSNumber._helper.angleroundingfactor = 1e1;
@@ -19,8 +19,8 @@ CSNumber.niceprint = function (a, roundingfactor) {
     if (a.usage === "Angle") {
         return CSNumber._helper.niceangle(a);
     }
-    var real = CSNumber._helper.niceround(a.value.real, roundingfactor);
-    var imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
+    const real = CSNumber._helper.niceround(a.value.real, roundingfactor);
+    const imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
     if (imag === 0) {
         return "" + real;
     }
@@ -32,11 +32,11 @@ CSNumber.niceprint = function (a, roundingfactor) {
     }
 };
 
-var angleUnit = instanceInvocationArguments.angleUnit || "°";
-var angleUnitName = angleUnit.replace(/\s+/g, ""); // unit may contain space
-var TWOPI = Math.PI * 2;
-var PERTWOPI = 1 / TWOPI;
-var angleUnits = {
+const angleUnit = instanceInvocationArguments.angleUnit || "°";
+const angleUnitName = angleUnit.replace(/\s+/g, ""); // unit may contain space
+const TWOPI = Math.PI * 2;
+const PERTWOPI = 1 / TWOPI;
+const angleUnits = {
     rad: TWOPI,
     "°": 360,
     deg: 360,
@@ -53,14 +53,14 @@ var angleUnits = {
 };
 
 CSNumber._helper.niceangle = function (a) {
-    var unit = angleUnits[angleUnitName];
+    const unit = angleUnits[angleUnitName];
     if (!unit) return CSNumber.niceprint(General.withUsage(a, null));
     if (typeof unit === "function") return unit(a);
-    var num = CSNumber.niceprint(
+    const num = CSNumber.niceprint(
         CSNumber.realmult(unit * PERTWOPI, a),
         unit > 200 ? CSNumber._helper.angleroundingfactor : null
     );
-    if (num.indexOf("i*") === -1) return num + angleUnit;
+    if (!num.includes("i*")) return num + angleUnit;
     return "(" + num + ")" + angleUnit;
 };
 
@@ -98,8 +98,8 @@ CSNumber._helper.input = function (a) {
 };
 
 CSNumber.argmax = function (a, b) {
-    var n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
-    var n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
+    const n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
+    const n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
     return n1 < n2 ? b : a;
 };
 
@@ -235,9 +235,9 @@ CSNumber.realmult = function (r, c) {
 };
 
 CSNumber.multiMult = function (arr) {
-    var erg = arr[0];
+    let erg = arr[0];
     if (erg.ctype !== "number") return nada;
-    for (var i = 1; i < arr.length; i++) {
+    for (let i = 1; i < arr.length; i++) {
         if (arr[i].ctype !== "number") {
             return nada;
         }
@@ -262,7 +262,7 @@ CSNumber.abs = function (a) {
 };
 
 CSNumber.inv = function (a) {
-    var s = a.value.real * a.value.real + a.value.imag * a.value.imag;
+    const s = a.value.real * a.value.real + a.value.imag * a.value.imag;
     return {
         ctype: "number",
         value: {
@@ -273,11 +273,11 @@ CSNumber.inv = function (a) {
 };
 
 CSNumber.div = function (a, b) {
-    var ar = a.value.real;
-    var ai = a.value.imag;
-    var br = b.value.real;
-    var bi = b.value.imag;
-    var s = br * br + bi * bi;
+    const ar = a.value.real;
+    const ai = a.value.imag;
+    const br = b.value.real;
+    const bi = b.value.imag;
+    const s = br * br + bi * bi;
     return {
         ctype: "number",
         value: {
@@ -291,8 +291,8 @@ CSNumber.eps = 1e-10;
 CSNumber.epsbig = 1e-6;
 
 CSNumber.snap = function (a) {
-    var r = a.value.real;
-    var i = a.value.imag;
+    let r = a.value.real;
+    let i = a.value.imag;
     if (Math.floor(r + CSNumber.eps) !== Math.floor(r - CSNumber.eps)) {
         r = Math.round(r);
     }
@@ -310,9 +310,9 @@ CSNumber.snap = function (a) {
 };
 
 CSNumber.exp = function (a) {
-    var n = Math.exp(a.value.real);
-    var r = n * Math.cos(a.value.imag);
-    var i = n * Math.sin(a.value.imag);
+    const n = Math.exp(a.value.real);
+    const r = n * Math.cos(a.value.imag);
+    const i = n * Math.sin(a.value.imag);
     return {
         ctype: "number",
         value: {
@@ -323,16 +323,16 @@ CSNumber.exp = function (a) {
 };
 
 CSNumber.cos = function (a) {
-    var rr = a.value.real;
-    var ii = a.value.imag;
-    var n = Math.exp(ii);
-    var imag1 = n * Math.sin(-rr);
-    var real1 = n * Math.cos(-rr);
+    const rr = a.value.real;
+    const ii = a.value.imag;
+    let n = Math.exp(ii);
+    const imag1 = n * Math.sin(-rr);
+    const real1 = n * Math.cos(-rr);
     n = Math.exp(-ii);
-    var imag2 = n * Math.sin(rr);
-    var real2 = n * Math.cos(rr);
-    var i = (imag1 + imag2) / 2.0;
-    var r = (real1 + real2) / 2.0;
+    const imag2 = n * Math.sin(rr);
+    const real2 = n * Math.cos(rr);
+    const i = (imag1 + imag2) / 2.0;
+    const r = (real1 + real2) / 2.0;
     //  if (i * i < 1E-30) i = 0;
     //  if (r * r < 1E-30) r = 0;
     return {
@@ -345,16 +345,16 @@ CSNumber.cos = function (a) {
 };
 
 CSNumber.sin = function (a) {
-    var rr = a.value.real;
-    var ii = a.value.imag;
-    var n = Math.exp(ii);
-    var imag1 = n * Math.sin(-rr);
-    var real1 = n * Math.cos(-rr);
+    const rr = a.value.real;
+    const ii = a.value.imag;
+    let n = Math.exp(ii);
+    const imag1 = n * Math.sin(-rr);
+    const real1 = n * Math.cos(-rr);
     n = Math.exp(-ii);
-    var imag2 = n * Math.sin(rr);
-    var real2 = n * Math.cos(rr);
-    var r = -(imag1 - imag2) / 2.0;
-    var i = (real1 - real2) / 2.0;
+    const imag2 = n * Math.sin(rr);
+    const real2 = n * Math.cos(rr);
+    const r = -(imag1 - imag2) / 2.0;
+    const i = (real1 - real2) / 2.0;
     //  if (i * i < 1E-30) i = 0;
     //  if (r * r < 1E-30) r = 0;
     return {
@@ -367,57 +367,57 @@ CSNumber.sin = function (a) {
 };
 
 CSNumber.tan = function (a) {
-    var s = CSNumber.sin(a);
-    var c = CSNumber.cos(a);
+    const s = CSNumber.sin(a);
+    const c = CSNumber.cos(a);
     return CSNumber.div(s, c);
 };
 
 CSNumber.arccos = function (a) {
     //OK hässlich aber tuts.
-    var t2 = CSNumber.mult(a, CSNumber.neg(a));
-    var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
-    var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
-    var erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
+    const t2 = CSNumber.mult(a, CSNumber.neg(a));
+    const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
+    const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
+    const erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
     return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arcsin = function (a) {
     //OK hässlich aber tuts.
-    var t2 = CSNumber.mult(a, CSNumber.neg(a));
-    var tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
-    var tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
-    var erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
+    const t2 = CSNumber.mult(a, CSNumber.neg(a));
+    const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
+    const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
+    const erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
     return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arctan = function (a) {
     //OK hässlich aber tuts.
-    var t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
-    var t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
-    var erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
+    const t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
+    const t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
+    const erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
     return General.withUsage(erg, "Angle");
 };
 
 CSNumber.arctan2 = function (a, b) {
-    var erg;
+    let erg;
     if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
     else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
         erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
     else {
-        var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
-        var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+        const z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
+        const r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
         erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
     }
     return General.withUsage(erg, "Angle");
 };
 
 CSNumber.sqrt = function (a) {
-    var rr = a.value.real;
-    var ii = a.value.imag;
-    var n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
-    var w = Math.atan2(ii, rr);
-    var i = n * Math.sin(w / 2);
-    var r = n * Math.cos(w / 2);
+    const rr = a.value.real;
+    const ii = a.value.imag;
+    const n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
+    const w = Math.atan2(ii, rr);
+    const i = n * Math.sin(w / 2);
+    const r = n * Math.cos(w / 2);
     return {
         ctype: "number",
         value: {
@@ -428,12 +428,12 @@ CSNumber.sqrt = function (a) {
 };
 
 CSNumber.powRealExponent = function (a, b) {
-    var rr = a.value.real;
-    var ii = a.value.imag;
-    var n = Math.pow(Math.sqrt(rr * rr + ii * ii), b);
-    var w = Math.atan2(ii, rr);
-    var i = n * Math.sin(w * b);
-    var r = n * Math.cos(w * b);
+    const rr = a.value.real;
+    const ii = a.value.imag;
+    const n = Math.sqrt(rr * rr + ii * ii) ** b;
+    const w = Math.atan2(ii, rr);
+    const i = n * Math.sin(w * b);
+    const r = n * Math.cos(w * b);
     return {
         ctype: "number",
         value: {
@@ -453,12 +453,12 @@ CSNumber.powIntegerExponent = function (a, n) {
 };
 
 CSNumber.log = function (a) {
-    var re = a.value.real;
-    var im = a.value.imag;
-    var s = Math.sqrt(re * re + im * im);
-    var i = im;
+    const re = a.value.real;
+    const im = a.value.imag;
+    const s = Math.sqrt(re * re + im * im);
+    const i = im;
 
-    var imag = Math.atan2(im, re);
+    let imag = Math.atan2(im, re);
     if (i < 0) {
         imag += 2 * Math.PI;
     }
@@ -468,13 +468,13 @@ CSNumber.log = function (a) {
     if (imag > Math.PI) {
         imag -= 2 * Math.PI;
     }
-    var real = Math.log(s);
+    const real = Math.log(s);
 
     return CSNumber.snap({
         ctype: "number",
         value: {
-            real: real,
-            imag: imag,
+            real,
+            imag,
         },
     });
 };
@@ -483,7 +483,7 @@ CSNumber.pow = function (a, n) {
     if (CSNumber._helper.isZero(n)) return CSNumber.one;
     if (CSNumber._helper.isZero(a)) return CSNumber.zero;
     if ([a, n].every(CSNumber._helper.isReal)) {
-        return CSNumber.real(Math.pow(a.value.real, n.value.real));
+        return CSNumber.real(a.value.real ** n.value.real);
     }
     if (CSNumber._helper.isReal(n)) {
         const nn = n.value.real;
@@ -497,13 +497,13 @@ CSNumber.pow = function (a, n) {
 };
 
 CSNumber.mod = function (a, b) {
-    var a1 = a.value.real;
-    var a2 = b.value.real;
-    var b1 = a.value.imag;
-    var b2 = b.value.imag;
+    const a1 = a.value.real;
+    const a2 = b.value.real;
+    const b1 = a.value.imag;
+    const b2 = b.value.imag;
 
-    var r = a1 - Math.floor(a1 / a2) * a2;
-    var i = b1 - Math.floor(b1 / b2) * b2;
+    let r = a1 - Math.floor(a1 / a2) * a2;
+    let i = b1 - Math.floor(b1 / b2) * b2;
     if (a2 === 0) r = 0;
     if (b2 === 0) i = 0;
 
@@ -529,7 +529,7 @@ CSNumber._helper.rand = function () {
     if (CSNumber._helper.seed === "NO") {
         return Math.random();
     }
-    var a = CSNumber._helper.seed;
+    let a = CSNumber._helper.seed;
     a = Math.sin(1000 * a) * 1000;
     a = a - Math.floor(a);
     CSNumber._helper.seed = a;
@@ -537,8 +537,8 @@ CSNumber._helper.rand = function () {
 };
 
 CSNumber._helper.randnormal = function () {
-    var a = CSNumber._helper.rand();
-    var b = CSNumber._helper.rand();
+    const a = CSNumber._helper.rand();
+    const b = CSNumber._helper.rand();
     return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
 };
 
@@ -561,12 +561,12 @@ CSNumber._helper.compare = function (a, b) {
 };
 
 CSNumber._helper.isAlmostEqual = function (a, b, preci) {
-    var eps = CSNumber.eps;
+    let eps = CSNumber.eps;
     if (typeof preci !== "undefined") {
         eps = preci;
     }
-    var r = a.value.real - b.value.real;
-    var i = a.value.imag - b.value.imag;
+    const r = a.value.real - b.value.real;
+    const i = a.value.imag - b.value.imag;
     return r < eps && r > -eps && i < eps && i > -eps;
 };
 
@@ -575,8 +575,8 @@ CSNumber._helper.isZero = function (a) {
 };
 
 CSNumber._helper.isAlmostZero = function (a) {
-    var r = a.value.real;
-    var i = a.value.imag;
+    const r = a.value.real;
+    const i = a.value.imag;
     return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
 };
 
@@ -585,7 +585,7 @@ CSNumber._helper.isReal = function (a) {
 };
 
 CSNumber._helper.isAlmostReal = function (a) {
-    var i = a.value.imag;
+    const i = a.value.imag;
     // This implementation follows Cinderella
     return i < CSNumber.epsbig && i > -CSNumber.epsbig;
 };
@@ -599,7 +599,7 @@ CSNumber._helper.isFinite = function (z) {
 };
 
 CSNumber._helper.isAlmostImag = function (a) {
-    var r = a.value.real;
+    const r = a.value.real;
     // This implementation follows Cinderella
     return r < CSNumber.epsbig && r > -CSNumber.epsbig;
 };
@@ -623,7 +623,7 @@ CSNumber._helper.cub3 = {
  * The result is a JavaScript array of three complex numbers satisfying that equation.
  */
 CSNumber.solveCubic = function (a, b, c, d) {
-    var help = CSNumber._helper.solveCubicHelper(a, b, c, d);
+    const help = CSNumber._helper.solveCubicHelper(a, b, c, d);
     return [
         List.scalproduct(CSNumber._helper.cub1, help),
         List.scalproduct(CSNumber._helper.cub2, help),
@@ -639,53 +639,53 @@ CSNumber.solveCubic = function (a, b, c, d) {
 CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
     // mostly adapted from the cinderella2 source code
 
-    var ar = a.value.real;
-    var ai = a.value.imag;
-    var br = b.value.real;
-    var bi = b.value.imag;
-    var cr = c.value.real;
-    var ci = c.value.imag;
-    var dr = d.value.real;
-    var di = d.value.imag;
+    const ar = a.value.real;
+    const ai = a.value.imag;
+    const br = b.value.real;
+    const bi = b.value.imag;
+    const cr = c.value.real;
+    const ci = c.value.imag;
+    const dr = d.value.real;
+    const di = d.value.imag;
 
-    var c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
-    var c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
+    const c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
+    const c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
 
     // t1 = (4ac - b^2)
 
-    var acr = ar * cr - ai * ci;
-    var aci = ar * ci + ai * cr;
+    const acr = ar * cr - ai * ci;
+    const aci = ar * ci + ai * cr;
 
-    var t1r = 4 * acr - (br * br - bi * bi);
-    var t1i = 4 * aci - 2 * br * bi;
+    let t1r = 4 * acr - (br * br - bi * bi);
+    let t1i = 4 * aci - 2 * br * bi;
 
     // ab = ab
-    var abr = ar * br - ai * bi;
-    var abi = ar * bi + ai * br;
+    const abr = ar * br - ai * bi;
+    const abi = ar * bi + ai * br;
 
     // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
-    var t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
-    var t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
+    const t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
+    const t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
 
     // aa = 27  a*a
-    var aar = 27 * (ar * ar - ai * ai);
-    var aai = 54 * (ai * ar);
+    const aar = 27 * (ar * ar - ai * ai);
+    const aai = 54 * (ai * ar);
 
     // aad =  aa *d = 27 aad
-    var aadr = aar * dr - aai * di;
-    var aadi = aar * di + aai * dr;
+    const aadr = aar * dr - aai * di;
+    const aadi = aar * di + aai * dr;
 
     // t1 = b^2
-    var bbr = br * br - bi * bi;
-    var bbi = 2 * br * bi;
+    const bbr = br * br - bi * bi;
+    const bbi = 2 * br * bi;
 
     // w = b^3
-    var wr = bbr * br - bbi * bi;
-    var wi = bbr * bi + bbi * br;
+    let wr = bbr * br - bbi * bi;
+    let wi = bbr * bi + bbi * br;
 
     // t2 = aad + 4w = 27aad + 4bbb
-    var t2r = aadr + 4 * wr;
-    var t2i = aadi + 4 * wi;
+    let t2r = aadr + 4 * wr;
+    let t2i = aadi + 4 * wi;
 
     // t1 = 27 *(t3 * c + t2 *d)
     t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
@@ -722,35 +722,35 @@ CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
     //     w2.assign(wr,wi);
     //     w1.sqrt1_3();
     //     w2.sqrt2_3();
-    var radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
-    var phi = Math.atan2(wi, wr);
-    var w1i = radius * Math.sin(phi / 3);
-    var w1r = radius * Math.cos(phi / 3);
+    let radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
+    let phi = Math.atan2(wi, wr);
+    const w1i = radius * Math.sin(phi / 3);
+    const w1r = radius * Math.cos(phi / 3);
 
     radius *= radius;
     phi *= 2;
 
-    var w2i = radius * Math.sin(phi / 3);
-    var w2r = radius * Math.cos(phi / 3);
+    const w2i = radius * Math.sin(phi / 3);
+    const w2r = radius * Math.cos(phi / 3);
 
     // x = 2 b^2
     // x = x - 6 ac
-    var xr = 2 * bbr - 6 * acr;
-    var xi = 2 * bbi - 6 * aci;
+    let xr = 2 * bbr - 6 * acr;
+    let xi = 2 * bbi - 6 * aci;
 
     //y.assign(-c2).mul(b).mul(w1);
-    var yr = -c2 * (br * w1r - bi * w1i);
-    var yi = -c2 * (br * w1i + bi * w1r);
+    let yr = -c2 * (br * w1r - bi * w1i);
+    let yi = -c2 * (br * w1i + bi * w1r);
 
     //    z.assign(c1).mul(w2);
-    var zr = c1 * w2r;
-    var zi = c1 * w2i;
+    let zr = c1 * w2r;
+    let zi = c1 * w2i;
 
     //w1.mul(a).mul(3).mul(c2);
     t1r = c2 * 3 * (w1r * ar - w1i * ai);
     t1i = c2 * 3 * (w1r * ai + w1i * ar);
 
-    var s = t1r * t1r + t1i * t1i;
+    const s = t1r * t1r + t1i * t1i;
 
     t2r = (xr * t1r + xi * t1i) / s;
     t2i = (-xr * t1i + xi * t1r) / s;
@@ -775,13 +775,13 @@ CSNumber._helper.getRangeRand = function (min, max) {
 };
 
 CSNumber.getRandReal = function (min, max) {
-    var real = CSNumber._helper.getRangeRand(min, max);
+    const real = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.real(real);
 };
 
 CSNumber.getRandComplex = function (min, max) {
-    var real = CSNumber._helper.getRangeRand(min, max);
-    var imag = CSNumber._helper.getRangeRand(min, max);
+    const real = CSNumber._helper.getRangeRand(min, max);
+    const imag = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.complex(real, imag);
 };
 

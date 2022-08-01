@@ -5,7 +5,7 @@ import { niceprint, evaluator } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 import { evaluate } from "libcs/Evaluator";
 
-var OpSound = {
+const OpSound = {
     lines: {},
     audioCtx: null,
     getAudioContext: function () {
@@ -163,8 +163,8 @@ var OpSound = {
         }
 
         return {
-            oscNode: oscNode,
-            gainNode: gainNode,
+            oscNode,
+            gainNode,
         };
     },
 
@@ -505,7 +505,7 @@ evaluator.playfunction$1 = function (args, modifs) {
             //DFS with handwritten stack.
             let v = stack.pop();
             if (v.ctype === "variable" && evaluate(v) === nada) {
-                if (["x", "y", "t"].indexOf(v.name) !== -1) return v.name;
+                if (["x", "y", "t"].includes(v.name)) return v.name;
             }
             if (v.args) {
                 for (let i in v.args) {

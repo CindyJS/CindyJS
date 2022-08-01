@@ -3,32 +3,32 @@
  * See https://github.com/CindyJS/CindyJS/tree/$gitid$/src/js/ifs
  * for corresponding sources.
  */
-var nextInit = null;
-var asm = null;
-var buffer = null;
-var imgSize = 0;
-var imgPtr = null;
-var imgData = null;
-var imgTransfer = null;
-var width = 0;
-var height = 0;
-var Module = {};
-var generation = null;
-var age = 0;
+let nextInit = null;
+let asm = null;
+let buffer = null;
+let imgSize = 0;
+let imgPtr = null;
+let imgData = null;
+let imgTransfer = null;
+let width = 0;
+let height = 0;
+const Module = {};
+let generation = null;
+let age = 0;
 
 // check for imul support, and also for correctness
 // ( https://bugs.webkit.org/show_bug.cgi?id=126345 )
 if (!Math.imul || Math.imul(0xffffffff, 5) !== -5)
     Math.imul = function imul(a, b) {
-        var ah = a >>> 16;
-        var al = a & 0xffff;
-        var bh = b >>> 16;
-        var bl = b & 0xffff;
+        const ah = a >>> 16;
+        const al = a & 0xffff;
+        const bh = b >>> 16;
+        const bl = b & 0xffff;
         return (al * bl + ((ah * bl + al * bh) << 16)) | 0;
     };
 
 onmessage = function (event) {
-    var d = event.data;
+    const d = event.data;
     if (d.cmd === "init") {
         nextInit = d;
         if (generation === null) {
@@ -55,17 +55,17 @@ function init(d) {
     generation = d.generation;
     width = d.width;
     height = d.height;
-    var numIFS = d.systems.length;
-    var numTrafos = 0;
-    var i, j;
+    const numIFS = d.systems.length;
+    let numTrafos = 0;
+    let i, j;
     for (i = 0; i < numIFS; ++i) numTrafos += d.systems[i].trafos.length;
-    var fixedSize = 8 + 48;
-    var ifsSize = 56 * numIFS;
-    var trafoSize = (112 + 4) * numTrafos;
+    const fixedSize = 8 + 48;
+    const ifsSize = 56 * numIFS;
+    let trafoSize = (112 + 4) * numTrafos;
     if (trafoSize % 8) trafoSize += 8 - (trafoSize % 8);
     imgSize = width * height * 4;
-    var minSize = fixedSize + ifsSize + trafoSize + imgSize;
-    var bufferSize = 1 << 16;
+    const minSize = fixedSize + ifsSize + trafoSize + imgSize;
+    let bufferSize = 1 << 16;
     while (bufferSize < minSize) bufferSize <<= 1;
     if (asm === null || buffer.byteLength < bufferSize) {
         buffer = new ArrayBuffer(bufferSize);
@@ -85,16 +85,16 @@ function init(d) {
                 " but got " +
                 imgPtr
         );
-    var imgBytes = new Uint8ClampedArray(buffer, imgPtr, imgSize);
+    const imgBytes = new Uint8ClampedArray(buffer, imgPtr, imgSize);
     if (typeof imgBytes.fill === "function") imgBytes.fill(0);
     // clear image
-    else for (var addr = 0; addr < imgBytes.length; ++addr) imgBytes[addr] = 0;
+    else for (let addr = 0; addr < imgBytes.length; ++addr) imgBytes[addr] = 0;
     imgData = new ImageData(imgBytes, width, height);
     for (i = 0; i < numIFS; ++i) {
-        var trafos = d.systems[i].trafos;
+        const trafos = d.systems[i].trafos;
         asm._setIFS(i, trafos.length);
         for (j = 0; j < trafos.length; ++j) {
-            var tr = trafos[j];
+            const tr = trafos[j];
             if (tr.kind === "Tr") {
                 asm._setProj(
                     i,
@@ -152,10 +152,10 @@ function next(d) {
         nextInit = null;
     }
 
-    asm._real(Math.pow(10, age) | 0, 0);
+    asm._real((10 ** age) | 0, 0);
     if (age < 5) ++age;
 
-    var ff = /Firefox\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+    const ff = /Firefox\/(\d+)\.(\d+)/.exec(navigator.userAgent);
     if (ff) {
         // current versions of Firefox have serious problems with ImageBitmaps:
         // bug 1271504: will pre-multiply ImageBitmap repeatedly
@@ -164,15 +164,15 @@ function next(d) {
         // since we cannot transfer a buffer which has been used by asm.js.
         // So we use a separate buffer (and one more copy step) for transfer.
         if (!imgTransfer || imgTransfer.byteLength < imgSize) imgTransfer = new ArrayBuffer(imgSize);
-        var t = new Uint8ClampedArray(imgTransfer);
+        const t = new Uint8ClampedArray(imgTransfer);
         t.set(imgData.data);
         postMessage(
             {
-                generation: generation,
+                generation,
                 buffer: imgTransfer,
                 imgPtr: 0,
-                width: width,
-                height: height,
+                width,
+                height,
             },
             [imgTransfer]
         );
@@ -180,7 +180,7 @@ function next(d) {
         createImageBitmap(imgData).then(function (bmp) {
             postMessage(
                 {
-                    generation: generation,
+                    generation,
                     img: bmp,
                 },
                 [bmp]
@@ -189,11 +189,11 @@ function next(d) {
     } else {
         postMessage(
             {
-                generation: generation,
-                buffer: buffer,
-                imgPtr: imgPtr,
-                width: width,
-                height: height,
+                generation,
+                buffer,
+                imgPtr,
+                width,
+                height,
             },
             [buffer]
         );
