@@ -12,3 +12,4 @@
 /plugins/ComplexCurves/lib/ComplexCurves/
 .package-lock.json
 package-lock.json
+/.eslintcache
