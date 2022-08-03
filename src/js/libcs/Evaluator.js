@@ -16,52 +16,42 @@ import { Parser } from "libcs/Parser";
 function evaluate(a) {
     if (a === undefined) {
         return nada;
-    }
-    if (a.ctype === "infix") {
+    } else if (a.ctype === "infix") {
         return a.impl(a.args, {}, a);
-    }
-    if (a.ctype === "variable") {
+    } else if (a.ctype === "variable") {
         return evaluate(namespace.getvar(a.name));
-    }
-    if (a.ctype === "function") {
+    } else if (a.ctype === "function") {
         callStack.push(a);
         a = eval_helper.evaluate(a.oper, a.args, a.modifs);
         callStack.pop();
         return a;
-    }
-    if (a.ctype === "void") {
+    } else if (a.ctype === "void") {
         return nada;
-    }
-    if (a.ctype === "field") {
+    } else if (a.ctype === "field") {
         const obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
             return evaluate(Accessor.getField(obj.value, a.key));
-        }
-        if (obj.ctype === "list") {
+        } else if (obj.ctype === "list") {
             return List.getField(obj, a.key);
-        }
-        if (obj.ctype === "JSON") {
+        } else if (obj.ctype === "JSON") {
             return evaluate(Json.getField(obj, a.key));
+        } else {
+            return nada;
         }
-        return nada;
-    }
-    if (a.ctype === "userdata") {
-        const uobj = evaluate(a.obj);
+    } else if (a.ctype === "userdata") {
+        const obj = evaluate(a.obj);
         let key = General.string(niceprint(evaluate(a.key)));
         if (key.value === "_?_") key = nada;
-
-        if (uobj.ctype === "geo") {
-            return evaluate(Accessor.getuserData(uobj.value, key));
-        }
-        if (uobj.ctype === "list" || uobj.ctype === "string") {
-            return evaluate(Accessor.getuserData(uobj, key));
-        }
-        if (uobj.ctype === "JSON") {
-            return evaluate(Json.getField(uobj, key.value));
-        }
-        return nada;
+        if (obj.ctype === "geo") {
+            return evaluate(Accessor.getuserData(obj.value, key));
+        } else if (obj.ctype === "list" || obj.ctype === "string") {
+            return evaluate(Accessor.getuserData(obj, key));
+        } else if (obj.ctype === "JSON") {
+            return evaluate(Json.getField(obj, key.value));
+        } else return nada;
+    } else {
+        return a;
     }
-    return a;
 }
 
 function evaluateAndVal(a) {
@@ -181,6 +171,7 @@ function labelCode(code, label) {
     function run() {
         return evaluate(code);
     }
+
     return {
         ctype: "infix",
         args: [],
