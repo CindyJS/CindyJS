@@ -131,7 +131,7 @@ function map(name, err, content) {
         return ppath.normalize(ppath.join("build/js", root, src));
     });
     map.sourcesContent = map.sources.map(function (src) {
-        if (!/^build/.test(src)) return null;
+        if (!/^build/.test(src) || /^build\/js\/src\/com\/google/.test(src)) return null;
         return fs.readFileSync(src, "utf-8");
     });
     var keys = Object.keys(map);
