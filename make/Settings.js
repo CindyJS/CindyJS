@@ -15,10 +15,10 @@ module.exports = function Settings() {
     var configSettings = {
         build: "release",
         closure_urlbase: "https://repo1.maven.org/maven2/com/google/javascript/closure-compiler",
-        closure_language_in: "ECMASCRIPT_2019",
-        closure_language_out: "ECMASCRIPT5_STRICT",
+        closure_language_in: "ECMASCRIPT_NEXT",
+        closure_language_out: "ECMASCRIPT_2016",
         closure_level: "SIMPLE",
-        closure_version: "v20210202",
+        closure_version: "v20220719",
         verbose: "true",
         logprefix: "true",
         c3d_closure_level: "ADVANCED",

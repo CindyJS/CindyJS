@@ -307,7 +307,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/Cindy3D.js.map",
             compilation_level: this.setting("c3d_closure_level"),
@@ -379,7 +379,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyGL.js.map",
             compilation_level: this.setting("cgl_closure_level"),
@@ -445,7 +445,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             compilation_level: this.setting("cc_closure_level"),
             rewrite_polyfills: false,
             warning_level: this.setting("cc_closure_warnings"),
@@ -471,7 +471,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             dependency_mode: "PRUNE_LEGACY",
             compilation_level: "SIMPLE",
             rewrite_polyfills: false,
@@ -498,7 +498,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/QuickHull3D.js.map",
             compilation_level: this.setting("qh3d_closure_level"),
@@ -568,7 +568,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT_2018",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT_2016",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyPrint.js.map",
             compilation_level: "SIMPLE",
@@ -619,7 +619,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT_2018",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT_2016",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyPrintWorker.js.map",
             compilation_level: "SIMPLE",
@@ -657,7 +657,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT5_STRICT",
+            language_out: "ECMASCRIPT6_STRICT",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyLeap.js.map",
             compilation_level: "SIMPLE",
@@ -700,7 +700,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT_2018",
-            language_out: "ECMASCRIPT_2018",
+            language_out: "ECMASCRIPT_2016",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyXR.js.map",
             compilation_level: "SIMPLE",
