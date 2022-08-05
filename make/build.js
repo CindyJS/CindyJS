@@ -700,7 +700,7 @@ module.exports = function build(settings, task) {
         this.setting("closure_version");
         var opts = {
             language_in: "ECMASCRIPT_2018",
-            language_out: "ECMASCRIPT_2016",
+            language_out: "ECMASCRIPT_2018",
             dependency_mode: "PRUNE_LEGACY",
             create_source_map: "build/js/CindyXR.js.map",
             compilation_level: "SIMPLE",
