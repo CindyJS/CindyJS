@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            println("Main code");
+            test = test^2;
+            println("test is " + test);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/createCindy documentation for details.
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+                import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
+
+            });
+
+            // Remove all comments after adjusting this template for your use case.
+        </script>
+    </head>
+
+
+
+
+    <body style="font-family: Arial">
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
+</html>

@@ -244,7 +244,7 @@ function isCinderellaBeforeVersion() {
     return false;
 }
 
-function createCindyNow() {
+async function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
 
@@ -356,6 +356,55 @@ function createCindyNow() {
     if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0) scriptpat = scriptconf;
     if (typeof scriptconf !== "object") scriptconf = null;
 
+    /*
+Loads CindyScript files (marked by .cjs file ending) and adds their code AT THE BEGINNING of the init script.
+The file names (and paths) have to be listed in the dictionary that's passed to CindyJS/createCindy as an array for the key 'import'. I.e., like this:
+          var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+                import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
+
+            });
+Note that the libraries get prepended to the init-script BACK TO FRONT. So, in the example above, the code from libraryA comes before the code from libraryB whoch comes before the custom user code. That way, libraries can reference each others code.
+
+CAUTION!
+Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
+If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
+*/
+    if (data.import && Array.isArray(data.import) && data.import.length > 0) {
+        console.log("Importing CindyScript libraries...");
+
+        let fullCode = "";
+
+        for (let library of data.import.reverse()) {
+            if (typeof library !== "string") continue;
+
+            console.log("Loading " + library + " ...");
+
+            let response = await fetch(library + ".cjs");
+
+            if (response.status === 200) {
+                let code = await response.text();
+                let safety = code[code.length - 1] == ";" ? "" : ";";
+                fullCode = code + safety + "\n" + fullCode;
+                console.log(library + " loaded!");
+            }
+        }
+
+        let initId = "csinit";
+        if (data.initscript) {
+            initId = data.initscript;
+        } else if (scriptpat) {
+            initId = scriptpat.replace(/\*/, "init");
+        } else {
+            return;
+        }
+        console.log("Importing libraries to " + initId + ".");
+        prependCindyScript(fullCode, initId);
+    }
+
+    // Continue with compiling scripts.
+
     scripts.forEach(function (s) {
         let cscode;
         if (scriptconf !== null && scriptconf[s]) {
@@ -435,6 +484,23 @@ function createCindyNow() {
         });
     loadExtraModules();
     doneLoadingModule();
+}
+
+function prependCindyScript(codeString, scriptId = "csinit") {
+    var codeNode = document.createTextNode(codeString);
+
+    var scriptElement = document.getElementById(scriptId);
+    if (!scriptElement) {
+        scriptElement = document.createElement("script");
+        scriptElement.id = scriptId;
+        scriptElement.type = "text/x-cindyscript";
+        document.head.appendChild(scriptElement);
+    }
+    if (scriptElement.firstChild) {
+        scriptElement.insertBefore(codeNode, scriptElement.firstChild);
+    } else {
+        scriptElement.appendChild(codeNode);
+    }
 }
 
 /*
