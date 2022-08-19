@@ -403,7 +403,9 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
             }
         }
 
-        prependCindyScript(fullCode, initId);
+        let initElement = getCodeElement(initId);
+        let initCode = document.createTextNode(fullCode);
+        prependCode(initElement, initCode);
         console.log("===== Import of libraries to " + initId + " finished ========");
     }
 
@@ -490,9 +492,7 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
     doneLoadingModule();
 }
 
-function prependCindyScript(codeString, scriptId = "csinit") {
-    var codeNode = document.createTextNode(codeString);
-
+function getCodeElement(scriptId) {
     var scriptElement = document.getElementById(scriptId);
     if (!scriptElement) {
         scriptElement = document.createElement("script");
@@ -500,11 +500,19 @@ function prependCindyScript(codeString, scriptId = "csinit") {
         scriptElement.type = "text/x-cindyscript";
         document.head.appendChild(scriptElement);
     }
+    return scriptElement;
+}
+
+function prependCode(scriptElement, codeNode) {
     if (scriptElement.firstChild) {
         scriptElement.insertBefore(codeNode, scriptElement.firstChild);
     } else {
         scriptElement.appendChild(codeNode);
     }
+}
+
+function appendCode(scriptElement, codeNode) {
+    scriptElement.appendChild(codeNode);
 }
 
 /*
