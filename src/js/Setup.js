@@ -372,25 +372,6 @@ Since this uses the 'fetch' command, it only works on a web server. So, for loca
 If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
 */
     if (data.import && Array.isArray(data.import) && data.import.length > 0) {
-        console.log("Importing CindyScript libraries...");
-
-        let fullCode = "";
-
-        for (let library of data.import.reverse()) {
-            if (typeof library !== "string") continue;
-
-            console.log("Loading " + library + " ...");
-
-            let response = await fetch(library + ".cjs");
-
-            if (response.status === 200) {
-                let code = await response.text();
-                let safety = code[code.length - 1] == ";" ? "" : ";";
-                fullCode = code + safety + "\n" + fullCode;
-                console.log(library + " loaded!");
-            }
-        }
-
         let initId = "csinit";
         if (data.initscript) {
             initId = data.initscript;
@@ -399,8 +380,31 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
         } else {
             return;
         }
-        console.log("Importing libraries to " + initId + ".");
+
+        console.log("===== Importing CindyScript libraries to " + initId + " =====");
+
+        let fullCode = "";
+
+        for (let library of data.import.reverse()) {
+            if (typeof library !== "string") continue;
+
+            console.log("Loading " + library + " ...");
+
+            let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
+            let response = await fetch(query);
+
+            if (response.status === 200) {
+                let code = await response.text();
+                let safety = code[code.length - 1] == ";" ? "" : ";";
+                fullCode = code + safety + "\n" + fullCode;
+                console.log(library + " loaded!");
+            } else {
+                console.log("CAUTION! Import of " + library + " failed.");
+            }
+        }
+
         prependCindyScript(fullCode, initId);
+        console.log("===== Import of libraries to " + initId + " finished ========");
     }
 
     // Continue with compiling scripts.
