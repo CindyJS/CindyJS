@@ -4363,6 +4363,16 @@ evaluator.create$2 = function (args, modifs) {
 };
 
 ///////////////////////////////
+//   JSON Object extensions  //
+///////////////////////////////
+
+Json._helper.self = nada;
+
+evaluator.self$0 = function (args, modifs) {
+    return Json._helper.self;
+};
+
+///////////////////////////////
 //   Calling external code   //
 ///////////////////////////////
 

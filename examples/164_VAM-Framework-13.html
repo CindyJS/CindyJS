@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>VAM-Framework-13.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+//Initialization
+// Die Liste aller VAM-Objekte
+obj = [];
+history = [];
+
+// Flag für Debugging
+debugging = false;
+
+// Hilfsfunktionen, die hier stehen, damit man sich erinnert oder um sich Tipparbeit zu sparen
+// ===========================================================================================
+
+
+setcoord(object,coord) := //Setze das Objekt "object" and die Position "coord"
+  eval(object:"setcoord",coord->coord);
+
+act(object, action, startmouse, startcoord, mouse, mousedelta) := // führe eine Aktion auf object durch,
+																		 // coord ist Mauskoordinate des Referenzpunktes des Objektes (bei Anklicken),
+																		 // delta ist die lokale Koordinate mit coord als Ursprung.
+eval(object:action,   coord->startcoord-startmouse+mouse, 
+											delta->startcoord-startmouse,
+											mouse->mouse,
+											startmouse->startmouse,
+											startcoord->startcoord,
+											mousedelta->mousedelta);
+
+getaction(object, coord, delta) :=   // bestimme die an der Stelle delta im Objekt coord gewünschte Aktion
+  eval(object:"getaction",coord->coord, delta->delta);
+
+rectangle(coord, width, height) := // Ein Polygonzug von links unten aus gegen den Uhrzeigersinn
+   	apply([(0,0),(width,0),(width,height),(0,height)],#+coord);
+
+inrectangle(rect, pos) := pos.x > rect_1_1 & pos.x < rect_2_1 & pos.y <rect_3_2 & pos.y >rect_1_2;
+
+my(property) := self():property;
+
+
+ifdefined(something, default) := // if something is defined, then something, else use the default
+			if(isundefined(something),default,something);
+
+// Hilfsfunktionen, die in der Definition von VAM-Objekten verwendet werden
+// ========================================================================
+// Zur Erläuterung: Da man oft gleiche Funktionen verwenden möchte, es aber nicht so etwas wie
+// Vererbung von Funktionen gibt (noch!), ist es hilfreich, eine Funktion zu haben, 
+// deren Aufgabe es ist, einem object etwas beizubrigen.
+
+namedef(object) := 	// Definiere die Name-Funktion als "Typ"+"Koordinate"
+  (object:"name" := self():"type"+self():"coord");
+
+movableifnotpinned(object):= // Setzt "ismovable" auf hot und nicht gepinned, 
+										// und setzt die Eigenschaft "pinned"
+   (object:"pinned"     = false;
+	  object:"ismovable" := self():"ishot" & !(self():"pinned");
+    object:"setcoord"  := self():"coord" = mouse-startmouse+startcoord;);
+
+copyonmove(object):= // sorgt dafür, dass ein Objekt kopiert wird, wenn es bewegt wird
+(object:"clickcopy" := self():"copy";);
+
+
+;
+//Simple Chips
+// Wendeplättchen. 
+// new chip(c,radius) erzeugt ein VAM-Objekt für ein Wendeplättchen an der Stelle c mit Radius radius.
+// Ein sinnvoller Radius für Wendeplättchen ist 0.45 
+
+new chip(c,radius) := (
+	 regional(o); 
+
+	 // o ist ein JSON-Objekt mit diversen Eigenschaften. 
+	 // In der { … } Notation kann einem attribut kein code zugewiesen werden.
+
+	 o = {"type"     : "Chip",
+			  "coord"    : c,
+				"umgedreht": false,
+				"radius"   : radius,
+				"pinned"   : true };
+
+	 // Code-Zuweisungen funktionieren dann nachträglich mit :=
+   o:"info" := if(self():"umgedreht","🔴","🔵");
+
+   // Oder über geeignete convenience-Methoden
+   namedef(o);
+
+   // Jedes VAM-Objekt kann gezeichnet werden. Dabei sollte es als Referenzpunkt self():"coord" nehmen.
+   o:"draw" := (
+	      fill(circle(my("coord"),my("radius")),
+						      		color->if(my("umgedreht"),red(1),blue(1)),alpha->.8);
+		    draw(circle(my("coord"),my("radius")),color->grey(0),size->bordersize);
+	 );
+
+   // Ein VAM-Objekt muss entscheiden können, ob es an der Maus-Position reagieren möchte oder nicht.
+	 o:"ishot" := |self():"coord",mouse().xy|<self():"radius";
+
+   // Ein VAM-Objekt reagiert nur dann auf Maus-Verschiebungen, wenn o:"ismovable" mit true reagiert.
+	 movableifnotpinned(o);
+
+	 // Die Koordinate eines VAM-Objekts wird mit "setcoord" gesetzt, nicht mit direktem Zugriff auf "coord", 
+   // damit "coord" auch Funktionen enthalten kann. Außerdem kann so ein Objekt bei Koordinatenveränderungen
+   // abhängige Objekte mit verändern
+   o:"setcoord" := self():"coord" = coord;
+
+   // Die "click"-Methode wird aufgerufen, wenn ein Mouse Click passiert und das Objekt hot ist. 
+   // Klick-Koordinate ist dann in mouse().xy
+   o:"click" := self():"umgedreht"=!(self():"umgedreht");
+
+   o
+);
+
+
+;
+//Test Chips
+// Testobjekte: Eine Liste von Chips, angeordnet wie im 20er-Feld.
+chiplist = apply(1..2,y,apply(0..1, c, apply(1..5,x, new chip((c*5.25+x,y),.45))));
+
+;
+//VAM-Container
+// Bitte die Kommentare in Simple Chips beachten
+new container(list) := (
+	regional(c);
+  c = { "type":"Container", "children" : list};
+
+  namedef(c);
+  movableifnotpinned(c);
+
+	// Koordinate wird als Mittelwert der Kinder-Koordinaten berechnet.
+  c:"coord" := sum(self():"children",#:"coord")/length(self():"children");
+
+  // Zeichnen: Zeichne alle Kinder
+	c:"draw" := forall(self():"children", #:"draw");
+
+  // Hot, falls ein Kind hot ist.
+  c:"ishot" := length(select(self():"children", #:"ishot"))>0;
+
+  // Click wird weitergereicht an heiße Kinder
+	c:"click" := forall(select(self():"children", c, c:"ishot"),#:"click");
+
+  // Änderung der Position wird an die Kinder weitergereicht
+	c:"setcoord" := (regional(delta);delta=self():"coord"-coord;
+										forall(self():"children", setcoord(#,#:"coord"-delta)));
+
+  // Info ist Name + Info der Kinder
+	c:"info" := self():"name"+"{"+sum(self():"children",#:"info")+"}";
+
+  // gerade konstruiertes Objekt wird zurückgeliefert von der Funktion
+  c
+);
+
+;
+//Test container
+// Erzeuge einen verschachtelten Container aus der Liste der Chips und füge ihn der Liste aller Objekte hinzu.
+// Achtung: Wenn Objekte in einem Container sind, dann müssen sie nicht mehr selbst in die Liste hinzugefügt werden.
+// Es ist noch nicht klar, ob wir Container brauchen.
+
+//obj = obj :> new container(apply(chiplist, cl, new container(apply(cl,list, new container(list)))));
+
+// Im Gegensatz dazu werden hier alle Chips einzeln in die Objektlist gepackt (und sind damit einzeln beweglich)
+//obj = flatten(chiplist,levels->2);
+
+// Oder auch zwei 10er:
+//obj = apply(chiplist, cl, new container(apply(cl,list, new container(list))));;
+
+// Oder auch vier fünfer:
+//obj = flatten(apply(chiplist, cl, (apply(cl,list, new container(list)))));
+
+;
+//Einfaches Rechteck
+// Ein Rechteck, auf das man Sachen legen kann. 
+// new chip(c,radius) erzeugt ein VAM-Objekt für ein Wendeplättchen an der Stelle c mit Radius radius.
+// Ein sinnvoller Radius für Wendeplättchen ist 0.45 
+
+new rectangle(c,width,height) := (
+	 regional(r); 
+
+	 // r ist ein JSON-Objekt mit diversen Eigenschaften. 
+	 // In der { … } Notation kann einem attribut kein code zugewiesen werden.
+
+	 o = {"type" : "Rectangle",
+			  "coord":c,
+				"width":width,
+				"height":height,
+				"color":(245,233,196)/255
+				};
+
+	 // Code-Zuweisungen funktionieren dann nachträglich mit :=
+   o:"info" := my("name")+my("bbox");
+
+   // Oder über geeignete convenience-Methoden
+   namedef(o);
+
+	 o:"bbox" := rectangle(self():"coord",self():"width",self():"height");
+
+   // Jedes VAM-Objekt kann gezeichnet werden. Dabei sollte es als Referenzpunkt self():"coord" nehmen.
+   o:"draw" := (
+	      fillpoly(my("bbox"),color->my("color"),alpha->.9);
+		    drawpoly(my("bbox"),color->grey(0),size->bordersize);
+	 );
+
+   // Ein VAM-Objekt muss entscheiden können, ob es an der Maus-Position reagieren möchte oder nicht.
+	 o:"ishot" := inrectangle(my("bbox"),mouse().xy);
+
+   // Ein VAM-Objekt reagiert nur dann auf Maus-Verschiebungen, wenn o:"ismovable" mit true reagiert.
+	 movableifnotpinned(o);
+
+	 // Die Koordinate eines VAM-Objekts wird mit "setcoord" gesetzt, nicht mit direktem Zugriff auf "coord", 
+   // damit "coord" auch Funktionen enthalten kann. Außerdem kann so ein Objekt bei Koordinatenveränderungen
+   // abhängige Objekte mit verändern
+   o:"setcoord" := self():"coord" = coord;
+
+   // Die "click"-Methode wird aufgerufen, wenn ein Mouse Click passiert und das Objekt hot ist. 
+   // Klick-Koordinate ist dann in mouse().xy
+   o:"click" := (err(o:"info"));
+
+   o
+);
+
+
+;
+//Fractionbar
+drawmovearrow(P,dx):=
+(dy=perp(dx);
+	drawall([[P,P+dx],[P,P+(dx+dy)*.3],[P,P+(dx-dy)*.3],[P+dx,P+dx+(-dx+dy)*.3],[P+dx,P+dx+(-dx-dy)*.3]],
+		color->(0,0,0),alpha->0.5);
+);
+
+new fractionbar(c,width,height,n) := (
+	 regional(o); 
+	 o = {"type":"fractionbar",
+			  "coord":c,
+				"width":width,
+				"height":height,
+				"denom":n,
+				"colors":apply(1..n,false);
+				};
+
+   o:"info" := my("name")+my("box");
+   namedef(o);
+
+	 // Wenn ein Objekt ein "clickcopy" definiert, dann wird dieses bewegt statt das Originalobjekt.
+   // Einfachste Implementierung: eine Kopie dieses Objekts zurückgeben.
+	 // Aber es kann auch anders sein (zum Beispiel andere Farbe oder was auch immer)
+   // convenience-Methode dafür:    copyonmove(object) 
+   // o:"clickcopy" = self():"copy";
+
+   // erzeuge eine Kopie dieses Objekts. Sollte jedes Objekt können.
+   o:"copy" := ( onew = new fractionbar(my("coord"),my("width"),my("height"),my("denom"));
+								 //forall(["colors","pinned","clickcopy"], onew:#=my(#)); 
+								 // AGENDA: Kopieren aller relevanten Eigenschaft, mein code oben geht nicjt
+								 // AGENDA: Kann man ne "generische" copy funktion erzeugen?
+ 								 onew:"colors"=my("colors");
+								 onew;		
+							 );
+
+	 // AGENDA: Das folgende sollte sowei wie möglich generisch gemacht werden
+	 o:"historyparams" = [["coord","width","height","denom"],["colors"]];
+	 o:"historyadd" := (history = history :> 
+												[timestamp(),
+												 "fractionbar",	
+												 apply((my("historyparams"))_1,self():#),
+												 apply((my("historyparams"))_2,self():#)];
+
+												//err(history_(-1));
+ 							 				);
+	 o:"historyretrieve" := (params=my("historyparams");
+												forall(1..length(params_1),self():(params_1_#)=historyvals_1_#;);
+												forall(1..length(params_1),self():(params_1_#)=historyvals_2_#;);
+ 							 				); // AGENDA: Machen wir wieder ne call Funktion, oder? weg historyvals
+
+
+	 o:"box" := rectangle(self():"coord",self():"width",self():"height");
+	 o:"boxes" := (dx=my("width")/my("denom");
+								 apply(0..(my("denom")-1),rectangle(my("coord")+(#*dx,0),dx,my("height")));
+								); 
+   o:"draw" := (
+				boxes=self():"boxes"; //err(boxes);
+	  		forall(1..my("denom"),
+			    col=my("colors")_#;
+					if(col!=false,fillpoly(boxes_#,color->col,alpha->.9));
+		    	drawpoly(boxes_#,color->grey(0),size->bordersize);
+				);
+				drawmovearrow(my("coord")+(0,my("height")/2),(pinchsensitivity,0));
+				drawmovearrow(my("coord")+(my("width"),my("height")/2),(-pinchsensitivity,0));
+	 );
+	 o:"ishot" := inrectangle(my("box"),mouse().xy);
+	 movableifnotpinned(o);
+   o:"setcoord" := self():"coord" = coord;
+   o:"click" := (if(debugging,err(o:"info")));
+
+   o:"resizeright" := self():"width" =  max(1,mouse.x - startcoord.x);
+   o:"resizeleft" := ( newwidth = max(1,startcoord.x+my("storewidth")-mouse.x);
+											 self():"coord" = startcoord+(my("storewidth")-newwidth,0);
+											 self():"width" = newwidth);
+   o:"getaction" := (
+		  // AGENDA: auch mit Delta definieren, also nur relative nicht absolute x-Bewegung nutzen
+			// AGENDA: convenience-Methode definieren für resize
+					self():"storewidth" = my("width");
+					if(|delta.x - self():"width"|<pinchsensitivity,"resizeright",
+						if(|delta.x - 0|<pinchsensitivity, "resizeleft"
+						);
+					);
+			);
+  o
+);
+
+new brush(c,r,color) := (
+	 regional(o); 
+	 o = {"type":"brush",
+			  "coord":c,
+				"radius":r,
+				"color":color;
+				};
+
+   o:"info" := my("name")+my("color");
+   namedef(o);
+
+ 	 o:"copy" := ( onew = new brush(my("coord"),my("radius"),my("color"));
+								 onew;		
+							 );
+   o:"draw" := (
+				if(my("color")!=false,fillcircle(my("coord"),my("radius"),color->my("color"),alpha->1));
+				drawcircle(my("coord"),my("radius"),color->grey(0),size->bordersize);
+				);
+	 o:"act":=(
+			//acton=select(obj,oi,oi:"type"=="fractionbar" & inrectangle(oi:"box",mouse().xy));
+			acton=select(select(obj,oi,oi:"type"=="fractionbar"),oj,inrectangle(oj:"box",mouse().xy));
+
+	 /// AGENDA: als Methode in fractionbar (nicht hier)
+			forall(acton,fb,
+				forall(1..(fb:"denom"),i, 
+					if(inrectangle((fb:"boxes")_i,mouse().xy),
+					 if((fb:"colors")_i!=my("color"),
+							(fb:"colors")_i=my("color");
+							 fb:"historyadd";
+							);
+						);
+				);	
+
+			);					
+	 );
+		
+   o:"drop":=(
+	    obj=obj--[self()]; 
+			);
+	 o:"ishot" := if(dist(mouse().xy,my("coord"))<my("radius"),true,false);
+	 movableifnotpinned(o);
+   o:"setcoord" := self():"coord" = coord;
+   o:"click" := (if(debugging,err(o:"info")));
+   o
+);
+
+new refiner(c,r,color,m) := (
+	 regional(o); 
+	 o = {"type":"brush",
+			  "coord":c,
+				"radius":r,
+				"color":color,
+				"multiple":m;
+				};
+
+   o:"info" := my("name")+my("color")+my("multiple");
+   namedef(o);
+
+ 	 o:"copy" := ( onew = new refiner(my("coord"),my("radius"),my("color"),my("multiple"));
+								 onew;		
+							 );
+   o:"draw" := (
+				fillcircle(my("coord"),my("radius"),color->my("color"),alpha->1);
+				drawcircle(my("coord"),my("radius"),color->grey(0),size->bordersize);
+				fntsize=my("radius")*screenresolution()*1.3;
+				drawtext(my("coord"),"$\cdot "+my("multiple")+"$",bold->true,
+								size->fntsize,yoffset->-fntsize/2,align->"center",color->(1,1,1));
+
+				if(!isundefined(my("refinelines")),	
+						drawall(my("refinelines"),color->(0,0,0),alpha->.7,dashtype->2););
+				);
+	 o:"refinelines" = NADA;	
+
+	 // act reagiert nur bei hot
+	 o:"act":=(
+			acton=select(select(obj,oi,oi:"type"=="fractionbar"),oj,inrectangle(oj:"box",mouse().xy));
+      self():"refinelines"=NADA;
+      forall(acton,fb,	
+					n=fb:"denom";m=my("multiple");
+					self():"refinelines" = 
+							flatten(apply(0..(n-1),i,apply(1..(m-1),j,
+									dx=(fb:"width")*(i/n+j/(n*m));dy=fb:"height";
+									[fb:"coord"+(dx,-dy*.2),fb:"coord"+(dx,dy*1.2)]
+							)));
+					//err(self():"refinelines");
+				 );
+
+      // refine nach rechts
+		  acton=select(select(obj,oi,oi:"type"=="fractionbar"),oj,inrectangle(oj:"box",mouse().xy-(oj:"width",0)));
+      objpreview=[];
+ 			forall(acton,fb,	
+						 pobj=fb:"copy";
+						 m=my("multiple");
+						 pobj:"denom"=fb:"denom"*(m-1);pobj:"width"=fb:"width"*(m-1);
+						 pobj:"coord"=fb:"coord"+(fb:"width",0);
+						 pobj:"colors"=flatten(apply(1..(m-1),apply(fb:"colors",if(#==false,false,#*0.5+(1,1,1)*.5))));
+//						 err(fb:"colors");err(pobj:"colors");
+						 objpreview = objpreview :> pobj;
+						);
+			);
+	 /// AGENDA: als Methode NICHT in fractionbar (weil: temüporäre preview, ggf. mehrer Streifen verrechnen 
+
+
+	 // grundsätzliche Aktioen bei Mausloslassen
+	 o:"drop":=(
+			acton=select(select(obj,oi,oi:"type"=="fractionbar"),oj,inrectangle(oj:"box",mouse().xy));
+      forall(acton,fb,	
+					n=fb:"denom";m=my("multiple");
+					fb:"denom"=n*m;
+					fb:"colors"=flatten(apply(fb:"colors",c,apply(1..m,c)));
+				 );	
+		  acton=select(select(obj,oi,oi:"type"=="fractionbar"),oj,inrectangle(oj:"box",mouse().xy-(oj:"width",0)));
+      forall(acton,fb,	
+					n=fb:"denom";m=my("multiple");
+					fb:"denom"=n*m;fb:"width"=fb:"width"*m;
+					fb:"colors"=flatten(apply(1..m,fb:"colors"));
+			);
+	    obj=obj--[self()];
+			objpreview=[];
+   		);
+	 /// AGENDA: als Methode NICHT in fractionbar (weil: temüporäre preview, ggf. mehrer Streifen verrechnen )
+
+		
+	 o:"ishot" := if(dist(mouse().xy,my("coord"))<my("radius"),true,false);
+	 movableifnotpinned(o);
+   o:"setcoord" := self():"coord" = coord;
+   o:"click" := (if(debugging,err(o:"info")));
+   o
+);
+
+
+
+
+
+;
+//Test Fractionbar
+forall(1..12,
+ bar=new fractionbar((0,13-#),.5*(5+#),.8,#);
+ //copyonmove(bar);// Macht Fractionbar, der kopiert wird, wenn man ihn bewegen will. copyonmove(obj_(-1));
+ obj = obj :> bar;
+ bar:"historyadd";
+);
+
+
+
+//obj = obj :> new fractionbar((0,1),3,.5,10);
+
+forall(1..5,
+	o = new brush((10+#,13.5),.4,[false,(1,0,0),(0,1,0),(1,1,0),(.5,.5,1)]_#);
+ 	copyonmove(o);	
+	obj = obj :> o	
+);
+
+forall(1..5,
+	o = new refiner((16+#,13.5),.4,(0,0,0),(#+1));
+ 	copyonmove(o);	
+	obj = obj :> o	
+);
+
+
+;
+
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+//Script (CindyScript)
+// Falls ein Element bewegt wird (also hot definiert ist), aktualisiere seine Koordinate
+
+if(!isundefined(hot),
+ //err(action); err(startmouse); err(startcoord); err(mouse().xy);
+	act(hot,action,startmouse, startcoord, mouse().xy, mouse().xy-oldmouse);
+ oldmouse = mouse().xy;
+ hot:"act";
+);
+;
+
+</script>
+<script id="csmouseclick" type="text/x-cindyscript">
+//Script (CindyScript)
+// Teste alle Objekte, ob sie hot sind und sende ihnen gegebenfalls ein "click"
+forall(obj,o,
+		if(o:"ishot",o:"click");
+);
+
+// Alternative Formulierung (schöner?):
+//forall(select(obj,#:"ishot"),#:"click");
+
+;
+
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+//Script (CindyScript)
+// Falls ein Element bewegt wird (also hot definiert ist), aktualisiere seine Koordinate
+if(!isundefined(hot), act(hot,action,startmouse, startcoord, mouse().xy, mouse().xy-oldmouse););
+// AGENDA: Warum muss das auf actionobject ausgeführt werden? (a) überhaupt, (b) habs auf hot umgebogen
+// hat alles keinen Unterschied im verhalten gemacht
+
+if(!isundefined(hot), hot:"historyadd");
+hot:"drop";
+
+
+
+
+;
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+debugging = Text0.pressed;
+alpha(if(debugging,.8,1));
+
+// Globale Parameter
+bordersize = screenresolution()*.05; // entspricht 0,5 mm Fineliner
+pinchsensitivity = 10/screenresolution(); //err(pinchsensitivity);
+
+layer(0);
+// Zeichne alle Objekte, die in der Liste "obj" sind
+forall(obj, #:"draw");
+
+// Zeichne alle Objekte, die in der Liste "preview" sind die sind nur temporär vorhanden
+layer(-2);
+forall(objpreview, #:"draw");
+layer(0);
+
+// Hier könnte noch mehr passieren, das sind dann aber Dinge,
+//die außerhalb des VAM-Frameworks passieren.
+
+
+// Im debugging-Modus (siehe "Initialization" werden die Info-Texte aller Objekte angezeigt)
+if(debugging,
+  forall(obj, drawtext(#:"coord",#:"info",align->"mid"));
+);
+
+
+;
+
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+//Script (CindyScript)
+// Finde alle Elemente, die beweglich sind, wenn die Maus an der aktuellen Stelle ist (mouse().xy)
+hotlist = select(obj,#:"ismovable");
+
+// Wenn es ein Element in der Hotlist gibt, dann finde die relative Distanz zwischen Referenzpunkt und Maus.
+if(length(hotlist)>0,
+		hot = hotlist_(length(hotlist));
+    startmouse = mouse().xy;
+    oldmouse = mouse().xy;
+    startcoord = hot:"coord";
+	  localcoord = startmouse - hot:"coord";
+		
+    clickcopy = hot:"clickcopy";//;err(clickcopy);err(hot);
+		if(not(isundefined(clickcopy)),
+				//clickcopy:"clickcopy"=NADA;
+				obj = obj :> clickcopy;hot=clickcopy
+		);//err("new"),err("old"));
+
+    action = ifdefined(getaction(hot, startmouse, localcoord),"setcoord"); // actiontyp ermitteln, sonst default-action setcoord
+    //err(action);
+
+		obj = obj -- [hot] ++ [hot];     // angefasste Elemente kommen nach vorn
+,// else
+    hot = NADA; // explizit auf "undefiniert" setzen.
+);
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text0", type: "ToggleButton", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, pinned: true, text: "Debug", dock: {corner: "UR", offset: [-48.0, -20.0]}}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    width: 964,
+    height: 443,
+    transform: [{visibleRect: [-4.667780543770266, 14.627793877969026, 25.430817745156396, 0.7961766144892426]}],
+    background: "rgb(255,255,255)"
+  }],
+  csconsole: false,
+  use: ["katex"],
+  cinderella: {build: 2055, version: [3, 0, 2055]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

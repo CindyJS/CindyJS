@@ -134,4 +134,7 @@ describe("JSON operations", function () {
         'A:"x"=100; {"a":A:"x"*2,"b":{"c":1+3, "ef": [1,2,3, A:"x"], "ghi": "jkl"}} ',
         "{a:200, b:{c:4, ef:[1, 2, 3, 100], ghi:jkl}}"
     );
+
+    //JSON code
+    itCmd('json={"name":"Peter"};json:"code":=self():"name";json:"code"', "Peter");
 });
