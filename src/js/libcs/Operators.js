@@ -4372,6 +4372,23 @@ evaluator.self$0 = function (args, modifs) {
     return Json._helper.self;
 };
 
+evaluator.eval$1 = function (args, modifs) {
+    Object.entries(modifs).forEach(function ([key, value]) {
+        let val = evaluate(value);
+        namespace.newvar(key);
+        namespace.setvar(key, val);
+    });
+
+    namespace.pushVstack("*");
+    const erg = evaluate(args[0]);
+    namespace.cleanVstack();
+    Object.entries(modifs).forEach(function ([key, value]) {
+        namespace.removevar(key);
+    });
+    return erg;
+    //                    return tt(args,modifs);
+};
+
 ///////////////////////////////
 //   Calling external code   //
 ///////////////////////////////

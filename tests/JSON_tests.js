@@ -135,6 +135,6 @@ describe("JSON operations", function () {
         "{a:200, b:{c:4, ef:[1, 2, 3, 100], ghi:jkl}}"
     );
 
-    //JSON code
+    //JSON code & Self
     itCmd('json={"name":"Peter"};json:"code":=self():"name";json:"code"', "Peter");
 });
