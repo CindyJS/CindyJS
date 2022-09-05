@@ -127,3 +127,7 @@ describe("Assign code to JSON objects", function () {
     itCmd('obj={};obj:"code":=(x=x*7);x=1;obj.code;obj.code;x', "49");
     itCmd('obj={};obj:"code":=(x=x*7);x=1;obj:"code";obj.code;x', "49");
 });
+
+describe("Calling code through eval", function () {
+    itCmd("eval(x+y,x->2,y->5)", "7");
+});

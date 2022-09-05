@@ -30,11 +30,23 @@ function evaluate(a) {
     } else if (a.ctype === "field") {
         const obj = evaluate(a.obj);
         if (obj.ctype === "geo") {
-            return evaluate(Accessor.getField(obj.value, a.key));
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = evaluate(Accessor.getField(obj.value, a.key));
+            Json._helper.self = oldobject;
+            return result;
         } else if (obj.ctype === "list") {
-            return List.getField(obj, a.key);
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = List.getField(obj, a.key);
+            Json._helper.self = oldobject;
+            return result;
         } else if (obj.ctype === "JSON") {
-            return evaluate(Json.getField(obj, a.key));
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = evaluate(Json.getField(obj, a.key));
+            Json._helper.self = oldobject;
+            return result;
         } else {
             return nada;
         }
@@ -43,11 +55,23 @@ function evaluate(a) {
         let key = General.string(niceprint(evaluate(a.key)));
         if (key.value === "_?_") key = nada;
         if (obj.ctype === "geo") {
-            return evaluate(Accessor.getuserData(obj.value, key));
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = evaluate(Accessor.getuserData(obj.value, key));
+            Json._helper.self = oldobject;
+            return result;
         } else if (obj.ctype === "list" || obj.ctype === "string") {
-            return evaluate(Accessor.getuserData(obj, key));
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = evaluate(Accessor.getuserData(obj, key));
+            Json._helper.self = oldobject;
+            return result;
         } else if (obj.ctype === "JSON") {
-            return evaluate(Json.getField(obj, key.value));
+            let oldobject = Json._helper.self;
+            Json._helper.self = obj;
+            let result = evaluate(Json.getField(obj, key.value));
+            Json._helper.self = oldobject;
+            return result;
         } else return nada;
     } else {
         return a;
