@@ -232,6 +232,7 @@ eval_helper.evaluate = function (name, args, modifs) {
 };
 
 eval_helper.equals = function (v0, v1) {
+    // TODO: use this everywhere where elements are compared (see function comp_equals(args, modifs) )
     //Und nochmals un-OO
     if (v0.ctype === "number" && v1.ctype === "number") {
         return {
@@ -256,6 +257,12 @@ eval_helper.equals = function (v0, v1) {
         return erg;
     }
     if (v0.ctype === "geo" && v1.ctype === "geo") {
+        return {
+            ctype: "boolean",
+            value: v0.value === v1.value,
+        };
+    }
+    if (v0.ctype === "JSON" && v1.ctype === "JSON") {
         return {
             ctype: "boolean",
             value: v0.value === v1.value,

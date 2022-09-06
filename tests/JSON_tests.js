@@ -138,3 +138,17 @@ describe("JSON operations", function () {
     //JSON code & Self
     itCmd('json={"name":"Peter"};json:"code":=self():"name";json:"code"', "Peter");
 });
+
+describe("comparing JSON objects", function() {
+    // Objects are copied by reference
+    itCmd('obj={}; x= obj; x==obj',"true");
+
+    // Two objects are equal iff the reference is the same
+    itCmd('obj={}; x= {}; x==obj',"false");
+
+    itCmd('obj=[];new(name):=(o={"name":name};o:"destroy" := obj = obj -- [self()];obj=obj :> o;o);new("Peter");a=new("Ulli");b=new("Ulli");a:"destroy";contains(obj,b)',"true");
+
+    itCmd('obj=[];new(name):=(o={"name":name};o:"destroy" := obj = obj -- [self()];obj=obj :> o;o);new("Peter");a=new("Ulli");b=new("Ulli");a:"destroy";contains(obj,a)',"false");
+    
+    itCmd('obj=[];new(name):=(o={"name":name};o:"destroy" := obj = obj -- [self()];obj=obj :> o;o);new("Peter");a=new("Ulli");b=new("Ulli");a:"destroy";length(obj)',"2");
+});

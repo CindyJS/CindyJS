@@ -874,6 +874,9 @@ function comp_equals(args, modifs) {
         if (v0.ctype === "geo") {
             return General.bool(v0.value === v1.value);
         }
+        if (v0.ctype === "JSON") {
+            return General.bool(v0.value === v1.value);
+        }
     }
     return {
         ctype: "boolean",
