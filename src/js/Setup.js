@@ -244,7 +244,7 @@ function isCinderellaBeforeVersion() {
     return false;
 }
 
-function createCindyNow() {
+async function createCindyNow() {
     startupCalled = true;
     if (waitForPlugins !== 0) return;
 
@@ -356,6 +356,74 @@ function createCindyNow() {
     if (typeof scriptconf === "string" && scriptconf.search(/\*/) >= 0) scriptpat = scriptconf;
     if (typeof scriptconf !== "object") scriptconf = null;
 
+    /*
+Loads CindyScript files (marked by .cjs file ending) and adds their code AT THE BEGINNING of the init script.
+The file names (and paths) have to be listed in the dictionary that's passed to CindyJS/createCindy as an array for the key 'import'. I.e., like this:
+          var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+                import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
+
+            });
+The libraries are prepended as a whole in the order listed, so libraryA is loaded before libraryB. That way, libraries farther back can reference code of libraries farther up front.
+
+CAUTION!
+Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
+If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
+*/
+
+    if (data.import && Array.isArray(data.import) && data.import.length > 0) {
+        let initId = "csinit";
+        if (data.initscript) {
+            initId = data.initscript;
+        } else if (scriptpat) {
+            initId = scriptpat.replace(/\*/, "init");
+        } else {
+            return;
+        }
+
+        console.log("===== Importing CindyScript libraries to " + initId + " =====");
+
+        let fullCode = "";
+
+        for (let library of data.import.reverse()) {
+            if (typeof library !== "string") continue;
+
+            console.log("Loading " + library + " ...");
+
+            let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
+
+            try {
+                let response = await fetch(query);
+
+                if (response.status === 200) {
+                    let code = await response.text();
+                    let safety = code[code.length - 1] == ";" ? "" : ";";
+                    fullCode = code + safety + "\n" + fullCode;
+                    console.log(library + " loaded!");
+                } else {
+                    console.log("CAUTION! Import of " + library + " failed.");
+                }
+            } catch (e) {
+                if (e.message === "Failed to fetch") {
+                    console.log("CAUTION! Import of " + library + " failed.");
+                    console.log(
+                        "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
+                    );
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        let initElement = getCodeElement(initId);
+        let initCode = document.createTextNode(fullCode);
+        prependCode(initElement, initCode);
+        console.log("===== Import of libraries to " + initId + " finished ========");
+    }
+
+    // Continue with compiling scripts.
+
     scripts.forEach(function (s) {
         let cscode;
         if (scriptconf !== null && scriptconf[s]) {
@@ -435,6 +503,29 @@ function createCindyNow() {
         });
     loadExtraModules();
     doneLoadingModule();
+}
+
+function getCodeElement(scriptId) {
+    var scriptElement = document.getElementById(scriptId);
+    if (!scriptElement) {
+        scriptElement = document.createElement("script");
+        scriptElement.id = scriptId;
+        scriptElement.type = "text/x-cindyscript";
+        document.head.appendChild(scriptElement);
+    }
+    return scriptElement;
+}
+
+function prependCode(scriptElement, codeNode) {
+    if (scriptElement.firstChild) {
+        scriptElement.insertBefore(codeNode, scriptElement.firstChild);
+    } else {
+        scriptElement.appendChild(codeNode);
+    }
+}
+
+function appendCode(scriptElement, codeNode) {
+    scriptElement.appendChild(codeNode);
 }
 
 /*

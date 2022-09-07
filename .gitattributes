@@ -3,6 +3,7 @@
 *.commit        text
 *.conf          text
 *.cdy           -text
+*.cjs           text
 *.cs            text
 *.css           text
 *.enc           -text
