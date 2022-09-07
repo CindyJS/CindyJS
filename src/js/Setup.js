@@ -371,6 +371,7 @@ CAUTION!
 Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
 If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
 */
+
     if (data.import && Array.isArray(data.import) && data.import.length > 0) {
         let initId = "csinit";
         if (data.initscript) {
@@ -391,15 +392,27 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
             console.log("Loading " + library + " ...");
 
             let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
-            let response = await fetch(query);
 
-            if (response.status === 200) {
-                let code = await response.text();
-                let safety = code[code.length - 1] == ";" ? "" : ";";
-                fullCode = code + safety + "\n" + fullCode;
-                console.log(library + " loaded!");
-            } else {
-                console.log("CAUTION! Import of " + library + " failed.");
+            try {
+                let response = await fetch(query);
+
+                if (response.status === 200) {
+                    let code = await response.text();
+                    let safety = code[code.length - 1] == ";" ? "" : ";";
+                    fullCode = code + safety + "\n" + fullCode;
+                    console.log(library + " loaded!");
+                } else {
+                    console.log("CAUTION! Import of " + library + " failed.");
+                }
+            } catch (e) {
+                if (e.message === "Failed to fetch") {
+                    console.log("CAUTION! Import of " + library + " failed.");
+                    console.log(
+                        "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
+                    );
+                } else {
+                    throw e;
+                }
             }
         }
 
