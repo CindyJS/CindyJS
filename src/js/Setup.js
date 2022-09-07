@@ -365,7 +365,7 @@ The file names (and paths) have to be listed in the dictionary that's passed to 
                 import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
 
             });
-Note that the libraries get prepended to the init-script BACK TO FRONT. So, in the example above, the code from libraryA comes before the code from libraryB whoch comes before the custom user code. That way, libraries can reference each others code.
+The libraries are prepended as a whole in the order listed, so libraryA is loaded before libraryB. That way, libraries farther back can reference code of libraries farther up front.
 
 CAUTION!
 Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
