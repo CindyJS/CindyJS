@@ -92,7 +92,16 @@ function csinit(gslp) {
         conics: [],
     };
 
-    gslp.forEach(addElementNoProof);
+    gslp.forEach((el, index) => {
+        addElementNoProof(el);
+        try {
+            // only check incidences, there should be not duplicates when loading a construciton
+            guessIncidences(el);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
     checkConjectures();
 }
 
@@ -173,6 +182,15 @@ function polygonDefault(el) {
 
 function addElement(el, removeDuplicates) {
     el = addElementNoProof(el);
+    // Guess Duplicates and Incidences
+    // use try/catch since this is not mission critical
+    try {
+        guessDuplicate(el);
+        guessIncidences(el);
+    } catch (e) {
+        console.error(e);
+    }
+
     checkConjectures();
 
     // remove element if it's a proven duplicate
@@ -370,14 +388,6 @@ function addElementNoProof(el) {
     isShowing(el, op);
 
     geoDependantsCache = {};
-    // Guess Duplicates and Incidences
-    // use try/catch since this is not mission critical
-    try {
-        guessDuplicate(el);
-        guessIncidences(el);
-    } catch (e) {
-        console.error(e);
-    }
 
     return csgeo.csnames[el.name];
 }
