@@ -12,7 +12,7 @@
         "@jscad/csg": "^0.7.0",
         "babel-cli": "^6.26.0",
         "babel-plugin-remove-import-export": "^1.1.1",
-        "browser-sync": "^2.27.5",
+        "browser-sync": "^2.27.10",
         "browserify": "^17.0.0",
         "chai": "^4.3.4",
         "chalk": "^4.1.1",
@@ -29,7 +29,7 @@
         "lint-staged": "^11.1.1",
         "marked": ">=0.3.5 <=0.3.12",
         "mocha": "^9.2.0",
-        "node-sass": "^7.0.1",
+        "node-sass": "^7.0.3",
         "pako": "^2.0.4",
         "prettier": "2.3.2",
         "q": "^1.5.1",
@@ -94,5 +94,6 @@
     "lint-staged": {
         "*.js": "eslint --cache --fix",
         "*.{js,css,md}": "prettier --write"
-    }
+    },
+    "dependencies": {}
 }
