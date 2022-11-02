@@ -36,7 +36,7 @@ import { evaluate, printStackTrace, evaluateAndVal, evaluateAndHomog, analyse } 
 import { CSad } from "libcs/CSad";
 import { tools, setActiveTool } from "libcs/Tools";
 import { csport, csgstorage } from "libgeo/GeoState";
-import { addElement, removeElement } from "libgeo/GeoBasics";
+import { addElement, removeElement, addElementNoProof } from "libgeo/GeoBasics";
 import { stateContinueFromHere } from "libgeo/Tracing";
 import { geoOps, geoAliases, geoMacros } from "libgeo/GeoOps";
 import { masses, springs } from "liblab/LabBasics";
@@ -4156,7 +4156,7 @@ evaluator.createpoint$2 = function (args, modifs) {
 
     return {
         ctype: "geo",
-        value: addElement(el, true),
+        value: addElementNoProof(el),
     };
 };
 
