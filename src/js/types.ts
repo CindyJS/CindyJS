@@ -15,3 +15,7 @@ export interface CindyNumber extends CindyType {
 export interface Nada {
   ctype: string;
 }
+
+export interface CindyList extends CindyType {
+  value: Array<CindyType>
+}
