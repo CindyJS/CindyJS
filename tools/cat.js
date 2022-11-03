@@ -47,6 +47,7 @@ function processCommandLine() {
     }
     concat = new Concat(true, relative(map, out) || "out.js", "");
     for (let i = 0; i < inputs.length; ++i) {
+        console.log(inputs[i]);
         fs.readFile(inputs[i], "utf8", inputRead.bind(null, i, inputs[i]));
         inputs[i] = null;
     }
