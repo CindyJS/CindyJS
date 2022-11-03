@@ -1,8 +1,8 @@
-// @ts-ignore
+// @ts-expect-error: Not yet typed
 import { instanceInvocationArguments, nada } from "expose";
-// @ts-ignore
+// @ts-expect-error: Not yet typed
 import { List } from "libcs/List";
-// @ts-ignore
+// @ts-expect-error: Not yet typed
 import { General } from "libcs/General";
 
 interface CindyType {
@@ -672,8 +672,8 @@ CSNumber._helper.solveCubicHelper = function(a: NumberType, b: NumberType, c: Nu
     const dr = d.value.real;
     const di = d.value.imag;
 
-    const c1 = 1.25992104989487316476721060727822835057025; //2^(1/3)
-    const c2 = 1.58740105196819947475170563927230826039149; //2^(2/3)
+    const c1 = 1.2599210498948732; //2^(1/3)
+    const c2 = 1.5874010519681994; //2^(2/3) 
 
     // t1 = (4ac - b^2)
 

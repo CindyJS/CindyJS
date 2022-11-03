@@ -150,7 +150,7 @@ module.exports = function build(settings, task) {
     task("jshint", ["ours"], callEslint);
 
     function callEslint() {
-        this.cmdscript("eslint", "src/js/**/*.js");
+        this.cmdscript("eslint", "src/js/**/*.[jt]s");
         this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
     }
 
