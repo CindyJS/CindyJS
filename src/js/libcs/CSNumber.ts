@@ -1,20 +1,41 @@
+// @ts-ignore
 import { instanceInvocationArguments, nada } from "expose";
+// @ts-ignore
 import { List } from "libcs/List";
+// @ts-ignore
 import { General } from "libcs/General";
+
+interface CindyType {
+    ctype: string;
+    value?: Record<string, any>;
+}
+
+interface NumberType extends CindyType {
+    usage?: "Angle";
+    ctype: "number";
+    value: {
+        real: number;
+        imag: number;
+    };
+}
+
+interface NadaType {
+    ctype: string;
+}
 
 //==========================================
 //      Complex Numbers
 //==========================================
-const CSNumber = {};
+const CSNumber: Record<string, any> = {};
 CSNumber._helper = {};
 CSNumber._helper.roundingfactor = 1e4;
 CSNumber._helper.angleroundingfactor = 1e1;
 
-CSNumber._helper.niceround = function (a, roundingfactor) {
+CSNumber._helper.niceround = function(a: number, roundingfactor: number) {
     return Math.round(a * roundingfactor) / roundingfactor;
 };
 
-CSNumber.niceprint = function (a, roundingfactor) {
+CSNumber.niceprint = function(a: NumberType, roundingfactor: number) {
     roundingfactor = roundingfactor || CSNumber._helper.roundingfactor;
     if (a.usage === "Angle") {
         return CSNumber._helper.niceangle(a);
@@ -33,7 +54,6 @@ CSNumber.niceprint = function (a, roundingfactor) {
 };
 
 const angleUnit = instanceInvocationArguments.angleUnit || "°";
-const angleUnitName = angleUnit.replace(/\s+/g, ""); // unit may contain space
 const TWOPI = Math.PI * 2;
 const PERTWOPI = 1 / TWOPI;
 const angleUnits = {
@@ -52,10 +72,14 @@ const angleUnits = {
     quad: 4,
 };
 
-CSNumber._helper.niceangle = function (a) {
+type AngleUnit = keyof typeof angleUnits;
+const angleUnitName = angleUnit.replace(/\s+/g, "") as AngleUnit; // unit may contain space
+
+
+CSNumber._helper.niceangle = function(a: NumberType): string {
     const unit = angleUnits[angleUnitName];
     if (!unit) return CSNumber.niceprint(General.withUsage(a, null));
-    if (typeof unit === "function") return unit(a);
+    // if (typeof unit === "function") return unit(a);
     const num = CSNumber.niceprint(
         CSNumber.realmult(unit * PERTWOPI, a),
         unit > 200 ? CSNumber._helper.angleroundingfactor : null
@@ -64,7 +88,7 @@ CSNumber._helper.niceangle = function (a) {
     return "(" + num + ")" + angleUnit;
 };
 
-CSNumber.complex = function (r, i) {
+CSNumber.complex = function(r: number, i: number): NumberType {
     return {
         ctype: "number",
         value: {
@@ -74,7 +98,7 @@ CSNumber.complex = function (r, i) {
     };
 };
 
-CSNumber.real = function (r) {
+CSNumber.real = function(r: number): NumberType {
     return {
         ctype: "number",
         value: {
@@ -92,18 +116,18 @@ CSNumber.infinity = CSNumber.complex(Infinity, Infinity);
 
 CSNumber.nan = CSNumber.complex(NaN, NaN);
 
-CSNumber._helper.input = function (a) {
-    if (typeof a === "object") return CSNumber.complex(+a.r, +a.i);
+CSNumber._helper.input = function(a: { r: object; i: object }) {
+    if (a.r != undefined || a.i != undefined) return CSNumber.complex(+a.r, +a.i);
     else return CSNumber.real(+a);
 };
 
-CSNumber.argmax = function (a, b) {
+CSNumber.argmax = function(a: NumberType, b: NumberType): NumberType {
     const n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
     const n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
     return n1 < n2 ? b : a;
 };
 
-CSNumber.max = function (a, b) {
+CSNumber.max = function(a: NumberType, b: NumberType) {
     return {
         ctype: "number",
         value: {
@@ -113,7 +137,7 @@ CSNumber.max = function (a, b) {
     };
 };
 
-CSNumber.min = function (a, b) {
+CSNumber.min = function(a: NumberType, b: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -123,7 +147,7 @@ CSNumber.min = function (a, b) {
     };
 };
 
-CSNumber.add = function (a, b) {
+CSNumber.add = function(a: NumberType, b: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -133,7 +157,7 @@ CSNumber.add = function (a, b) {
     };
 };
 
-CSNumber.sub = function (a, b) {
+CSNumber.sub = function(a: NumberType, b: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -143,7 +167,7 @@ CSNumber.sub = function (a, b) {
     };
 };
 
-CSNumber.neg = function (a) {
+CSNumber.neg = function(a: NumberType): NumberType {
     return {
         ...a,
         ctype: "number",
@@ -154,7 +178,7 @@ CSNumber.neg = function (a) {
     };
 };
 
-CSNumber.re = function (a) {
+CSNumber.re = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -164,7 +188,7 @@ CSNumber.re = function (a) {
     };
 };
 
-CSNumber.im = function (a) {
+CSNumber.im = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -174,7 +198,7 @@ CSNumber.im = function (a) {
     };
 };
 
-CSNumber.conjugate = function (a) {
+CSNumber.conjugate = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -184,7 +208,7 @@ CSNumber.conjugate = function (a) {
     };
 };
 
-CSNumber.round = function (a) {
+CSNumber.round = function(a: NumberType) {
     return {
         ctype: "number",
         value: {
@@ -194,7 +218,7 @@ CSNumber.round = function (a) {
     };
 };
 
-CSNumber.ceil = function (a) {
+CSNumber.ceil = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -204,7 +228,7 @@ CSNumber.ceil = function (a) {
     };
 };
 
-CSNumber.floor = function (a) {
+CSNumber.floor = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -214,7 +238,7 @@ CSNumber.floor = function (a) {
     };
 };
 
-CSNumber.mult = function (a, b) {
+CSNumber.mult = function(a: NumberType, b: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -224,7 +248,7 @@ CSNumber.mult = function (a, b) {
     };
 };
 
-CSNumber.realmult = function (r, c) {
+CSNumber.realmult = function(r: number, c: NumberType) {
     return {
         ctype: "number",
         value: {
@@ -234,7 +258,7 @@ CSNumber.realmult = function (r, c) {
     };
 };
 
-CSNumber.multiMult = function (arr) {
+CSNumber.multiMult = function(arr: Array<NumberType>): NadaType | NumberType {
     let erg = arr[0];
     if (erg.ctype !== "number") return nada;
     for (let i = 1; i < arr.length; i++) {
@@ -247,7 +271,7 @@ CSNumber.multiMult = function (arr) {
     return erg;
 };
 
-CSNumber.abs2 = function (a) {
+CSNumber.abs2 = function(a: NumberType): NumberType {
     return {
         ctype: "number",
         value: {
@@ -257,11 +281,11 @@ CSNumber.abs2 = function (a) {
     };
 };
 
-CSNumber.abs = function (a) {
+CSNumber.abs = function(a: NumberType): NumberType {
     return CSNumber.sqrt(CSNumber.abs2(a));
 };
 
-CSNumber.inv = function (a) {
+CSNumber.inv = function(a: NumberType): NumberType {
     const s = a.value.real * a.value.real + a.value.imag * a.value.imag;
     return {
         ctype: "number",
@@ -272,7 +296,7 @@ CSNumber.inv = function (a) {
     };
 };
 
-CSNumber.div = function (a, b) {
+CSNumber.div = function(a: NumberType, b: NumberType) {
     const ar = a.value.real;
     const ai = a.value.imag;
     const br = b.value.real;
@@ -290,7 +314,7 @@ CSNumber.div = function (a, b) {
 CSNumber.eps = 1e-10;
 CSNumber.epsbig = 1e-6;
 
-CSNumber.snap = function (a) {
+CSNumber.snap = function(a: NumberType): NumberType {
     let r = a.value.real;
     let i = a.value.imag;
     if (Math.floor(r + CSNumber.eps) !== Math.floor(r - CSNumber.eps)) {
@@ -309,7 +333,7 @@ CSNumber.snap = function (a) {
     };
 };
 
-CSNumber.exp = function (a) {
+CSNumber.exp = function(a: NumberType): NumberType {
     const n = Math.exp(a.value.real);
     const r = n * Math.cos(a.value.imag);
     const i = n * Math.sin(a.value.imag);
@@ -322,7 +346,7 @@ CSNumber.exp = function (a) {
     };
 };
 
-CSNumber.cos = function (a) {
+CSNumber.cos = function(a: NumberType): NumberType {
     const rr = a.value.real;
     const ii = a.value.imag;
     let n = Math.exp(ii);
@@ -344,7 +368,7 @@ CSNumber.cos = function (a) {
     };
 };
 
-CSNumber.sin = function (a) {
+CSNumber.sin = function(a: NumberType): NumberType {
     const rr = a.value.real;
     const ii = a.value.imag;
     let n = Math.exp(ii);
@@ -366,13 +390,13 @@ CSNumber.sin = function (a) {
     };
 };
 
-CSNumber.tan = function (a) {
+CSNumber.tan = function(a: NumberType): NumberType {
     const s = CSNumber.sin(a);
     const c = CSNumber.cos(a);
     return CSNumber.div(s, c);
 };
 
-CSNumber.arccos = function (a) {
+CSNumber.arccos = function(a: NumberType): NumberType {
     //OK hässlich aber tuts.
     const t2 = CSNumber.mult(a, CSNumber.neg(a));
     const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
@@ -381,7 +405,7 @@ CSNumber.arccos = function (a) {
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.arcsin = function (a) {
+CSNumber.arcsin = function(a: NumberType): NumberType {
     //OK hässlich aber tuts.
     const t2 = CSNumber.mult(a, CSNumber.neg(a));
     const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
@@ -390,7 +414,7 @@ CSNumber.arcsin = function (a) {
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.arctan = function (a) {
+CSNumber.arctan = function(a: NumberType): NumberType {
     //OK hässlich aber tuts.
     const t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
     const t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
@@ -398,7 +422,7 @@ CSNumber.arctan = function (a) {
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.arctan2 = function (a, b) {
+CSNumber.arctan2 = function(a: NumberType, b: NumberType): NumberType {
     let erg;
     if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
     else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
@@ -411,7 +435,7 @@ CSNumber.arctan2 = function (a, b) {
     return General.withUsage(erg, "Angle");
 };
 
-CSNumber.sqrt = function (a) {
+CSNumber.sqrt = function(a: NumberType): NumberType {
     const rr = a.value.real;
     const ii = a.value.imag;
     const n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
@@ -427,7 +451,7 @@ CSNumber.sqrt = function (a) {
     };
 };
 
-CSNumber.powRealExponent = function (a, b) {
+CSNumber.powRealExponent = function(a: NumberType, b: number): NumberType {
     const rr = a.value.real;
     const ii = a.value.imag;
     const n = Math.sqrt(rr * rr + ii * ii) ** b;
@@ -443,7 +467,7 @@ CSNumber.powRealExponent = function (a, b) {
     };
 };
 
-CSNumber.powIntegerExponent = function (a, n) {
+CSNumber.powIntegerExponent = function(a: NumberType, n: number) {
     if (n < 0) return CSNumber.powIntegerExponent(CSNumber.inv(a), -n);
     if (n === 0) return CSNumber.one;
     if (n % 2 === 0) return CSNumber.powIntegerExponent(CSNumber.mult(a, a), n / 2);
@@ -452,7 +476,7 @@ CSNumber.powIntegerExponent = function (a, n) {
     return nada;
 };
 
-CSNumber.log = function (a) {
+CSNumber.log = function(a: NumberType): NumberType {
     const re = a.value.real;
     const im = a.value.imag;
     const s = Math.sqrt(re * re + im * im);
@@ -479,7 +503,7 @@ CSNumber.log = function (a) {
     });
 };
 
-CSNumber.pow = function (a, n) {
+CSNumber.pow = function(a: NumberType, n: NumberType): NumberType {
     if (CSNumber._helper.isZero(n)) return CSNumber.one;
     if (CSNumber._helper.isZero(a)) return CSNumber.zero;
     if ([a, n].every(CSNumber._helper.isReal)) {
@@ -496,7 +520,7 @@ CSNumber.pow = function (a, n) {
     return CSNumber.exp(CSNumber.mult(CSNumber.log(a), n));
 };
 
-CSNumber.mod = function (a, b) {
+CSNumber.mod = function(a: NumberType, b: NumberType): NumberType {
     const a1 = a.value.real;
     const a2 = b.value.real;
     const b1 = a.value.imag;
@@ -519,13 +543,13 @@ CSNumber.mod = function (a, b) {
 
 CSNumber._helper.seed = "NO";
 
-CSNumber._helper.seedrandom = function (a) {
+CSNumber._helper.seedrandom = function(a: number) {
     a = a - Math.floor(a);
     a = a * 0.8 + 0.1;
     CSNumber._helper.seed = a;
 };
 
-CSNumber._helper.rand = function () {
+CSNumber._helper.rand = function() {
     if (CSNumber._helper.seed === "NO") {
         return Math.random();
     }
@@ -536,21 +560,21 @@ CSNumber._helper.rand = function () {
     return a;
 };
 
-CSNumber._helper.randnormal = function () {
+CSNumber._helper.randnormal = function() {
     const a = CSNumber._helper.rand();
     const b = CSNumber._helper.rand();
     return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
 };
 
-CSNumber._helper.isEqual = function (a, b) {
+CSNumber._helper.isEqual = function(a: NumberType, b: NumberType): boolean {
     return a.value.real === b.value.real && a.value.imag === b.value.imag;
 };
 
-CSNumber._helper.isLessThan = function (a, b) {
+CSNumber._helper.isLessThan = function(a: NumberType, b: NumberType): boolean {
     return a.value.real < b.value.real || (a.value.real === b.value.real && a.value.imag < b.value.imag);
 };
 
-CSNumber._helper.compare = function (a, b) {
+CSNumber._helper.compare = function(a: NumberType, b: NumberType): number {
     if (CSNumber._helper.isLessThan(a, b)) {
         return -1;
     }
@@ -560,7 +584,7 @@ CSNumber._helper.compare = function (a, b) {
     return 1;
 };
 
-CSNumber._helper.isAlmostEqual = function (a, b, preci) {
+CSNumber._helper.isAlmostEqual = function(a: NumberType, b: NumberType, preci: number): boolean {
     let eps = CSNumber.eps;
     if (typeof preci !== "undefined") {
         eps = preci;
@@ -570,35 +594,35 @@ CSNumber._helper.isAlmostEqual = function (a, b, preci) {
     return r < eps && r > -eps && i < eps && i > -eps;
 };
 
-CSNumber._helper.isZero = function (a) {
+CSNumber._helper.isZero = function(a: NumberType): boolean {
     return a.value.real === 0 && a.value.imag === 0;
 };
 
-CSNumber._helper.isAlmostZero = function (a) {
+CSNumber._helper.isAlmostZero = function(a: NumberType): boolean {
     const r = a.value.real;
     const i = a.value.imag;
     return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
 };
 
-CSNumber._helper.isReal = function (a) {
+CSNumber._helper.isReal = function(a: NumberType): boolean {
     return a.value.imag === 0;
 };
 
-CSNumber._helper.isAlmostReal = function (a) {
+CSNumber._helper.isAlmostReal = function(a: NumberType): boolean {
     const i = a.value.imag;
     // This implementation follows Cinderella
     return i < CSNumber.epsbig && i > -CSNumber.epsbig;
 };
 
-CSNumber._helper.isNaN = function (a) {
+CSNumber._helper.isNaN = function(a: NumberType): boolean {
     return isNaN(a.value.real) || isNaN(a.value.imag);
 };
 
-CSNumber._helper.isFinite = function (z) {
+CSNumber._helper.isFinite = function(z: NumberType): boolean {
     return isFinite(z.value.real) && isFinite(z.value.imag);
 };
 
-CSNumber._helper.isAlmostImag = function (a) {
+CSNumber._helper.isAlmostImag = function(a: NumberType): boolean {
     const r = a.value.real;
     // This implementation follows Cinderella
     return r < CSNumber.epsbig && r > -CSNumber.epsbig;
@@ -622,7 +646,7 @@ CSNumber._helper.cub3 = {
 /* Solve the cubic equation ax^3 + bx^2 + cx + d = 0.
  * The result is a JavaScript array of three complex numbers satisfying that equation.
  */
-CSNumber.solveCubic = function (a, b, c, d) {
+CSNumber.solveCubic = function(a: NumberType, b: NumberType, c: NumberType, d: NumberType) {
     const help = CSNumber._helper.solveCubicHelper(a, b, c, d);
     return [
         List.scalproduct(CSNumber._helper.cub1, help),
@@ -636,7 +660,7 @@ CSNumber.solveCubic = function (a, b, c, d) {
  * If this function returns [y1, y2, y3] then the actual solutions are
  * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
  */
-CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
+CSNumber._helper.solveCubicHelper = function(a: NumberType, b: NumberType, c: NumberType, d: NumberType) {
     // mostly adapted from the cinderella2 source code
 
     const ar = a.value.real;
@@ -770,16 +794,16 @@ CSNumber._helper.solveCubicHelper = function (a, b, c, d) {
     return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
 };
 
-CSNumber._helper.getRangeRand = function (min, max) {
+CSNumber._helper.getRangeRand = function(min: number, max: number) {
     return Math.random() * (max - min) + min;
 };
 
-CSNumber.getRandReal = function (min, max) {
+CSNumber.getRandReal = function(min: number, max: number) {
     const real = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.real(real);
 };
 
-CSNumber.getRandComplex = function (min, max) {
+CSNumber.getRandComplex = function(min: number, max: number) {
     const real = CSNumber._helper.getRangeRand(min, max);
     const imag = CSNumber._helper.getRangeRand(min, max);
     return CSNumber.complex(real, imag);

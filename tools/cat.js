@@ -46,7 +46,7 @@ function processCommandLine() {
         if (map === null) map = out + ".map";
     }
     concat = new Concat(true, relative(map, out) || "out.js", "");
-    for (var i = 0; i < inputs.length; ++i) {
+    for (let i = 0; i < inputs.length; ++i) {
         fs.readFile(inputs[i], "utf8", inputRead.bind(null, i, inputs[i]));
         inputs[i] = null;
     }
@@ -97,7 +97,7 @@ function reportError(err) {
 function removeImportExport(name, inputSrc) {
     const doNotTransformFiles = ["src/js/Head.js", "src/js/Tail.js"];
 
-    const skip = doNotTransformFiles.includes(name) || !name.includes("src/js");
+    const skip = doNotTransformFiles.includes(name) || (!name.includes("src/js") && !name.includes("build/ts"));
 
     function applyBabel(inputSrc) {
         return babel.transformSync(inputSrc, {

@@ -1,7 +1,7 @@
 "use strict";
 
 exports.libcs = [
-    "src/js/libcs/CSNumber.js",
+    "build/ts/CSNumber.js", // now handled by typescript compiler
     "src/js/libcs/List.js",
     "src/js/libcs/Json.js",
     "src/js/libcs/Dict.js",
