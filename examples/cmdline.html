@@ -14,7 +14,7 @@
                 inp = document.getElementById("inp");
                 function doit() {
                     var i = inp.value;
-                    var t1 = document.createTextNode("In["+count+"]=" + i);
+                    var t1 = document.createTextNode("In[" + count + "]=" + i);
                     var p1 = document.createElement("p");
                     var s = document.createElement("span");
                     p1.appendChild(t1);
@@ -25,21 +25,21 @@
                     console.log(o1);
                     var o2 = cindy.niceprint(o1);
                     console.log(o2);
-                    var t2 = document.createTextNode("out["+count+"]=" + o2);
+                    var t2 = document.createTextNode("out[" + count + "]=" + o2);
                     var p2 = document.createElement("p");
                     p2.appendChild(t2);
                     s.appendChild(p2);
                     inp.value = "";
                     inp.scrollIntoView();
-                    count=count+1;
+                    count = count + 1;
                 }
-                document.getElementById("inp").onkeypress = function(event) {
+                document.getElementById("inp").onkeypress = function (event) {
                     if (event.key == "Enter") {
                         doit();
                     }
                 };
                 document.getElementById("do").onclick = doit;
-                count=1;
+                count = 1;
             });
         </script>
     </head>

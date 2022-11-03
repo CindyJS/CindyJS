@@ -6,23 +6,23 @@
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
         <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         <script id="csinit" type="text/x-cindyscript">
-            video = camera video();
-            createimage("output2", 1920, 960);
-			
-			coordtoangle(x,y):=(x/20.4*2*π, y/20.4*2*π-π/2);
-			err(mod(20.5,20.4));
+                     video = camera video();
+                     createimage("output2", 1920, 960);
+
+            coordtoangle(x,y):=(x/20.4*2*π, y/20.4*2*π-π/2);
+            err(mod(20.5,20.4));
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-			min=1000;
-            if (image ready(video),
-				drawimage(A,B,video);
-	            //  	colorplot("output2", imagergb(video,(mod(#.x+E.x+10.20,20.4),#.y)));
-	            colorplot("output2",
-					angles = coordtoangle(mod(#.x+E.x+10.20,20.4),#.y);
-					imagergb(video,#);
-				);
-				drawimage(C,D,"output2");
-			);
+            min=1000;
+                     if (image ready(video),
+            	drawimage(A,B,video);
+                      //  	colorplot("output2", imagergb(video,(mod(#.x+E.x+10.20,20.4),#.y)));
+                      colorplot("output2",
+            		angles = coordtoangle(mod(#.x+E.x+10.20,20.4),#.y);
+            		imagergb(video,#);
+            	);
+            	drawimage(C,D,"output2");
+            );
         </script>
         <script type="text/javascript">
             var cdy = CindyJS({
@@ -34,8 +34,8 @@
                     { name: "A", type: "Free", pos: [0, 10.21] },
                     { name: "B", type: "Free", pos: [20, 10.1] },
 
-                    { name: "C", type: "Free", pos: [0, -.1] },
-                    { name: "D", type: "Free", pos: [20, -.1] },
+                    { name: "C", type: "Free", pos: [0, -0.1] },
+                    { name: "D", type: "Free", pos: [20, -0.1] },
                     { name: "E", type: "Free", pos: [5, 14.5] },
                 ],
                 use: ["CindyGL"],

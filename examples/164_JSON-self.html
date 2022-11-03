@@ -1,60 +1,77 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    
-    <title>JSON Self test</title>
-    <style type="text/css">
-        * {
-            margin: 0px;
-            padding: 0px;
-        }
+    <head>
+        <meta charset="UTF-8" />
 
-        #CSConsole {
-            background-color: #FAFAFA;
-            border-top: 1px solid #333333;
-            bottom: 0px;
-            height: 200px;
-            overflow-y: scroll;
-            position: fixed;
-            width: 100%;
-        }
-    </style>
-    <link rel="stylesheet" href="../build/js/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
-<script id="csdraw" type="text/x-cindyscript">
-    obj = {"test":"name"};
-    obj:"id" := err(self():"test");
-    obj:"id";
-</script>
-    <script type="text/javascript">
-var cdy = CindyJS({
-  scripts: "cs*",
-  defaultAppearance: {
-    dimDependent: 0.7,
-    fontFamily: "sans-serif",
-    lineSize: 1,
-    pointSize: 5.0,
-    textsize: 12.0
-  },
-  angleUnit: "°",
-  geometry: [
-    {name: "Text0", type: "ToggleButton", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, pinned: true, text: "Debug", dock: {corner: "UR", offset: [-48.0, -20.0]}}
-  ],
-  ports: [{
-    id: "CSCanvas",
-    width: 964,
-    height: 443,
-    transform: [{visibleRect: [-4.667780543770266, 14.627793877969026, 25.430817745156396, 0.7961766144892426]}],
-    background: "rgb(255,255,255)"
-  }],
-  csconsole: false,
-  use: ["katex"],
-  cinderella: {build: 2055, version: [3, 0, 2055]}
-});
-    </script>
-</head>
-<body>
-    <div id="CSCanvas"></div>
-</body>
+        <title>JSON Self test</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            obj = {"test":"name"};
+            obj:"id" := err(self():"test");
+            obj:"id";
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "Text0",
+                        type: "ToggleButton",
+                        color: [0.0, 0.0, 0.0],
+                        fillcolor: [1.0, 1.0, 1.0],
+                        fillalpha: 0.27272728085517883,
+                        pinned: true,
+                        text: "Debug",
+                        dock: { corner: "UR", offset: [-48.0, -20.0] },
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 964,
+                        height: 443,
+                        transform: [
+                            {
+                                visibleRect: [
+                                    -4.667780543770266, 14.627793877969026, 25.430817745156396, 0.7961766144892426,
+                                ],
+                            },
+                        ],
+                        background: "rgb(255,255,255)",
+                    },
+                ],
+                csconsole: false,
+                use: ["katex"],
+                cinderella: { build: 2055, version: [3, 0, 2055] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
 </html>
