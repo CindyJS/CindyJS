@@ -5,887 +5,812 @@ import { List } from "libcs/List";
 // @ts-expect-error: Not yet typed
 import { General } from "libcs/General";
 
-import { CindyNumber, CindyList, Nada } from "types";
+import { CindyNumber, Nada, CindyMath } from "types";
 
 const angleUnit = instanceInvocationArguments.angleUnit || "°";
 const TWOPI = Math.PI * 2;
 const PERTWOPI = 1 / TWOPI;
 const angleUnits = {
-  rad: TWOPI,
-  "°": 360,
-  deg: 360,
-  degree: 360,
-  gra: 400,
-  grad: 400,
-  turn: 1,
-  cyc: 1,
-  rev: 1,
-  rot: 1,
-  π: 2,
-  pi: 2,
-  quad: 4,
+    rad: TWOPI,
+    "°": 360,
+    deg: 360,
+    degree: 360,
+    gra: 400,
+    grad: 400,
+    turn: 1,
+    cyc: 1,
+    rev: 1,
+    rot: 1,
+    π: 2,
+    pi: 2,
+    quad: 4,
 };
 
 type AngleUnit = keyof typeof angleUnits;
 const angleUnitName = angleUnit.replace(/\s+/g, "") as AngleUnit; // unit may contain space
 
-
 //==========================================
 //      Complex Numbers
 //==========================================
 
-interface ICSNumber {
-  _helper: {
-    roundingfactor: number,
-    angleroundingfactor: number,
-    niceround: (a: number, roundingfactor: number) => number
-    niceangle: (a: CindyNumber) => string
-    input: (a: { r: object, i: object }) => CindyNumber
-    isReal: (a: CindyNumber) => boolean
-    isNaN: (a: CindyNumber) => boolean
-    isFinite: (a: CindyNumber) => boolean
-    seed: "NO" | number
-    rand: () => number
-    randnormal: () => number
-    isEqual: (a: CindyNumber, b: CindyNumber) => boolean
-    isLessThan: (a: CindyNumber, b: CindyNumber) => boolean
-    isZero: (arg: CindyNumber) => boolean
-    isAlmostZero: (arg: CindyNumber) => boolean
-    isAlmostReal: (arg: CindyNumber) => boolean
-    isAlmostImag: (arg: CindyNumber) => boolean
-    solveCubicHelper: (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) => CindyList
-    z3a: CindyNumber,
-    z3b: CindyNumber,
-    cub1: CindyList,
-    cub2: CindyList,
-    cub3: CindyList,
-    seedrandom: (a: number) => void
-    compare: (a: CindyNumber, b: CindyNumber) => number,
-    isAlmostEqual: (a: CindyNumber, b: CindyNumber, preci?: number) => boolean,
-    getRangeRand: (a: number, b: number) => number
-  }
-  niceprint: (a: CindyNumber, roundingfactor?: number) => string
-  realmult: (r: number, a: CindyNumber) => CindyNumber
-  complex: (r: number, i: number) => CindyNumber
-  real: (r: number) => CindyNumber
-  zero: CindyNumber
-  one: CindyNumber
-  infinity: CindyNumber
-  nan: CindyNumber
-  argmax: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  max: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  min: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  add: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  sub: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  neg: (a: CindyNumber) => CindyNumber
-  re: (a: CindyNumber) => CindyNumber
-  im: (a: CindyNumber) => CindyNumber
-  conjugate: (a: CindyNumber) => CindyNumber
-  ceil: (a: CindyNumber) => CindyNumber
-  floor: (a: CindyNumber) => CindyNumber
-  round: (a: CindyNumber) => CindyNumber
-  mult: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  multiMult: (arr: Array<CindyNumber>) => Nada | CindyNumber
-  abs2: (a: CindyNumber) => CindyNumber
-  abs: (a: CindyNumber) => CindyNumber
-  inv: (a: CindyNumber) => CindyNumber
-  div: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  eps: number
-  epsbig: number
-  snap: (a: CindyNumber) => CindyNumber
-  exp: (a: CindyNumber) => CindyNumber
-  sin: (a: CindyNumber) => CindyNumber
-  cos: (a: CindyNumber) => CindyNumber
-  tan: (a: CindyNumber) => CindyNumber
-  arccos: (a: CindyNumber) => CindyNumber
-  arcsin: (a: CindyNumber) => CindyNumber
-  arctan: (a: CindyNumber) => CindyNumber
-  arctan2: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  sqrt: (a: CindyNumber) => CindyNumber
-  log: (a: CindyNumber) => CindyNumber
-  pow: (a: CindyNumber, n: CindyNumber) => CindyNumber
-  powRealExponent: (a: CindyNumber, b: number) => CindyNumber
-  powIntegerExponent: (a: CindyNumber, b: number) => CindyNumber
-  mod: (a: CindyNumber, b: CindyNumber) => CindyNumber
-  solveCubic: (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) => Array<CindyNumber>
-  getRandReal: (a: number, b: number,) => CindyNumber
-  getRandComplex: (a: number, b: number,) => CindyNumber
-}
+const CSNumber: CindyMath = {
+    _helper: {
+        roundingfactor: 1e4,
+        angleroundingfactor: 1e1,
+        niceround: function (a: number, roundingfactor: number) {
+            return Math.round(a * roundingfactor) / roundingfactor;
+        },
+        niceangle: function (a: CindyNumber): string {
+            const unit = angleUnits[angleUnitName];
+            if (!unit) return CSNumber.niceprint(General.withUsage(a, undefined));
+            // if (typeof unit === "function") return unit(a);
+            const num = CSNumber.niceprint(
+                CSNumber.realmult(unit * PERTWOPI, a),
+                unit > 200 ? CSNumber._helper.angleroundingfactor : undefined
+            );
+            if (!num.includes("i*")) return num + angleUnit;
+            return "(" + num + ")" + angleUnit;
+        },
 
-const CSNumber: ICSNumber = {
-  _helper: {
-    roundingfactor: 1e4,
-    angleroundingfactor: 1e1,
-    niceround: function(a: number, roundingfactor: number) {
-      return Math.round(a * roundingfactor) / roundingfactor;
-    },
-    niceangle: function(a: CindyNumber): string {
-      const unit = angleUnits[angleUnitName];
-      if (!unit) return CSNumber.niceprint(General.withUsage(a, undefined));
-      // if (typeof unit === "function") return unit(a);
-      const num = CSNumber.niceprint(
-        CSNumber.realmult(unit * PERTWOPI, a),
-        unit > 200 ? CSNumber._helper.angleroundingfactor : undefined
-      );
-      if (!num.includes("i*")) return num + angleUnit;
-      return "(" + num + ")" + angleUnit;
-    },
+        input: function (a: { r: object; i: object }) {
+            if (a.r != undefined || a.i != undefined) return CSNumber.complex(+a.r, +a.i);
+            else return CSNumber.real(+a);
+        },
 
-    input: function(a: { r: object; i: object }) {
-      if (a.r != undefined || a.i != undefined) return CSNumber.complex(+a.r, +a.i);
-      else return CSNumber.real(+a);
-    },
+        isReal: function (a: CindyNumber): boolean {
+            return a.value.imag === 0;
+        },
 
-    isReal: function(a: CindyNumber): boolean {
-      return a.value.imag === 0;
-    },
+        isZero: function (a: CindyNumber): boolean {
+            return a.value.real === 0 && a.value.imag === 0;
+        },
 
-    isZero: function(a: CindyNumber): boolean {
-      return a.value.real === 0 && a.value.imag === 0;
-    },
+        isAlmostZero: function (a: CindyNumber): boolean {
+            const r = a.value.real;
+            const i = a.value.imag;
+            return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
+        },
 
-    isAlmostZero: function(a: CindyNumber): boolean {
-      const r = a.value.real;
-      const i = a.value.imag;
-      return r < CSNumber.eps && r > -CSNumber.eps && i < CSNumber.eps && i > -CSNumber.eps;
-    },
+        isAlmostReal: function (a: CindyNumber): boolean {
+            const i = a.value.imag;
+            // This implementation follows Cinderella
+            return i < CSNumber.epsbig && i > -CSNumber.epsbig;
+        },
 
-    isAlmostReal: function(a: CindyNumber): boolean {
-      const i = a.value.imag;
-      // This implementation follows Cinderella
-      return i < CSNumber.epsbig && i > -CSNumber.epsbig;
-    },
+        isNaN: function (a: CindyNumber): boolean {
+            return isNaN(a.value.real) || isNaN(a.value.imag);
+        },
 
-    isNaN: function(a: CindyNumber): boolean {
-      return isNaN(a.value.real) || isNaN(a.value.imag);
-    },
+        isFinite: function (z: CindyNumber): boolean {
+            return isFinite(z.value.real) && isFinite(z.value.imag);
+        },
 
-    isFinite: function(z: CindyNumber): boolean {
-      return isFinite(z.value.real) && isFinite(z.value.imag);
-    },
+        isAlmostImag: function (a: CindyNumber): boolean {
+            const r = a.value.real;
+            // This implementation follows Cinderella
+            return r < CSNumber.epsbig && r > -CSNumber.epsbig;
+        },
 
-    isAlmostImag: function(a: CindyNumber): boolean {
-      const r = a.value.real;
-      // This implementation follows Cinderella
-      return r < CSNumber.epsbig && r > -CSNumber.epsbig;
-    },
+        seed: "NO",
 
-    seed: "NO",
+        seedrandom: function (a: number) {
+            a = a - Math.floor(a);
+            a = a * 0.8 + 0.1;
+            CSNumber._helper.seed = a;
+        },
 
-    seedrandom: function(a: number) {
-      a = a - Math.floor(a);
-      a = a * 0.8 + 0.1;
-      CSNumber._helper.seed = a;
-    },
+        rand: function () {
+            if (CSNumber._helper.seed === "NO") {
+                return Math.random();
+            }
+            let a = CSNumber._helper.seed;
+            a = Math.sin(1000 * a) * 1000;
+            a = a - Math.floor(a);
+            CSNumber._helper.seed = a;
+            return a;
+        },
 
-    rand: function() {
-      if (CSNumber._helper.seed === "NO") {
-        return Math.random();
-      }
-      let a = CSNumber._helper.seed;
-      a = Math.sin(1000 * a) * 1000;
-      a = a - Math.floor(a);
-      CSNumber._helper.seed = a;
-      return a;
-    },
+        randnormal: function () {
+            const a = CSNumber._helper.rand();
+            const b = CSNumber._helper.rand();
+            return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
+        },
 
-    randnormal: function() {
-      const a = CSNumber._helper.rand();
-      const b = CSNumber._helper.rand();
-      return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
-    },
+        isEqual: function (a: CindyNumber, b: CindyNumber): boolean {
+            return a.value.real === b.value.real && a.value.imag === b.value.imag;
+        },
 
-    isEqual: function(a: CindyNumber, b: CindyNumber): boolean {
-      return a.value.real === b.value.real && a.value.imag === b.value.imag;
-    },
+        isLessThan: function (a: CindyNumber, b: CindyNumber): boolean {
+            return a.value.real < b.value.real || (a.value.real === b.value.real && a.value.imag < b.value.imag);
+        },
 
-    isLessThan: function(a: CindyNumber, b: CindyNumber): boolean {
-      return a.value.real < b.value.real || (a.value.real === b.value.real && a.value.imag < b.value.imag);
-    },
+        compare: function (a: CindyNumber, b: CindyNumber): number {
+            if (CSNumber._helper.isLessThan(a, b)) {
+                return -1;
+            }
+            if (CSNumber._helper.isEqual(a, b)) {
+                return 0;
+            }
+            return 1;
+        },
 
-    compare: function(a: CindyNumber, b: CindyNumber): number {
-      if (CSNumber._helper.isLessThan(a, b)) {
-        return -1;
-      }
-      if (CSNumber._helper.isEqual(a, b)) {
-        return 0;
-      }
-      return 1;
-    },
+        isAlmostEqual: function (a: CindyNumber, b: CindyNumber, preci?: number): boolean {
+            let eps = CSNumber.eps;
+            if (typeof preci !== "undefined") {
+                eps = preci;
+            }
+            const r = a.value.real - b.value.real;
+            const i = a.value.imag - b.value.imag;
+            return r < eps && r > -eps && i < eps && i > -eps;
+        },
 
-    isAlmostEqual: function(a: CindyNumber, b: CindyNumber, preci?: number): boolean {
-      let eps = CSNumber.eps;
-      if (typeof preci !== "undefined") {
-        eps = preci;
-      }
-      const r = a.value.real - b.value.real;
-      const i = a.value.imag - b.value.imag;
-      return r < eps && r > -eps && i < eps && i > -eps;
-    },
+        get z3a() {
+            return CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
+        },
+        get z3b() {
+            return CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
+        },
+        get cub1() {
+            return {
+                ctype: "list",
+                value: [CSNumber.one, CSNumber.one, CSNumber.one],
+            };
+        },
+        get cub2() {
+            return {
+                ctype: "list",
+                value: [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b],
+            };
+        },
+        get cub3() {
+            return {
+                ctype: "list",
+                value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
+            };
+        },
 
-    get z3a() {
-      return CSNumber.complex(-0.5, 0.5 * Math.sqrt(3))
-    }
-    ,
-    get z3b() { return CSNumber.complex(-0.5, -0.5 * Math.sqrt(3)) },
-    get cub1() {
-      return {
-        ctype: "list",
-        value: [CSNumber.one, CSNumber.one, CSNumber.one],
-      }
-    },
-    get cub2() {
-      return {
-        ctype: "list",
-        value: [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b],
-      }
-    },
-    get cub3() {
-      return {
-        ctype: "list",
-        value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
-      }
-    },
+        /* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
+         * The returned values are however NOT the solution itself.
+         * If this function returns [y1, y2, y3] then the actual solutions are
+         * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
+         */
+        solveCubicHelper: function (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) {
+            // mostly adapted from the cinderella2 source code
 
-    /* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
-     * The returned values are however NOT the solution itself.
-     * If this function returns [y1, y2, y3] then the actual solutions are
-     * x = z*y1 + y2 + z^2*y3 where z^3 = 1 i.e. z is any of three roots of unity
-     */
-    solveCubicHelper: function(a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) {
-      // mostly adapted from the cinderella2 source code
+            const ar = a.value.real;
+            const ai = a.value.imag;
+            const br = b.value.real;
+            const bi = b.value.imag;
+            const cr = c.value.real;
+            const ci = c.value.imag;
+            const dr = d.value.real;
+            const di = d.value.imag;
 
-      const ar = a.value.real;
-      const ai = a.value.imag;
-      const br = b.value.real;
-      const bi = b.value.imag;
-      const cr = c.value.real;
-      const ci = c.value.imag;
-      const dr = d.value.real;
-      const di = d.value.imag;
+            const c1 = 1.2599210498948732; //2^(1/3)
+            const c2 = 1.5874010519681994; //2^(2/3)
 
-      const c1 = 1.2599210498948732; //2^(1/3)
-      const c2 = 1.5874010519681994; //2^(2/3) 
+            // t1 = (4ac - b^2)
 
-      // t1 = (4ac - b^2)
+            const acr = ar * cr - ai * ci;
+            const aci = ar * ci + ai * cr;
 
-      const acr = ar * cr - ai * ci;
-      const aci = ar * ci + ai * cr;
+            let t1r = 4 * acr - (br * br - bi * bi);
+            let t1i = 4 * aci - 2 * br * bi;
 
-      let t1r = 4 * acr - (br * br - bi * bi);
-      let t1i = 4 * aci - 2 * br * bi;
+            // ab = ab
+            const abr = ar * br - ai * bi;
+            const abi = ar * bi + ai * br;
 
-      // ab = ab
-      const abr = ar * br - ai * bi;
-      const abi = ar * bi + ai * br;
+            // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
+            const t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
+            const t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
 
-      // t3 = t1 *c - 18 ab * d = (4 ac - b*b)*c - 18 abd
-      const t3r = t1r * cr - t1i * ci - 18 * (abr * dr - abi * di);
-      const t3i = t1r * ci + t1i * cr - 18 * (abr * di + abi * dr);
+            // aa = 27  a*a
+            const aar = 27 * (ar * ar - ai * ai);
+            const aai = 54 * (ai * ar);
 
-      // aa = 27  a*a
-      const aar = 27 * (ar * ar - ai * ai);
-      const aai = 54 * (ai * ar);
+            // aad =  aa *d = 27 aad
+            const aadr = aar * dr - aai * di;
+            const aadi = aar * di + aai * dr;
 
-      // aad =  aa *d = 27 aad
-      const aadr = aar * dr - aai * di;
-      const aadi = aar * di + aai * dr;
+            // t1 = b^2
+            const bbr = br * br - bi * bi;
+            const bbi = 2 * br * bi;
 
-      // t1 = b^2
-      const bbr = br * br - bi * bi;
-      const bbi = 2 * br * bi;
+            // w = b^3
+            let wr = bbr * br - bbi * bi;
+            let wi = bbr * bi + bbi * br;
 
-      // w = b^3
-      let wr = bbr * br - bbi * bi;
-      let wi = bbr * bi + bbi * br;
+            // t2 = aad + 4w = 27aad + 4bbb
+            let t2r = aadr + 4 * wr;
+            let t2i = aadi + 4 * wi;
 
-      // t2 = aad + 4w = 27aad + 4bbb
-      let t2r = aadr + 4 * wr;
-      let t2i = aadi + 4 * wi;
+            // t1 = 27 *(t3 * c + t2 *d)
+            t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
+            t1i = t3r * ci + t3i * cr + t2r * di + t2i * dr;
 
-      // t1 = 27 *(t3 * c + t2 *d)
-      t1r = t3r * cr - t3i * ci + t2r * dr - t2i * di;
-      t1i = t3r * ci + t3i * cr + t2r * di + t2i * dr;
+            // DIS OK!!
 
-      // DIS OK!!
+            // w = -2 b^3
+            wr *= -2;
+            wi *= -2;
 
-      // w = -2 b^3
-      wr *= -2;
-      wi *= -2;
+            // w = w + 9 a b c
+            wr += 9 * (abr * cr - abi * ci);
+            wi += 9 * (abr * ci + abi * cr);
 
-      // w = w + 9 a b c
-      wr += 9 * (abr * cr - abi * ci);
-      wi += 9 * (abr * ci + abi * cr);
+            // w = w + -27 a*a d
+            wr -= aadr;
+            wi -= aadi;
 
-      // w = w + -27 a*a d
-      wr -= aadr;
-      wi -= aadi;
+            // t1 = (27 dis).Sqrt()
+            t1r *= 27;
+            t1i *= 27;
+            t2r = Math.sqrt(Math.sqrt(t1r * t1r + t1i * t1i));
+            t2i = Math.atan2(t1i, t1r);
+            t1i = t2r * Math.sin(t2i / 2);
+            t1r = t2r * Math.cos(t2i / 2);
 
-      // t1 = (27 dis).Sqrt()
-      t1r *= 27;
-      t1i *= 27;
-      t2r = Math.sqrt(Math.sqrt(t1r * t1r + t1i * t1i));
-      t2i = Math.atan2(t1i, t1r);
-      t1i = t2r * Math.sin(t2i / 2);
-      t1r = t2r * Math.cos(t2i / 2);
+            // w = w + a * dis // sqrt war schon oben
+            wr += t1r * ar - t1i * ai;
+            wi += t1r * ai + t1i * ar;
 
-      // w = w + a * dis // sqrt war schon oben
-      wr += t1r * ar - t1i * ai;
-      wi += t1r * ai + t1i * ar;
+            // w ausgerechnet. Jetz w1 und w2
+            //     w1.assign(wr,wi);
+            //     w2.assign(wr,wi);
+            //     w1.sqrt1_3();
+            //     w2.sqrt2_3();
+            let radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
+            let phi = Math.atan2(wi, wr);
+            const w1i = radius * Math.sin(phi / 3);
+            const w1r = radius * Math.cos(phi / 3);
 
-      // w ausgerechnet. Jetz w1 und w2
-      //     w1.assign(wr,wi);
-      //     w2.assign(wr,wi);
-      //     w1.sqrt1_3();
-      //     w2.sqrt2_3();
-      let radius = Math.exp(Math.log(Math.sqrt(wr * wr + wi * wi)) / 3.0);
-      let phi = Math.atan2(wi, wr);
-      const w1i = radius * Math.sin(phi / 3);
-      const w1r = radius * Math.cos(phi / 3);
+            radius *= radius;
+            phi *= 2;
 
-      radius *= radius;
-      phi *= 2;
+            const w2i = radius * Math.sin(phi / 3);
+            const w2r = radius * Math.cos(phi / 3);
 
-      const w2i = radius * Math.sin(phi / 3);
-      const w2r = radius * Math.cos(phi / 3);
+            // x = 2 b^2
+            // x = x - 6 ac
+            let xr = 2 * bbr - 6 * acr;
+            let xi = 2 * bbi - 6 * aci;
 
-      // x = 2 b^2
-      // x = x - 6 ac
-      let xr = 2 * bbr - 6 * acr;
-      let xi = 2 * bbi - 6 * aci;
+            //y.assign(-c2).mul(b).mul(w1);
+            let yr = -c2 * (br * w1r - bi * w1i);
+            let yi = -c2 * (br * w1i + bi * w1r);
 
-      //y.assign(-c2).mul(b).mul(w1);
-      let yr = -c2 * (br * w1r - bi * w1i);
-      let yi = -c2 * (br * w1i + bi * w1r);
+            //    z.assign(c1).mul(w2);
+            let zr = c1 * w2r;
+            let zi = c1 * w2i;
 
-      //    z.assign(c1).mul(w2);
-      let zr = c1 * w2r;
-      let zi = c1 * w2i;
+            //w1.mul(a).mul(3).mul(c2);
+            t1r = c2 * 3 * (w1r * ar - w1i * ai);
+            t1i = c2 * 3 * (w1r * ai + w1i * ar);
 
-      //w1.mul(a).mul(3).mul(c2);
-      t1r = c2 * 3 * (w1r * ar - w1i * ai);
-      t1i = c2 * 3 * (w1r * ai + w1i * ar);
+            const s = t1r * t1r + t1i * t1i;
 
-      const s = t1r * t1r + t1i * t1i;
+            t2r = (xr * t1r + xi * t1i) / s;
+            t2i = (-xr * t1i + xi * t1r) / s;
+            xr = t2r;
+            xi = t2i;
 
-      t2r = (xr * t1r + xi * t1i) / s;
-      t2i = (-xr * t1i + xi * t1r) / s;
-      xr = t2r;
-      xi = t2i;
+            t2r = (yr * t1r + yi * t1i) / s;
+            t2i = (-yr * t1i + yi * t1r) / s;
+            yr = t2r;
+            yi = t2i;
 
-      t2r = (yr * t1r + yi * t1i) / s;
-      t2i = (-yr * t1i + yi * t1r) / s;
-      yr = t2r;
-      yi = t2i;
+            t2r = (zr * t1r + zi * t1i) / s;
+            t2i = (-zr * t1i + zi * t1r) / s;
+            zr = t2r;
+            zi = t2i;
 
-      t2r = (zr * t1r + zi * t1i) / s;
-      t2i = (-zr * t1i + zi * t1r) / s;
-      zr = t2r;
-      zi = t2i;
+            // return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
+            return {
+                ctype: "list",
+                value: [CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)],
+            };
+        },
 
-      // return List.turnIntoCSList([CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)]);
-      return { ctype: "list", value: [CSNumber.complex(xr, xi), CSNumber.complex(yr, yi), CSNumber.complex(zr, zi)] }
+        getRangeRand: function (min: number, max: number) {
+            return Math.random() * (max - min) + min;
+        },
     },
 
-    getRangeRand: function(min: number, max: number) {
-      return Math.random() * (max - min) + min;
+    niceprint: function (a: CindyNumber, roundingfactor: number = CSNumber._helper.roundingfactor) {
+        if (a.usage === "Angle") {
+            return CSNumber._helper.niceangle(a);
+        }
+        const real = CSNumber._helper.niceround(a.value.real, roundingfactor);
+        const imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
+        if (imag === 0) {
+            return "" + real;
+        }
+
+        if (imag > 0) {
+            return "" + real + " + i*" + imag;
+        } else {
+            return "" + real + " - i*" + -imag;
+        }
     },
-  },
 
+    complex: function (r: number, i: number): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  niceprint: function(a: CindyNumber, roundingfactor: number = CSNumber._helper.roundingfactor) {
-    if (a.usage === "Angle") {
-      return CSNumber._helper.niceangle(a);
-    }
-    const real = CSNumber._helper.niceround(a.value.real, roundingfactor);
-    const imag = CSNumber._helper.niceround(a.value.imag, roundingfactor);
-    if (imag === 0) {
-      return "" + real;
-    }
+    real: function (r: number): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: 0,
+            },
+        };
+    },
 
-    if (imag > 0) {
-      return "" + real + " + i*" + imag;
-    } else {
-      return "" + real + " - i*" + -imag;
-    }
-  },
+    get zero() {
+        return CSNumber.real(0);
+    },
 
+    get one() {
+        return CSNumber.real(1);
+    },
 
-  complex: function(r: number, i: number): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    get infinity() {
+        return CSNumber.complex(Infinity, Infinity);
+    },
 
-  real: function(r: number): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: 0,
-      },
-    };
-  },
+    get nan() {
+        return CSNumber.complex(NaN, NaN);
+    },
 
-  get zero() {
-    return CSNumber.real(0);
-  },
+    argmax: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        const n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
+        const n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
+        return n1 < n2 ? b : a;
+    },
 
-  get one() {
-    return CSNumber.real(1);
-  },
+    max: function (a: CindyNumber, b: CindyNumber) {
+        return {
+            ctype: "number",
+            value: {
+                real: Math.max(a.value.real, b.value.real),
+                imag: Math.max(a.value.imag, b.value.imag),
+            },
+        };
+    },
 
-  get infinity() {
-    return CSNumber.complex(Infinity, Infinity);
-  },
+    min: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: Math.min(a.value.real, b.value.real),
+                imag: Math.min(a.value.imag, b.value.imag),
+            },
+        };
+    },
 
-  get nan() {
-    return CSNumber.complex(NaN, NaN);
-  },
+    add: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real + b.value.real,
+                imag: a.value.imag + b.value.imag,
+            },
+        };
+    },
 
+    sub: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real - b.value.real,
+                imag: a.value.imag - b.value.imag,
+            },
+        };
+    },
 
-  argmax: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    const n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
-    const n2 = b.value.real * b.value.real + b.value.imag * b.value.imag;
-    return n1 < n2 ? b : a;
-  },
+    neg: function (a: CindyNumber): CindyNumber {
+        return {
+            ...a,
+            ctype: "number",
+            value: {
+                real: -a.value.real,
+                imag: -a.value.imag,
+            },
+        };
+    },
 
-  max: function(a: CindyNumber, b: CindyNumber) {
-    return {
-      ctype: "number",
-      value: {
-        real: Math.max(a.value.real, b.value.real),
-        imag: Math.max(a.value.imag, b.value.imag),
-      },
-    };
-  },
+    re: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real,
+                imag: 0,
+            },
+        };
+    },
 
-  min: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: Math.min(a.value.real, b.value.real),
-        imag: Math.min(a.value.imag, b.value.imag),
-      },
-    };
-  },
+    im: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.imag,
+                imag: 0,
+            },
+        };
+    },
 
-  add: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real + b.value.real,
-        imag: a.value.imag + b.value.imag,
-      },
-    };
-  },
+    conjugate: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real,
+                imag: -a.value.imag,
+            },
+        };
+    },
 
-  sub: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real - b.value.real,
-        imag: a.value.imag - b.value.imag,
-      },
-    };
-  },
+    round: function (a: CindyNumber) {
+        return {
+            ctype: "number",
+            value: {
+                real: Math.round(a.value.real),
+                imag: Math.round(a.value.imag),
+            },
+        };
+    },
 
-  neg: function(a: CindyNumber): CindyNumber {
-    return {
-      ...a,
-      ctype: "number",
-      value: {
-        real: -a.value.real,
-        imag: -a.value.imag,
-      },
-    };
-  },
+    ceil: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: Math.ceil(a.value.real),
+                imag: Math.ceil(a.value.imag),
+            },
+        };
+    },
 
-  re: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real,
-        imag: 0,
-      },
-    };
-  },
+    floor: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: Math.floor(a.value.real),
+                imag: Math.floor(a.value.imag),
+            },
+        };
+    },
 
-  im: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.imag,
-        imag: 0,
-      },
-    };
-  },
+    mult: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real * b.value.real - a.value.imag * b.value.imag,
+                imag: a.value.real * b.value.imag + a.value.imag * b.value.real,
+            },
+        };
+    },
 
-  conjugate: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real,
-        imag: -a.value.imag,
-      },
-    };
-  },
+    realmult: function (r: number, c: CindyNumber) {
+        return {
+            ctype: "number",
+            value: {
+                real: r * c.value.real,
+                imag: r * c.value.imag,
+            },
+        };
+    },
 
-  round: function(a: CindyNumber) {
-    return {
-      ctype: "number",
-      value: {
-        real: Math.round(a.value.real),
-        imag: Math.round(a.value.imag),
-      },
-    };
-  },
+    multiMult: function (arr: Array<CindyNumber>): Nada | CindyNumber {
+        let erg = arr[0];
+        if (erg.ctype !== "number") return nada;
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i].ctype !== "number") {
+                return nada;
+            }
+            erg = CSNumber.mult(erg, arr[i]);
+        }
 
-  ceil: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: Math.ceil(a.value.real),
-        imag: Math.ceil(a.value.imag),
-      },
-    };
-  },
+        return erg;
+    },
 
-  floor: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: Math.floor(a.value.real),
-        imag: Math.floor(a.value.imag),
-      },
-    };
-  },
+    abs2: function (a: CindyNumber): CindyNumber {
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real * a.value.real + a.value.imag * a.value.imag,
+                imag: 0,
+            },
+        };
+    },
 
-  mult: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real * b.value.real - a.value.imag * b.value.imag,
-        imag: a.value.real * b.value.imag + a.value.imag * b.value.real,
-      },
-    };
-  },
+    abs: function (a: CindyNumber): CindyNumber {
+        return CSNumber.sqrt(CSNumber.abs2(a));
+    },
 
-  realmult: function(r: number, c: CindyNumber) {
-    return {
-      ctype: "number",
-      value: {
-        real: r * c.value.real,
-        imag: r * c.value.imag,
-      },
-    };
-  },
+    inv: function (a: CindyNumber): CindyNumber {
+        const s = a.value.real * a.value.real + a.value.imag * a.value.imag;
+        return {
+            ctype: "number",
+            value: {
+                real: a.value.real / s,
+                imag: -a.value.imag / s,
+            },
+        };
+    },
 
-  multiMult: function(arr: Array<CindyNumber>): Nada | CindyNumber {
-    let erg = arr[0];
-    if (erg.ctype !== "number") return nada;
-    for (let i = 1; i < arr.length; i++) {
-      if (arr[i].ctype !== "number") {
-        return nada;
-      }
-      erg = CSNumber.mult(erg, arr[i]);
-    }
+    div: function (a: CindyNumber, b: CindyNumber) {
+        const ar = a.value.real;
+        const ai = a.value.imag;
+        const br = b.value.real;
+        const bi = b.value.imag;
+        const s = br * br + bi * bi;
+        return {
+            ctype: "number",
+            value: {
+                real: (ar * br + ai * bi) / s,
+                imag: (ai * br - ar * bi) / s,
+            },
+        };
+    },
 
-    return erg;
-  },
+    eps: 1e-10,
+    epsbig: 1e-6,
 
-  abs2: function(a: CindyNumber): CindyNumber {
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real * a.value.real + a.value.imag * a.value.imag,
-        imag: 0,
-      },
-    };
-  },
+    snap: function (a: CindyNumber): CindyNumber {
+        let r = a.value.real;
+        let i = a.value.imag;
+        if (Math.floor(r + CSNumber.eps) !== Math.floor(r - CSNumber.eps)) {
+            r = Math.round(r);
+        }
+        if (Math.floor(i + CSNumber.eps) !== Math.floor(i - CSNumber.eps)) {
+            i = Math.round(i);
+        }
+        return {
+            ...a,
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  abs: function(a: CindyNumber): CindyNumber {
-    return CSNumber.sqrt(CSNumber.abs2(a));
-  },
+    exp: function (a: CindyNumber): CindyNumber {
+        const n = Math.exp(a.value.real);
+        const r = n * Math.cos(a.value.imag);
+        const i = n * Math.sin(a.value.imag);
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  inv: function(a: CindyNumber): CindyNumber {
-    const s = a.value.real * a.value.real + a.value.imag * a.value.imag;
-    return {
-      ctype: "number",
-      value: {
-        real: a.value.real / s,
-        imag: -a.value.imag / s,
-      },
-    };
-  },
+    cos: function (a: CindyNumber): CindyNumber {
+        const rr = a.value.real;
+        const ii = a.value.imag;
+        let n = Math.exp(ii);
+        const imag1 = n * Math.sin(-rr);
+        const real1 = n * Math.cos(-rr);
+        n = Math.exp(-ii);
+        const imag2 = n * Math.sin(rr);
+        const real2 = n * Math.cos(rr);
+        const i = (imag1 + imag2) / 2.0;
+        const r = (real1 + real2) / 2.0;
+        //  if (i * i < 1E-30) i = 0;
+        //  if (r * r < 1E-30) r = 0;
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  div: function(a: CindyNumber, b: CindyNumber) {
-    const ar = a.value.real;
-    const ai = a.value.imag;
-    const br = b.value.real;
-    const bi = b.value.imag;
-    const s = br * br + bi * bi;
-    return {
-      ctype: "number",
-      value: {
-        real: (ar * br + ai * bi) / s,
-        imag: (ai * br - ar * bi) / s,
-      },
-    };
-  },
+    sin: function (a: CindyNumber): CindyNumber {
+        const rr = a.value.real;
+        const ii = a.value.imag;
+        let n = Math.exp(ii);
+        const imag1 = n * Math.sin(-rr);
+        const real1 = n * Math.cos(-rr);
+        n = Math.exp(-ii);
+        const imag2 = n * Math.sin(rr);
+        const real2 = n * Math.cos(rr);
+        const r = -(imag1 - imag2) / 2.0;
+        const i = (real1 - real2) / 2.0;
+        //  if (i * i < 1E-30) i = 0;
+        //  if (r * r < 1E-30) r = 0;
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  eps: 1e-10,
-  epsbig: 1e-6,
+    tan: function (a: CindyNumber): CindyNumber {
+        const s = CSNumber.sin(a);
+        const c = CSNumber.cos(a);
+        return CSNumber.div(s, c);
+    },
 
-  snap: function(a: CindyNumber): CindyNumber {
-    let r = a.value.real;
-    let i = a.value.imag;
-    if (Math.floor(r + CSNumber.eps) !== Math.floor(r - CSNumber.eps)) {
-      r = Math.round(r);
-    }
-    if (Math.floor(i + CSNumber.eps) !== Math.floor(i - CSNumber.eps)) {
-      i = Math.round(i);
-    }
-    return {
-      ...a,
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    arccos: function (a: CindyNumber): CindyNumber {
+        //OK hässlich aber tuts.
+        const t2 = CSNumber.mult(a, CSNumber.neg(a));
+        const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
+        const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
+        const erg = CSNumber.add(
+            CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)),
+            CSNumber.real(Math.PI * 0.5)
+        );
+        return General.withUsage(erg, "Angle");
+    },
 
-  exp: function(a: CindyNumber): CindyNumber {
-    const n = Math.exp(a.value.real);
-    const r = n * Math.cos(a.value.imag);
-    const i = n * Math.sin(a.value.imag);
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    arcsin: function (a: CindyNumber): CindyNumber {
+        //OK hässlich aber tuts.
+        const t2 = CSNumber.mult(a, CSNumber.neg(a));
+        const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
+        const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
+        const erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
+        return General.withUsage(erg, "Angle");
+    },
 
-  cos: function(a: CindyNumber): CindyNumber {
-    const rr = a.value.real;
-    const ii = a.value.imag;
-    let n = Math.exp(ii);
-    const imag1 = n * Math.sin(-rr);
-    const real1 = n * Math.cos(-rr);
-    n = Math.exp(-ii);
-    const imag2 = n * Math.sin(rr);
-    const real2 = n * Math.cos(rr);
-    const i = (imag1 + imag2) / 2.0;
-    const r = (real1 + real2) / 2.0;
-    //  if (i * i < 1E-30) i = 0;
-    //  if (r * r < 1E-30) r = 0;
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    arctan: function (a: CindyNumber): CindyNumber {
+        //OK hässlich aber tuts.
+        const t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
+        const t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
+        const erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
+        return General.withUsage(erg, "Angle");
+    },
 
-  sin: function(a: CindyNumber): CindyNumber {
-    const rr = a.value.real;
-    const ii = a.value.imag;
-    let n = Math.exp(ii);
-    const imag1 = n * Math.sin(-rr);
-    const real1 = n * Math.cos(-rr);
-    n = Math.exp(-ii);
-    const imag2 = n * Math.sin(rr);
-    const real2 = n * Math.cos(rr);
-    const r = -(imag1 - imag2) / 2.0;
-    const i = (real1 - real2) / 2.0;
-    //  if (i * i < 1E-30) i = 0;
-    //  if (r * r < 1E-30) r = 0;
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    arctan2: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        let erg: CindyNumber;
+        if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
+        else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
+            erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
+        else {
+            const z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
+            const r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
+            erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
+        }
+        return General.withUsage(erg, "Angle");
+    },
 
-  tan: function(a: CindyNumber): CindyNumber {
-    const s = CSNumber.sin(a);
-    const c = CSNumber.cos(a);
-    return CSNumber.div(s, c);
-  },
+    sqrt: function (a: CindyNumber): CindyNumber {
+        const rr = a.value.real;
+        const ii = a.value.imag;
+        const n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
+        const w = Math.atan2(ii, rr);
+        const i = n * Math.sin(w / 2);
+        const r = n * Math.cos(w / 2);
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  arccos: function(a: CindyNumber): CindyNumber {
-    //OK hässlich aber tuts.
-    const t2 = CSNumber.mult(a, CSNumber.neg(a));
-    const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
-    const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
-    const erg = CSNumber.add(CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)), CSNumber.real(Math.PI * 0.5));
-    return General.withUsage(erg, "Angle");
-  },
+    powRealExponent: function (a: CindyNumber, b: number): CindyNumber {
+        const rr = a.value.real;
+        const ii = a.value.imag;
+        const n = Math.sqrt(rr * rr + ii * ii) ** b;
+        const w = Math.atan2(ii, rr);
+        const i = n * Math.sin(w * b);
+        const r = n * Math.cos(w * b);
+        return {
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        };
+    },
 
-  arcsin: function(a: CindyNumber): CindyNumber {
-    //OK hässlich aber tuts.
-    const t2 = CSNumber.mult(a, CSNumber.neg(a));
-    const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
-    const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
-    const erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
-    return General.withUsage(erg, "Angle");
-  },
+    powIntegerExponent: function (a: CindyNumber, nn: number): CindyNumber {
+        const n = Math.round(nn);
+        if (n < 0) return CSNumber.powIntegerExponent(CSNumber.inv(a), -n);
+        if (n === 0) return CSNumber.one;
+        if (n % 2 === 0) return CSNumber.powIntegerExponent(CSNumber.mult(a, a), n / 2);
+        // must be n % 2 === 1
+        return CSNumber.mult(a, CSNumber.powIntegerExponent(CSNumber.mult(a, a), (n - 1) / 2));
+    },
 
-  arctan: function(a: CindyNumber): CindyNumber {
-    //OK hässlich aber tuts.
-    const t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
-    const t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
-    const erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
-    return General.withUsage(erg, "Angle");
-  },
+    log: function (a: CindyNumber): CindyNumber {
+        const re = a.value.real;
+        const im = a.value.imag;
+        const s = Math.sqrt(re * re + im * im);
+        const i = im;
 
-  arctan2: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    let erg: CindyNumber;
-    if (b === undefined) erg = CSNumber.real(Math.atan2(a.value.imag, a.value.real));
-    else if (CSNumber._helper.isReal(a) && CSNumber._helper.isReal(b))
-      erg = CSNumber.real(Math.atan2(b.value.real, a.value.real));
-    else {
-      const z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
-      const r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
-      erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
-    }
-    return General.withUsage(erg, "Angle");
-  },
+        let imag = Math.atan2(im, re);
+        if (i < 0) {
+            imag += 2 * Math.PI;
+        }
+        if (i === 0 && re < 0) {
+            imag = Math.PI;
+        }
+        if (imag > Math.PI) {
+            imag -= 2 * Math.PI;
+        }
+        const real = Math.log(s);
 
-  sqrt: function(a: CindyNumber): CindyNumber {
-    const rr = a.value.real;
-    const ii = a.value.imag;
-    const n = Math.sqrt(Math.sqrt(rr * rr + ii * ii));
-    const w = Math.atan2(ii, rr);
-    const i = n * Math.sin(w / 2);
-    const r = n * Math.cos(w / 2);
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+        return CSNumber.snap({
+            ctype: "number",
+            value: {
+                real,
+                imag,
+            },
+        });
+    },
 
-  powRealExponent: function(a: CindyNumber, b: number): CindyNumber {
-    const rr = a.value.real;
-    const ii = a.value.imag;
-    const n = Math.sqrt(rr * rr + ii * ii) ** b;
-    const w = Math.atan2(ii, rr);
-    const i = n * Math.sin(w * b);
-    const r = n * Math.cos(w * b);
-    return {
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    };
-  },
+    pow: function (a: CindyNumber, n: CindyNumber): CindyNumber {
+        if (CSNumber._helper.isZero(n)) return CSNumber.one;
+        if (CSNumber._helper.isZero(a)) return CSNumber.zero;
+        if ([a, n].every(CSNumber._helper.isReal)) {
+            return CSNumber.real(a.value.real ** n.value.real);
+        }
+        if (CSNumber._helper.isReal(n)) {
+            const nn = n.value.real;
+            if (Number.isInteger(nn)) {
+                return CSNumber.powIntegerExponent(a, nn);
+            }
 
-  powIntegerExponent: function(a: CindyNumber, nn: number): CindyNumber {
-    const n = Math.round(nn)
-    if (n < 0) return CSNumber.powIntegerExponent(CSNumber.inv(a), -n);
-    if (n === 0) return CSNumber.one;
-    if (n % 2 === 0) return CSNumber.powIntegerExponent(CSNumber.mult(a, a), n / 2);
-    // must be n % 2 === 1
-    return CSNumber.mult(a, CSNumber.powIntegerExponent(CSNumber.mult(a, a), (n - 1) / 2));
-  },
+            return CSNumber.powRealExponent(a, nn);
+        }
+        return CSNumber.exp(CSNumber.mult(CSNumber.log(a), n));
+    },
 
-  log: function(a: CindyNumber): CindyNumber {
-    const re = a.value.real;
-    const im = a.value.imag;
-    const s = Math.sqrt(re * re + im * im);
-    const i = im;
+    mod: function (a: CindyNumber, b: CindyNumber): CindyNumber {
+        const a1 = a.value.real;
+        const a2 = b.value.real;
+        const b1 = a.value.imag;
+        const b2 = b.value.imag;
 
-    let imag = Math.atan2(im, re);
-    if (i < 0) {
-      imag += 2 * Math.PI;
-    }
-    if (i === 0 && re < 0) {
-      imag = Math.PI;
-    }
-    if (imag > Math.PI) {
-      imag -= 2 * Math.PI;
-    }
-    const real = Math.log(s);
+        let r = a1 - Math.floor(a1 / a2) * a2;
+        let i = b1 - Math.floor(b1 / b2) * b2;
+        if (a2 === 0) r = 0;
+        if (b2 === 0) i = 0;
 
-    return CSNumber.snap({
-      ctype: "number",
-      value: {
-        real,
-        imag,
-      },
-    });
-  },
+        return CSNumber.snap({
+            ...([a, b].every((x) => x.usage === "Angle") && { usage: "Angle" }),
+            ctype: "number",
+            value: {
+                real: r,
+                imag: i,
+            },
+        });
+    },
+    solveCubic: function (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) {
+        const help = CSNumber._helper.solveCubicHelper(a, b, c, d);
+        return [
+            List.scalproduct(CSNumber._helper.cub1, help),
+            List.scalproduct(CSNumber._helper.cub2, help),
+            List.scalproduct(CSNumber._helper.cub3, help),
+        ] as Array<CindyNumber>;
+    },
 
-  pow: function(a: CindyNumber, n: CindyNumber): CindyNumber {
-    if (CSNumber._helper.isZero(n)) return CSNumber.one;
-    if (CSNumber._helper.isZero(a)) return CSNumber.zero;
-    if ([a, n].every(CSNumber._helper.isReal)) {
-      return CSNumber.real(a.value.real ** n.value.real);
-    }
-    if (CSNumber._helper.isReal(n)) {
-      const nn = n.value.real;
-      if (Number.isInteger(nn)) {
-        return CSNumber.powIntegerExponent(a, nn);
-      }
+    getRandReal: function (min: number, max: number) {
+        const real = CSNumber._helper.getRangeRand(min, max);
+        return CSNumber.real(real);
+    },
 
-      return CSNumber.powRealExponent(a, nn);
-    }
-    return CSNumber.exp(CSNumber.mult(CSNumber.log(a), n));
-  },
+    getRandComplex: function (min: number, max: number) {
+        const real = CSNumber._helper.getRangeRand(min, max);
+        const imag = CSNumber._helper.getRangeRand(min, max);
+        return CSNumber.complex(real, imag);
+    },
+};
 
-  mod: function(a: CindyNumber, b: CindyNumber): CindyNumber {
-    const a1 = a.value.real;
-    const a2 = b.value.real;
-    const b1 = a.value.imag;
-    const b2 = b.value.imag;
-
-    let r = a1 - Math.floor(a1 / a2) * a2;
-    let i = b1 - Math.floor(b1 / b2) * b2;
-    if (a2 === 0) r = 0;
-    if (b2 === 0) i = 0;
-
-    return CSNumber.snap({
-      ...([a, b].every((x) => x.usage === "Angle") && { usage: "Angle" }),
-      ctype: "number",
-      value: {
-        real: r,
-        imag: i,
-      },
-    });
-  },
-  solveCubic: function(a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) {
-    const help = CSNumber._helper.solveCubicHelper(a, b, c, d);
-    return [
-      List.scalproduct(CSNumber._helper.cub1, help),
-      List.scalproduct(CSNumber._helper.cub2, help),
-      List.scalproduct(CSNumber._helper.cub3, help),
-    ] as Array<CindyNumber>;
-  },
-
-  getRandReal: function(min: number, max: number) {
-    const real = CSNumber._helper.getRangeRand(min, max);
-    return CSNumber.real(real);
-  },
-
-  getRandComplex: function(min: number, max: number) {
-    const real = CSNumber._helper.getRangeRand(min, max);
-    const imag = CSNumber._helper.getRangeRand(min, max);
-    return CSNumber.complex(real, imag);
-  },
-}
-
-export { CSNumber, TWOPI }
+export { CSNumber, TWOPI };
