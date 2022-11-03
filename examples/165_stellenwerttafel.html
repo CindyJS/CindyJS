@@ -1,78 +1,70 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Stellenwerttafel-Tausendstel.cdy</title>
+  <style type="text/css">
+    html,body { margin: 0px; padding: 0px; }
+    html,body,#CSCanvas { width: 100%; height: 100%; }
+  </style>
+     <style type="text/css">
+         * {
+             margin: 0px;
+             padding: 0px;
+         }
 
-        <title>Stellenwerttafel-Tausendstel.cdy</title>
-        <style type="text/css">
-            html,
-            body {
-                margin: 0px;
-                padding: 0px;
-            }
-            html,
-            body,
-            #CSCanvas {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
-        <style type="text/css">
-            * {
-                margin: 0px;
-                padding: 0px;
-            }
+         #CSConsole {
+             background-color: #FAFAFA;
+             border-top: 1px solid #333333;
+             bottom: 0px;
+             height: 200px;
+             overflow-y: scroll;
+             position: fixed;
+             width: 100%;
+         }
+     </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+    zaehler =0;
+    zaehler():= (zaehler = zaehler+1;zaehler);
+stellen=("Tausendstel","Hundertstel","Zehntel","Einer"); // aufsteigend
+divider=3;
+anz=length(stellen);
+pot = apply(1..length(stellen),10^#);
 
-            #CSConsole {
-                background-color: #fafafa;
-                border-top: 1px solid #333333;
-                bottom: 0px;
-                height: 200px;
-                overflow-y: scroll;
-                position: fixed;
-                width: 100%;
-            }
-        </style>
-        <link rel="stylesheet" href="../build/js/CindyJS.css" />
-        <script type="text/javascript" src="../build/js/Cindy.js"></script>
-        <script id="csinit" type="text/x-cindyscript">
-                zaehler =0;
-                zaehler():= (zaehler = zaehler+1;zaehler);
-            stellen=("Tausendstel","Hundertstel","Zehntel","Einer"); // aufsteigend
-            divider=3;
-            anz=length(stellen);
-            pot = apply(1..length(stellen),10^#);
+setpositions(XX,th,b,l):=(
+topheight=th;
+height=XX+topheight;
+bottom=b;
+top=height+bottom;
+width=XX;
+left=width/2-length(stellen)*width;
+right=width/2;
+le=l;
+);
 
-            setpositions(XX,th,b,l):=(
-            topheight=th;
-            height=XX+topheight;
-            bottom=b;
-            top=height+bottom;
-            width=XX;
-            left=width/2-length(stellen)*width;
-            right=width/2;
-            le=l;
-            );
+setbottom(b):=setpositions(width,topheight,b,le);
+setleft(l):=setpositions(width,topheight,bottom,l);
+setpositions(10,2,-2,3);
+inpart(x,p) := p.y>bottom & p.y<bottom+height-topheight-.5 & p.x<-width*(x-.5)+width+le & p.x >-width*(x+.5)+width+le;
 
-            setbottom(b):=setpositions(width,topheight,b,le);
-            setleft(l):=setpositions(width,topheight,bottom,l);
-            setpositions(10,2,-2,3);
-            inpart(x,p) := p.y>bottom & p.y<bottom+height-topheight-.5 & p.x<-width*(x-.5)+width+le & p.x >-width*(x+.5)+width+le;
 
+//message("Interaktive Stellenwerttafel (c) 2011-14 CERMAT")
 
-            //message("Interaktive Stellenwerttafel (c) 2011-14 CERMAT")
 
 
 
+;partition():= (apply(1..length(stellen),x,
+select(allpoints(), inpart(x,#))
+);
+)
+;
+lastpartition=partition();
 
-            ;partition():= (apply(1..length(stellen),x,
-            select(allpoints(), inpart(x,#))
-            );
-            )
-            ;
-            lastpartition=partition();
+partition=lastpartition;
 
-            partition=lastpartition;
 
 
 
@@ -91,27 +83,27 @@
 
 
 
+;speed=20;
+backmovers = [];
+partitionmovers = [];
+faders = [];
 
-            ;speed=20;
-            backmovers = [];
-            partitionmovers = [];
-            faders = [];
+move back(punkt,coord) := (
+backmovers = backmovers ++ [[punkt,punkt.xy,coord,0]];
+);
 
-            move back(punkt,coord) := (
-            backmovers = backmovers ++ [[punkt,punkt.xy,coord,0]];
-            );
+move partition(punkte, startp, endp, coord) := (
+ dist = width*(startp-endp);
+ pairs=apply(punkte,(#,#.xy));
+ partitionmovers = partitionmovers ++ [[pairs, punkte, coord, 0]];
 
-            move partition(punkte, startp, endp, coord) := (
-             dist = width*(startp-endp);
-             pairs=apply(punkte,(#,#.xy));
-             partitionmovers = partitionmovers ++ [[pairs, punkte, coord, 0]];
+);
 
-            );
+fadein(pts,startcoord):= (
+err("fadin"+pts+"-"+startcoord);
+ faders = faders ++ [[pts,startcoord,0]];
+)
 
-            fadein(pts,startcoord):= (
-            err("fadin"+pts+"-"+startcoord);
-             faders = faders ++ [[pts,startcoord,0]];
-            )
 
 
 
@@ -129,100 +121,103 @@
 
 
 
+;
+</script>
+<script id="csmousedrag" type="text/x-cindyscript">
+  if(firstmove,
+    if(!newelement,
+      movingpoint=mover();
+      startpartition = select(1..anz,contains(partition_#,movingpoint))_1;
+      startofmover = movingpoint.xy;
+    );
+  );
 
-            ;
-        </script>
-        <script id="csmousedrag" type="text/x-cindyscript">
-              if(firstmove,
-                if(!newelement,
-                  movingpoint=mover();
-                  startpartition = select(1..anz,contains(partition_#,movingpoint))_1;
-                  startofmover = movingpoint.xy;
-                );
-              );
+  firstmove=false;
+  partition=partition();
 
-              firstmove=false;
-              partition=partition();
+  ignore := (
+  if (ispoint(new),
+    if (dist(mouse().xy,new.xy)>.25,
+      startpos = new.xy;
+      new.label="R"+zaehler();
+      removeelement(new);
+      new=0;
+    );
+  );
+  );
+  
+ignore := // move the board
+(if (startpos!=0,
+   forall(partition,p,
+     forall(p,punkt,
+	if(!isundefined(punkt.label), 
+     		punkt.xy=punkt.xy + (mouse().xy-startpos.xy)
+	     );
+	);
+  );
+ setbottom(bottom+(mouse().y-startpos.y));
+  setleft(le+(mouse().x-startpos.x));
 
-              ignore := (
-              if (ispoint(new),
-                if (dist(mouse().xy,new.xy)>.25,
-                  startpos = new.xy;
-                  new.label="R"+zaehler();
-                  removeelement(new);
-                  new=0;
-                );
-              );
-              );
+  startpos=mouse().xy;
+);)
 
-            ignore := // move the board
-            (if (startpos!=0,
-               forall(partition,p,
-                 forall(p,punkt,
-            	if(!isundefined(punkt.label),
-                 		punkt.xy=punkt.xy + (mouse().xy-startpos.xy)
-            	     );
-            	);
-              );
-             setbottom(bottom+(mouse().y-startpos.y));
-              setleft(le+(mouse().x-startpos.x));
 
-              startpos=mouse().xy;
-            );)
 
+;
+</script>
+<script id="csmouseup" type="text/x-cindyscript">
+	partition=partition();
+if (movingpoint != 0,
+ 
+  endpartition = select(1..anz,contains(partition_#,movingpoint))_1;
 
+  err("moved from "+startpartition+" to "+endpartition);
 
-            ;
-        </script>
-        <script id="csmouseup" type="text/x-cindyscript">
-            	partition=partition();
-            if (movingpoint != 0,
+  if (startpartition < endpartition,
+   // do we have enough points in startpartition?
+  need = pot_endpartition/pot_startpartition - 1;
+ avail = length(partition_startpartition);
+  err("we need " + need + " points");
+  err("we have " + avail + " points");
+  if (need > avail,
 
-              endpartition = select(1..anz,contains(partition_#,movingpoint))_1;
+     moveback(movingpoint,startofmover),
 
-              err("moved from "+startpartition+" to "+endpartition);
+     movers = (partition_startpartition)_(1..need);
+     movepartition(movers,startpartition,endpartition,movingpoint.xy);
+    );
 
-              if (startpartition < endpartition,
-               // do we have enough points in startpartition?
-              need = pot_endpartition/pot_startpartition - 1;
-             avail = length(partition_startpartition);
-              err("we need " + need + " points");
-              err("we have " + avail + " points");
-              if (need > avail,
+, 
+  // we have to create lots of new points
+ 
+  tocreate = pot_startpartition/pot_endpartition -1;
+ //err("creating "+tocreate+" points");
+ dd=(startpartition-endpartition);
+ newpoints = apply(1..tocreate,(
+	p = createpoint("P"+zaehler()+"-"+#,startofmover);
+         p.labelled=false;
+         p.size=10;
+  	p.alpha=0;
+         p.color=movingpoint.color;
+	phi=random(2*π);
+	dir=(sin(phi),cos(phi));
+	c=movingpoint.xy+(random(dd)+.5)*dir;
+	while(!inpart(endpartition,c),
+	  phi=random(2*π);
+	  dir=(sin(phi),cos(phi));
+	  c=movingpoint.xy+(random(dd)+.5)*dir;
+	);
+         (p, c);
+    ););
+    fadein(newpoints,movingpoint.xy);
+);
+, partition=partition(); lastpartition=partition;
 
-                 moveback(movingpoint,startofmover),
+);
 
-                 movers = (partition_startpartition)_(1..need);
-                 movepartition(movers,startpartition,endpartition,movingpoint.xy);
-                );
 
-            ,
-              // we have to create lots of new points
 
-              tocreate = pot_startpartition/pot_endpartition -1;
-             //err("creating "+tocreate+" points");
-             dd=(startpartition-endpartition);
-             newpoints = apply(1..tocreate,(
-            	p = createpoint("P"+zaehler()+"-"+#,startofmover);
-                     p.labelled=false;
-                     p.size=10;
-              	p.alpha=0;
-                     p.color=movingpoint.color;
-            	phi=random(2*π);
-            	dir=(sin(phi),cos(phi));
-            	c=movingpoint.xy+(random(dd)+.5)*dir;
-            	while(!inpart(endpartition,c),
-            	  phi=random(2*π);
-            	  dir=(sin(phi),cos(phi));
-            	  c=movingpoint.xy+(random(dd)+.5)*dir;
-            	);
-                     (p, c);
-                ););
-                fadein(newpoints,movingpoint.xy);
-            );
-            , partition=partition(); lastpartition=partition;
 
-            );
 
 
 
@@ -237,26 +232,26 @@
 
 
 
+;
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+x=0;
 
+fillpoly(((le+left,top),(le+right,top),(le+right,bottom),(le+left,bottom)),color->(1,1,1));
+forall(stellen, 
+   drawtext((le-width*x,bottom+height-topheight),#,align->"center", size->24);x=x+1;
+);
+repeat(length(stellen)+1,x,
+   draw((le-width*(x-.5)+width,top),(le-width*(x-.5)+width,bottom),color->(0,0,0),size->3);
+   if(divider==x-1,
+	draw((le-width*(x-.5)+width-.3,top),(le-width*(x-.5)+width-.3,bottom),color->(0,0,0),size->5);
+   );
+);
+draw((le+left,bottom+height-topheight-.5),(le+right,bottom+height-topheight-.5),color->(0,0,0),size->4);
 
 
 
-            ;
-        </script>
-        <script id="csdraw" type="text/x-cindyscript">
-            x=0;
 
-            fillpoly(((le+left,top),(le+right,top),(le+right,bottom),(le+left,bottom)),color->(1,1,1));
-            forall(stellen,
-               drawtext((le-width*x,bottom+height-topheight),#,align->"center", size->24);x=x+1;
-            );
-            repeat(length(stellen)+1,x,
-               draw((le-width*(x-.5)+width,top),(le-width*(x-.5)+width,bottom),color->(0,0,0),size->3);
-               if(divider==x-1,
-            	draw((le-width*(x-.5)+width-.3,top),(le-width*(x-.5)+width-.3,bottom),color->(0,0,0),size->5);
-               );
-            );
-            draw((le+left,bottom+height-topheight-.5),(le+right,bottom+height-topheight-.5),color->(0,0,0),size->4);
 
 
 
@@ -264,156 +259,132 @@
 
 
 
+;pkte=allpoints();
+partition=partition();
+x=1;
+decimal=0;
+forall(lastpartition,
+	drawtext((le-width*(x+.4)+width,bottom+height-topheight),
+	length(#),
+	bold->true,
+	size->24,
+	color->if(length(#)>9,(1,0,0),(0,0,1)));
+	decimal=(decimal+length(#))/10;
+x=x+1);
 
+decimal=""+format(decimal*10^(divider-2),3);
+decimal=replace(decimal,".",",");
 
+drawtext((le+(left+right)/2,top+.5),decimal,size->36,align->"center");
 
 
-            ;pkte=allpoints();
-            partition=partition();
-            x=1;
-            decimal=0;
-            forall(lastpartition,
-            	drawtext((le-width*(x+.4)+width,bottom+height-topheight),
-            	length(#),
-            	bold->true,
-            	size->24,
-            	color->if(length(#)>9,(1,0,0),(0,0,1)));
-            	decimal=(decimal+length(#))/10;
-            x=x+1);
 
-            decimal=""+format(decimal*10^(divider-2),3);
-            decimal=replace(decimal,".",",");
+;
+</script>
+<script id="cstick" type="text/x-cindyscript">
+if(length(backmovers)>0,
+  bm = backmovers_1;
+	backmovers = backmovers -- [bm];
+	step = bm_4;
+  (bm_1).xy=((speed-step)*(bm_2)+step*(bm_3))/speed;
+	if(step<speed, backmovers = backmovers ++ [[bm_1,bm_2,bm_3,step+1]],lastpartition=partition(););
+);
 
-            drawtext((le+(left+right)/2,top+.5),decimal,size->36,align->"center");
+if(length(partitionmovers)>0,
+  pm = partitionmovers_1;
+  partitionmovers = partitionmovers -- [pm];
+  t = pm_4;
+  coord = pm_3;
+	pairs = pm_1;
+    forall(pairs,p,
+      (p_1).xy=(t*coord+(speed-t)*(p_2))/speed;
+      (p_1).alpha=(1-t/speed)^2;);
+  if(t<speed,
+    partitionmovers = partitionmovers ++ [[pm_1,pm_2,pm_3,t+1]];
+   ,
+   forall(pm_2,removeelement(#));
+   lastpartition=partition();
+  );
+);
 
+if(length(faders)>0,
+  fad = faders_1;
+//	err(fad);
+  faders = faders -- [fad];
+   pts = fad_1;
+   startcoord= fad_2;
+   t = fad_3;
+   forall(pts,pp,
+	(pp_1).xy=((speed-t)*startcoord + t*(pp_2))/speed;
+	(pp_1).alpha=(t/speed)^2;
+   );
+  if(t<speed, faders = faders ++ [[fad_1,fad_2,t+1]];,lastpartition=partition(); 
+  )
 
+);
 
-            ;
-        </script>
-        <script id="cstick" type="text/x-cindyscript">
-            if(length(backmovers)>0,
-              bm = backmovers_1;
-            	backmovers = backmovers -- [bm];
-            	step = bm_4;
-              (bm_1).xy=((speed-step)*(bm_2)+step*(bm_3))/speed;
-            	if(step<speed, backmovers = backmovers ++ [[bm_1,bm_2,bm_3,step+1]],lastpartition=partition(););
-            );
+;
+</script>
+<script id="csmousedown" type="text/x-cindyscript">
+firstmove=true;
+moving=elementsatmouse();
+new=0;
+startpos=0;
+movingpoint=0;
+if (length(moving)==0,
+	err("create point");
+	repeat(anz,x,
+	if(inpart(x,mouse()),
+	 new = createpoint("P"+zaehler(),mouse());
+	);
+	);
 
-            if(length(partitionmovers)>0,
-              pm = partitionmovers_1;
-              partitionmovers = partitionmovers -- [pm];
-              t = pm_4;
-              coord = pm_3;
-            	pairs = pm_1;
-                forall(pairs,p,
-                  (p_1).xy=(t*coord+(speed-t)*(p_2))/speed;
-                  (p_1).alpha=(1-t/speed)^2;);
-              if(t<speed,
-                partitionmovers = partitionmovers ++ [[pm_1,pm_2,pm_3,t+1]];
-               ,
-               forall(pm_2,removeelement(#));
-               lastpartition=partition();
-              );
-            );
-
-            if(length(faders)>0,
-              fad = faders_1;
-            //	err(fad);
-              faders = faders -- [fad];
-               pts = fad_1;
-               startcoord= fad_2;
-               t = fad_3;
-               forall(pts,pp,
-            	(pp_1).xy=((speed-t)*startcoord + t*(pp_2))/speed;
-            	(pp_1).alpha=(t/speed)^2;
-               );
-              if(t<speed, faders = faders ++ [[fad_1,fad_2,t+1]];,lastpartition=partition();
-              )
-
-            );
-
-            ;
-        </script>
-        <script id="csmousedown" type="text/x-cindyscript">
-            firstmove=true;
-            moving=elementsatmouse();
-            new=0;
-            startpos=0;
-            movingpoint=0;
-            if (length(moving)==0,
-            	err("create point");
-            	repeat(anz,x,
-            	if(inpart(x,mouse()),
-            	 new = createpoint("P"+zaehler(),mouse());
-            	);
-            	);
-
-            	new.labelled=false;
-            	new.size=10;
-              newelement=true;
-              , newelement=false;
-            );
-
-
-            ;
-        </script>
-        <script type="text/javascript">
-            var cdy = CindyJS({
-                scripts: "cs*",
-                defaultAppearance: {
-                    dimDependent: 0.7,
-                    fontFamily: "sans-serif",
-                    lineSize: 1,
-                    pointSize: 5.0,
-                    textsize: 12.0,
-                },
-                angleUnit: "°",
-                geometry: [
-                    {
-                        name: "Text0",
-                        type: "Button",
-                        color: [0.0, 0.0, 0.0],
-                        fillcolor: [1.0, 1.0, 1.0],
-                        fillalpha: 0.27272728085517883,
-                        script: "forall(allpoints(),removeelement(#));lastpartition=partition();repaint();\n",
-                        text: "Alles löschen",
-                        dock: { corner: "UL", offset: [30.0, -20.0] },
-                    },
-                    {
-                        name: "Text1",
-                        type: "Button",
-                        color: [0.0, 0.0, 0.0],
-                        fillcolor: [1.0, 1.0, 1.0],
-                        fillalpha: 0.27272728085517883,
-                        script: "javascript(\"window.open('https://apps.apple.com/de/app/stellenwerttafel/id568750442')\");",
-                        text: "Wir empfehlen die Verwendung der App für iOS",
-                        dock: { corner: "UR", offset: [-300.0, -20.0] },
-                    },
-                ],
-                ports: [
-                    {
-                        id: "CSCanvas",
-                        //width: 1122,
-                        //height: 422,
-                        transform: [{ visibleRect: [-34.26, 12.7, 10.62, -4.18] }],
-                        background: "rgb(168,176,192)",
-                    },
-                ],
-                animation: {
-                    autoplay: true,
-                    controls: false,
-                    speed: 0.5,
-                    speedRange: [0.0, 1.0],
-                    accuracy: 1,
-                },
-                autoplay: true,
-                animcontrols: true,
-                csconsole: false,
-                cinderella: { build: 1903, version: [2, 9, 1903] },
-            });
-        </script>
-    </head>
-    <body>
-        <div id="CSCanvas"></div>
-    </body>
+	new.labelled=false;
+	new.size=10;
+  newelement=true;
+  , newelement=false;
+);
+
+
+;
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "Text0", type: "Button", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "forall(allpoints(),removeelement(#));lastpartition=partition();repaint();\n", text: "Alles löschen", dock: {corner: "UL", offset: [30.0, -20.0]}},
+    {name: "Text1", type: "Button", color: [0.0, 0.0, 0.0], fillcolor: [1.0, 1.0, 1.0], fillalpha: 0.27272728085517883, script: "javascript(\"window.open(\'https://apps.apple.com/de/app/stellenwerttafel/id568750442\')\");", text: "Wir empfehlen die Verwendung der App für iOS", dock: {corner: "UR", offset: [-300.0, -20.0]}}
+  ],
+  ports: [{
+    id: "CSCanvas",
+    //width: 1122,
+    //height: 422,
+    transform: [{visibleRect: [-34.26, 12.7, 10.62, -4.18]}],
+    background: "rgb(168,176,192)"
+  }],
+  animation: {
+    autoplay: true,
+    controls: false,
+    speed: 0.5,
+    speedRange: [0.0, 1.0],
+    accuracy: 1
+  },
+  autoplay: true,
+  animcontrols: true,
+  csconsole: false,
+  cinderella: {build: 1903, version: [2, 9, 1903]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
 </html>

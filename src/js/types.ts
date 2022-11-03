@@ -1,17 +1,17 @@
 export interface CindyType {
-    ctype: string;
-    value?: Record<string, any>;
+  ctype: string;
+  value?: Record<string, any>;
 }
 
 export interface CindyNumber extends CindyType {
-    usage?: "Angle";
-    ctype: "number";
-    value: {
-        real: number;
-        imag: number;
-    };
+  usage?: "Angle";
+  ctype: "number";
+  value: {
+    real: number;
+    imag: number;
+  };
 }
 
 export interface Nada {
-    ctype: string;
+  ctype: string;
 }
