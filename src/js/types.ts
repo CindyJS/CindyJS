@@ -1,9 +1,11 @@
-export interface CindyType {
-    ctype: string;
+type ctypes = "number" | "list" | "undefined" | "image" | "function" | "boolean";
+
+export interface CSType {
+    ctype: ctypes;
     value?: Record<string, any>;
 }
 
-export interface CindyNumber extends CindyType {
+export interface CSNum extends CSType {
     usage?: "Angle";
     ctype: "number";
     value: {
@@ -12,89 +14,89 @@ export interface CindyNumber extends CindyType {
     };
 }
 
-export interface CindyNada {
+export interface Nada {
     ctype: "undefined";
 }
 
-export interface CindyList extends CindyType {
+export interface CSList extends CSType {
     ctype: "list";
-    value: Array<CindyType>;
+    value: Array<CSType>;
 }
 
-export interface CindyMath {
+export interface CSMath {
     _helper: {
         roundingfactor: number;
         angleroundingfactor: number;
         niceround: (a: number, roundingfactor: number) => number;
-        niceangle: (a: CindyNumber) => string;
-        input: (a: { r: object; i: object }) => CindyNumber;
-        isReal: (a: CindyNumber) => boolean;
-        isNaN: (a: CindyNumber) => boolean;
-        isFinite: (a: CindyNumber) => boolean;
+        niceangle: (a: CSNum) => string;
+        input: (a: { r: object; i: object }) => CSNum;
+        isReal: (a: CSNum) => boolean;
+        isNaN: (a: CSNum) => boolean;
+        isFinite: (a: CSNum) => boolean;
         seed: "NO" | number;
         rand: () => number;
         randnormal: () => number;
-        isEqual: (a: CindyNumber, b: CindyNumber) => boolean;
-        isLessThan: (a: CindyNumber, b: CindyNumber) => boolean;
-        isZero: (arg: CindyNumber) => boolean;
-        isAlmostZero: (arg: CindyNumber) => boolean;
-        isAlmostReal: (arg: CindyNumber) => boolean;
-        isAlmostImag: (arg: CindyNumber) => boolean;
-        solveCubicHelper: (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) => CindyList;
-        z3a: CindyNumber;
-        z3b: CindyNumber;
-        cub1: CindyList;
-        cub2: CindyList;
-        cub3: CindyList;
+        isEqual: (a: CSNum, b: CSNum) => boolean;
+        isLessThan: (a: CSNum, b: CSNum) => boolean;
+        isZero: (arg: CSNum) => boolean;
+        isAlmostZero: (arg: CSNum) => boolean;
+        isAlmostReal: (arg: CSNum) => boolean;
+        isAlmostImag: (arg: CSNum) => boolean;
+        solveCubicHelper: (a: CSNum, b: CSNum, c: CSNum, d: CSNum) => CSList;
+        z3a: CSNum;
+        z3b: CSNum;
+        cub1: CSList;
+        cub2: CSList;
+        cub3: CSList;
         seedrandom: (a: number) => void;
-        compare: (a: CindyNumber, b: CindyNumber) => number;
-        isAlmostEqual: (a: CindyNumber, b: CindyNumber, preci?: number) => boolean;
+        compare: (a: CSNum, b: CSNum) => number;
+        isAlmostEqual: (a: CSNum, b: CSNum, preci?: number) => boolean;
         getRangeRand: (a: number, b: number) => number;
     };
-    niceprint: (a: CindyNumber, roundingfactor?: number) => string;
-    realmult: (r: number, a: CindyNumber) => CindyNumber;
-    complex: (r: number, i: number) => CindyNumber;
-    real: (r: number) => CindyNumber;
-    zero: CindyNumber;
-    one: CindyNumber;
-    infinity: CindyNumber;
-    nan: CindyNumber;
-    argmax: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    max: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    min: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    add: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    sub: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    neg: (a: CindyNumber) => CindyNumber;
-    re: (a: CindyNumber) => CindyNumber;
-    im: (a: CindyNumber) => CindyNumber;
-    conjugate: (a: CindyNumber) => CindyNumber;
-    ceil: (a: CindyNumber) => CindyNumber;
-    floor: (a: CindyNumber) => CindyNumber;
-    round: (a: CindyNumber) => CindyNumber;
-    mult: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    multiMult: (arr: Array<CindyNumber>) => CindyNada | CindyNumber;
-    abs2: (a: CindyNumber) => CindyNumber;
-    abs: (a: CindyNumber) => CindyNumber;
-    inv: (a: CindyNumber) => CindyNumber;
-    div: (a: CindyNumber, b: CindyNumber) => CindyNumber;
+    niceprint: (a: CSNum, roundingfactor?: number) => string;
+    realmult: (r: number, a: CSNum) => CSNum;
+    complex: (r: number, i: number) => CSNum;
+    real: (r: number) => CSNum;
+    zero: CSNum;
+    one: CSNum;
+    infinity: CSNum;
+    nan: CSNum;
+    argmax: (a: CSNum, b: CSNum) => CSNum;
+    max: (a: CSNum, b: CSNum) => CSNum;
+    min: (a: CSNum, b: CSNum) => CSNum;
+    add: (a: CSNum, b: CSNum) => CSNum;
+    sub: (a: CSNum, b: CSNum) => CSNum;
+    neg: (a: CSNum) => CSNum;
+    re: (a: CSNum) => CSNum;
+    im: (a: CSNum) => CSNum;
+    conjugate: (a: CSNum) => CSNum;
+    ceil: (a: CSNum) => CSNum;
+    floor: (a: CSNum) => CSNum;
+    round: (a: CSNum) => CSNum;
+    mult: (a: CSNum, b: CSNum) => CSNum;
+    multiMult: (arr: Array<CSNum>) => Nada | CSNum;
+    abs2: (a: CSNum) => CSNum;
+    abs: (a: CSNum) => CSNum;
+    inv: (a: CSNum) => CSNum;
+    div: (a: CSNum, b: CSNum) => CSNum;
     eps: number;
     epsbig: number;
-    snap: (a: CindyNumber) => CindyNumber;
-    exp: (a: CindyNumber) => CindyNumber;
-    sin: (a: CindyNumber) => CindyNumber;
-    cos: (a: CindyNumber) => CindyNumber;
-    tan: (a: CindyNumber) => CindyNumber;
-    arccos: (a: CindyNumber) => CindyNumber;
-    arcsin: (a: CindyNumber) => CindyNumber;
-    arctan: (a: CindyNumber) => CindyNumber;
-    arctan2: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    sqrt: (a: CindyNumber) => CindyNumber;
-    log: (a: CindyNumber) => CindyNumber;
-    pow: (a: CindyNumber, n: CindyNumber) => CindyNumber;
-    powRealExponent: (a: CindyNumber, b: number) => CindyNumber;
-    powIntegerExponent: (a: CindyNumber, b: number) => CindyNumber;
-    mod: (a: CindyNumber, b: CindyNumber) => CindyNumber;
-    solveCubic: (a: CindyNumber, b: CindyNumber, c: CindyNumber, d: CindyNumber) => Array<CindyNumber>;
-    getRandReal: (a: number, b: number) => CindyNumber;
-    getRandComplex: (a: number, b: number) => CindyNumber;
+    snap: (a: CSNum) => CSNum;
+    exp: (a: CSNum) => CSNum;
+    sin: (a: CSNum) => CSNum;
+    cos: (a: CSNum) => CSNum;
+    tan: (a: CSNum) => CSNum;
+    arccos: (a: CSNum) => CSNum;
+    arcsin: (a: CSNum) => CSNum;
+    arctan: (a: CSNum) => CSNum;
+    arctan2: (a: CSNum, b: CSNum) => CSNum;
+    sqrt: (a: CSNum) => CSNum;
+    log: (a: CSNum) => CSNum;
+    pow: (a: CSNum, n: CSNum) => CSNum;
+    powRealExponent: (a: CSNum, b: number) => CSNum;
+    powIntegerExponent: (a: CSNum, b: number) => CSNum;
+    mod: (a: CSNum, b: CSNum) => CSNum;
+    solveCubic: (a: CSNum, b: CSNum, c: CSNum, d: CSNum) => Array<CSNum>;
+    getRandReal: (a: number, b: number) => CSNum;
+    getRandComplex: (a: number, b: number) => CSNum;
 }
