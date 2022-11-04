@@ -1,11 +1,10 @@
-// @ts-expect-error: Not yet typed
 import { instanceInvocationArguments, nada } from "expose";
 // @ts-expect-error: Not yet typed
 import { List } from "libcs/List";
 // @ts-expect-error: Not yet typed
 import { General } from "libcs/General";
 
-import { CindyNumber, Nada, CindyMath } from "types";
+import { CindyNumber, CindyNada, CindyMath, CindyList } from "types";
 
 const angleUnit = instanceInvocationArguments.angleUnit || "°";
 const TWOPI = Math.PI * 2;
@@ -150,19 +149,19 @@ const CSNumber: CindyMath = {
         get z3b() {
             return CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
         },
-        get cub1() {
+        get cub1(): CindyList {
             return {
                 ctype: "list",
                 value: [CSNumber.one, CSNumber.one, CSNumber.one],
             };
         },
-        get cub2() {
+        get cub2(): CindyList {
             return {
                 ctype: "list",
                 value: [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b],
             };
         },
-        get cub3() {
+        get cub3(): CindyList {
             return {
                 ctype: "list",
                 value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
@@ -507,7 +506,7 @@ const CSNumber: CindyMath = {
         };
     },
 
-    multiMult: function (arr: Array<CindyNumber>): Nada | CindyNumber {
+    multiMult: function (arr: Array<CindyNumber>): CindyNada | CindyNumber {
         let erg = arr[0];
         if (erg.ctype !== "number") return nada;
         for (let i = 1; i < arr.length; i++) {

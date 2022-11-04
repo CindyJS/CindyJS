@@ -100,7 +100,7 @@ module.exports = function build(settings, task) {
 
     task("exposed", ["cs2js", "typescript"], function () {
         version(this);
-        this.concat(src.lib.concat("src/js/expose.js", src.inclosure), "build/js/exposed.js");
+        this.concat(src.lib.concat("build/ts/expose.js", src.inclosure), "build/js/exposed.js");
     });
 
     task("closure", ["plain", "closure-jar"], function () {
