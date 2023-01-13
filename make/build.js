@@ -37,6 +37,14 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Run TypeScript Compiler
+    //////////////////////////////////////////////////////////////////////
+
+    task("typescript", [], function () {
+        this.cmdscript("tsc");
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Build different flavors of Cindy.js
     //////////////////////////////////////////////////////////////////////
 
@@ -55,7 +63,7 @@ module.exports = function build(settings, task) {
         });
     });
 
-    task("plain", ["cs2js"], function () {
+    task("plain", ["cs2js", "typescript"], function () {
         version(this);
         this.concat(src.srcs, "build/js/Cindy.plain.js");
     });
@@ -85,14 +93,14 @@ module.exports = function build(settings, task) {
         this.cmd("em++", args);
     });
 
-    task("ours", ["cs2js"], function () {
+    task("ours", ["cs2js", "typescript"], function () {
         version(this);
         this.concat(src.ours, "build/js/ours.js");
     });
 
-    task("exposed", ["cs2js"], function () {
+    task("exposed", ["cs2js", "typescript"], function () {
         version(this);
-        this.concat(src.lib.concat("src/js/expose.js", src.inclosure), "build/js/exposed.js");
+        this.concat(src.lib.concat("build/ts/expose.js", src.inclosure), "build/js/exposed.js");
     });
 
     task("closure", ["plain", "closure-jar"], function () {
@@ -142,7 +150,7 @@ module.exports = function build(settings, task) {
     task("jshint", ["ours"], callEslint);
 
     function callEslint() {
-        this.cmdscript("eslint", "src/js/**/*.js");
+        this.cmdscript("eslint", "src/js/**/*.[jt]s");
         this.cmdscript("eslint", "-f", "tools/eslint-reporter.js", "build/js/ours.js");
     }
 

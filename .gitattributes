@@ -17,6 +17,7 @@
 *.java          text
 *.json          text
 *.js            text
+*.ts            text
 *.md            text
 *.mp4           -text
 *.pages         -text

@@ -128,6 +128,7 @@ function map(name, err, content) {
     map.sources = map.sources.map(function (src) {
         if (/^ \[synthetic:.*\] $/.test(src)) return src;
         if (/^lib|node_modules/.test(src)) return src;
+        if (/^build\/ts/.test(src)) return src;
         return ppath.normalize(ppath.join("build/js", root, src));
     });
     map.sourcesContent = map.sources.map(function (src) {
