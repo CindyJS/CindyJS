@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+x=drawtext((0,0),"Hello World, are you OK in your box?",size->24);
+drawpoly(x);
+x=drawtext((0,3),"$\frac{4}{x+2}$",size->24);
+drawpoly(x);
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    id: "CSCanvas",
+    width: 680,
+    height: 333,
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -3.98]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2069, version: [3, 0, 2069]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
