@@ -3,6 +3,7 @@ import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
 import { eval_helper, evaluator, niceprint } from "libcs/Essentials";
+import { Accessor } from "libcs/Accessors";
 import { textRendererHtml } from "libcs/OpDrawing";
 import { Render2D } from "libcs/Render2D";
 import { csport } from "libgeo/GeoState";
@@ -245,7 +246,7 @@ function drawgeotext(el) {
             let name, el2;
             try {
                 name = JSON.parse(match.substring(2));
-                el2 = csgeo.csnames[name];
+                el2 = csgeo.csnames[name]; // this does not deliver the ctype of el2, as ctype is separate from elements.
                 if (!el2) return "?";
             } catch (err) {
                 return "?";
@@ -253,9 +254,10 @@ function drawgeotext(el) {
             switch (match.charAt(1)) {
                 case "$":
                     return el2.printname || name;
-                case "#":
-                    if (el2.kind !== "V") return "?";
-                    return niceprint(el2.value);
+                case "#": // I do not like this. I would prefer an oo-approach.
+                    if (el2.kind === "P") return niceprint(Accessor.getField(el2, "xy"));
+                    if (el2.kind == "V") return niceprint(el2.value);
+                    return el2.value;
             }
         });
     let htmlCallback = null;
