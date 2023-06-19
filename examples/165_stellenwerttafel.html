@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     
-    <title>Stellenwerttafel-Tausendstel.cdy</title>
+    <title>Stellenwerttafel mit Tausendsteln (C)2011-2022 Ulrich Kortenkamp</title>
   <style type="text/css">
     html,body { margin: 0px; padding: 0px; }
     html,body,#CSCanvas { width: 100%; height: 100%; }
@@ -24,8 +24,8 @@
              width: 100%;
          }
      </style>
-    <link rel="stylesheet" href="../build/js/CindyJS.css">
-    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
     zaehler =0;
     zaehler():= (zaehler = zaehler+1;zaehler);
@@ -100,7 +100,7 @@ move partition(punkte, startp, endp, coord) := (
 );
 
 fadein(pts,startcoord):= (
-err("fadin"+pts+"-"+startcoord);
+//err("fadin"+pts+"-"+startcoord);
  faders = faders ++ [[pts,startcoord,0]];
 )
 
@@ -166,73 +166,52 @@ ignore := // move the board
 ;
 </script>
 <script id="csmouseup" type="text/x-cindyscript">
-	partition=partition();
+partition=partition();
 if (movingpoint != 0,
- 
-  endpartition = select(1..anz,contains(partition_#,movingpoint))_1;
-
-  err("moved from "+startpartition+" to "+endpartition);
-
-  if (startpartition < endpartition,
-   // do we have enough points in startpartition?
-  need = pot_endpartition/pot_startpartition - 1;
- avail = length(partition_startpartition);
-  err("we need " + need + " points");
-  err("we have " + avail + " points");
-  if (need > avail,
-
-     moveback(movingpoint,startofmover),
-
-     movers = (partition_startpartition)_(1..need);
-     movepartition(movers,startpartition,endpartition,movingpoint.xy);
-    );
-
-, 
-  // we have to create lots of new points
- 
-  tocreate = pot_startpartition/pot_endpartition -1;
- //err("creating "+tocreate+" points");
- dd=(startpartition-endpartition);
- newpoints = apply(1..tocreate,(
-	p = createpoint("P"+zaehler()+"-"+#,startofmover);
-         p.labelled=false;
-         p.size=10;
-  	p.alpha=0;
-         p.color=movingpoint.color;
-	phi=random(2*π);
-	dir=(sin(phi),cos(phi));
-	c=movingpoint.xy+(random(dd)+.5)*dir;
-	while(!inpart(endpartition,c),
-	  phi=random(2*π);
-	  dir=(sin(phi),cos(phi));
-	  c=movingpoint.xy+(random(dd)+.5)*dir;
-	);
-         (p, c);
-    ););
-    fadein(newpoints,movingpoint.xy);
+	ppp =select(1..anz,contains(partition_#,movingpoint));
+	if(and(length(ppp)>0, !isundefined(startpartition)),
+ 	  	endpartition = ppp_1;
+		//err("moved from "+startpartition+" to "+endpartition);
+		if (startpartition < endpartition,
+  			 	// do we have enough points in startpartition?
+ 			  	need = pot_endpartition/pot_startpartition - 1;
+			   	avail = length(partition_startpartition);
+ 			  	//err("we need " + need + " points");
+ 			  	//err("we have " + avail + " points");
+ 			  	if (need > avail,
+				moveback(movingpoint,startofmover),
+				movers = (partition_startpartition)_(1..need);
+    			   	movepartition(movers,startpartition,endpartition,movingpoint.xy);
+   			);
+		, 
+ 		  		// we have to create lots of new points
+			tocreate = pot_startpartition/pot_endpartition -1;
+		   	 	//err("creating "+tocreate+" points");
+			   dd=(startpartition-endpartition);
+		   newpoints = apply(1..tocreate,(
+			   	p = createpoint("P"+zaehler()+"-"+#,startofmover);
+			   	p.labelled=false;
+			   	p.size=10;
+			   	p.alpha=0;
+			   	p.color=movingpoint.color;
+			   	phi=random(2*π);
+			   	dir=(sin(phi),cos(phi));
+			   	c=movingpoint.xy+(random(dd)+.5)*dir;
+			   	while(!inpart(endpartition,c),
+			   		phi=random(2*π);
+					dir=(sin(phi),cos(phi));
+					c=movingpoint.xy+(random(dd)+.5)*dir;
+				);
+			(p, c);
+   			););
+   		fadein(newpoints,movingpoint.xy);
+		);
+	,
+		partition=partition(); lastpartition=partition;
+	);	
+,
+	partition=partition(); lastpartition=partition;
 );
-, partition=partition(); lastpartition=partition;
-
-);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;
 </script>
 <script id="csdraw" type="text/x-cindyscript">
 x=0;
@@ -332,7 +311,7 @@ new=0;
 startpos=0;
 movingpoint=0;
 if (length(moving)==0,
-	err("create point");
+	//err("create point");
 	repeat(anz,x,
 	if(inpart(x,mouse()),
 	 new = createpoint("P"+zaehler(),mouse());
