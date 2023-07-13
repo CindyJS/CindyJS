@@ -41,7 +41,7 @@ namespace.create = function (name) {
 };
 
 namespace.newvar = function (name) {
-    const v = this.vars[name];
+    const v = this.create(name);
     v.push(nada); // nada not null for deeper levels
     return v;
 };
