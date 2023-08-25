@@ -246,19 +246,19 @@ function setuplisteners(canvas, data) {
         hasmoved = false;
         mouse.button = e.which;
         updatePosition(e);
+        manage("mousedown");
         cs_multidown(0);
         cs_mousedown();
-        manage("mousedown");
         mouse.down = true;
         e.preventDefault();
     });
 
     addAutoCleaningEventListener(canvas, "mouseup", function (e) {
         mouse.down = false;
-        cindy_cancelmove();
+        manage("mouseup");
         cs_mouseup();
         cs_multiup(0);
-        manage("mouseup");
+        cindy_cancelmove();
         delete multipos[0];
         scheduleUpdate();
         e.preventDefault();
@@ -502,8 +502,7 @@ function setuplisteners(canvas, data) {
             cs_mousemove();
         }
 
-        manage("mousemove");
-
+        manage("mousemove"); // this should be done before the cs_* calls, but we will fix this later, too
         e.preventDefault();
     }
     var activeTouchID = -1;
@@ -526,12 +525,12 @@ function setuplisteners(canvas, data) {
         activeTouchID = activeTouchIDList[0].identifier;
 
         updatePosition(e.targetTouches[0]);
-        cs_mousedown();
         mouse.down = true;
         mousedownevent = e.targetTouches[0];
         hasmoved = false;
-        //move = getmover(mouse);
+        move = getmover(mouse); // should is handeled in manage(Move), I think, but actually is not
         manage("mousedown");
+        cs_mousedown(); // only handle CindyScript after the built-in mode. Actually, CindyScript should only be handled in Move mode, but we leave this fix for later.
         e.preventDefault();
     }
 
@@ -556,9 +555,9 @@ function setuplisteners(canvas, data) {
         }
         activeTouchID = -1;
         mouse.down = false;
-        cindy_cancelmove();
-        cs_mouseup();
-        manage("mouseup");
+        manage("mouseup"); // do the mouseup-action of the current mode
+        cs_mouseup(); // first do the script, then …
+        cindy_cancelmove(); // … forget the mover
         if (!hasmoved) cs_mouseclick();
         scheduleUpdate();
         e.preventDefault();
