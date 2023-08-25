@@ -50,7 +50,7 @@ Accessor.setGeoField = function (geoname, field, value) {
 Accessor.getField = function (geo, field) {
     let erg;
     if (geo.kind === "P") {
-        if (field === "xy") {
+        if (field === "xy" || field === "coord") {
             erg = List.dehom(geo.homog);
             return General.withUsage(erg, "Point");
         }
