@@ -11,23 +11,19 @@
             println("test is " + test);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-        drawtext([-5,0], "test is equal to " + test, size -> 30);
+            drawtext([-5,0], "test is equal to " + test, size -> 30);
         </script>
         <script type="text/javascript">
             var cdy = CindyJS({
                 // See ref/createCindy documentation for details.
                 ports: [{ id: "CSCanvas", width: 500, height: 500 }],
                 scripts: "cs*",
-                import: ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"]
-
+                import: ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"],
             });
 
             // Remove all comments after adjusting this template for your use case.
         </script>
     </head>
-
-
-
 
     <body style="font-family: Arial">
         <h1>CindyJS: Importing CindyScript files</h1>

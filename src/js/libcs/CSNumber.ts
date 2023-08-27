@@ -650,7 +650,7 @@ const CSNumber: CSMath = {
             CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, 1)),
             CSNumber.real(Math.PI * 0.5)
         );
-        return { ...erg, usage: "Angle" }
+        return { ...erg, usage: "Angle" };
     },
 
     arcsin: function (a: CSNum): CSNum {
@@ -659,7 +659,7 @@ const CSNumber: CSMath = {
         const tmp = CSNumber.sqrt(CSNumber.add(CSNumber.real(1), t2));
         const tmp1 = CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), tmp);
         const erg = CSNumber.mult(CSNumber.log(tmp1), CSNumber.complex(0, -1));
-        return { ...erg, usage: "Angle" }
+        return { ...erg, usage: "Angle" };
     },
 
     arctan: function (a: CSNum): CSNum {
@@ -667,7 +667,7 @@ const CSNumber: CSMath = {
         const t1 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, -1)), CSNumber.real(1)));
         const t2 = CSNumber.log(CSNumber.add(CSNumber.mult(a, CSNumber.complex(0, 1)), CSNumber.real(1)));
         const erg = CSNumber.mult(CSNumber.sub(t1, t2), CSNumber.complex(0, 0.5));
-        return { ...erg, usage: "Angle" }
+        return { ...erg, usage: "Angle" };
     },
 
     arctan2: function (a: CSNum, b: CSNum): CSNum {
@@ -680,7 +680,7 @@ const CSNumber: CSMath = {
             const r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
             erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
         }
-        return { ...erg, usage: "Angle" }
+        return { ...erg, usage: "Angle" };
     },
 
     sqrt: function (a: CSNum): CSNum {
