@@ -1,4 +1,4 @@
-type ctypes = "number" | "list" | "undefined" | "image" | "function" | "boolean";
+export type ctypes = "number" | "list" | "undefined" | "image" | "function" | "boolean" | "JSON" | "string";
 
 export interface CSType {
     ctype: ctypes;
@@ -99,4 +99,54 @@ export interface CSMath {
     solveCubic: (a: CSNum, b: CSNum, c: CSNum, d: CSNum) => Array<CSNum>;
     getRandReal: (a: number, b: number) => CSNum;
     getRandComplex: (a: number, b: number) => CSNum;
+}
+
+// JSON
+
+export interface CSJsonValue {
+    ctype: string;
+    value: Record<string, any>;
+}
+
+export interface CSJsonKey {
+    ctype: string;
+    key: CSJsonKey;
+    value: CSJsonValue | Nada;
+}
+
+export type JsonNicePrintOptions = {
+    printedWarning: boolean;
+    visitedMap: {
+        [key: string]: any;
+        tracker: WeakMap<any, any>;
+        level: number;
+        maxLevel: number;
+        maxElVisit: number;
+        newLevel: boolean;
+        printedWarning: boolean;
+    };
+};
+
+interface JSONHelper {
+    GenJSONAtom(key: string, val: CSType): CSJsonValue;
+    forall(
+        li: Record<string, CSType>,
+        runVar: string,
+        fct: () => CSJsonValue,
+        modifs: { iterator?: "key" | "value" | "pair" }
+    ): CSJsonValue | undefined;
+    niceprint(a: CSJsonValue, modifs: { maxDepth: number }, options: JsonNicePrintOptions): string;
+    handlePrintException(e: Error): void;
+}
+
+export interface Json {
+    _helper: JSONHelper;
+    turnIntoCSJson(a: CSType): CSJsonValue;
+    getField(obj: CSJsonValue, key: string): CSType;
+    setField(where: Record<string, CSType>, field: string, what: CSJsonValue): void;
+    GenFromUserDataEl(el: {
+        key: CSJsonValue;
+        value: CSJsonValue;
+    }): Nada | { key: Nada | CSJsonValue; val: Nada | CSType };
+    niceprint(el: CSJsonValue, modifs: any, options: JsonNicePrintOptions): string;
 }

@@ -3,7 +3,7 @@
 exports.libcs = [
     "build/ts/libcs/CSNumber.js", // now handled by typescript compiler
     "src/js/libcs/List.js",
-    "src/js/libcs/Json.js",
+    "build/ts/libcs/Json.js",
     "src/js/libcs/Dict.js",
     "src/js/libcs/General.js",
     "src/js/libcs/Essentials.js",
