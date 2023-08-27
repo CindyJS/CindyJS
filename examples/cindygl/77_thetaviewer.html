@@ -11,18 +11,17 @@
             createimage("output2", 1920, 960);
             //createimage("output", 480, 240);
             //createimage("output2", 480, 240);
-			
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-			min=1000;
-            if (image ready(video),
-              //draw image (A, B, video);
-              colorplot("output",imagergb(video, #));			
-              colorplot("output2", imagergb(video,(mod(#.x+E.x+10.2,20.4),#.y)));
-			  
-            );
-			drawimage(A,B,"output");
-			drawimage(C,D,"output2");
+            min=1000;
+                     if (image ready(video),
+                       //draw image (A, B, video);
+                       colorplot("output",imagergb(video, #));
+                       colorplot("output2", imagergb(video,(mod(#.x+E.x+10.2,20.4),#.y)));
+
+                     );
+            drawimage(A,B,"output");
+            drawimage(C,D,"output2");
         </script>
         <script type="text/javascript">
             var cdy = CindyJS({
@@ -34,8 +33,8 @@
                     { name: "A", type: "Free", pos: [0, 10.21] },
                     { name: "B", type: "Free", pos: [20, 10.1] },
 
-                    { name: "C", type: "Free", pos: [0, -.1] },
-                    { name: "D", type: "Free", pos: [20, -.1] },
+                    { name: "C", type: "Free", pos: [0, -0.1] },
+                    { name: "D", type: "Free", pos: [20, -0.1] },
                     { name: "E", type: "Free", pos: [5, 14.5] },
                 ],
                 use: ["CindyGL"],
