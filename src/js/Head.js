@@ -83,7 +83,7 @@ var CindyJS = (function() {
                     var script = scripts[i];
                     var src = script.src;
                     if (!src) continue;
-                    var match = /Cindy\.js$/.exec(src);
+                    var match = /\/Cindy\.js$/.exec(src);
                     if (match) {
                         baseDir = src.substr(0, match.index);
                         console.log("Will load extensions from " + baseDir);
