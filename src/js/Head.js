@@ -85,11 +85,11 @@ var CindyJS = (function() {
                     if (!src) continue;
                     var match = /\/Cindy\.js$/.exec(src);
                     if (match) {
-                        baseDir = src.substr(0, match.index);
+                        baseDir = src.substr(0, match.index+1);
                         console.log("Will load extensions from " + baseDir);
                         cindyJsScriptElement = script;
                         return baseDir;
-                    }
+                    } 
                 }
                 console.error("Could not find <script> tag for Cindy.js");
                 baseDir = cindyJsScriptElement = false;
