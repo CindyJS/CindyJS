@@ -20,41 +20,29 @@ const Json: Json = {
                 },
             };
         },
-
         forall(
             li: Record<string, CSType>,
             runVar: string,
             fct: () => CSJsonValue,
-            modifs: { iterator?: "key" | "value" | "pair" }
+            modifs: {
+                iterator?:
+                    | { ctype: "string"; value: "key" }
+                    | { ctype: "string"; value: "value" }
+                    | { ctype: "string"; value: "pair" };
+            } = {}
         ) {
-            // JSON
-            // default iterate over values in JSON
-            let iteratorType = "value";
+            const iteratorType = modifs.iterator?.value || "value";
             let res: CSJsonValue | undefined;
-            if (modifs.iterator !== undefined) {
-                const it = evaluate(modifs.iterator);
-                const iterTypes = ["key", "value", "pair"];
-                if (it.ctype === "string" && iterTypes.includes(it.value)) {
-                    iteratorType = it.value;
-                }
-            }
-            // iterate over key, value or pair
-            if (iteratorType === "value") {
-                for (const k in li) {
-                    namespace.setvar(runVar, li[k]);
-                    res = evaluate(fct);
-                }
-            } else if (iteratorType === "key") {
-                for (const k in li) {
+
+            for (const k in li) {
+                if (iteratorType === "key") {
                     namespace.setvar(runVar, General.string(k));
-                    res = evaluate(fct);
-                }
-            } else {
-                // pair
-                for (const k in li) {
+                } else if (iteratorType === "pair") {
                     namespace.setvar(runVar, this.GenJSONAtom(k, li[k]));
-                    res = evaluate(fct);
+                } else {
+                    namespace.setvar(runVar, li[k]);
                 }
+                res = evaluate(fct);
             }
 
             return res;

@@ -133,7 +133,12 @@ interface JSONHelper {
         li: Record<string, CSType>,
         runVar: string,
         fct: () => CSJsonValue,
-        modifs: { iterator?: "key" | "value" | "pair" }
+        modifs: {
+            iterator?:
+                | { ctype: "string"; value: "key" }
+                | { ctype: "string"; value: "value" }
+                | { ctype: "string"; value: "pair" };
+        }
     ): CSJsonValue | undefined;
     niceprint(a: CSJsonValue, modifs: { maxDepth: number }, options: JsonNicePrintOptions): string;
     handlePrintException(e: Error): void;
