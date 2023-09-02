@@ -20,6 +20,7 @@ const Json: Json = {
                 },
             };
         },
+
         forall(
             li: Record<string, CSType>,
             runVar: string,
@@ -67,18 +68,15 @@ const Json: Json = {
         },
     },
 
-    turnIntoCSJson(a: CSType) {
+    turnIntoCSJson(a: CSType): CSJsonValue {
         return {
             ctype: "JSON",
             value: a,
         };
     },
 
-    getField(obj: CSJsonValue, key: string) {
-        if (obj.value && obj.value[key]) {
-            return obj.value[key];
-        }
-        return nada;
+    getField(obj: CSJsonValue, key: string): CSType {
+        return obj.value?.[key] || nada;
     },
 
     setField(where: any, field: string, what: CSJsonValue) {
@@ -111,7 +109,7 @@ const Json: Json = {
     },
 
     niceprint(el: CSJsonValue, modifs?: any, options?: JsonNicePrintOptions) {
-        const niceprintOptions = options ?? {
+        const niceprintOptions = options || {
             printedWarning: false,
             visitedMap: {
                 tracker: new WeakMap(),
@@ -123,15 +121,12 @@ const Json: Json = {
             },
         };
 
-        if (modifs) {
-            if (modifs.maxDepth) {
-                const depth = evaluate(modifs.maxDepth);
-                if (depth.ctype === "number") niceprintOptions.visitedMap.maxLevel = depth.value.real;
-            }
+        if (modifs?.maxDepth) {
+            const depth = evaluate(modifs.maxDepth);
+            if (depth.ctype === "number") niceprintOptions.visitedMap.maxLevel = depth.value.real;
         }
 
         const visitedMap = niceprintOptions.visitedMap;
-        // track a new recursive call
         visitedMap.newLevel = true;
         visitedMap.level += 1;
 
@@ -140,7 +135,6 @@ const Json: Json = {
             "{" +
             keys
                 .map(function (key) {
-                    // update visitedMap
                     const elValKey = el.value[key];
                     if (!visitedMap.tracker.has(elValKey)) {
                         visitedMap.tracker.set(elValKey, 1);
@@ -155,10 +149,8 @@ const Json: Json = {
 
                             return key + ":" + "...";
                         }
-                        // update only once a recursive call
                         if (visitedMap.newLevel) {
                             visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
-                            // update only once each function call
                             visitedMap.newLevel = false;
                         }
                     }
