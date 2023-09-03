@@ -573,7 +573,7 @@ eval_helper.assigntake = function (data, what) {
     if (where.ctype === "JSON") {
         const key = niceprint(ind);
         if (!niceprint.errorTypes.includes(key)) {
-            rhs = Json._helper.ShallowClone(where);
+            rhs = { ...where };
             rhs.value[key] = evaluate(what);
         }
     }
