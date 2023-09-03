@@ -7,9 +7,9 @@ import { niceprint } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 // @ts-expect-error: Not yet typed
 import { evaluate } from "libcs/Evaluator";
-import { CSJsonValue, CSJsonKey, Nada, Json, JsonNicePrintOptions, CSType } from "types";
+import { CSJsonValue, CSJsonKey, Nada, CSJson, CSType, CSJsonIterator } from "types";
 
-const Json: Json = {
+const Json: CSJson = {
     _helper: {
         GenJSONAtom(key: string, val: CSType) {
             return {
@@ -26,10 +26,7 @@ const Json: Json = {
             runVar: string,
             fct: () => CSJsonValue,
             modifs: {
-                iterator?:
-                    | { ctype: "string"; value: "key" }
-                    | { ctype: "string"; value: "value" }
-                    | { ctype: "string"; value: "pair" };
+                iterator?: CSJsonIterator;
             } = {}
         ) {
             const iteratorType = modifs.iterator?.value || "value";
@@ -49,7 +46,7 @@ const Json: Json = {
             return res;
         },
 
-        niceprint(a: CSJsonValue, modifs: any, options: JsonNicePrintOptions) {
+        niceprint(a: CSJsonValue, modifs: any, options) {
             if (a.ctype === "JSON") {
                 return Json.niceprint(a, modifs, options);
             }
@@ -91,11 +88,11 @@ const Json: Json = {
         const key = el.key;
         const obj = el.value;
 
-        if (!key || key.ctype !== "string") {
+        if (key?.ctype !== "string") {
             console.log("Error: JSON keys have to be strings.");
             return nada;
         }
-        if (!obj) {
+        if (obj == undefined) {
             console.log("Warning: JSON object not defined.");
             return {
                 key: key.value,
@@ -108,7 +105,7 @@ const Json: Json = {
         };
     },
 
-    niceprint(el: CSJsonValue, modifs?: any, options?: JsonNicePrintOptions) {
+    niceprint(el: CSJsonValue, modifs?: any, options?) {
         const niceprintOptions = options || {
             printedWarning: false,
             visitedMap: {

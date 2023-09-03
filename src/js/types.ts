@@ -18,6 +18,8 @@ export interface Nada {
     ctype: "undefined";
 }
 
+export type CSString = { ctype: "string"; value: string };
+
 export interface CSList extends CSType {
     ctype: "list";
     value: Array<CSType>;
@@ -114,7 +116,7 @@ export interface CSJsonKey {
     value: CSJsonValue | Nada;
 }
 
-export type JsonNicePrintOptions = {
+type CSJsonNicePrintOptions = {
     printedWarning: boolean;
     visitedMap: {
         [key: string]: any;
@@ -127,6 +129,10 @@ export type JsonNicePrintOptions = {
     };
 };
 
+type CSJsonIteratorPrimitive = "key" | "value" | "pair";
+
+export type CSJsonIterator = CSString & { value: CSJsonIteratorPrimitive };
+
 interface JSONHelper {
     GenJSONAtom(key: string, val: CSType): CSJsonValue;
     forall(
@@ -134,17 +140,14 @@ interface JSONHelper {
         runVar: string,
         fct: () => CSJsonValue,
         modifs: {
-            iterator?:
-                | { ctype: "string"; value: "key" }
-                | { ctype: "string"; value: "value" }
-                | { ctype: "string"; value: "pair" };
+            iterator?: CSJsonIterator;
         }
     ): CSJsonValue | undefined;
-    niceprint(a: CSJsonValue, modifs: { maxDepth: number }, options: JsonNicePrintOptions): string;
+    niceprint(a: CSJsonValue, modifs: { maxDepth: number }, options: CSJsonNicePrintOptions): string;
     handlePrintException(e: Error): void;
 }
 
-export interface Json {
+export interface CSJson {
     _helper: JSONHelper;
     turnIntoCSJson(a: CSType): CSJsonValue;
     getField(obj: CSJsonValue, key: string): CSType;
@@ -153,5 +156,5 @@ export interface Json {
         key: CSJsonValue;
         value: CSJsonValue;
     }): Nada | { key: Nada | CSJsonValue; val: Nada | CSType };
-    niceprint(el: CSJsonValue, modifs: any, options: JsonNicePrintOptions): string;
+    niceprint(el: CSJsonValue, modifs: any, options: CSJsonNicePrintOptions): string;
 }
