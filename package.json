@@ -95,6 +95,6 @@
     "homepage": "https://github.com/CindyJS/CindyJS#readme",
     "lint-staged": {
         "*.js": "eslint --cache --fix",
-        "*.{js,css,md}": "prettier --write"
+        "*.{ts,js,css,md}": "prettier --write"
     }
 }
