@@ -993,8 +993,15 @@ eval_helper.drawtext = function (args, modifs, callback) {
 };
 
 evaluator.drawtext$2 = function (args, modifs) {
-    eval_helper.drawtext(args, modifs, null);
-    return nada;
+    const box = eval_helper.drawtext(args, modifs, null);
+    const points = [
+        csport.to(box.left, box.bottom),
+        csport.to(box.right, box.bottom),
+        csport.to(box.right, box.top),
+        csport.to(box.left, box.top),
+    ].map((point) => General.withUsage(List.realVector(point), "Point"));
+
+    return List.turnIntoCSList(points);
 };
 
 evaluator.drawtable$2 = function (args, modifs) {
