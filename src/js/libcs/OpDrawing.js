@@ -993,12 +993,15 @@ eval_helper.drawtext = function (args, modifs, callback) {
 };
 
 evaluator.drawtext$2 = function (args, modifs) {
-    let box = eval_helper.drawtext(args, modifs, null);
-    const pt1 = General.withUsage(List.realVector(csport.to(box.left, box.bottom)), "Point");
-    const pt2 = General.withUsage(List.realVector(csport.to(box.right, box.bottom)), "Point");
-    const pt3 = General.withUsage(List.realVector(csport.to(box.right, box.top)), "Point");
-    const pt4 = General.withUsage(List.realVector(csport.to(box.left, box.top)), "Point");
-    return List.turnIntoCSList([pt1, pt2, pt3, pt4]);
+    const box = eval_helper.drawtext(args, modifs, null);
+    const points = [
+        csport.to(box.left, box.bottom),
+        csport.to(box.right, box.bottom),
+        csport.to(box.right, box.top),
+        csport.to(box.left, box.top),
+    ].map((point) => General.withUsage(List.realVector(point), "Point"));
+
+    return List.turnIntoCSList(points);
 };
 
 evaluator.drawtable$2 = function (args, modifs) {
