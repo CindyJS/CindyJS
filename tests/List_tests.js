@@ -719,4 +719,27 @@ describe("List", function () {
         ]);
         assert.deepEqual(List.rank(E), CSNumber.real(1));
     });
+
+    describe("List.nullSpace", function () {
+        it("should return the nullspace of a matrix", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const nullspace = List.nullSpace(A);
+            const expected = List.turnIntoCSList([List.realVector([0.4082, -0.8165, 0.4082])]);
+            assert.equal(niceprint(nullspace), niceprint(expected));
+        });
+
+        it("should return the zero vector if the matrix is invertible", function () {
+            const A = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const nullspace = List.nullSpace(A);
+            const expected = List.turnIntoCSList([List.realVector([0, 0])]);
+            assert.equal(niceprint(nullspace), niceprint(expected));
+        });
+    });
 });
