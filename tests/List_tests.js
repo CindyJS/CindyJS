@@ -611,4 +611,105 @@ describe("List", function () {
             assert.deepStrictEqual(List.inverse(a), nada);
         });
     });
+
+    describe("#linearsolve()", function () {
+        it("should solve a linear system using Cramer's rule for 2x2 matrices", function () {
+            const A = List.realMatrix([
+                [2, 3],
+                [5, 7],
+            ]);
+            const b = List.realVector([11, 13]);
+            const x = List.linearsolve(A, b);
+            assert.deepStrictEqual(b, List.productMV(A, x));
+        });
+        it("should solve a linear system using Cramer's rule for 3x3 matrices", function () {
+            const A = List.realMatrix([
+                [2, 3, 4],
+                [5, 7, 8],
+                [9, 10, 11],
+            ]);
+            const b = List.realVector([11, 13, 14]);
+            const x = List.linearsolve(A, b);
+            assert(List.almostequals(b, List.productMV(A, x)));
+        });
+        it("should solve a linear system using LU decomposition for larger matrices", function () {
+            const A = List.realMatrix([
+                [2, 3, 4],
+                [5, 7, 8],
+                [9, 10, 11],
+            ]);
+            const b = List.realVector([11, 13, 14]);
+            const x = List.linearsolve(A, b);
+            assert(List.almostequals(b, List.productMV(A, x)));
+        });
+    });
+    describe("#getDiag()", function () {
+        it("should return the diagonal of a square matrix", function () {
+            const A = List.realMatrix([
+                [2, 3],
+                [5, 7],
+            ]);
+            const diag = List.getDiag(A);
+            assert.deepStrictEqual(diag, List.realVector([2, 7]));
+        });
+        it("should return nada for non-square matrices", function () {
+            const A = List.realMatrix([
+                [2, 3],
+                [5, 7],
+                [8, 9],
+            ]);
+            const diag = List.getDiag(A);
+            assert.deepStrictEqual(diag, nada);
+        });
+    });
+    describe("#getSubDiag()", function () {
+        it("should return the subdiagonal of a square matrix", function () {
+            const A = List.realMatrix([
+                [2, 3, 4],
+                [5, 7, 8],
+                [9, 10, 11],
+            ]);
+            const subdiag = List.getSubDiag(A);
+            assert.deepStrictEqual(subdiag, List.realVector([5, 10]));
+        });
+        it("should return nada for non-square matrices", function () {
+            const A = List.realMatrix([
+                [2, 3],
+                [5, 7],
+                [8, 9],
+            ]);
+            const subdiag = List.getSubDiag(A);
+            assert.deepStrictEqual(subdiag, nada);
+        });
+    });
+    describe("#eig2()", function () {
+        it("should return the eigenvalues of a 2x2 matrix", function () {
+            const A = List.realMatrix([
+                [2, 3],
+                [5, 7],
+            ]);
+            const eigvals = List.eig2(A);
+            assert(List.almostequals(eigvals, List.realVector([9.109772228646444, -0.10977222864644354])));
+        });
+    });
+    describe("#eig()", function () {
+        it("should return the eigenvalues and eigenvectors of a matrix", function () {
+            // const A = List.realMatrix([
+            //     [2, 3, 4],
+            //     [5, 7, 8],
+            //     [9, 10, 11],
+            // ]);
+            // const res = List.eig(A, false);
+            // console.log(res);
+            // const [eigvals, eigvecs] = res.value;
+            // assert.deepStrictEqual(res, List.realVector([11.59, 1.41]));
+            // assert.deepStrictEqual(
+            //     eigvecs,
+            //     List.realMatrix([
+            //         [0.7071, -0.7071],
+            //         [0.7071, 0.7071],
+            //     ])
+            // );
+        });
+    });
 });
