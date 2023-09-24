@@ -531,4 +531,84 @@ describe("List", function () {
             );
         });
     });
+
+    describe("#row()", function () {
+        it("should return the correct row of a matrix", function () {
+            const a = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const b = CSNumber.real(2);
+            const expected = List.realVector([4, 5, 6]);
+            assert.deepStrictEqual(List.row(a, b), expected);
+        });
+    });
+
+    describe("#adjoint2()", function () {
+        it("should return the adjoint of a 2x2 matrix", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const expected = List.realMatrix([
+                [4, -2],
+                [-3, 1],
+            ]);
+            assert(List.almostequals(List.adjoint2(a), expected));
+        });
+    });
+
+    describe("#adjoint3()", function () {
+        it("should return the adjoint of a 3x3 matrix", function () {
+            const a = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const expected = List.realMatrix([
+                [-3, 6, -3],
+                [6, -12, 6],
+                [-3, 6, -3],
+            ]);
+            assert(List.almostequals(List.adjoint3(a), expected));
+        });
+    });
+
+    describe("#inverse()", function () {
+        it("should return the inverse of a 2x2 matrix", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const expected = List.realMatrix([
+                [-2, 1],
+                [1.5, -0.5],
+            ]);
+            assert(List.almostequals(List.inverse(a), expected));
+        });
+
+        it("should return the inverse of a 3x3 matrix", function () {
+            const a = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const expected = List.realMatrix([
+                [-0.5, 1, -0.5],
+                [1, -2, 1],
+                [-0.5, 1, -0.5],
+            ]);
+            assert(List.almostequals(List.inverse(a), expected));
+        });
+
+        it("should return nada for a non-square matrix", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]);
+            assert.deepStrictEqual(List.inverse(a), nada);
+        });
+    });
 });
