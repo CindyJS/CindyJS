@@ -467,4 +467,68 @@ describe("List", function () {
         const expectedDet = CSNumber.complex(-50, -72);
         assert.deepStrictEqual(det, expectedDet);
     });
+
+    describe("#eucangle()", function () {
+        it("should return the Euclidean angle between two vectors", function () {
+            const a = List.realVector([1, 2, 3]);
+            const b = List.realVector([4, 5, 6]);
+            const angle = List.eucangle(a, b);
+            const { real, imag } = angle.value;
+            assert.closeTo(real, -0.21109333322274654, 1e-8);
+            assert.closeTo(imag, 0, 1e-8);
+        });
+    });
+
+    describe("#zerovector()", function () {
+        it("should return a zero vector of the given length", function () {
+            const v = List.zerovector(CSNumber.real(3));
+            assert.deepStrictEqual(v, List.realVector([0, 0, 0]));
+        });
+    });
+
+    describe("#zeromatrix()", function () {
+        it("should return a zero matrix of the given dimensions", function () {
+            const m = List.zeromatrix(CSNumber.real(2), CSNumber.real(3));
+            assert.deepStrictEqual(
+                m,
+                List.realMatrix([
+                    [0, 0, 0],
+                    [0, 0, 0],
+                ])
+            );
+        });
+    });
+
+    describe("#vandermonde()", function () {
+        it("should return the Vandermonde matrix of the given vector", function () {
+            const v = List.realVector([1, 2, 3]);
+            const m = List.vandermonde(v);
+            assert.deepStrictEqual(
+                m,
+                List.realMatrix([
+                    [1, 1, 1],
+                    [1, 2, 4],
+                    [1, 3, 9],
+                ])
+            );
+        });
+    });
+
+    describe("#transpose()", function () {
+        it("should return the transpose of the given matrix", function () {
+            const m = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+            ]);
+            const t = List.transpose(m);
+            assert.deepStrictEqual(
+                t,
+                List.realMatrix([
+                    [1, 4],
+                    [2, 5],
+                    [3, 6],
+                ])
+            );
+        });
+    });
 });

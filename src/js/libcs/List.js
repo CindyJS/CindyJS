@@ -1283,13 +1283,18 @@ List.zeromatrix = function (a, b) {
 };
 
 List.vandermonde = function (a) {
-    const len = a.value.length;
-    const erg = List.zeromatrix(len, len);
+    const n = a.value.length;
+    const result = [];
 
-    for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len; j++) erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+    for (let i = 0; i < n; i++) {
+        const row = [];
+        for (let j = 0; j < n; j++) {
+            row.push(CSNumber.pow(a.value[i], CSNumber.real(j)));
+        }
+        result.push(List.turnIntoCSList(row));
     }
-    return erg;
+
+    return List.turnIntoCSList(result);
 };
 
 List.transpose = function (a) {
