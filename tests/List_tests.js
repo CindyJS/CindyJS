@@ -412,4 +412,59 @@ describe("List", function () {
             assert.closeTo(List.projectiveDistMinScal(a, b), expected, 1e-8);
         });
     });
+    it("should return the determinant of a 4x4 matrix", function () {
+        const m = List.realMatrix([
+            [3, 7, 3, 0],
+            [0, 2, -1, 1],
+            [5, 4, 3, 2],
+            [6, 6, 4, -1],
+        ]);
+        const det = List.det4m(m);
+        const expectedDet = CSNumber.real(105);
+        assert.deepStrictEqual(det, expectedDet);
+    });
+
+    it("should return the determinant of another 4x4 matrix", function () {
+        const m = List.realMatrix([
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+            [13, 14, 15, 17],
+        ]);
+        const det = List.det4m(m);
+        const expectedDet = CSNumber.real(0);
+        assert.deepStrictEqual(det, expectedDet);
+    });
+
+    it("should return the determinant of a 4x4 matrix with complex entries", function () {
+        const m = List.turnIntoCSList([
+            List.turnIntoCSList([
+                CSNumber.complex(1, 2),
+                CSNumber.complex(3, 4),
+                CSNumber.complex(5, 6),
+                CSNumber.complex(7, 8),
+            ]),
+            List.turnIntoCSList([
+                CSNumber.complex(9, 10),
+                CSNumber.complex(11, 12),
+                CSNumber.complex(13, 14),
+                CSNumber.complex(15, 16),
+            ]),
+            List.turnIntoCSList([
+                CSNumber.complex(17, 18),
+                CSNumber.complex(19, 20),
+                CSNumber.complex(21, 22),
+                CSNumber.complex(23, 24),
+            ]),
+            List.turnIntoCSList([
+                CSNumber.complex(25, 26),
+                CSNumber.complex(27, 28),
+                CSNumber.complex(29, 30),
+                CSNumber.complex(31, 32),
+            ]),
+        ]);
+        const det = List.det4m(m);
+        const expectedDet = CSNumber.complex(0, 0);
+        assert.deepStrictEqual(det, expectedDet);
+    });
 });
