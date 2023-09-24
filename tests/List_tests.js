@@ -8,33 +8,7 @@ const List = cindyJS.__get__("List");
 const CSNumber = cindyJS.__get__("CSNumber");
 const General = cindyJS.__get__("General");
 const nada = cindyJS.__get__("nada");
-
-const bigNum = 1e8;
-const eps = 1e-8;
-let factor;
-function chooseFactor() {
-    Math.random() < 0.5 ? (factor = bigNum) : (factor = eps);
-}
-
-chooseFactor();
-const a_real = factor * (Math.random() - 0.5);
-chooseFactor();
-const a_imag = factor * (Math.random() - 0.5);
-chooseFactor();
-const b_real = factor * (Math.random() - 0.5);
-chooseFactor();
-const b_imag = factor * (Math.random() - 0.5);
-
-const a = CSNumber.complex(a_real, a_imag);
-const b = CSNumber.complex(b_real, b_imag);
-const a_plus_b = CSNumber.complex(a_real + b_real, a_imag + b_imag);
-const a_minus_b = CSNumber.complex(a_real - b_real, a_imag - b_imag);
-
-// fixed numbers
-const f_a = CSNumber.complex(100, -0.5);
-const f_b = CSNumber.complex(-0.5, 1);
-const f_a_plus_b = CSNumber.add(f_a, f_b);
-const f_a_mult_f_b = CSNumber.complex(-49.5, 100.25);
+const niceprint = cindyJS.__get__("niceprint");
 
 describe("List", function () {
     describe("#det()", function () {
@@ -694,11 +668,13 @@ describe("List", function () {
     });
     describe("#eig()", function () {
         it("should return the eigenvalues and eigenvectors of a matrix", function () {
-            // const A = List.realMatrix([
-            //     [2, 3, 4],
-            //     [5, 7, 8],
-            //     [9, 10, 11],
-            // ]);
+            const A = List.realMatrix([
+                [2, 3, 4, 5],
+                [5, 7, 8, 6],
+                [9, 10, 11, 7],
+                [1, 0, 19, 7],
+            ]);
+            console.log(niceprint(List.eig(A)));
             // const res = List.eig(A, false);
             // console.log(res);
             // const [eigvals, eigvecs] = res.value;
