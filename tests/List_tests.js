@@ -7,6 +7,7 @@ const cindyJS = rewire("../build/js/exposed.js");
 const List = cindyJS.__get__("List");
 const CSNumber = cindyJS.__get__("CSNumber");
 const General = cindyJS.__get__("General");
+const nada = cindyJS.__get__("nada");
 
 const bigNum = 1e8;
 const eps = 1e-8;
@@ -209,6 +210,206 @@ describe("List", function () {
             const a1 = List.realVector([1, 2, 3, 2, 1]);
             const result = List.set(a1);
             assert.deepStrictEqual(result, List.realVector([1, 2, 3]));
+        });
+    });
+
+    describe("#isNumberVector()", function () {
+        it("should return true for a number vector", function () {
+            const a = List.realVector([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            assert.strictEqual(List.isNumberVector(a).value, true);
+        });
+        it("should return false for a non-number vector", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), List.realVector([3, 4])]);
+            assert.strictEqual(List.isNumberVector(a).value, false);
+        });
+    });
+
+    describe("#isNumberMatrix()", function () {
+        it("should return true for a number matrix", function () {
+            const a = List.realMatrix([
+                [CSNumber.real(1), CSNumber.real(2)],
+                [CSNumber.real(3), CSNumber.real(4)],
+            ]);
+            assert.strictEqual(List.isNumberMatrix(a).value, true);
+        });
+        it("should return false for a non-number matrix", function () {
+            const a = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]),
+                List.turnIntoCSList([CSNumber.real(3), List.realVector([4, 5])]),
+            ]);
+            assert.strictEqual(List.isNumberMatrix(a).value, false);
+        });
+    });
+
+    describe("#scalproduct()", function () {
+        it("should return the scalar product of two vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            const b = List.turnIntoCSList([CSNumber.real(4), CSNumber.real(5), CSNumber.real(6)]);
+            const expected = CSNumber.real(32);
+            assert(CSNumber._helper.isAlmostEqual(List.scalproduct(a, b), expected));
+        });
+        it("should return nada for vectors of different lengths", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            const b = List.turnIntoCSList([CSNumber.real(4), CSNumber.real(5)]);
+            assert.deepStrictEqual(List.scalproduct(a, b), nada);
+        });
+    });
+
+    describe("#sesquilinearproduct()", function () {
+        it("should return the sesquilinear product of two vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.complex(1, 2), CSNumber.complex(3, 4)]);
+            const b = List.turnIntoCSList([CSNumber.complex(5, 6), CSNumber.complex(7, 8)]);
+            const expected = CSNumber.complex(70, -8);
+            assert.deepStrictEqual(List.sesquilinearproduct(a, b), expected);
+        });
+        it("should return nada for vectors of different lengths", function () {
+            const a = List.turnIntoCSList([CSNumber.complex(1, 2), CSNumber.complex(3, 4)]);
+            const b = List.turnIntoCSList([CSNumber.complex(5, 6)]);
+            assert.deepStrictEqual(List.sesquilinearproduct(a, b), nada);
+        });
+    });
+
+    describe("#normSquared()", function () {
+        it("should return the norm squared of a vector", function () {
+            const a = List.turnIntoCSList([CSNumber.complex(1, 2), CSNumber.complex(3, 4)]);
+            const expected = CSNumber.real(30);
+            assert.deepStrictEqual(List.normSquared(a), expected);
+        });
+    });
+
+    describe("#productMV()", function () {
+        it("should return the matrix-vector product of a matrix and a vector", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.turnIntoCSList([CSNumber.real(5), CSNumber.real(6)]);
+            const expected = List.turnIntoCSList([CSNumber.real(17), CSNumber.real(39)]);
+            assert.deepStrictEqual(List.productMV(a, b), expected);
+        });
+        it("should return nada for incompatible matrix and vector", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.turnIntoCSList([CSNumber.real(5), CSNumber.real(6), CSNumber.real(7)]);
+            assert.deepStrictEqual(List.productMV(a, b), nada);
+        });
+    });
+
+    describe("#productVM()", function () {
+        it("should return the vector-matrix product of a vector and a matrix", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]);
+            const b = List.realMatrix([
+                [3, 4],
+                [5, 6],
+            ]);
+            const expected = List.turnIntoCSList([CSNumber.real(13), CSNumber.real(16)]);
+            assert.deepStrictEqual(List.productVM(a, b), expected);
+        });
+        it("should return nada for incompatible vector and matrix", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            const b = List.realMatrix([
+                [4, 5],
+                [6, 7],
+            ]);
+            assert.deepStrictEqual(List.productVM(a, b), nada);
+        });
+    });
+
+    describe("#productMM()", function () {
+        it("should return the matrix-matrix product of two matrices", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.realMatrix([
+                [5, 6],
+                [7, 8],
+            ]);
+            const expected = List.realMatrix([
+                [19, 22],
+                [43, 50],
+            ]);
+            assert.deepStrictEqual(List.productMM(a, b), expected);
+        });
+        it("should return nada for incompatible matrices", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.realMatrix([
+                [5, 6],
+                [7, 8],
+                [9, 10],
+            ]);
+            assert.deepStrictEqual(List.productMM(a, b), nada);
+        });
+    });
+
+    describe("#mult()", function () {
+        it("should return the scalar product of two vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            const b = List.turnIntoCSList([CSNumber.real(4), CSNumber.real(5), CSNumber.real(6)]);
+            const expected = CSNumber.real(32);
+            assert.deepStrictEqual(List.mult(a, b), expected);
+        });
+        it("should return the matrix-vector product of a matrix and a vector", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.turnIntoCSList([CSNumber.real(5), CSNumber.real(6)]);
+            const expected = List.turnIntoCSList([CSNumber.real(17), CSNumber.real(39)]);
+            assert.deepStrictEqual(List.mult(a, b), expected);
+        });
+        it("should return the vector-matrix product of a vector and a matrix", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]);
+            const b = List.realMatrix([
+                [3, 4],
+                [5, 6],
+            ]);
+            const expected = List.turnIntoCSList([CSNumber.real(13), CSNumber.real(16)]);
+            assert.deepStrictEqual(List.mult(a, b), expected);
+        });
+        it("should return the matrix-matrix product of two matrices", function () {
+            const a = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const b = List.realMatrix([
+                [5, 6],
+                [7, 8],
+            ]);
+            const expected = List.realMatrix([
+                [19, 22],
+                [43, 50],
+            ]);
+            assert.deepStrictEqual(List.mult(a, b), expected);
+        });
+        it("should return nada for incompatible inputs", function () {
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]);
+            const b = List.realMatrix([
+                [3, 4],
+                [5, 6],
+                [7, 8],
+            ]);
+            assert.deepStrictEqual(List.mult(a, b), nada);
+        });
+    });
+
+    describe("#projectiveDistMinScal()", function () {
+        it("should return the minimum projective distance between two vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.complex(1, 2), CSNumber.complex(3, 4)]);
+            const b = List.turnIntoCSList([CSNumber.complex(5, 6), CSNumber.complex(7, 8)]);
+            const expected = 0.22284218798065425;
+            assert.closeTo(List.projectiveDistMinScal(a, b), expected, 1e-8);
+        });
+        it("should return 0 for zero vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.real(0), CSNumber.real(0)]);
+            const b = List.turnIntoCSList([CSNumber.real(0), CSNumber.real(0)]);
+            const expected = 0;
+            assert.closeTo(List.projectiveDistMinScal(a, b), expected, 1e-8);
         });
     });
 });
