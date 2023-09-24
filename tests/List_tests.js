@@ -666,34 +666,30 @@ describe("List", function () {
             assert(List.almostequals(eigvals, List.realVector([9.109772228646444, -0.10977222864644354])));
         });
     });
+
     describe("#eig()", function () {
         it("should return the eigenvalues and eigenvectors of a matrix", function () {
             const A = List.realMatrix([
-                [2, 3, 4, 5],
-                [5, 7, 8, 6],
-                [9, 10, 11, 7],
-                [1, 0, 19, 7],
+                [2, 0, 0, 0],
+                [1, 2, 0, 0],
+                [0, 1, 3, 0],
+                [0, 0, 1, 3],
             ]);
-            console.log(niceprint(List.eig(A)));
-            // const res = List.eig(A, false);
-            // console.log(res);
-            // const [eigvals, eigvecs] = res.value;
-            // assert.deepStrictEqual(res, List.realVector([11.59, 1.41]));
-            // assert.deepStrictEqual(
-            //     eigvecs,
-            //     List.realMatrix([
-            //         [0.7071, -0.7071],
-            //         [0.7071, 0.7071],
-            //     ])
-            // );
+            const [eigenvals, eigenvecs] = List.eig(A).value;
+
+            for (const [i, v] of eigenvecs.value.entries()) {
+                const s = eigenvals.value[i];
+                assert(List.almostequals(List.scalmult(s, v), List.productMV(A, v)));
+            }
         });
     });
+
     it("should return the rank of a square matrix", function () {
-        // const A = List.realMatrix([
-        //     [1, 2],
-        //     [3, 4],
-        // ]);
-        // assert.deepEqual(List.rank(A), CSNumber.real(2));
+        const A = List.realMatrix([
+            [1, 2],
+            [3, 4],
+        ]);
+        assert.deepEqual(List.rank(A), CSNumber.real(2));
 
         const B = List.realMatrix([
             [1, 3, 2],

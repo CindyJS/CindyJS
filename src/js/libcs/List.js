@@ -1536,9 +1536,18 @@ List.eig2 = function (AA) {
 List.eig = function (A, getEigenvectors) {
     const getEv = getEigenvectors || true;
 
+    let i, j;
     let AA = A;
     const cslen = CSNumber.real(AA.value.length);
     const len = cslen.value.real;
+    const zero = CSNumber.real(0);
+
+    // the code is not well tested -- perhaps we can use it later
+    const useHess = false;
+    if (useHess) {
+        const Hess = List._helper.toHessenberg(A);
+        AA = Hess[1];
+    }
 
     const QRRes = List._helper.QRIteration(AA);
     AA = QRRes[0];
@@ -1553,37 +1562,55 @@ List.eig = function (A, getEigenvectors) {
     let eigenvecs = new Array(len);
     eigenvecs = List.turnIntoCSList(eigenvecs);
     if (getEv) {
+        // calc eigenvecs
+        //
+        // if we have a normal matrix QQ holds already the eigenvecs
+        //    if( false && List._helper.isNormalMatrix(AA)){
+        //        console.log("is normal matrix return QQ");
+        //        var QQQ = List.transpose(QQ);
+        //        for(i = 0; i < len; i++)
+        //        eigenvecs.value[i] = QQQ.value[i];
+        //    }
+        //    else{
         const useInverseIteration = false; // inverse iteration or nullspace method to obtain eigenvecs
 
         let MM, xx, nullS, qq;
-        let ceigval, oeigval, lastevec;
-        let count = 0;
-        let sameEigVal = false;
-        for (qq = 0; qq < len; qq++) {
-            if (sameEigVal) {
-                xx = nullS.value[count];
-            } else {
-                ceigval = eigvals.value[qq];
-                MM = List.sub(A, List.scalmult(ceigval, ID));
-                nullS = List.nullSpace(MM);
-                xx = nullS.value[0];
-                if (xx !== undefined) lastevec = xx; // if we found a eigenvector != [0...0] may need it again
+        if (useInverseIteration) {
+            for (qq = 0; qq < len; qq++) {
+                xx = List._helper.inverseIteration(AA, eigvals.value[qq]);
+                xx = General.mult(QQ, xx);
+                eigenvecs.value[qq] = xx;
             }
+        } else {
+            let ceigval, oeigval, lastevec;
+            let count = 0;
+            let sameEigVal = false;
+            for (qq = 0; qq < len; qq++) {
+                if (sameEigVal) {
+                    xx = nullS.value[count];
+                } else {
+                    ceigval = eigvals.value[qq];
+                    MM = List.sub(A, List.scalmult(ceigval, ID));
+                    nullS = List.nullSpace(MM);
+                    xx = nullS.value[0];
+                    if (xx !== undefined) lastevec = xx; // if we found a eigenvector != [0...0] may need it again
+                }
 
-            // check if we got nothing from nullspace
-            if (xx === undefined) {
-                xx = lastevec;
-            }
-            if (List.abs(xx).value.real < 1e-8 && count === 0) {
-                // couldnt find a vector in nullspace -- should not happen
-                xx = List._helper.inverseIteration(A, eigvals.value[qq]);
-            }
-            eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
+                // check if we got nothing from nullspace
+                if (xx === undefined) {
+                    xx = lastevec;
+                }
+                if (List.abs(xx).value.real < 1e-8 && count === 0) {
+                    // couldnt find a vector in nullspace -- should not happen
+                    xx = List._helper.inverseIteration(A, eigvals.value[qq]);
+                }
+                eigenvecs.value[qq] = List._helper.isAlmostZeroVec(xx) ? xx : List.scaldiv(List.abs(xx), xx);
 
-            if (qq < len - 1) {
-                sameEigVal = CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq + 1])).value.real < 1e-6;
-                if (sameEigVal) count++;
-                else count = 0;
+                if (qq < len - 1) {
+                    sameEigVal = CSNumber.abs(CSNumber.sub(eigvals.value[qq], eigvals.value[qq + 1])).value.real < 1e-6;
+                    if (sameEigVal) count++;
+                    else count = 0;
+                }
             }
         }
 
