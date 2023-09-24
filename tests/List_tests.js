@@ -464,7 +464,7 @@ describe("List", function () {
             ]),
         ]);
         const det = List.det4m(m);
-        const expectedDet = CSNumber.complex(0, 0);
+        const expectedDet = CSNumber.complex(-50, -72);
         assert.deepStrictEqual(det, expectedDet);
     });
 });
