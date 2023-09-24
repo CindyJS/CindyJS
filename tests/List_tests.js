@@ -712,4 +712,39 @@ describe("List", function () {
             // );
         });
     });
+    it("should return the rank of a square matrix", function () {
+        // const A = List.realMatrix([
+        //     [1, 2],
+        //     [3, 4],
+        // ]);
+        // assert.deepEqual(List.rank(A), CSNumber.real(2));
+
+        const B = List.realMatrix([
+            [1, 3, 2],
+            [2, 4, 4],
+            [3, 5, 6],
+        ]);
+        assert.deepEqual(List.rank(B), CSNumber.real(2));
+
+        const C = List.realMatrix([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 7],
+        ]);
+        assert.deepEqual(List.rank(C), CSNumber.real(3));
+
+        const D = List.realMatrix([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 10],
+        ]);
+        assert.deepEqual(List.rank(D), CSNumber.real(3));
+
+        const E = List.realMatrix([
+            [1, 1, 1],
+            [4, 4, 4],
+            [7, 7, 7],
+        ]);
+        assert.deepEqual(List.rank(E), CSNumber.real(1));
+    });
 });
