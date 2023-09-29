@@ -39,13 +39,7 @@ describe("List", function () {
         it("should return a list of integers from a to b", function () {
             const a = CSNumber.real(1);
             const b = CSNumber.real(5);
-            const expected = List.turnIntoCSList([
-                CSNumber.real(1),
-                CSNumber.real(2),
-                CSNumber.real(3),
-                CSNumber.real(4),
-                CSNumber.real(5),
-            ]);
+            const expected = List.realVector([1, 2, 3, 4, 5]);
             const actual = List.sequence(a, b);
             assert.deepStrictEqual(actual, expected);
         });
@@ -54,10 +48,10 @@ describe("List", function () {
     describe("#pairs()", function () {
         it("should return a list of all pairs of elements in the input list", function () {
             const input = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
-            const expected = List.turnIntoCSList([
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]),
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(3)]),
-                List.turnIntoCSList([CSNumber.real(2), CSNumber.real(3)]),
+            const expected = List.realMatrix([
+                [1, 2],
+                [1, 3],
+                [2, 3],
             ]);
             const actual = List.pairs(input);
             assert.deepStrictEqual(actual, expected);
@@ -66,12 +60,12 @@ describe("List", function () {
 
     describe("#triples()", function () {
         it("should return a list of all triples of elements in the input list", function () {
-            const input = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3), CSNumber.real(4)]);
-            const expected = List.turnIntoCSList([
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]),
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(4)]),
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(3), CSNumber.real(4)]),
-                List.turnIntoCSList([CSNumber.real(2), CSNumber.real(3), CSNumber.real(4)]),
+            const input = List.realVector([1, 2, 3, 4]);
+            const expected = List.realMatrix([
+                [1, 2, 3],
+                [1, 2, 4],
+                [1, 3, 4],
+                [2, 3, 4],
             ]);
             const actual = List.triples(input);
             assert.deepStrictEqual(actual, expected);
@@ -189,42 +183,42 @@ describe("List", function () {
 
     describe("#isNumberVector()", function () {
         it("should return true for a number vector", function () {
-            const a = List.realVector([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
-            assert.strictEqual(List.isNumberVector(a).value, true);
+            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
+            assert(List.isNumberVector(a).value);
         });
         it("should return false for a non-number vector", function () {
             const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), List.realVector([3, 4])]);
-            assert.strictEqual(List.isNumberVector(a).value, false);
+            assert(List.isNumberVector(a));
         });
     });
 
     describe("#isNumberMatrix()", function () {
         it("should return true for a number matrix", function () {
             const a = List.realMatrix([
-                [CSNumber.real(1), CSNumber.real(2)],
-                [CSNumber.real(3), CSNumber.real(4)],
+                [1, 2],
+                [3, 4],
             ]);
-            assert.strictEqual(List.isNumberMatrix(a).value, true);
+            assert(List.isNumberMatrix(a).value);
         });
         it("should return false for a non-number matrix", function () {
-            const a = List.turnIntoCSList([
-                List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2)]),
-                List.turnIntoCSList([CSNumber.real(3), List.realVector([4, 5])]),
+            const a = List.realMatrix([
+                [1, 2],
+                [3, List.realVector([4, 5])],
             ]);
-            assert.strictEqual(List.isNumberMatrix(a).value, false);
+            assert(List.isNumberMatrix(a).value);
         });
     });
 
     describe("#scalproduct()", function () {
         it("should return the scalar product of two vectors", function () {
-            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
-            const b = List.turnIntoCSList([CSNumber.real(4), CSNumber.real(5), CSNumber.real(6)]);
+            const a = List.realVector([1, 2, 3]);
+            const b = List.realVector([4, 5, 6]);
             const expected = CSNumber.real(32);
             assert(CSNumber._helper.isAlmostEqual(List.scalproduct(a, b), expected));
         });
         it("should return nada for vectors of different lengths", function () {
-            const a = List.turnIntoCSList([CSNumber.real(1), CSNumber.real(2), CSNumber.real(3)]);
-            const b = List.turnIntoCSList([CSNumber.real(4), CSNumber.real(5)]);
+            const a = List.realVector([1, 2, 3]);
+            const b = List.realVector([4, 5]);
             assert.deepStrictEqual(List.scalproduct(a, b), nada);
         });
     });
@@ -393,7 +387,7 @@ describe("List", function () {
             [5, 4, 3, 2],
             [6, 6, 4, -1],
         ]);
-        const det = List.det4m(m);
+        const det = List.det(m);
         const expectedDet = CSNumber.real(105);
         assert.deepStrictEqual(det, expectedDet);
     });
@@ -405,9 +399,21 @@ describe("List", function () {
             [9, 10, 11, 12],
             [13, 14, 15, 17],
         ]);
-        const det = List.det4m(m);
+        const det = List.det(m);
         const expectedDet = CSNumber.real(0);
         assert.deepStrictEqual(det, expectedDet);
+    });
+    it("should return the determinant of a 5x5 matrix", function () {
+        const m = List.realMatrix([
+            [5, 5, 0, 10, 15],
+            [1, 3, 2, 1, 2],
+            [1, 0, 1, 1, 3],
+            [3, 0, 2, 1, 1],
+            [1, 1, 1, 0, 2],
+        ]);
+        const det = List.det(m);
+        const expectedDet = CSNumber.real(-165);
+        assert.closeTo(det.value.real, expectedDet.value.real, 1e-8);
     });
 
     it("should return the determinant of a 4x4 matrix with complex entries", function () {
