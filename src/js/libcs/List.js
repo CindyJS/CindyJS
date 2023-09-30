@@ -1542,13 +1542,6 @@ List.eig = function (A, getEigenvectors) {
     const len = cslen.value.real;
     const zero = CSNumber.real(0);
 
-    // the code is not well tested -- perhaps we can use it later
-    const useHess = false;
-    if (useHess) {
-        const Hess = List._helper.toHessenberg(A);
-        AA = Hess[1];
-    }
-
     const QRRes = List._helper.QRIteration(AA);
     AA = QRRes[0];
 
@@ -1801,38 +1794,6 @@ List._helper.inverseIteration = function (A, shiftinit) {
     }
 
     return List.scaldiv(List.abs(xx), xx);
-};
-
-// return Hessenberg Matrix H of A and tansformationmatrix QQ
-List._helper.toHessenberg = function (A) {
-    let AA = JSON.parse(JSON.stringify(A));
-    const len = AA.value.length;
-    const cslen = CSNumber.real(len - 1);
-    const cslen2 = CSNumber.real(len);
-    const one = CSNumber.real(1);
-
-    if (List._helper.isUpperTriangular(AA)) return [List.idMatrix(cslen, cslen), A];
-
-    let xx, uu, vv, alpha, e1, Qk, ww, erg;
-    let QQ = List.idMatrix(cslen2, cslen2);
-    let absxx;
-    for (let k = 1; k < len - 1; k++) {
-        //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
-        xx = List.column(AA, CSNumber.real(k));
-        xx.value = xx.value.splice(k);
-        absxx = List.abs2(xx).value.real;
-        if (absxx > 1e-16) {
-            Qk = List._helper.getHouseHolder(xx);
-            QQ = General.mult(QQ, Qk);
-
-            AA = General.mult(General.mult(Qk, AA), Qk);
-        }
-
-        // book keeping
-        cslen.value.real--;
-    }
-
-    return [QQ, AA];
 };
 
 // swap an element in js or cs array
