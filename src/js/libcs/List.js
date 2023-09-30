@@ -1720,21 +1720,6 @@ List._helper.isUpperTriangular = function (A) {
     return List._helper.isLowerTriangular(List.transpose(A));
 };
 
-List._helper.isAlmostId = function (AA) {
-    const A = AA;
-    const len = A.value.length;
-    const cslen = CSNumber.real(len);
-    if (len !== A.value[0].value.length) return false;
-
-    const erg = List.sub(A, List.idMatrix(cslen), cslen);
-    for (let i = 0; i < len; i++)
-        for (let j = 0; j < len; j++) {
-            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
-        }
-
-    return true;
-};
-
 List.nullSpace = function (A, precision) {
     const len = A.value.length;
     const QR = List.RRQRdecomp(List.transjugate(A), precision); // QQ of QR is Nullspace of A^H

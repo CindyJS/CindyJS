@@ -632,6 +632,17 @@ describe("List", function () {
             const x = List.linearsolve(A, b);
             assert(List.almostequals(b, List.productMV(A, x)));
         });
+
+        it("should solve a linear system using CG algorithm for larger matrices", function () {
+            const A = List.realMatrix([
+                [2, 3, 4],
+                [5, 7, 8],
+                [9, 10, 11],
+            ]);
+            const b = List.realVector([11, 13, 14]);
+            const x = List.linearsolveCG(A, b);
+            assert(List.almostequals(b, List.productMV(A, x)));
+        });
     });
     describe("#getDiag()", function () {
         it("should return the diagonal of a square matrix", function () {
