@@ -582,6 +582,16 @@ describe("List", function () {
             assert(List.almostequals(List.inverse(a), expected));
         });
 
+        it("should return the inverse of a 4x4 matrix", function () {
+            const a = List.realMatrix([
+                [1, 2, 3, 4],
+                [4, 5, 6, 0],
+                [7, 8, 9, 1],
+                [1, 8, 9, 1],
+            ]);
+            assert(List.almostequals(General.mult(a, List.inverse(a)), List.idMatrix(CSNumber.real(4))));
+        });
+
         it("should return nada for a non-square matrix", function () {
             const a = List.realMatrix([
                 [1, 2],
