@@ -9,16 +9,24 @@
             println("Main code");
             test = test^2;
             println("test is " + test);
+            
+            col = 1;
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-            drawtext([-5,0], "test is equal to " + test, size -> 30);
+            fillpoly(screenbounds(), color -> col * (1,1,1));
+            drawtext([-5,0], "test is equal to " + test, size -> 30, color -> (1 - col) * (1,1,1));
         </script>
+        <script id="csmousedown" type="text/x-cindyscript">
+            import("cindyscript_libraries/libraryC.cjs");
+        </script>
+        
         <script type="text/javascript">
             var cdy = CindyJS({
                 // See ref/createCindy documentation for details.
                 ports: [{ id: "CSCanvas", width: 500, height: 500 }],
                 scripts: "cs*",
-                import: ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"],
+                import: ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"]
+
             });
 
             // Remove all comments after adjusting this template for your use case.
