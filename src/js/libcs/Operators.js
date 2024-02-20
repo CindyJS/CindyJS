@@ -3554,6 +3554,44 @@ evaluator.parse$1 = function (args, modifs) {
     return nada;
 };
 
+evaluator.import$1 = async function (args, modifs) {
+    let fullCode = "";
+    let library = evaluate(args[0]);
+    if (library.ctype !== "string") return nada;
+    library = library.value;
+
+    console.log("Loading " + library + " ...");
+
+    let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
+
+    try {
+        let response = await fetch(query);
+
+        if (response.status === 200) {
+            let code = await response.text();
+            let safety = code[code.length - 1] == ";" ? "" : ";";
+            fullCode = code + safety;
+            console.log(library + " loaded!");
+            return evaluator.parse$1([{ ctype: "string", value: fullCode }], {});
+        } else {
+            console.log("CAUTION! Import of " + library + " failed.");
+        }
+    } catch (e) {
+        if (e.message === "Failed to fetch") {
+            console.log("CAUTION! Import of " + library + " failed.");
+            console.log(
+                "This website seems to not run on a web server. CindyJS will continue without importing " +
+                    library +
+                    "."
+            );
+        } else {
+            throw e;
+        }
+    }
+
+    return nada;
+};
+
 evaluator.unicode$1 = function (args, modifs) {
     let codepoint, str;
     const arg = evaluate(args[0]);
