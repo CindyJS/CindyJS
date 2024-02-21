@@ -1283,13 +1283,18 @@ List.zeromatrix = function (a, b) {
 };
 
 List.vandermonde = function (a) {
-    const len = a.value.length;
-    const erg = List.zeromatrix(len, len);
+    const n = a.value.length;
+    const result = [];
 
-    for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len; j++) erg.value[i].value[j] = CSNumber.pow(a.value[i], CSNumber.real(j - 1));
+    for (let i = 0; i < n; i++) {
+        const row = [];
+        for (let j = 0; j < n; j++) {
+            row.push(CSNumber.pow(a.value[i], CSNumber.real(j)));
+        }
+        result.push(List.turnIntoCSList(row));
     }
-    return erg;
+
+    return List.turnIntoCSList(result);
 };
 
 List.transpose = function (a) {
@@ -1537,13 +1542,6 @@ List.eig = function (A, getEigenvectors) {
     const len = cslen.value.real;
     const zero = CSNumber.real(0);
 
-    // the code is not well tested -- perhaps we can use it later
-    const useHess = false;
-    if (useHess) {
-        const Hess = List._helper.toHessenberg(A);
-        AA = Hess[1];
-    }
-
     const QRRes = List._helper.QRIteration(AA);
     AA = QRRes[0];
 
@@ -1641,9 +1639,6 @@ List._helper.QRIteration = function (A, maxIter) {
         L1 = blockeigs.value[0];
         L2 = blockeigs.value[1];
 
-        const l1n = List.abs(L1).value.real;
-        const l2n = List.abs(L2).value.real;
-
         ann = AA.value[len - 1].value[len - 1];
         dist1 = CSNumber.abs(CSNumber.sub(ann, L1)).value.real;
         dist2 = CSNumber.abs(CSNumber.sub(ann, L2)).value.real;
@@ -1725,21 +1720,6 @@ List._helper.isUpperTriangular = function (A) {
     return List._helper.isLowerTriangular(List.transpose(A));
 };
 
-List._helper.isAlmostId = function (AA) {
-    const A = AA;
-    const len = A.value.length;
-    const cslen = CSNumber.real(len);
-    if (len !== A.value[0].value.length) return false;
-
-    const erg = List.sub(A, List.idMatrix(cslen), cslen);
-    for (let i = 0; i < len; i++)
-        for (let j = 0; j < len; j++) {
-            if (CSNumber.abs(erg.value[i].value[j]).value.real > 1e-16) return false;
-        }
-
-    return true;
-};
-
 List.nullSpace = function (A, precision) {
     const len = A.value.length;
     const QR = List.RRQRdecomp(List.transjugate(A), precision); // QQ of QR is Nullspace of A^H
@@ -1799,38 +1779,6 @@ List._helper.inverseIteration = function (A, shiftinit) {
     }
 
     return List.scaldiv(List.abs(xx), xx);
-};
-
-// return Hessenberg Matrix H of A and tansformationmatrix QQ
-List._helper.toHessenberg = function (A) {
-    let AA = JSON.parse(JSON.stringify(A));
-    const len = AA.value.length;
-    const cslen = CSNumber.real(len - 1);
-    const cslen2 = CSNumber.real(len);
-    const one = CSNumber.real(1);
-
-    if (List._helper.isUpperTriangular(AA)) return [List.idMatrix(cslen, cslen), A];
-
-    let xx, uu, vv, alpha, e1, Qk, ww, erg;
-    let QQ = List.idMatrix(cslen2, cslen2);
-    let absxx;
-    for (let k = 1; k < len - 1; k++) {
-        //xx = List.tranList._helper.getBlock(AA, [k, len+1], [k,k]);
-        xx = List.column(AA, CSNumber.real(k));
-        xx.value = xx.value.splice(k);
-        absxx = List.abs2(xx).value.real;
-        if (absxx > 1e-16) {
-            Qk = List._helper.getHouseHolder(xx);
-            QQ = General.mult(QQ, Qk);
-
-            AA = General.mult(General.mult(Qk, AA), Qk);
-        }
-
-        // book keeping
-        cslen.value.real--;
-    }
-
-    return [QQ, AA];
 };
 
 // swap an element in js or cs array
