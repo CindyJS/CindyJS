@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Test-Pixelsize.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+string="Hello, how are you? $f(x)=\sum_1^{\infty}\frac{1}{x}$";
+ps = pixelsize(string,size->25,family->"Times New Roman");
+ps = ps/screenresolution();
+drawtext((0,0),string,size->25,family->"Times New Roman");
+drawpoly([(0,0), (0,ps_2),(ps_1,ps_2), (ps_1,-ps_3), (0,-ps_3),(0,0),(ps_1,0)]);
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    width: 834,
+    height: 409,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-9.06, 9.34, 24.3, -7.02]}],
+    background: "rgb(168,176,192)"
+  }],
+  use: ["katex"],
+  csconsole: false,
+  cinderella: {build: 2083, version: [3, 0, 2083]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
