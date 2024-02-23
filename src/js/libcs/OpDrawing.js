@@ -919,6 +919,39 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
     };
 }
 
+function measureNoRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
+    if (text.includes("\n")) {
+        let left = Infinity;
+        let right = -Infinity;
+        let top = Infinity;
+        let bottom = -Infinity;
+        text.split("\n").forEach(function (row) {
+            const box = measureNoRendererCanvas(ctx, row, x, y, align, size);
+            if (left > box.left) left = box.left;
+            if (right < box.right) right = box.right;
+            if (top > box.top) top = box.top;
+            if (bottom < box.bottom) bottom = box.bottom;
+            y += lineHeight;
+        });
+        return {
+            left,
+            right,
+            top,
+            bottom,
+        };
+    }
+    const m = ctx.measureText(text);
+
+    // We can't rely on advanced text metrics due to lack of browser support,
+    // so we have to guess sizes, the vertical ones in particular.
+    return {
+        left: x - m.width * align,
+        right: x + m.width * (1 - align),
+        top: y - 0.7 * 1.2 * size,
+        bottom: y + 0.3 * 1.2 * size,
+    };
+}
+
 // This is a hook: the following function may get replaced by a plugin.
 let textRendererCanvas = defaultTextRendererCanvas;
 
@@ -999,6 +1032,43 @@ evaluator.drawtext$2 = function (args, modifs) {
     const pt3 = General.withUsage(List.realVector(csport.to(box.right, box.top)), "Point");
     const pt4 = General.withUsage(List.realVector(csport.to(box.left, box.top)), "Point");
     return List.turnIntoCSList([pt1, pt2, pt3, pt4]);
+};
+
+eval_helper.pixelsize = function (args, modifs) {
+    const v1 = evaluate(args[0]);
+
+    Render2D.handleModifs(modifs, Render2D.textModifs);
+    let size = csport.drawingstate.textsize;
+    if (size === null) size = defaultAppearance.textsize;
+    if (Render2D.size !== null) size = Render2D.size;
+    csctx.fillStyle = Render2D.textColor;
+
+    const m = csport.drawingstate.matrix;
+
+    const txt = niceprint(v1);
+
+    if (!CindyJS._pluginRegistry.katex && typeof txt === "string") {
+        // split string by "$", if we have latex $...$ then the length is >=3
+        if (txt.split("$").length >= 3) {
+            loadExtraPlugin("katex", "katex-plugin.js", true /*skipInit*/);
+        }
+    }
+
+    csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
+    return measureNoRendererCanvas(
+        csctx,
+        txt,
+        0,
+        0,
+        Render2D.align,
+        size,
+        size * defaultAppearance.lineHeight,
+        Render2D.angle
+    );
+};
+evaluator.pixelsize$1 = function (args, modifs) {
+    const box = eval_helper.pixelsize(args, modifs);
+    return List.realVector([box.right - box.left, -box.top, box.bottom]);
 };
 
 evaluator.drawtable$2 = function (args, modifs) {
