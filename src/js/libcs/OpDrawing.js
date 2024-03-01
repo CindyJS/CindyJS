@@ -1027,6 +1027,8 @@ eval_helper.drawtext = function (args, modifs, callback) {
 
 evaluator.drawtext$2 = function (args, modifs) {
     const box = eval_helper.drawtext(args, modifs, null);
+    if (!box) return nada;
+
     const pt1 = General.withUsage(List.realVector(csport.to(box.left, box.bottom)), "Point");
     const pt2 = General.withUsage(List.realVector(csport.to(box.right, box.bottom)), "Point");
     const pt3 = General.withUsage(List.realVector(csport.to(box.right, box.top)), "Point");
