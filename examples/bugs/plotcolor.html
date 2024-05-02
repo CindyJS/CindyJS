@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>test.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+<script id="csinit" type="text/x-cindyscript">
+//Script (CindyScript)
+g = 9.8;    // 重力加速度
+r = 2;
+ω = 0;
+t = 0;
+hx(t):=vx*t;
+hy(t):=vy*t-1/2*g*t^2;
+
+fx(t):=hx(t)+r*cos(ω*t);
+fy(t):=hy(t)+r*sin(ω*t);
+
+
+;
+
+</script>
+<script id="cssimulationstart" type="text/x-cindyscript">
+//Script (CindyScript)
+resetclock();
+;
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+th = 2*pi/5;
+v = 15;
+vx = v*cos(th);
+vy = v*sin(th);
+
+plot([hx(#), hy(#)], start->0, stop->2*vy/g, steps->500, color->[0,0,1]);
+plot([fx(#),fy(#)], start->0, stop->t, steps->200, color->[1,0,0]);
+
+;
+
+</script>
+<script id="cstick" type="text/x-cindyscript">
+//Script (CindyScript)
+t = seconds();
+
+
+
+;
+
+</script>
+<script id="cssimulationstop" type="text/x-cindyscript">
+//Script (CindyScript)
+t = 0;
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  animation: {
+    autoplay: false,
+    controls: false,
+    speed: 0.44329896907216493,
+    speedRange: [0.0, 1.0],
+    accuracy: 1
+  },
+  autoplay: false,
+  animcontrols: false,
+  ports: [{
+    width: 772,
+    height: 462,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-4.62, 13.02, 26.26, -5.46]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(255,255,255)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2083, version: [3, 0, 2083]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
