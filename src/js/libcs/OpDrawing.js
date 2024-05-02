@@ -1427,8 +1427,7 @@ evaluator.plot$2 = function (args, modifs) {
                         }
                     }
                 }
-                csctx.stroke();
-
+                if (stroking) csctx.stroke();
                 namespace.removevar(runv);
             }
         }
@@ -1447,8 +1446,8 @@ evaluator.plot$2 = function (args, modifs) {
         vo = v;
     }
 
-    namespace.removevar(runv);
     if (stroking) csctx.stroke();
+    namespace.removevar(runv);
 
     return nada;
 };
