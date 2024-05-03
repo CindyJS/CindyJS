@@ -3,6 +3,14 @@
 This document is for project administrators,
 outlining the process used to create new CindyJS releases.
 
+## Important note
+
+We had to abandon the Travis CI, so all releases have to be made manually by
+kortenkamp@cinderella.de currently. Still, tagging etc. should remain the same.
+Note to kortenkamp@cinderella.de: Please pull main, `node make build=release alltests`,
+do an `export TRAVIS_TAG=v0.8.25` (with the correct version number) or
+`export TRAVIS_TAG=snapshot` before running the deployment script `tools/travis-deploy.sh`.
+
 ## Listing changes
 
 Go to the [GitHub list of CindyJS releases][releases].
