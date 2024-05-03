@@ -1,7 +1,17 @@
 #!/bin/bash
 
+# Set up ssh key for remote access to GitHub and cindyjs.org
+set -e
+umask 0077
+openssl aes-256-cbc -K "${encrypted_dab4c61606db_key}" -iv "${encrypted_dab4c61606db_iv}" \
+    -in tools/travis-ssh.enc -out build/travis-ssh -d
+umask 0022
+set -x
+eval "$(ssh-agent -s)"
+ssh-add build/travis-ssh
+rm build/travis-ssh
+
 # Distinguish between snapshot and tag deployment
-# tags have to be of the form v0.8.99 
 if [[ ${TRAVIS_TAG} ]]; then
     dir=${TRAVIS_TAG}
     name=${TRAVIS_TAG}
@@ -13,16 +23,12 @@ else
 fi
 
 # Deploy via rsync to cindyjs.org
-# This is only possible if you have the necessary crendentials, that is, if you are kortenkamp@cinderella.de (currently)
-#mkdir -p "${HOME}/.ssh"
-#cat tools/cindyjs.org.pub >> "${HOME}/.ssh/known_hosts"
-rsync -rci --rsh='ssh -l deploy -p 7723' \
-    build/deploy/ "cindyjs.org::CindyJS/${dir}/"exit
-
-exit
+mkdir -p "${HOME}/.ssh"
+cat tools/cindyjs.org.pub >> "${HOME}/.ssh/known_hosts"
+rsync --delete-delay -rci --rsh='ssh -l deploy -p 7723' \
+    build/deploy/ "cindyjs.org::CindyJS/${dir}/"
 
 # Deploy via git commit to “deploy” repository
-# we no longer do this.
 preserve=(.git README.md LICENSE)
 srcbranch=${branch}
 if ! git ls-remote --exit-code --heads git@github.com:CindyJS/deploy.git \
