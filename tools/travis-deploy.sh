@@ -17,12 +17,10 @@ fi
 #mkdir -p "${HOME}/.ssh"
 #cat tools/cindyjs.org.pub >> "${HOME}/.ssh/known_hosts"
 rsync -rci --rsh='ssh -l deploy -p 7723' \
-    build/deploy/ "cindyjs.org::CindyJS/${dir}/"exit
+    build/deploy/ "cindyjs.org::CindyJS/${dir}/"
 
-exit
 
 # Deploy via git commit to “deploy” repository
-# we no longer do this.
 preserve=(.git README.md LICENSE)
 srcbranch=${branch}
 if ! git ls-remote --exit-code --heads git@github.com:CindyJS/deploy.git \
@@ -49,6 +47,3 @@ if ! git diff --staged --quiet; then
     fi
 fi
 rm -rf ../prevdeploy "${preserve[@]}"
-
-# Terminate ssh agent, just in case
-ssh-agent -k
