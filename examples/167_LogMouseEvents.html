@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>CindyLogging.cdy</title>
+        <style type="text/css">
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+
+            #CSConsole {
+                background-color: #fafafa;
+                border-top: 1px solid #333333;
+                bottom: 0px;
+                height: 200px;
+                overflow-y: scroll;
+                position: fixed;
+                width: 100%;
+            }
+        </style>
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            //Script (CindyScript)
+            // Hilfsfunktion
+            log(event, text) := (
+              println("In event "+event+": "+text)
+              // hier könnte man auch javascript aufrufen, zum Beispiel
+              // javascript("alert(...)");
+            );
+
+            log("init","construction loaded");
+            ;
+        </script>
+        <script id="csmouseclick" type="text/x-cindyscript">
+            //Script (CindyScript)
+            forall(elementsatmouse(), eam,
+            	log("mouse click","Clicked "+eam);
+            )
+            ;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            //Script (CindyScript)
+            log("mouse up","End moving "+mover().name);
+            log("mouse up","New coordinate "+mover().coord);
+
+            if(mover()==C,
+              log("mouse up","Checking position of C");
+              log("mouse up","angle at C is "+(b.angle-c.angle)/1°+" degrees");
+            );
+            ;
+        </script>
+        <script id="csmousedown" type="text/x-cindyscript">
+            //Script (CindyScript)
+            log("mouse down","Start moving "+mover().name);
+            log("mouse down","Coordinate "+mover().coord);
+            ;
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                scripts: "cs*",
+                defaultAppearance: {
+                    dimDependent: 0.7,
+                    fontFamily: "sans-serif",
+                    lineSize: 1,
+                    pointSize: 5.0,
+                    textsize: 12.0,
+                },
+                angleUnit: "°",
+                geometry: [
+                    {
+                        name: "A",
+                        type: "Free",
+                        pos: [4.0, -1.315068493150685, -1.3698630136986303],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    {
+                        name: "B",
+                        type: "Free",
+                        pos: [4.0, 0.5283018867924528, 0.6289308176100629],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], labeled: true },
+                    {
+                        name: "C",
+                        type: "Free",
+                        pos: [-3.974522292993631, -4.0, -0.6369426751592356],
+                        color: [1.0, 0.0, 0.0],
+                        labeled: true,
+                    },
+                    { name: "b", type: "Segment", color: [0.0, 0.0, 1.0], args: ["B", "C"], labeled: true },
+                    { name: "c", type: "Segment", color: [0.0, 0.0, 1.0], args: ["C", "A"], labeled: true },
+                    { name: "D", type: "Mid", color: [1.0, 0.0, 0.0], args: ["A", "B"], labeled: true },
+                    { name: "C0", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["D", "A"], printname: "$C_{0}$" },
+                ],
+                ports: [
+                    {
+                        width: 686,
+                        height: 389,
+                        id: "CSCanvas",
+                        transform: [{ visibleRect: [-9.06, 9.34, 18.38, -6.22] }],
+                        background: "rgb(168,176,192)",
+                    },
+                ],
+                csconsole: false,
+                use: ["katex"],
+                cinderella: { build: 2075, version: [3, 0, 2075] },
+            });
+        </script>
+    </head>
+    <body>
+        <div id="CSCanvas"></div>
+    </body>
+</html>
