@@ -372,54 +372,101 @@ Since this uses the 'fetch' command, it only works on a web server. So, for loca
 If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
 */
 
-    if (data.import && Array.isArray(data.import) && data.import.length > 0) {
-        let initId = "csinit";
-        if (data.initscript) {
-            initId = data.initscript;
-        } else if (scriptpat) {
-            initId = scriptpat.replace(/\*/, "init");
-        } else {
-            return;
-        }
+    if (data.import && Object.keys(data.import).length > 0) {
+        // Process full packages
+        if (
+            data.import.hasOwnProperty("packages") &&
+            Array.isArray(data.import.packages) &&
+            data.import.packages.length > 0
+        ) {
+            console.log("===== Processing CindyScript packages =====");
+            for (let path of data.import.packages.reverse()) {
+                let scriptsJSON = await fetch(path + "/scripts.json").then((response) => response.json());
+                let packageKeys = Object.keys(scriptsJSON).filter((value) => scripts.includes(value));
+                for (let key of packageKeys) {
+                    if (!data.import.hasOwnProperty(key)) {
+                        data.import[key] = [];
+                    }
 
-        console.log("===== Importing CindyScript libraries to " + initId + " =====");
-
-        let fullCode = "";
-
-        for (let library of data.import.reverse()) {
-            if (typeof library !== "string") continue;
-
-            console.log("Loading " + library + " ...");
-
-            let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
-
-            try {
-                let response = await fetch(query);
-
-                if (response.status === 200) {
-                    let code = await response.text();
-                    let safety = code[code.length - 1] == ";" ? "" : ";";
-                    fullCode = code + safety + "\n" + fullCode;
-                    console.log(library + " loaded!");
-                } else {
-                    console.log("CAUTION! Import of " + library + " failed.");
-                }
-            } catch (e) {
-                if (e.message === "Failed to fetch") {
-                    console.log("CAUTION! Import of " + library + " failed.");
-                    console.log(
-                        "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
-                    );
-                } else {
-                    throw e;
+                    let listOfScripts = scriptsJSON[key];
+                    if (Array.isArray(listOfScripts) && listOfScripts.length > 0) {
+                        listOfScripts = listOfScripts.map((script) => [path + "/" + script.name, script.place]);
+                        //let frontScripts = listOfScripts.filter((script) => script.place == "front").map((script) => [path + "/" + script.name, script.place]);
+                        //let backScripts = listOfScripts.filter((script) => script.place == "back").map((script) => [path + "/" + script.name, script.place]);
+                        //data.import[key] = frontScripts.concat(data.import[key], backScripts);
+                        data.import[key] = listOfScripts.concat(data.import[key]);
+                    }
                 }
             }
         }
+        // Import individual scripts
+        let import_keys = Object.keys(data.import).filter((value) => scripts.includes(value));
 
-        let initElement = getCodeElement(initId);
-        let initCode = document.createTextNode(fullCode);
-        prependCode(initElement, initCode);
-        console.log("===== Import of libraries to " + initId + " finished ========");
+        for (let key of import_keys) {
+            var list_of_scripts = data.import[key];
+            if (Array.isArray(list_of_scripts) && list_of_scripts.length > 0) {
+                let scriptId = "cs" + key;
+                if (data[key + "script"]) {
+                    scriptId = data[key + "script"];
+                } else if (scriptpat) {
+                    scriptId = scriptpat.replace(/\*/, key);
+                } else {
+                    return;
+                }
+
+                console.log("===== Importing CindyScript libraries to " + scriptId + " =====");
+
+                let scriptElement = getCodeElement(scriptId);
+
+                for (let library of list_of_scripts.reverse()) {
+                    let libData = [];
+                    if (typeof library === "string") {
+                        libData = [library, "front"];
+                    } else if (library.hasOwnProperty("name") && library.hasOwnProperty("place")) {
+                        libData = [library["name"], library["place"]];
+                    } else if (Array.isArray(library) && library.length === 2) {
+                        libData = library;
+                    } else {
+                        continue;
+                    }
+
+                    console.log("Loading " + libData[0] + " ...");
+
+                    let query = libData[0].search(/.+\.cjs$/) == -1 ? libData[0] + ".cjs" : libData[0];
+
+                    try {
+                        let response = await fetch(query);
+
+                        if (response.status === 200) {
+                            let code = await response.text();
+                            let safety = code[code.length - 1] == ";" ? "" : ";";
+                            // console.log(libData[0] + " loaded!");
+                            let scriptCode = document.createTextNode(code + safety + "\n");
+                            if (libData[1] === "front") {
+                                prependCode(scriptElement, scriptCode);
+                            } else if (libData[1] === "back") {
+                                appendCode(scriptElement, scriptCode);
+                            } else {
+                                console.log("CAUTION! Import of " + libData[0] + " failed.");
+                            }
+                        } else {
+                            console.log("CAUTION! Import of " + libData[0] + " failed.");
+                        }
+                    } catch (e) {
+                        if (e.message === "Failed to fetch") {
+                            console.log("CAUTION! Import of " + libData[0] + " failed.");
+                            console.log(
+                                "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
+                            );
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+
+                // console.log("===== Import of libraries to " + scriptId + " finished ========");
+            }
+        }
     }
 
     // Continue with compiling scripts.
