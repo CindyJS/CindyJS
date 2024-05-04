@@ -37,8 +37,8 @@ cd ../deploy
 git add -A
 git status
 if ! git diff --staged --quiet; then
-    git config --local user.name "Travis CI"
-    git config --local user.email "travis-ci@cinderella.de"
+    #git config --local user.name "Travis CI"
+    #git config --local user.email "travis-ci@cinderella.de"
     git commit -m "Build of CindyJS ${name}"
     git push origin "HEAD:${branch}"
     if [[ ${TRAVIS_TAG} ]]; then
