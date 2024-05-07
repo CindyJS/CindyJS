@@ -904,9 +904,15 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(-angle);
+        if (ctx.lineWidth > 0) {
+            ctx.strokeText(text, -m.width * align, 0);
+        }
         ctx.fillText(text, -m.width * align, 0);
         ctx.restore();
     } else {
+        if (ctx.lineWidth > 0) {
+            ctx.strokeText(text, -m.width * align, 0);
+        }
         ctx.fillText(text, x - m.width * align, y);
     }
     // We can't rely on advanced text metrics due to lack of browser support,
@@ -994,6 +1000,9 @@ eval_helper.drawtext = function (args, modifs, callback) {
     if (size === null) size = defaultAppearance.textsize;
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
+    csctx.lineWidth = Render2D.outlinewidth;
+    csctx.lineJoin = "round";
+    csctx.strokeStyle = Render2D.outlineColor;
 
     const m = csport.drawingstate.matrix;
     const xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Text Ouline</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+
+
+        <script id="csinit" type="text/x-cindyscript">
+
+            resetclock();
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            SX = |mouse().x - screenbounds()_1.x| / |screenbounds()_2.x - screenbounds()_1.x|;
+            drawtext([-8,-5], "This text has an outline of size: " + round(25 * SX), size -> 50, color -> (1,1,1), outlinewidth -> 25 * SX, outlinecolor -> (1,0,0));
+            repaint();
+        </script>
+
+
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/createCindy documentation for details.
+                ports: [{ id: "CSCanvas", width: 900, height: 300 }],
+                scripts: "cs*",
+            });
+
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Outlines for text</h1>
+        <p>Move the mouse across the canvas to see outline widths from 0 to 25 for a text of size 50. I.e., at the end, the outline is half as thick as the text is tall.</p>
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
+</html>

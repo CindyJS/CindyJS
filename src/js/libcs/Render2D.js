@@ -35,6 +35,8 @@ Render2D.handleModifs = function (modifs, handlers) {
     Render2D.lineJoin = "round";
     Render2D.miterLimit = 10;
     Render2D.noborder = false;
+    Render2D.outlinewidth = 0;
+    Render2D.outlinecolorraw = null;
 
     // Process handlers
     let key, handler;
@@ -69,10 +71,12 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.pointColor = csport.drawingstate.pointcolor;
         Render2D.lineColor = csport.drawingstate.linecolor;
         Render2D.textColor = csport.drawingstate.textcolor;
+        Render2D.outlineColor = csport.drawingstate.textoutlinecolor;
     } else {
         Render2D.pointColor = Render2D.makeColor(csport.drawingstate.pointcolorraw);
         Render2D.lineColor = Render2D.makeColor(csport.drawingstate.linecolorraw);
         Render2D.textColor = Render2D.makeColor(csport.drawingstate.textcolorraw);
+        Render2D.outlineColor = Render2D.makeColor(csport.drawingstate.textoutlinecolorraw);
     }
     if (Render2D.alpha === 1) {
         Render2D.black = "rgb(0,0,0)";
@@ -83,6 +87,11 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.fillColor = Render2D.makeColor(Render2D.fillcolorraw, Render2D.fillalpha);
     } else {
         Render2D.fillColor = null;
+    }
+    if (Render2D.outlinecolorraw && Render2D.outlinewidth > 0) {
+        Render2D.outlineColor = Render2D.makeColor(Render2D.outlinecolorraw);
+    } else {
+        Render2D.outlineColor = null;
     }
 };
 
@@ -95,9 +104,23 @@ Render2D.modifHandlers = {
         }
     },
 
+    outlinewidth: function (v) {
+        if (v.ctype === "number") {
+            Render2D.outlinewidth = v.value.real;
+            if (Render2D.outlinewidth < 0) Render2D.outlinewidth = 0;
+            if (Render2D.outlinewidth > 1000) Render2D.outlinewidth = 1000;
+        }
+    },
+
     color: function (v) {
         if (List.isNumberVector(v).value && v.value.length === 3) {
             Render2D.colorraw = [v.value[0].value.real, v.value[1].value.real, v.value[2].value.real];
+        }
+    },
+
+    outlinecolor: function (v) {
+        if (List.isNumberVector(v).value && v.value.length === 3) {
+            Render2D.outlinecolorraw = [v.value[0].value.real, v.value[1].value.real, v.value[2].value.real];
         }
     },
 
@@ -360,6 +383,8 @@ Render2D.textModifs = {
     xoffset: true,
     yoffset: true,
     offset: true,
+    outlinecolor: true,
+    outlinewidth: true,
 };
 
 Render2D.makeColor = function (colorraw, alpha) {

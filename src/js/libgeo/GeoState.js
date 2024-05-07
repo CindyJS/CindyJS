@@ -11,10 +11,13 @@ csport.drawingstate.pointcolor = "rgb(0,255,0)";
 csport.drawingstate.pointcolorraw = [0, 1, 0];
 csport.drawingstate.textcolor = "rgb(0,0,0)";
 csport.drawingstate.textcolorraw = [0, 0, 0];
+csport.drawingstate.textoutlinecolor = "rgb(255,255,255)";
+csport.drawingstate.textoutlinecolorraw = [1, 1, 1];
 csport.drawingstate.alpha = 1.0;
 csport.drawingstate.pointsize = 4.0;
 csport.drawingstate.linesize = 1.0;
 csport.drawingstate.textsize = null; // use defaultAppearance.textsize
+csport.drawingstate.textoutlinewidth = 0;
 
 csport.drawingstate.matrix = {};
 csport.drawingstate.matrix.a = 25;
