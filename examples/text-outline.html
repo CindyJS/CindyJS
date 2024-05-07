@@ -9,13 +9,14 @@
 
 
         <script id="csinit" type="text/x-cindyscript">
+            lerp(x,y,t) := x + t*(y-x);
 
             resetclock();
         </script>
 
         <script id="csdraw" type="text/x-cindyscript">
             SX = |mouse().x - screenbounds()_1.x| / |screenbounds()_2.x - screenbounds()_1.x|;
-            drawtext([-8,-5], "This text has an outline of size: " + round(25 * SX), size -> 50, color -> (1,1,1), outlinewidth -> 25 * SX, outlinecolor -> (0,0,0));
+            drawtext([-8,-5], "This text has an outline of size: " + round(25 * SX), size -> 50, color -> [1,1,1], outlinewidth -> 20);
             repaint();
         </script>
 
