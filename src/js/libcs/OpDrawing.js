@@ -911,7 +911,7 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
         ctx.restore();
     } else {
         if (ctx.lineWidth > 0) {
-            ctx.strokeText(text, -m.width * align, 0);
+            ctx.strokeText(text, x - m.width * align, y);
         }
         ctx.fillText(text, x - m.width * align, y);
     }
