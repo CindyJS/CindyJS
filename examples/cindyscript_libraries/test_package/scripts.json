@@ -1,8 +1,0 @@
-{
-    "init": [
-        {"name": "init.cjs", "place": "front"}
-    ],
-    "draw": [
-        {"name": "draw.cjs", "place": "back"}
-    ]
-}

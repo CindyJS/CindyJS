@@ -1,1 +1,1 @@
-fillcircle([0,5], 5, color -> circleColor);
+fillcircle([0,5], 4.7, color -> circleColor);

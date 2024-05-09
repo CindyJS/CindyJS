@@ -21,15 +21,13 @@
 
         <script type="text/javascript">
             var cdy = CindyJS({
-                // See ref/createCindy documentation for details.
                 ports: [{ id: "CSCanvas", width: 500, height: 500 }],
                 scripts: "cs*",
                 import: {
                     "init": ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"],
-                    "mousedown": [{"name": "cindyscript_libraries/libraryC", "place": "back"}],
+                    "mousedown": [{"name": "cindyscript_libraries/libraryC", "place": 3}],
                     "packages": ["cindyscript_libraries/test_package"]
                 }
-
             });
         </script>
     </head>

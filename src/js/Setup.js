@@ -357,15 +357,6 @@ async function createCindyNow() {
     if (typeof scriptconf !== "object") scriptconf = null;
 
     /*
-Loads CindyScript files (marked by .cjs file ending) and adds their code AT THE BEGINNING of the init script.
-The file names (and paths) have to be listed in the dictionary that's passed to CindyJS/createCindy as an array for the key 'import'. I.e., like this:
-          var cdy = CindyJS({
-                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
-                scripts: "cs*",
-                import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
-
-            });
-The libraries are prepended as a whole in the order listed, so libraryA is loaded before libraryB. That way, libraries farther back can reference code of libraries farther up front.
 
 CAUTION!
 Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
@@ -381,7 +372,7 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
         ) {
             console.log("===== Processing CindyScript packages =====");
             for (let path of data.import.packages.reverse()) {
-                let scriptsJSON = await fetch(path + "/scripts.json").then((response) => response.json());
+                let scriptsJSON = await fetch(path + "/config.json").then((response) => response.json());
                 let packageKeys = Object.keys(scriptsJSON).filter((value) => scripts.includes(value));
                 for (let key of packageKeys) {
                     if (!data.import.hasOwnProperty(key)) {
@@ -390,11 +381,33 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
 
                     let listOfScripts = scriptsJSON[key];
                     if (Array.isArray(listOfScripts) && listOfScripts.length > 0) {
-                        listOfScripts = listOfScripts.map((script) => [path + "/" + script.name, script.place]);
-                        //let frontScripts = listOfScripts.filter((script) => script.place == "front").map((script) => [path + "/" + script.name, script.place]);
-                        //let backScripts = listOfScripts.filter((script) => script.place == "back").map((script) => [path + "/" + script.name, script.place]);
-                        //data.import[key] = frontScripts.concat(data.import[key], backScripts);
-                        data.import[key] = listOfScripts.concat(data.import[key]);
+                        let processedScripts = [];
+                        for (let script of listOfScripts) {
+                            let res = [];
+                            if (typeof script === "string") {
+                                // just the script name, gets to the front
+                                res = [path + "/" + script, -Infinity];
+                            } else if (
+                                script.hasOwnProperty("name") &&
+                                script.hasOwnProperty("place") &&
+                                typeof script.name === "string" &&
+                                typeof script.place === "number"
+                            ) {
+                                // is a dictionary with name and place
+                                res = [path + "/" + script.name, script.place];
+                            } else if (
+                                Array.isArray(script) &&
+                                script.length === 2 &&
+                                typeof script[0] === "string" &&
+                                typeof script[1] === "number"
+                            ) {
+                                res = [path + "/" + script[0], script[1]];
+                            } else {
+                                continue;
+                            }
+                            processedScripts.push(res);
+                        }
+                        data.import[key] = processedScripts.concat(data.import[key]);
                     }
                 }
             }
@@ -413,22 +426,54 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
                 } else {
                     return;
                 }
+                // Preprocess and order list of libraries for this event
+                let ordered_list_of_library_data = [];
+                for (let index = 0; index < list_of_scripts.length; index++) {
+                    let res = [];
+                    let library = list_of_scripts[index];
+                    if (typeof library === "string") {
+                        // just the library name, gets to the front
+                        res = [library, -Infinity];
+                    } else if (
+                        library.hasOwnProperty("name") &&
+                        library.hasOwnProperty("place") &&
+                        typeof library.name === "string" &&
+                        typeof library.place === "number"
+                    ) {
+                        // is a dictionary with name and place
+                        res = [library.name, library.place];
+                    } else if (
+                        Array.isArray(library) &&
+                        library.length === 2 &&
+                        typeof library[0] === "string" &&
+                        typeof library[1] === "number"
+                    ) {
+                        // Probably/hopefully comes from a package and the previous processing step
+                        res = library;
+                    } else {
+                        continue;
+                    }
+                    ordered_list_of_library_data.push({ index: index, value: res });
+                }
+                ordered_list_of_library_data.sort((a, b) => {
+                    if (Math.sign(a.value[1]) === Math.sign(b.value[1])) {
+                        if (a.value[1] < 0) {
+                            return a.value[1] === b.value[1] ? b.index - a.index : b.value[1] - a.value[1];
+                        } else {
+                            return a.value[1] === b.value[1] ? a.index - b.index : a.value[1] - b.value[1];
+                        }
+                    } else {
+                        // Numbers have different signs, negative numbers should come first
+                        return a.value[1] < 0 ? -1 : 1;
+                    }
+                });
 
                 console.log("===== Importing CindyScript libraries to " + scriptId + " =====");
 
                 let scriptElement = getCodeElement(scriptId);
 
-                for (let library of list_of_scripts.reverse()) {
-                    let libData = [];
-                    if (typeof library === "string") {
-                        libData = [library, "front"];
-                    } else if (library.hasOwnProperty("name") && library.hasOwnProperty("place")) {
-                        libData = [library["name"], library["place"]];
-                    } else if (Array.isArray(library) && library.length === 2) {
-                        libData = library;
-                    } else {
-                        continue;
-                    }
+                for (let libData of ordered_list_of_library_data) {
+                    libData = libData.value;
 
                     console.log("Loading " + libData[0] + " ...");
 
@@ -440,11 +485,11 @@ If the key 'import' doesn't exists or its value is an empty array, opening the f
                         if (response.status === 200) {
                             let code = await response.text();
                             let safety = code[code.length - 1] == ";" ? "" : ";";
-                            // console.log(libData[0] + " loaded!");
+                            //console.log(libData[0] + " loaded!");
                             let scriptCode = document.createTextNode(code + safety + "\n");
-                            if (libData[1] === "front") {
+                            if (libData[1] < 0) {
                                 prependCode(scriptElement, scriptCode);
-                            } else if (libData[1] === "back") {
+                            } else if (libData[1] > 0) {
                                 appendCode(scriptElement, scriptCode);
                             } else {
                                 console.log("CAUTION! Import of " + libData[0] + " failed.");
