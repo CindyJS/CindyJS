@@ -5,6 +5,7 @@
         <meta charset="UTF-8" />
         <link rel="stylesheet" href="../build/js/CindyJS.css" />
         <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
         <script id="csinit" type="text/x-cindyscript">
             println("Main code");
             test = test^2;
@@ -13,23 +14,21 @@
             col = 1;
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-            fillpoly(screenbounds(), color -> col * (1,1,1));
-            drawtext([-5,0], "test is equal to " + test, size -> 30, color -> (1 - col) * (1,1,1));
+        fillpoly(screenbounds(), color -> col * (1,1,1));
+        drawtext([-5,0], "test is equal to " + test, size -> 30, color -> (1 - col) * (1,1,1));
+
         </script>
-        <script id="csmousedown" type="text/x-cindyscript">
-            import("cindyscript_libraries/libraryC.cjs");
-        </script>
-        
+
         <script type="text/javascript">
             var cdy = CindyJS({
-                // See ref/createCindy documentation for details.
                 ports: [{ id: "CSCanvas", width: 500, height: 500 }],
                 scripts: "cs*",
-                import: ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"]
-
+                import: {
+                    "init": ["cindyscript_libraries/libraryA.cjs", "cindyscript_libraries/libraryB"],
+                    "mousedown": [{"name": "cindyscript_libraries/libraryC", "place": 3}],
+                    "packages": ["cindyscript_libraries/test_package"]
+                }
             });
-
-            // Remove all comments after adjusting this template for your use case.
         </script>
     </head>
 
