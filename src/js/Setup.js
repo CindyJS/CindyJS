@@ -357,69 +357,161 @@ async function createCindyNow() {
     if (typeof scriptconf !== "object") scriptconf = null;
 
     /*
-Loads CindyScript files (marked by .cjs file ending) and adds their code AT THE BEGINNING of the init script.
-The file names (and paths) have to be listed in the dictionary that's passed to CindyJS/createCindy as an array for the key 'import'. I.e., like this:
-          var cdy = CindyJS({
-                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
-                scripts: "cs*",
-                import: ["cindyscript_libraries/libraryA", "cindyscript_libraries/libraryB"]
-
-            });
-The libraries are prepended as a whole in the order listed, so libraryA is loaded before libraryB. That way, libraries farther back can reference code of libraries farther up front.
 
 CAUTION!
 Since this uses the 'fetch' command, it only works on a web server. So, for local testing, start one with 'python -m http.server' or however else you are comfortable with.
 If the key 'import' doesn't exists or its value is an empty array, opening the file locally works as always.
 */
 
-    if (data.import && Array.isArray(data.import) && data.import.length > 0) {
-        let initId = "csinit";
-        if (data.initscript) {
-            initId = data.initscript;
-        } else if (scriptpat) {
-            initId = scriptpat.replace(/\*/, "init");
-        } else {
-            return;
-        }
+    if (data.import && Object.keys(data.import).length > 0) {
+        // Process full packages
+        if (
+            data.import.hasOwnProperty("packages") &&
+            Array.isArray(data.import.packages) &&
+            data.import.packages.length > 0
+        ) {
+            console.log("===== Processing CindyScript packages =====");
+            for (let path of data.import.packages.reverse()) {
+                let scriptsJSON = await fetch(path + "/config.json").then((response) => response.json());
+                let packageKeys = Object.keys(scriptsJSON).filter((value) => scripts.includes(value));
+                for (let key of packageKeys) {
+                    if (!data.import.hasOwnProperty(key)) {
+                        data.import[key] = [];
+                    }
 
-        console.log("===== Importing CindyScript libraries to " + initId + " =====");
-
-        let fullCode = "";
-
-        for (let library of data.import.reverse()) {
-            if (typeof library !== "string") continue;
-
-            console.log("Loading " + library + " ...");
-
-            let query = library.search(/.+\.cjs$/) == -1 ? library + ".cjs" : library;
-
-            try {
-                let response = await fetch(query);
-
-                if (response.status === 200) {
-                    let code = await response.text();
-                    let safety = code[code.length - 1] == ";" ? "" : ";";
-                    fullCode = code + safety + "\n" + fullCode;
-                    console.log(library + " loaded!");
-                } else {
-                    console.log("CAUTION! Import of " + library + " failed.");
-                }
-            } catch (e) {
-                if (e.message === "Failed to fetch") {
-                    console.log("CAUTION! Import of " + library + " failed.");
-                    console.log(
-                        "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
-                    );
-                } else {
-                    throw e;
+                    let listOfScripts = scriptsJSON[key];
+                    if (Array.isArray(listOfScripts) && listOfScripts.length > 0) {
+                        let processedScripts = [];
+                        for (let script of listOfScripts) {
+                            let res = [];
+                            if (typeof script === "string") {
+                                // just the script name, gets to the front
+                                res = [path + "/" + script, -Infinity];
+                            } else if (
+                                script.hasOwnProperty("name") &&
+                                script.hasOwnProperty("place") &&
+                                typeof script.name === "string" &&
+                                typeof script.place === "number"
+                            ) {
+                                // is a dictionary with name and place
+                                res = [path + "/" + script.name, script.place];
+                            } else if (
+                                Array.isArray(script) &&
+                                script.length === 2 &&
+                                typeof script[0] === "string" &&
+                                typeof script[1] === "number"
+                            ) {
+                                res = [path + "/" + script[0], script[1]];
+                            } else {
+                                continue;
+                            }
+                            processedScripts.push(res);
+                        }
+                        data.import[key] = processedScripts.concat(data.import[key]);
+                    }
                 }
             }
         }
+        // Import individual scripts
+        let import_keys = Object.keys(data.import).filter((value) => scripts.includes(value));
 
-        let initElement = getCodeElement(initId);
-        let initCode = document.createTextNode(fullCode);
-        prependCode(initElement, initCode);
-        console.log("===== Import of libraries to " + initId + " finished ========");
+        for (let key of import_keys) {
+            var list_of_scripts = data.import[key];
+            if (Array.isArray(list_of_scripts) && list_of_scripts.length > 0) {
+                let scriptId = "cs" + key;
+                if (data[key + "script"]) {
+                    scriptId = data[key + "script"];
+                } else if (scriptpat) {
+                    scriptId = scriptpat.replace(/\*/, key);
+                } else {
+                    return;
+                }
+                // Preprocess and order list of libraries for this event
+                let ordered_list_of_library_data = [];
+                for (let index = 0; index < list_of_scripts.length; index++) {
+                    let res = [];
+                    let library = list_of_scripts[index];
+                    if (typeof library === "string") {
+                        // just the library name, gets to the front
+                        res = [library, -Infinity];
+                    } else if (
+                        library.hasOwnProperty("name") &&
+                        library.hasOwnProperty("place") &&
+                        typeof library.name === "string" &&
+                        typeof library.place === "number"
+                    ) {
+                        // is a dictionary with name and place
+                        res = [library.name, library.place];
+                    } else if (
+                        Array.isArray(library) &&
+                        library.length === 2 &&
+                        typeof library[0] === "string" &&
+                        typeof library[1] === "number"
+                    ) {
+                        // Probably/hopefully comes from a package and the previous processing step
+                        res = library;
+                    } else {
+                        continue;
+                    }
+                    ordered_list_of_library_data.push({ index: index, value: res });
+                }
+                ordered_list_of_library_data.sort((a, b) => {
+                    if (Math.sign(a.value[1]) === Math.sign(b.value[1])) {
+                        if (a.value[1] < 0) {
+                            return a.value[1] === b.value[1] ? b.index - a.index : b.value[1] - a.value[1];
+                        } else {
+                            return a.value[1] === b.value[1] ? a.index - b.index : a.value[1] - b.value[1];
+                        }
+                    } else {
+                        // Numbers have different signs, negative numbers should come first
+                        return a.value[1] < 0 ? -1 : 1;
+                    }
+                });
+
+                console.log("===== Importing CindyScript libraries to " + scriptId + " =====");
+
+                let scriptElement = getCodeElement(scriptId);
+
+                for (let libData of ordered_list_of_library_data) {
+                    libData = libData.value;
+
+                    console.log("Loading " + libData[0] + " ...");
+
+                    let query = libData[0].search(/.+\.cjs$/) == -1 ? libData[0] + ".cjs" : libData[0];
+
+                    try {
+                        let response = await fetch(query);
+
+                        if (response.status === 200) {
+                            let code = await response.text();
+                            let safety = code[code.length - 1] == ";" ? "" : ";";
+                            //console.log(libData[0] + " loaded!");
+                            let scriptCode = document.createTextNode(code + safety + "\n");
+                            if (libData[1] < 0) {
+                                prependCode(scriptElement, scriptCode);
+                            } else if (libData[1] > 0) {
+                                appendCode(scriptElement, scriptCode);
+                            } else {
+                                console.log("CAUTION! Import of " + libData[0] + " failed.");
+                            }
+                        } else {
+                            console.log("CAUTION! Import of " + libData[0] + " failed.");
+                        }
+                    } catch (e) {
+                        if (e.message === "Failed to fetch") {
+                            console.log("CAUTION! Import of " + libData[0] + " failed.");
+                            console.log(
+                                "This website seems to not run on a web server. CindyJS will continue without importing CindyScript libraries."
+                            );
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+
+                // console.log("===== Import of libraries to " + scriptId + " finished ========");
+            }
+        }
     }
 
     // Continue with compiling scripts.
