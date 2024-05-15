@@ -276,7 +276,6 @@ evaluator.apply$4 = function (args, modifs) {
             }
         } else {
             // JSON
-            let res;
             for (let k in li) {
                 namespace.setvar(keyVar, General.string(k));
                 namespace.setvar(valueVar, li[k]);
@@ -313,6 +312,10 @@ evaluator.forall$2 = function (args, modifs) {
 };
 
 evaluator.forall$3 = function (args, modifs) {
+    return evaluator.forall$4([args[0], args[1], null, args[2]], modifs);
+};
+
+evaluator.forall$4 = function (args, modifs) {
     //OK
     const v1 = evaluateAndVal(args[0]);
 
@@ -327,18 +330,46 @@ evaluator.forall$3 = function (args, modifs) {
         }
     }
 
+    let indexVar;
+    if (args[2] !== null) {
+        if (args[2].ctype === "variable") {
+            indexVar = args[2].name;
+            namespace.newvar(indexVar);
+        }
+    }
+
     const li = v1.value;
     namespace.newvar(runVar);
 
     let res;
-    if (v1.ctype === "list") {
-        for (let i = 0; i < li.length; i++) {
-            namespace.setvar(runVar, li[i]);
-            res = evaluate(args[2]);
+
+    if (indexVar !== undefined) {
+        if (v1.ctype === "list") {
+            for (let i = 0; i < li.length; i++) {
+                namespace.setvar(indexVar, CSNumber.real(i + 1));
+                namespace.setvar(runVar, li[i]);
+                res = evaluate(args[3]);
+            }
+        } else {
+            // JSON
+            for (let k in li) {
+                namespace.setvar(indexVar, General.string(k));
+                namespace.setvar(runVar, li[k]);
+                res = evaluate(args[3]);
+            }
         }
+        namespace.removevar(indexVar);
     } else {
-        // JSON
-        res = Json._helper.forall(li, runVar, args[2], modifs);
+        // no index var
+        if (v1.ctype === "list") {
+            for (let i = 0; i < li.length; i++) {
+                namespace.setvar(runVar, li[i]);
+                res = evaluate(args[3]);
+            }
+        } else {
+            // JSON
+            res = Json._helper.forall(li, runVar, args[3], modifs);
+        }
     }
 
     namespace.removevar(runVar);
@@ -352,6 +383,10 @@ evaluator.select$2 = function (args, modifs) {
 };
 
 evaluator.select$3 = function (args, modifs) {
+    return evaluator.select$4([args[0], args[1], null, args[2]], modifs);
+};
+
+evaluator.select$4 = function (args, modifs) {
     //OK
     const v1 = evaluateAndVal(args[0]);
     if (!(v1.ctype === "list" || v1.ctype === "JSON")) {
@@ -365,45 +400,95 @@ evaluator.select$3 = function (args, modifs) {
         }
     }
 
+    let keyVar;
+    if (args[2] !== null) {
+        if (args[2].ctype === "variable") {
+            keyVar = args[2].name;
+            namespace.newvar(keyVar);
+        }
+    }
+
     const li = v1.value;
     let erg, ret, res;
     namespace.newvar(lauf);
 
-    if (v1.ctype === "list") {
-        erg = [];
-        let ct = 0;
-        for (let i = 0; i < li.length; i++) {
-            namespace.setvar(lauf, li[i]);
-            res = evaluate(args[2]);
-            if (res.ctype === "boolean") {
-                if (res.value === true) {
-                    erg[ct] = li[i];
-                    ct++;
+    if (keyVar !== undefined) {
+        if (v1.ctype === "list") {
+            erg = [];
+            let ct = 0;
+            for (let i = 0; i < li.length; i++) {
+                namespace.setvar(keyVar, CSNumber.real(i + 1));
+                namespace.setvar(lauf, li[i]);
+                res = evaluate(args[3]);
+                if (res.ctype === "boolean") {
+                    if (res.value === true) {
+                        erg[ct] = li[i];
+                        ct++;
+                    }
                 }
             }
-        }
 
-        ret = {
-            ctype: "list",
-            value: erg,
-        };
+            ret = {
+                ctype: "list",
+                value: erg,
+            };
+        } else {
+            // JSON
+            erg = {};
+            for (const k in li) {
+                namespace.setvar(keyVar, General.string(k));
+                namespace.setvar(lauf, li[k]);
+                res = evaluate(args[3]);
+                if (res.ctype === "boolean") {
+                    if (res.value === true) {
+                        erg[k] = li[k];
+                    }
+                }
+            }
+
+            ret = {
+                ctype: "JSON",
+                value: erg,
+            };
+        }
+        namespace.removevar(keyVar);
     } else {
-        // JSON
-        erg = {};
-        for (const k in li) {
-            namespace.setvar(lauf, li[k]);
-            res = evaluate(args[2]);
-            if (res.ctype === "boolean") {
-                if (res.value === true) {
-                    erg[k] = li[k];
+        if (v1.ctype === "list") {
+            erg = [];
+            let ct = 0;
+            for (let i = 0; i < li.length; i++) {
+                namespace.setvar(lauf, li[i]);
+                res = evaluate(args[3]);
+                if (res.ctype === "boolean") {
+                    if (res.value === true) {
+                        erg[ct] = li[i];
+                        ct++;
+                    }
                 }
             }
-        }
 
-        ret = {
-            ctype: "JSON",
-            value: erg,
-        };
+            ret = {
+                ctype: "list",
+                value: erg,
+            };
+        } else {
+            // JSON
+            erg = {};
+            for (const k in li) {
+                namespace.setvar(lauf, li[k]);
+                res = evaluate(args[3]);
+                if (res.ctype === "boolean") {
+                    if (res.value === true) {
+                        erg[k] = li[k];
+                    }
+                }
+            }
+
+            ret = {
+                ctype: "JSON",
+                value: erg,
+            };
+        }
     }
 
     namespace.removevar(lauf);
@@ -2811,6 +2896,10 @@ evaluator.sort$2 = function (args, modifs) {
 };
 
 evaluator.sort$3 = function (args, modifs) {
+    return evaluator.sort$4([args[0], args[1], null, args[2]], modifs);
+};
+
+evaluator.sort$4 = function (args, modifs) {
     //OK
     const v1 = evaluateAndVal(args[0]);
     if (v1.ctype !== "list") {
@@ -2824,22 +2913,43 @@ evaluator.sort$3 = function (args, modifs) {
         }
     }
 
+    let indexVar;
+    if (args[2] !== null) {
+        if (args[2].ctype === "variable") {
+            indexVar = args[2].name;
+            namespace.newvar(indexVar);
+        }
+    }
+
     const li = v1.value;
     const erg = [];
     namespace.newvar(lauf);
-    let i;
-    for (i = 0; i < li.length; i++) {
-        namespace.setvar(lauf, li[i]);
-        erg[i] = {
-            val: li[i],
-            result: evaluate(args[2]),
-        };
+
+    if (indexVar !== undefined) {
+        for (let i = 0; i < li.length; i++) {
+            namespace.setvar(indexVar, CSNumber.real(i + 1));
+            namespace.setvar(lauf, li[i]);
+            erg[i] = {
+                val: li[i],
+                result: evaluate(args[3]),
+            };
+        }
+        namespace.removevar(indexVar);
+    } else {
+        for (let i = 0; i < li.length; i++) {
+            namespace.setvar(lauf, li[i]);
+            erg[i] = {
+                val: li[i],
+                result: evaluate(args[3]),
+            };
+        }
     }
+
     namespace.removevar(lauf);
 
     erg.sort(General.compareResults);
     const erg1 = [];
-    for (i = 0; i < li.length; i++) {
+    for (let i = 0; i < li.length; i++) {
         erg1[i] = erg[i].val;
     }
 

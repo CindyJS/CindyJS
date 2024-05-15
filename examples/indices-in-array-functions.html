@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+
+        array = ["abc", "xy", "cindy", "array", "test"];
+
+        println("apply:");
+        println(apply(array, entry, index, entry + index));
+        
+        println("forall:");
+        forall(array, entry, index, println(index + ": " + entry));
+        
+        println("sort:");
+        println(sort(array, entry, index, length(entry) - index));
+        
+        println("select:");
+        println(select(array, entry, index, length(entry) + index <= 8));
+
+        println("min:");
+        println(min(1,2));
+
+        println("max:");
+
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+
+
+        </script>
+
+
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                // See ref/createCindy documentation for details.
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+                language: "en",
+
+            });
+
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Indices in Array Functions</h1>
+        <p>Affected functions: apply, forall, sort, select, max, min</p>
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
+</html>
