@@ -1249,11 +1249,7 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
     evaluator[name + "$2"] = function (args, modifs) {
         return evaluator[name$3]([args[0], null, args[1]]);
     };
-    const name$4 = name + "$4";
     evaluator[name$3] = function (args, modifs) {
-        return evaluator[name$4]([args[0], args[1], null, args[2]]);
-    };
-    evaluator[name$4] = function (args, modifs) {
         const v0 = evaluateAndVal(args[0]);
         if (v0.ctype !== "list") {
             return nada;
@@ -1270,35 +1266,14 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
             }
         }
 
-        let indexVar;
-        if (args[2] !== null) {
-            if (args[2].ctype === "variable") {
-                indexVar = args[2].name;
-                namespace.newvar(indexVar);
-            }
-        }
-
         namespace.newvar(lauf);
-        namespace.setvar(indexVar, CSNumber.real(1));
         namespace.setvar(lauf, li[0]);
-        let erg = evaluate(args[3]);
-
-        if (indexVar !== undefined) {
-            for (let i = 1; i < li.length; i++) {
-                namespace.setvar(indexVar, CSNumber.real(i + 1));
-                namespace.setvar(lauf, li[i]);
-                const b = evaluate(args[3]);
-                erg = op(erg, b);
-            }
-            namespace.removevar(indexVar);
-        } else {
-            for (let i = 1; i < li.length; i++) {
-                namespace.setvar(lauf, li[i]);
-                const b = evaluate(args[3]);
-                erg = op(erg, b);
-            }
+        let erg = evaluate(args[2]);
+        for (let i = 1; i < li.length; i++) {
+            namespace.setvar(lauf, li[i]);
+            const b = evaluate(args[2]);
+            erg = op(erg, b);
         }
-
         namespace.removevar(lauf);
         return erg;
     };
@@ -1306,6 +1281,8 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
 
 eval_helper.genericListMathGen("product", General.mult, CSNumber.real(1));
 eval_helper.genericListMathGen("sum", General.add, CSNumber.real(0));
+
+/*
 eval_helper.genericListMathGen("max", General.max, nada);
 eval_helper.genericListMathGen("min", General.min, nada);
 
@@ -1321,6 +1298,71 @@ evaluator.min$2 = function (args, modifs) {
     if (v1.ctype === "list") return evaluator.min$3([v1, null, args[1]]);
     const v2 = evaluateAndVal(args[1]);
     return evaluator.min$1([List.turnIntoCSList([v1, v2])]);
+};
+*/
+
+evaluator.max$1 = function (args, modifs) {
+    return evaluator.max$2([args[0], null]);
+};
+evaluator.max$2 = function (args, modifs) {
+    const v1 = evaluateAndVal(args[0]);
+    if (v1.ctype === "list") return evaluator.max$3([v1, null, args[1]]);
+    const v2 = evaluateAndVal(args[1]);
+    return evaluator.max$1([List.turnIntoCSList([v1, v2])]);
+};
+evaluator.max$3 = function (args, modifs) {
+    return evaluator.max$4([args[0], null, args[1], args[2]]);
+};
+evaluator.max$4 = function (args, modifs) {
+    const v0 = evaluateAndVal(args[0]);
+    if (v0.ctype !== "list") {
+        return nada;
+    }
+    const li = v0.value;
+    if (li.length === 0) {
+        return nada;
+    }
+
+    let lauf = "#";
+    if (args[1] !== null) {
+        if (args[1].ctype === "variable") {
+            lauf = args[1].name;
+        }
+    }
+
+    let indexVar;
+    if (args[2] !== null) {
+        if (args[2].ctype === "variable") {
+            indexVar = args[2].name;
+            namespace.newvar(indexVar);
+        }
+    }
+
+    namespace.newvar(lauf);
+    namespace.setvar(lauf, li[0]);
+    let erg = evaluate(args[3]);
+
+    console.log("C");
+
+    if (indexVar !== undefined) {
+        namespace.setvar(indexVar, CSNumber.real(1));
+        for (let i = 1; i < li.length; i++) {
+            namespace.setvar(indexVar, CSNumber.real(i + 1));
+            namespace.setvar(lauf, li[i]);
+            const b = evaluate(args[3]);
+            erg = General.compare(erg, b) > 0 ? erg : b;
+        }
+        namespace.removevar(indexVar);
+    } else {
+        for (let i = 1; i < li.length; i++) {
+            namespace.setvar(lauf, li[i]);
+            const b = evaluate(args[3]);
+            erg = General.compare(erg, b) > 0 ? erg : b;
+        }
+    }
+
+    namespace.removevar(lauf);
+    return erg;
 };
 
 evaluator.add$2 = infix_add;
