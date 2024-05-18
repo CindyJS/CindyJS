@@ -8,23 +8,39 @@
         <script id="csinit" type="text/x-cindyscript">
 
         array = ["abc", "xy", "cindy", "array", "test"];
+        json = {
+            "i": 2,
+            "ii": 3,
+            "iii": 5,
+            "iv": 7,
+            "v": 11
+        };
 
         println("apply:");
         println(apply(array, entry, index, entry + index));
+        println(apply(json, value, key, length(key) + value));
+        println("====================================");
         
         println("forall:");
         forall(array, entry, index, println(index + ": " + entry));
+        forall(json, value, key, println("Key " + key + " has value " + value));
+        println("====================================");
         
         println("sort:");
         println(sort(array, entry, index, length(entry) - index));
+        println("====================================");
         
         println("select:");
         println(select(array, entry, index, length(entry) + index <= 8));
-
+        println(select(json, value, key, length(key) + value > 5));
+        println("====================================");
+        
         println("min:");
+        println(min(array, entry, index, entry + index));
+        println("====================================");
 
         println("max:");
-        println(max(array));
+        println(max(array, entry, index, entry + index));
 
         </script>
         <script id="csdraw" type="text/x-cindyscript">
