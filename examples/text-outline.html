@@ -15,9 +15,11 @@
         </script>
 
         <script id="csdraw" type="text/x-cindyscript">
-            SX = |mouse().x - screenbounds()_1.x| / |screenbounds()_2.x - screenbounds()_1.x|;
-            drawtext([-8,-5], "This text has an outline of size: " + round(25 * SX), size -> 50, color -> [1,1,1], outlinewidth -> 20);
-            repaint();
+        fillpoly(screenbounds(), color -> 0.5 * (1,1,1));
+
+        SX = |mouse().x - screenbounds()_1.x| / |screenbounds()_2.x - screenbounds()_1.x|;
+        drawtext([-8, 6], "This text has an outline of size: $" + round(25 * SX) + "$", size -> 50, color -> [1,1,1], outlinecolor -> (0,0,0), outlinewidth -> 25 * SX);
+        drawtext([-8, 0], "$\displaystyle \begin{bmatrix}1 & 2 \\ 3 & 4\end{bmatrix} \enspace \sum_{i=0}^{n-1} q^i = \frac{q^n - 1}{q - 1} \enspace \sin\left(135.7^\circ\right)$", size -> 50, color -> [1,1,1], outlinecolor -> (0,0,0), outlinewidth -> 25 * SX);
         </script>
 
 
@@ -25,7 +27,7 @@
         <script type="text/javascript">
             var cdy = CindyJS({
                 // See ref/createCindy documentation for details.
-                ports: [{ id: "CSCanvas", width: 900, height: 300 }],
+                ports: [{ id: "CSCanvas", width: 900, height: 500 }],
                 scripts: "cs*",
             });
 

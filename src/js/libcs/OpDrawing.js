@@ -878,7 +878,7 @@ eval_helper.drawpolygon = function (args, modifs, df, cycle) {
     return nada;
 };
 
-function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0, outline = false) {
+function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
     if (text.includes("\n")) {
         let left = Infinity;
         let right = -Infinity;
@@ -904,13 +904,13 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(-angle);
-        if (outline) {
+        if (ctx.lineWidth > 0) {
             ctx.strokeText(text, -m.width * align, 0);
         }
         ctx.fillText(text, -m.width * align, 0);
         ctx.restore();
     } else {
-        if (outline) {
+        if (ctx.lineWidth > 0) {
             ctx.strokeText(text, x - m.width * align, y);
         }
         ctx.fillText(text, x - m.width * align, y);
@@ -1000,6 +1000,7 @@ eval_helper.drawtext = function (args, modifs, callback) {
     if (size === null) size = defaultAppearance.textsize;
     if (Render2D.size !== null) size = Render2D.size;
     csctx.fillStyle = Render2D.textColor;
+
     csctx.lineWidth = Render2D.outlinewidth;
     csctx.lineJoin = "round";
     csctx.strokeStyle = Render2D.outlineColor;
@@ -1029,8 +1030,7 @@ eval_helper.drawtext = function (args, modifs, callback) {
             Render2D.align,
             size,
             size * defaultAppearance.lineHeight,
-            Render2D.angle,
-            Render2D.outlinewidth
+            Render2D.angle
         );
     }
 };
