@@ -100,6 +100,7 @@
     function textBox(ctx, text) {
         this.width = ctx.measureText(text).width;
         this.renderAt = function(x, y) {
+            ctx.strokeText(text, x, y);
             ctx.fillText(text, x, y);
         };
     }
@@ -235,7 +236,7 @@
                 n = row.length;
                 for (j = 0; j < n; ++j)
                     total += row[j].width;
-                var pos = x - align * total;
+                pos = x - align * total;
                 for (j = 0; j < n; ++j) {
                     if(angle) {
                       ctx.save();
@@ -282,7 +283,7 @@
         while (element.firstChild)
             element.removeChild(element.firstChild);
         for (var i = 0; i < n; ++i) {
-            var text = parts[i];
+            text = parts[i];
             if ((i & 1) === 0) {
                 if (text.indexOf("\n") !== -1) {
                     var rows = text.split("\n");
