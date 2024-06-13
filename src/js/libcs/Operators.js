@@ -1305,7 +1305,7 @@ evaluator.max$2 = function (args, modifs) {
     return evaluator.max$1([List.turnIntoCSList([v1, v2])]);
 };
 evaluator.max$3 = function (args, modifs) {
-    return evaluator.max$4([args[0], null, args[1], args[2]]);
+    return evaluator.max$4([args[0], args[1], null, args[2]]);
 };
 evaluator.max$4 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
@@ -1335,28 +1335,48 @@ evaluator.max$4 = function (args, modifs) {
     namespace.newvar(lauf);
     namespace.setvar(lauf, li[0]);
     let erg;
+    let return_element = evaluate(modifs.element);
+    return_element = return_element.ctype === "boolean" ? return_element.value : false;
 
     if (indexVar !== undefined) {
         namespace.setvar(indexVar, CSNumber.real(1));
-        erg = evaluate(args[3]);
+        erg = {
+            element: li[0],
+            value: evaluate(args[3]),
+        };
         for (let i = 1; i < li.length; i++) {
             namespace.setvar(indexVar, CSNumber.real(i + 1));
             namespace.setvar(lauf, li[i]);
             const b = evaluate(args[3]);
-            erg = General.compare(erg, b) > 0 ? erg : b;
+            erg =
+                General.compare(erg.value, b) > 0
+                    ? erg
+                    : {
+                          element: li[i],
+                          value: b,
+                      };
         }
         namespace.removevar(indexVar);
     } else {
-        erg = evaluate(args[3]);
+        erg = {
+            element: li[0],
+            value: evaluate(args[3]),
+        };
         for (let i = 1; i < li.length; i++) {
             namespace.setvar(lauf, li[i]);
             const b = evaluate(args[3]);
-            erg = General.compare(erg, b) > 0 ? erg : b;
+            erg =
+                General.compare(erg.value, b) > 0
+                    ? erg
+                    : {
+                          element: li[i],
+                          value: b,
+                      };
         }
     }
 
     namespace.removevar(lauf);
-    return erg;
+    return return_element ? erg.element : erg.value;
 };
 
 evaluator.min$1 = function (args, modifs) {
@@ -1382,7 +1402,7 @@ evaluator.min$2 = function (args, modifs) {
     return evaluator.min$1([List.turnIntoCSList([v1, v2])]);
 };
 evaluator.min$3 = function (args, modifs) {
-    return evaluator.min$4([args[0], null, args[1], args[2]]);
+    return evaluator.min$4([args[0], args[1], null, args[2]]);
 };
 evaluator.min$4 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
@@ -1412,30 +1432,50 @@ evaluator.min$4 = function (args, modifs) {
     namespace.newvar(lauf);
     namespace.setvar(lauf, li[0]);
     let erg;
+    let return_element = evaluate(modifs.element);
+    return_element = return_element.ctype === "boolean" ? return_element.value : false;
 
     if (indexVar !== undefined) {
         namespace.setvar(indexVar, CSNumber.real(1));
-        erg = evaluate(args[3]);
+        erg = {
+            element: li[0],
+            value: evaluate(args[3]),
+        };
 
         for (let i = 1; i < li.length; i++) {
             namespace.setvar(indexVar, CSNumber.real(i + 1));
             namespace.setvar(lauf, li[i]);
             const b = evaluate(args[3]);
-            erg = General.compare(erg, b) < 0 ? erg : b;
+            erg =
+                General.compare(erg.value, b) < 0
+                    ? erg
+                    : {
+                          element: li[i],
+                          value: b,
+                      };
         }
         namespace.removevar(indexVar);
     } else {
-        erg = evaluate(args[3]);
+        erg = {
+            element: li[0],
+            value: evaluate(args[3]),
+        };
 
         for (let i = 1; i < li.length; i++) {
             namespace.setvar(lauf, li[i]);
             const b = evaluate(args[3]);
-            erg = General.compare(erg, b) < 0 ? erg : b;
+            erg =
+                General.compare(erg.value, b) < 0
+                    ? erg
+                    : {
+                          element: li[i],
+                          value: b,
+                      };
         }
     }
 
     namespace.removevar(lauf);
-    return erg;
+    return return_element ? erg.element : erg.value;
 };
 
 evaluator.add$2 = infix_add;
