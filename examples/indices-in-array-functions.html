@@ -7,7 +7,8 @@
         <script type="text/javascript" src="../build/js/Cindy.js"></script>
         <script id="csinit" type="text/x-cindyscript">
 
-        array = ["abc", "xy", "cindy", "array", "test"];
+
+        array = ["abcdef", "uvwxyz", "cinderella", "cindyjs", "testing"];
         json = {
             "i": 2,
             "ii": 3,
@@ -35,12 +36,21 @@
         println(select(json, value, key, length(key) + value > 5));
         println("====================================");
         
-        println("min:");
-        println(min(array, entry, index, entry + index));
+        println("min, element false:");
+        println(min(array, entry, index, entry_index, element -> false));
         println("====================================");
 
-        println("max:");
-        println(max(array, entry, index, entry + index));
+        println("min, element true:");
+        println(min(array, entry, index, entry_index, element -> true));
+        println("====================================");
+
+        println("max, element false:");
+        println(max(array, entry, index, entry_index, element -> false));
+        println("====================================");
+
+        println("max, element true:");
+        println(max(array, entry, index, entry_index, element -> true));
+        
 
         </script>
         <script id="csdraw" type="text/x-cindyscript">
