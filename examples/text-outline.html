@@ -18,8 +18,12 @@
         fillpoly(screenbounds(), color -> 0.5 * (1,1,1));
 
         SX = |mouse().x - screenbounds()_1.x| / |screenbounds()_2.x - screenbounds()_1.x|;
+        
         drawtext([-8, 6], "This text has an outline of size: $" + round(25 * SX) + "$", size -> 50, color -> [1,1,1], outlinecolor -> (0,0,0), outlinewidth -> 25 * SX);
-        drawtext([-8, 0], "$\displaystyle \begin{bmatrix}1 & 2 \\ 3 & 4\end{bmatrix} \enspace \sum_{i=0}^{n-1} q^i = \frac{q^n - 1}{q - 1} \enspace \sin\left(135.7^\circ\right)$", size -> 50, color -> [1,1,1], outlinecolor -> (0,0,0), outlinewidth -> 25 * SX);
+        drawtext([-8, 0], "$\displaystyle \begin{bmatrix}1 & 2 \\ 3 & 4\end{bmatrix} \enspace \sum_{i=0}^{n-1} q^i = \frac{q^n - 1}{q - 1} \enspace \sin\left(135.7^\circ\right)$", size -> 40, color -> [0,0,0], outlinecolor -> (1,1,1), outlinewidth -> 20  * SX);
+        drawtext([-8, -6], "This text has no outline", size -> 30, color -> [0,0,1]);
+        drawtext([8, -4], "This text has alpha", size -> 30, color -> [0,0,0], alpha -> 1 - SX, outlinecolor -> (1,0,0), outlinewidth -> 10);
+        drawtext([8, -8], "This text is invisible", size -> 30, color -> [1,0,0], alpha -> 0);
         </script>
 
 

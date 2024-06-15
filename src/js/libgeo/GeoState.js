@@ -17,7 +17,7 @@ csport.drawingstate.alpha = 1.0;
 csport.drawingstate.pointsize = 4.0;
 csport.drawingstate.linesize = 1.0;
 csport.drawingstate.textsize = null; // use defaultAppearance.textsize
-csport.drawingstate.textoutlinewidth = 0;
+csport.drawingstate.textoutlinewidth = 0.0;
 
 csport.drawingstate.matrix = {};
 csport.drawingstate.matrix.a = 25;
@@ -243,6 +243,13 @@ csport.settextcolor = function (co) {
     csport.drawingstate.textcolor = csport.makecolor(r, g, b);
     csport.drawingstate.textcolorraw = [r, g, b];
 };
+csport.settextoutlinecolor = function (co) {
+    const r = co.value[0].value.real;
+    const g = co.value[1].value.real;
+    const b = co.value[2].value.real;
+    csport.drawingstate.textoutlinecolor = csport.makecolor(r, g, b);
+    csport.drawingstate.textoutlinecolorraw = [r, g, b];
+};
 
 csport.setpointcolor = function (co) {
     const r = co.value[0].value.real;
@@ -269,6 +276,11 @@ csport.setalpha = function (al) {
         csport.drawingstate.textcolorraw[1],
         csport.drawingstate.textcolorraw[2]
     );
+    csport.drawingstate.textoutlinecolor = csport.makecolor(
+        csport.drawingstate.textoutlinecolorraw[0],
+        csport.drawingstate.textoutlinecolorraw[1],
+        csport.drawingstate.textoutlinecolorraw[2]
+    );
 };
 
 csport.setpointsize = function (si) {
@@ -281,6 +293,9 @@ csport.setlinesize = function (si) {
 
 csport.settextsize = function (si) {
     csport.drawingstate.textsize = si.value.real;
+};
+csport.settextoutlinewidth = function (si) {
+    csport.drawingstate.textoutlinewidth = si.value.real;
 };
 
 export { csport, csgstorage };
