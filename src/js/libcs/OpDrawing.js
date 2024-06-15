@@ -1002,8 +1002,8 @@ eval_helper.drawtext = function (args, modifs, callback) {
     csctx.fillStyle = Render2D.textColor;
 
     csctx.lineWidth = Render2D.outlinewidth;
-    csctx.lineJoin = "round";
-    csctx.strokeStyle = Render2D.outlineColor;
+    csctx.lineJoin = Render2D.linejoin;
+    csctx.strokeStyle = Render2D.outlinecolor;
 
     const m = csport.drawingstate.matrix;
     const xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;

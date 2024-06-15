@@ -71,12 +71,10 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.pointColor = csport.drawingstate.pointcolor;
         Render2D.lineColor = csport.drawingstate.linecolor;
         Render2D.textColor = csport.drawingstate.textcolor;
-        Render2D.outlineColor = csport.drawingstate.textoutlinecolor;
     } else {
         Render2D.pointColor = Render2D.makeColor(csport.drawingstate.pointcolorraw);
         Render2D.lineColor = Render2D.makeColor(csport.drawingstate.linecolorraw);
         Render2D.textColor = Render2D.makeColor(csport.drawingstate.textcolorraw);
-        Render2D.outlineColor = Render2D.makeColor(csport.drawingstate.textoutlinecolorraw);
     }
     if (Render2D.alpha === 1) {
         Render2D.black = "rgb(0,0,0)";
@@ -89,9 +87,9 @@ Render2D.handleModifs = function (modifs, handlers) {
         Render2D.fillColor = null;
     }
     if (Render2D.outlinecolorraw && Render2D.outlinewidth > 0) {
-        Render2D.outlineColor = Render2D.makeColor(Render2D.outlinecolorraw);
+        Render2D.outlinecolor = Render2D.makeColor(Render2D.outlinecolorraw, Render2D.alpha);
     } else {
-        Render2D.outlineColor = null;
+        Render2D.outlinecolor = "rgb(0,0,0,0)";
     }
 };
 
