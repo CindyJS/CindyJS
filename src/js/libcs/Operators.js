@@ -1300,12 +1300,12 @@ evaluator.max$1 = function (args, modifs) {
 };
 evaluator.max$2 = function (args, modifs) {
     const v1 = evaluateAndVal(args[0]);
-    if (v1.ctype === "list") return evaluator.max$3([v1, null, args[1]]);
+    if (v1.ctype === "list") return evaluator.max$3([v1, null, args[1]], modifs);
     const v2 = evaluateAndVal(args[1]);
     return evaluator.max$1([List.turnIntoCSList([v1, v2])]);
 };
 evaluator.max$3 = function (args, modifs) {
-    return evaluator.max$4([args[0], args[1], null, args[2]]);
+    return evaluator.max$4([args[0], args[1], null, args[2]], modifs);
 };
 evaluator.max$4 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
@@ -1335,8 +1335,11 @@ evaluator.max$4 = function (args, modifs) {
     namespace.newvar(lauf);
     namespace.setvar(lauf, li[0]);
     let erg;
-    let return_element = evaluate(modifs.element);
-    return_element = return_element.ctype === "boolean" ? return_element.value : false;
+    let return_element = false;
+    if (modifs.element !== undefined) {
+        return_element = evaluate(modifs.element);
+        return_element = return_element.ctype === "boolean" ? return_element.value : false;
+    }
 
     if (indexVar !== undefined) {
         namespace.setvar(indexVar, CSNumber.real(1));
@@ -1397,12 +1400,12 @@ evaluator.min$1 = function (args, modifs) {
 };
 evaluator.min$2 = function (args, modifs) {
     const v1 = evaluateAndVal(args[0]);
-    if (v1.ctype === "list") return evaluator.min$3([v1, null, args[1]]);
+    if (v1.ctype === "list") return evaluator.min$3([v1, null, args[1]], modifs);
     const v2 = evaluateAndVal(args[1]);
     return evaluator.min$1([List.turnIntoCSList([v1, v2])]);
 };
 evaluator.min$3 = function (args, modifs) {
-    return evaluator.min$4([args[0], args[1], null, args[2]]);
+    return evaluator.min$4([args[0], args[1], null, args[2]], modifs);
 };
 evaluator.min$4 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
@@ -1432,8 +1435,11 @@ evaluator.min$4 = function (args, modifs) {
     namespace.newvar(lauf);
     namespace.setvar(lauf, li[0]);
     let erg;
-    let return_element = evaluate(modifs.element);
-    return_element = return_element.ctype === "boolean" ? return_element.value : false;
+    let return_element = false;
+    if (modifs.element !== undefined) {
+        return_element = evaluate(modifs.element);
+        return_element = return_element.ctype === "boolean" ? return_element.value : false;
+    }
 
     if (indexVar !== undefined) {
         namespace.setvar(indexVar, CSNumber.real(1));
