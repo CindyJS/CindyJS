@@ -133,7 +133,7 @@ function getmover(mouse) {
         }
     }
 
-    console.log("Moving " + (mov ? mov.name : "nothing"));
+    //console.log("Moving " + (mov ? mov.name : "nothing"));
     if (mov === null) return null;
     return {
         mover: mov,
@@ -219,7 +219,7 @@ function setuplisteners(canvas, data) {
         });
     } else if (cscompiled.keydown || cscompiled.keyup || cscompiled.keytyped) {
         canvas.setAttribute("tabindex", "0");
-        addAutoCleaningEventListener(canvas, "mousedown", function () {
+        addAutoCleaningEventListener(canvas, "pointerdown", function () {
             canvas.focus();
         });
         addAutoCleaningEventListener(canvas, "keydown", function (e) {
@@ -241,7 +241,7 @@ function setuplisteners(canvas, data) {
         });
     }
 
-    addAutoCleaningEventListener(canvas, "mousedown", function (e) {
+    addAutoCleaningEventListener(canvas, "pointerdown", function (e) {
         mousedownevent = e;
         hasmoved = false;
         mouse.button = e.which;
@@ -251,9 +251,10 @@ function setuplisteners(canvas, data) {
         cs_mousedown();
         mouse.down = true;
         e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
     });
 
-    addAutoCleaningEventListener(canvas, "mouseup", function (e) {
+    addAutoCleaningEventListener(canvas, "pointerup", function (e) {
         mouse.down = false;
         manage("mouseup");
         cs_mouseup();
@@ -262,9 +263,10 @@ function setuplisteners(canvas, data) {
         delete multipos[0];
         scheduleUpdate();
         e.preventDefault();
+        canvas.releasePointerCapture(e.pointerId);
     });
 
-    addAutoCleaningEventListener(canvas, "mousemove", function (e) {
+    addAutoCleaningEventListener(canvas, "pointermove", function (e) {
         updatePosition(e);
         if (mouse.down) {
             // this might be also a touchdown
@@ -528,7 +530,7 @@ function setuplisteners(canvas, data) {
         mouse.down = true;
         mousedownevent = e.targetTouches[0];
         hasmoved = false;
-        move = getmover(mouse); // should is handeled in manage(Move), I think, but actually is not
+        move = getmover(mouse); // should be handeled in manage(Move), I think, but actually is not
         manage("mousedown");
         cs_mousedown(); // only handle CindyScript after the built-in mode. Actually, CindyScript should only be handled in Move mode, but we leave this fix for later.
         e.preventDefault();
@@ -563,9 +565,10 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     }
 
-    addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
-    addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
-    addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
+    //TODO: re-enable multitouch
+    //addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
+    //addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
+    //addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
     if (typeof document !== "undefined" && document.body) {
         addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
         // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);

@@ -735,9 +735,9 @@ function setupAnimControls(data) {
     controls.appendChild(slider);
     const knob = document.createElement("div");
     slider.appendChild(knob);
-    addAutoCleaningEventListener(slider, "mousedown", speedDown);
-    addAutoCleaningEventListener(slider, "mousemove", speedDrag);
-    addAutoCleaningEventListener(canvas.parentNode, "mouseup", speedUp, true);
+    addAutoCleaningEventListener(slider, "pointerdown", speedDown);
+    addAutoCleaningEventListener(slider, "pointermove", speedDrag);
+    addAutoCleaningEventListener(canvas.parentNode, "pointerup", speedUp, true);
     const buttons = document.createElement("div");
     buttons.className = "CindyJS-animbuttons";
     controls.appendChild(buttons);
