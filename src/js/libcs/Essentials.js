@@ -198,9 +198,23 @@ function evalmyfunctions(name, args, modifs) {
         namespace.newvar(tt.arglist[i].name);
         namespace.setvar(tt.arglist[i].name, set[i]);
     }
+
+    // read and use modifiers as local scope variables
+    Object.entries(modifs).forEach(function ([key, value]) {
+        let val = evaluate(value);
+        namespace.newvar(key);
+        namespace.setvar(key, val);
+    });
+
     namespace.pushVstack("*");
     const erg = evaluate(tt.body);
     namespace.cleanVstack();
+
+    // remove modifiers again
+    Object.entries(modifs).forEach(function ([key, value]) {
+        namespace.removevar(key);
+    });
+
     for (i = 0; i < tt.arglist.length; i++) {
         namespace.removevar(tt.arglist[i].name);
     }
