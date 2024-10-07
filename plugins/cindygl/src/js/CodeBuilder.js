@@ -5,9 +5,7 @@ function CodeBuilder(api) {
     this.variables = {};
     this.uniforms = {};
     this.scopes = {};
-
     this.sections = {};
-
     this.typetime = 0; //the last time when a type got changed
     this.myfunctions = {};
     this.api = api;
