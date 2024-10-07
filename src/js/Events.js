@@ -459,7 +459,7 @@ function setuplisteners(canvas, data) {
         let used = Object.values(multiiddict);
 
         //find the smallest integer >= 1 that is not already used in O(n log n)
-        used = used.sort((a, b) => a - b); //https://alligator.io/js/array-sort-numbers/
+        used = used.sort((a, b) => a - b); //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
         let isset = false;
         for (let k in used) {
             if (!isset && used[k] > (k | 0) + 1) {
@@ -566,9 +566,9 @@ function setuplisteners(canvas, data) {
     }
 
     //TODO: re-enable multitouch
-    //addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
-    //addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
-    //addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
+    addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
+    addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
+    addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
     if (typeof document !== "undefined" && document.body) {
         addAutoCleaningEventListener(document.body, "touchcancel", touchUp, false);
         // addAutoCleaningEventListener(document.body, "mouseup", mouseUp, false);
