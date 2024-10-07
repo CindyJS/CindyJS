@@ -46,6 +46,8 @@ The code
     > )
     D fillStyle = "rgba(229,0,25,1)"
     D font = "bold 17px sans-serif"
+    D lineWidth = 0
+    D strokeStyle = "rgb(0,0,0,0)"
     D fillText("Text", 275.5, 229.5)
     D fillStyle = "rgba(204,0,51,1)"
     D font = "bold 19px sans-serif"
