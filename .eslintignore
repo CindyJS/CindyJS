@@ -3,3 +3,4 @@ src/js/Tail.js
 src/js/ifs/ifs.asm.js
 lib/katex/katex.min.js
 plugins/katex/src/js/katex-plugin.js
+plugins/cindygl/src/js/CodeBuilder.js
