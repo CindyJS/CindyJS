@@ -1063,7 +1063,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
     code += generateHeaderOfTextureReaders(this);
-    code += this.generateSection('includedfunctions');
+    code += this.generateSection('includedfunctions');;
     code += this.generateSection('functions');
 
 
@@ -1074,7 +1074,16 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
 
     code += this.generateSection('compiledfunctions');
 
-    code += `void main(void) {\n${r.code}gl_FragColor = ${colorterm};\n}\n`;
+    //JRG: THis snipped is used to bypass an error caused
+    //by the current WebGL implementation on most machines
+    //see https://stackoverflow.com/questions/79053598/bug-in-current-webgl-shader-implementation-concerning-variable-settings
+    let randompatch="";
+    if (this.sections['includedfunctions']) 
+      if(this.sections['includedfunctions'].marked.random)
+        randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
+    //////////////////////
+
+    code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
 
     console.log(code);
 
