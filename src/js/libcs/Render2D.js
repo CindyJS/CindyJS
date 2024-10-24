@@ -348,11 +348,11 @@ Render2D.pointModifs = {
     size: true,
     color: true,
     alpha: true,
-    noborder: true,
+    noborder: false,
     border: true,
 };
 
-Render2D.pointAndLineModifs = Render2D.lineModifs;
+Render2D.pointAndLineModifs = { ...Render2D.lineModifs, ...Render2D.pointModifs };
 
 Render2D.conicModifs = {
     size: true,
