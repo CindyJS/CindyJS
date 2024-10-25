@@ -787,7 +787,7 @@ evaluator.drawall$1 = function (args, modifs) {
     if (v1.ctype === "list") {
         Render2D.handleModifs(modifs, Render2D.pointAndLineModifs);
         for (let i = 0; i < v1.value.length; i++) {
-            evaluator.draw$1([v1.value[i]], null);
+            evaluator.draw$1([v1.value[i]], null); // modifs are null because they have been handled already
         }
     }
     return nada;

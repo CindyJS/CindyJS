@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>test.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+
+<script id="csdraw" type="text/x-cindyscript">
+  drawall(apply(1..10,(#,#/2)),border->false);
+  drawall(apply(1..10,(#+1,#/2)),border->true);
+  forall(apply(1..10,(#+2,#/2)),draw(#,border->false));
+  forall(apply(1..10,(#+3,#/2)),draw(#,border->true));
+  
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  animation: {
+    autoplay: false,
+    controls: false,
+    speed: 0.44329896907216493,
+    speedRange: [0.0, 1.0],
+    accuracy: 1
+  },
+  autoplay: false,
+  animcontrols: false,
+  ports: [{
+    width: 772,
+    height: 462,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-4.62, 13.02, 26.26, -5.46]}],
+    axes: true,
+    grid: 1.0,
+    snap: true,
+    background: "rgb(255,255,255)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2083, version: [3, 0, 2088]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
