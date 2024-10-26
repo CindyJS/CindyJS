@@ -92,7 +92,9 @@
         var storage = {instance: api.instance, cache: {}, misses:0};
         api.setTextRenderer(
             katexRenderer.bind(storage),
-            katexHtml.bind(storage));
+            katexHtml.bind(storage)
+        );
+        api.setMeasure(katexMeasure.bind(storage));
     }
 
     // Text box, with same api as a prepared KaTeX box but using current font
@@ -152,6 +154,110 @@
     // Report whether we are ready
 
     var firstMessage = true;
+
+    function katexMeasure(ctx, text, x, y, align, fontSize, lineHeight, angle = 0) {
+        var key = fontSize + "," + lineHeight + ":" + text;
+        var fontsMissing = false;
+        var fontsToLoad = {};
+        var parts, rows, row, n, i, j;
+        if (this.cache.hasOwnProperty(key)) {
+            rows = this.cache[key];
+        } else {
+            var opts = {
+                fontSize: fontSize,
+                macros: macros
+            };
+            parts = text.split("$");
+            row = [];
+            rows = [row];
+            n = parts.length;
+            if (n > 1 && !allScriptsLoaded()) {
+                if (firstMessage) {
+                    log("KaTeX is not ready yet.");
+                    firstMessage = false;
+                }
+                haveToWait(this.instance);
+                return;
+            }
+            for (i = 0; i < n; ++i) {
+                var part = parts[i];
+                var box;
+                if ((i & 1) === 0) { // plain text not TeX
+                    if (part.indexOf("\n") === -1) {
+                        row.push(new textBox(ctx, part));
+                    } else {
+                        var rows2 = part.split("\n");
+                        row.push(new textBox(ctx, rows2[0]));
+                        for (j = 1; j < rows2.length; ++j) {
+                            row = [new textBox(ctx, rows2[j])];
+                            rows.push(row);
+                        }
+                    }
+                } else {
+                    try {
+                        var tex = parts[i].replace(/°/g, "\\degree");
+                        box = katex.canvasBox(tex, ctx, opts);
+                        row.push(box);
+                        for (var font in box.fontsUsed) {
+                            var fontState = fonts[font];
+                            if (fontState !== true) {
+                                fontsMissing = true;
+                                if (fontState === undefined)
+                                    fontsToLoad[font] = true;
+                            }
+                        }
+                    } catch(e) {
+                        console.error(e);
+                        row.push(new textBox(ctx, "$" + parts[i] + "$"));
+                    }
+                }
+            }
+            if (++this.misses === 1024) {
+                this.misses = 0;
+                this.cache = {};
+            }
+            if (!fontsMissing) {
+                this.cache[key] = rows;
+            }
+        }
+        if (fontsMissing) {
+            fontsToLoad = Object.keys(fontsToLoad);
+            if (fontsToLoad.length !== 0) {
+                loadFonts(fontsToLoad);
+            }
+            haveToWait(this.instance);
+        } else {
+            var left = Infinity;
+            var right = -Infinity;
+            var top = y - 0.7 * 1.2 * fontSize;
+            var bottom = -Infinity;
+            for (i = 0; i < rows.length; ++i) {
+                var total = 0;
+                var pos = x;
+                row = rows[i];
+                n = row.length;
+                for (j = 0; j < n; ++j)
+                    total += row[j].width;
+                pos = x - align * total;
+                for (j = 0; j < n; ++j) {
+                    if (left > pos) left = pos;
+                    if (top > y - row[j].height) top = y - row[j].height;
+                    if (bottom < y + row[j].depth) bottom = y + row[j].depth;
+                    pos += row[j].width;
+                    if (right < pos) right = pos;
+                }
+                y += lineHeight;
+                // TODO: take vertical dimensions of formulas into account
+            }
+            bottom = Math.max(bottom, y - lineHeight + 0.3 * 1.2 * fontSize);
+            return {
+                left: left,
+                right: right,
+                top: top,
+                bottom: bottom
+            };
+        }
+    };
 
     function katexRenderer(ctx, text, x, y, align, fontSize, lineHeight, angle=0) {
         var key = fontSize + "," + lineHeight + ":" + text;
