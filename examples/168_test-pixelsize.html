@@ -22,14 +22,19 @@
     </style>
         <link rel="stylesheet" href="../build/js/CindyJS.css" />
         <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+
+
+
+        </script>
 <script id="csdraw" type="text/x-cindyscript">
 //Script (CindyScript)
-string="Hello, how are you? $f(x)=\sum_1^{\infty}\frac{1}{x}$";
+string="Hello, how are you? $\displaystyle f(x)=\sum_1^{\infty}\frac{1}{x}\begin{bmatrix}3\end{bmatrix}$";
 ps = pixelsize(string,size->25,family->"Times New Roman");
 ps = ps/screenresolution();
 drawtext((0,0),string,size->25,family->"Times New Roman");
 drawpoly([(0,0), (0,ps_2),(ps_1,ps_2), (ps_1,-ps_3), (0,-ps_3),(0,0),(ps_1,0)]);
-;
+
 
 </script>
     <script type="text/javascript">

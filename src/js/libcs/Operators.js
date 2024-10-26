@@ -4772,6 +4772,9 @@ evaluator.use$1 = function (args, modifs) {
                     setTextRendererCanvas(handlerCanvas);
                     if (handlerHtml) setTextRendererHtml(handlerHtml);
                 },
+                setMeasure: function (handler) {
+                    setMeasureNoRendererCanvas(handler);
+                },
                 getImage: function (name, lazy) {
                     if (typeof name === "string") name = General.string(name);
                     const img = imageFromValue(name);
