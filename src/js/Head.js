@@ -166,6 +166,7 @@ var CindyJS = (function() {
             CindyJS._pluginRegistry = {};
             CindyJS.instances = [];
             CindyJS.registerPlugin = function(apiVersion, pluginName, initCallback) {
+                
                 if (apiVersion !== 1) {
                     console.error("Plugin API version " + apiVersion + " not supported");
                     return false;
