@@ -30,7 +30,13 @@ import { General } from "libcs/General";
 import { evaluator, niceprint, eval_helper, myfunctions } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 import { Accessor } from "libcs/Accessors";
-import { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml } from "libcs/OpDrawing";
+import {
+    textRendererCanvas,
+    setTextRendererCanvas,
+    setMeasureNoRendererCanvas,
+    textRendererHtml,
+    setTextRendererHtml,
+} from "libcs/OpDrawing";
 import { imageFromValue } from "libcs/OpImageDrawing";
 import { evaluate, printStackTrace, evaluateAndVal, evaluateAndHomog, analyse } from "libcs/Evaluator";
 import { CSad } from "libcs/CSad";
