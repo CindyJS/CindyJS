@@ -925,7 +925,7 @@ function defaultTextRendererCanvas(ctx, text, x, y, align, size, lineHeight, ang
     };
 }
 
-function measureNoRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
+function defaultMeasureNoRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle = 0) {
     if (text.includes("\n")) {
         let left = Infinity;
         let right = -Infinity;
@@ -957,6 +957,15 @@ function measureNoRendererCanvas(ctx, text, x, y, align, size, lineHeight, angle
         bottom: y + 0.3 * 1.2 * size,
     };
 }
+
+let measureNoRendererCanvas = defaultMeasureNoRendererCanvas;
+
+function setMeasureNoRendererCanvas(fct) {
+    measureNoRendererCanvas = fct;
+}
+
+
+
 
 // This is a hook: the following function may get replaced by a plugin.
 let textRendererCanvas = defaultTextRendererCanvas;
@@ -1067,7 +1076,7 @@ eval_helper.pixelsize = function (args, modifs) {
     }
 
     csctx.font = Render2D.bold + Render2D.italics + Math.round(size * 10) / 10 + "px " + Render2D.family;
-    return measureNoRendererCanvas(
+    let result = measureNoRendererCanvas(
         csctx,
         txt,
         0,
@@ -1076,7 +1085,11 @@ eval_helper.pixelsize = function (args, modifs) {
         size,
         size * defaultAppearance.lineHeight,
         Render2D.angle
-    );
+    ); 
+    if (result === undefined) return nada;
+
+    return result;
+    
 };
 evaluator.pixelsize$1 = function (args, modifs) {
     const box = eval_helper.pixelsize(args, modifs);
@@ -1807,4 +1820,4 @@ evaluator.layer$1 = function (args, modifs) {
     // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
 };
 
-export { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml };
+export { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml, measureNoRendererCanvas, setMeasureNoRendererCanvas };
