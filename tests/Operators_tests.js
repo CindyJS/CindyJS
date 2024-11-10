@@ -51,3 +51,11 @@ describe("sequence", function () {
     itCmd("-1.9..1.6", "[-1, 0, 1]");
     itCmd("sum(1..10)", "55");
 });
+
+describe("length", function () {
+    itCmd("length([1,2,3])", "3");
+    itCmd('length("1234")', "4");
+    itCmd("length(42)", "1");
+    itCmd("length(var)", "0");
+    itCmd("variable=1;length(variable)", "1");
+});
