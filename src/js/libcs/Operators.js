@@ -2927,8 +2927,7 @@ evaluator.length$1 = function (args, modifs) {
     const v0 = evaluate(args[0]);
     if (v0.ctype === "list" || v0.ctype === "string") {
         return CSNumber.real(v0.value.length);
-    }
-    return nada;
+    } else return CSNumber.real(List.asList(v0).value.length);
 };
 
 evaluator.pairs$1 = function (args, modifs) {
