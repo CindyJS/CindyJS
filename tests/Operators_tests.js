@@ -28,31 +28,31 @@ describe("Operators: format", function () {
     itCmd('format(exp(2*pi*i), 2, delimiter->",", truncate->true)', "1");
 });
 
-describe("Reverse", function () {
+describe("Operators: reverse", function () {
     itCmd("reverse([1, 2, 3])", "[3, 2, 1]");
     itCmd('reverse("Hello")', "olleH");
 });
 
-describe("if", function () {
+describe("Operators: if", function () {
     itCmd('isundefined(if(blabla,"a","b"))', "true");
     itCmd('if(true,"a","b")', "a");
     itCmd('if(false,"a","b")', "b");
 });
 
-describe("angles", function () {
+describe("Operators: angles", function () {
     itCmd("-45°", "-45°");
     itCmd("round(37°/15°) * 15°", "30°");
     itCmd("mod(456°, 360°)", "96°");
 });
 
-describe("sequence", function () {
+describe("Operators: sequence", function () {
     itCmd("-2.5..2.5", "[-2, -1, 0, 1, 2]");
     itCmd("-1.1..1.4", "[-1, 0, 1]");
     itCmd("-1.9..1.6", "[-1, 0, 1]");
     itCmd("sum(1..10)", "55");
 });
 
-describe("length", function () {
+describe("Operators: length", function () {
     itCmd("length([1,2,3])", "3");
     itCmd('length("1234")', "4");
     itCmd("length(42)", "1");
