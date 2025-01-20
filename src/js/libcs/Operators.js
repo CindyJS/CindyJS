@@ -3024,11 +3024,13 @@ evaluator.remove$2 = infix_remove;
 function infix_remove(args, modifs) {
     const v0 = evaluate(args[0]);
     const v1 = evaluate(args[1]);
-    if (v0.ctype === "list" && v1.ctype === "list") {
-        return List.remove(v0, v1);
-    }
     if (v0.ctype === "shape" && v1.ctype === "shape") {
         return eval_helper.shaperemove(v0, v1);
+    }
+    const l0 = List.asList(v0);
+    const l1 = List.asList(v1);
+    if (l0.ctype === "list" && l1.ctype === "list") {
+        return List.remove(l0, l1);
     }
     return nada;
 }
