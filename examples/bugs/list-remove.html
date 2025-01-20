@@ -20,13 +20,16 @@
             width: 100%;
         }
     </style>
-    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
-    <script type="text/javascript" src="https://cindyjs.org/dist/v0.8/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+        
 <script id="csdraw" type="text/x-cindyscript">
 //Script (CindyScript)
-drawtext((0,0),[1,2,3,4,5]--3,size->50);
-drawtext((0,2),[1,2,3,4,5]--[3],size->50);
-drawtext((0,4),"These should be the same",size->25);
+drawtext((0,-2),[1,2,4]++[5],size->50);
+drawtext((0,0),[1,2,4]++5,size->50);
+drawtext((0,2),[1,2,3,4,5]--3,size->50);
+drawtext((0,4),[1,2,3,4,5]--[3],size->50);
+drawtext((0,6),"These should be the same",size->25);
 ;
 
 </script>
