@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>RechtwDreieck_Ergänzung_zu_Rechteck-fix.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+B.y=A.y;
+
+w=arctan2((F.x-A.x),(R.y-A.y));
+s=(R.y-A.y)/(F.x-A.x); err(s);
+//w=arctan(s); err(w);
+
+if(|w-K.angle|<12°,K.angle=w);
+if(|w+pi-K.angle|<12°,K.angle=w+pi);
+
+
+layer(R)=-1;
+layer(K)=10;
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, -4.0, 0.5333333333333333], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "R", type: "Free", pos: [4.0, -0.0, 0.4], color: [0.0, 0.0, 1.0], labeled: true, size: 2.0},
+    {name: "c", type: "Segment", color: [0.0, 0.0, 1.0], args: ["R", "A"], visible: false, labeled: true},
+    {name: "E", type: "Mid", color: [0.0, 0.0, 0.0], args: ["R", "A"], labeled: true, size: 2.0, printname: "M"},
+    {name: "B", type: "Free", pos: [4.0, -1.2, 0.16], color: [1.0, 0.0, 0.0], visible: false},
+    {name: "a", type: "Segment", color: [0.0, 0.0, 1.0], args: ["A", "B"], visible: false, labeled: true},
+    {name: "d", type: "Orthogonal", color: [0.0, 0.0, 1.0], args: ["a", "R"], visible: false, labeled: true},
+    {name: "Text1", type: "Text", pos: [-1.7552742616033756, -4.0, 0.3487115109669776], color: [0.0, 0.0, 0.0], text: "1. Drehe das grüne Dreieck auf das blaue Dreieck.", textsize: 14.0},
+    {name: "Text2", type: "Text", pos: [-1.6, -4.0, 0.32], color: [0.0, 0.0, 0.0], text: "2. Verändere an R das Dreieck beliebig.", textsize: 14.0},
+    {name: "Text3", type: "Text", color: [0.0, 0.0, 0.0], pinned: true, text: "3. Drehe das grüne Dreieck wieder zurück.", textsize: 14.0, dock: {corner: "LL", offset: [94.0, 30.0]}},
+    {name: "Text0", type: "Text", color: [0.0, 0.0, 0.0], text: "Die Diagonale zerlegt ein Rechteck in zwei kongruente rechtwinklige Dreiecke.", textsize: 14.0, dock: {corner: "UL", offset: [30.0, -40.0]}},
+    {name: "F", type: "Meet", color: [1.0, 0.0, 0.0], args: ["a", "d"], visible: false, labeled: true},
+    {name: "Poly0", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [0.51, 0.949, 1.0], fillalpha: 0.5470085470085471, args: ["A", "F", "R"]},
+    {name: "C1", type: "CircleMP", color: [0.0, 0.0, 1.0], args: ["E", "F"], alpha: 0.08547008547008547, printname: "$C_{1}$"},
+    {name: "N", type: "PointOnCircle", pos: [{r: -0.7324802827300294, i: 1.0106533872838382E-16}, -4.0, {r: 0.7292782170158052, i: -3.903402600339583E-17}], color: [1.0, 0.0, 0.0], args: ["C1"], visible: false, labeled: true},
+    {name: "Q", type: "PointOnCircle", pos: [{r: 0.640325113069686, i: 5.995377620510357E-16}, -4.0, {r: 0.45078435965819663, i: -5.314976632374357E-17}], color: [1.0, 0.0, 0.0], args: ["C1"], visible: false, labeled: true},
+    {name: "K", type: "PointOnCircle", pos: [4.0, {r: 0.9042907893672604, i: -1.2706153870732949E-16}, {r: 0.5062867550503647, i: -2.144249634482618E-17}], color: [0.098, 0.62, 0.306], args: ["C1"]},
+    {name: "D", type: "OtherPointOnCircle", pos: [{r: 0.9042907893672611, i: 1.2706153870732963E-16}, -4.0, {r: 0.43075023708620824, i: -8.132506979761211E-18}], color: [1.0, 1.0, 1.0], args: ["K"], pinned: true, size: 0.0},
+    {name: "b", type: "Join", color: [0.0, 0.0, 1.0], args: ["K", "E"], visible: false, labeled: true},
+    {name: "C0", type: "Compass", color: [0.0, 0.0, 1.0], args: ["F", "R", "D"], visible: false, printname: "$C_{0}$"},
+    {name: "Collection__1", type: "IntersectionCircleCircle", args: ["C1", "C0"]},
+    {name: "G", type: "SelectP", pos: [{r: -1.7918867136229615, i: 1.4514202923830658E-16}, -4.0, {r: 1.5901536893174304, i: -2.3409538758779045E-16}], color: [1.0, 0.0, 0.0], args: ["Collection__1"], visible: false},
+    {name: "f", type: "Segment", color: [0.0, 0.0, 1.0], args: ["D", "G"], visible: false},
+    {name: "g", type: "Segment", color: [0.0, 0.0, 1.0], args: ["G", "K"], visible: false},
+    {name: "Poly1", type: "Poly", color: [0.0, 0.0, 0.0], fillcolor: [0.714, 1.0, 0.667], fillalpha: 0.5213675213675214, args: ["D", "K", "G"]}
+  ],
+  ports: [{
+    width: 595,
+    height: 430,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-9.607399999999984, 5.8321999999999905, 19.190599999999968, -14.979799999999976]}],
+    grid: 2.5,
+    snap: true,
+    background: "rgb(255,255,255)"
+  }],
+  csconsole: false,
+  use: ["katex"],
+  cinderella: {build: 2089, version: [3, 0, 2089]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
