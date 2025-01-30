@@ -666,11 +666,25 @@ geoOps.PointOnCircle.set_angle = function (el, value) {
         if (!List._helper.isAlmostFarpoint(mid)) {
             mid = List.normalizeZ(mid);
 
-            const cc = CSNumber.cos(value);
-            const ss = CSNumber.sin(value);
+            const cosine = CSNumber.cos(value);
+            const sine = CSNumber.sin(value);
+
+            // TODO replace by helper method
+            const s = circle.matrix;
+            const ax = s.value[0].value[0];
+            const az = s.value[0].value[2];
+            const bz = s.value[1].value[2];
+            const cz = s.value[2].value[2];
+
+            const n = CSNumber.mult(ax, ax);
+            const aa = CSNumber.div(az, ax);
+            const bb = CSNumber.div(bz, ax);
+            const cc = CSNumber.div(cz, ax);
+            const radius = CSNumber.sqrt(CSNumber.sub(CSNumber.add(CSNumber.mult(aa, aa), CSNumber.mult(bb, bb)), cc));
+
             const dir = List.turnIntoCSList([
-                CSNumber.mult(cc, circle.radius),
-                CSNumber.mult(ss, circle.radius),
+                CSNumber.mult(cosine, radius),
+                CSNumber.mult(sine, radius),
                 CSNumber.real(0),
             ]);
 
