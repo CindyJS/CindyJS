@@ -242,46 +242,53 @@ function setuplisteners(canvas, data) {
     }
 
     addAutoCleaningEventListener(canvas, "pointerdown", function (e) {
-        mousedownevent = e;
-        hasmoved = false;
-        mouse.button = e.which;
-        updatePosition(e);
-        manage("mousedown");
-        if (e.pointerType != "touch") cs_multidown(0);
-        cs_mousedown();
-        mouse.down = true;
-        e.preventDefault();
-        canvas.setPointerCapture(e.pointerId);
+        if (e.pointerType != "touch") {
+            mousedownevent = e;
+            hasmoved = false;
+            mouse.button = e.which;
+            updatePosition(e);
+            manage("mousedown");
+            cs_multidown(0);
+            cs_mousedown();
+            mouse.down = true;
+            e.preventDefault();
+            canvas.setPointerCapture(e.pointerId);
+        }
     });
 
     addAutoCleaningEventListener(canvas, "pointerup", function (e) {
-        mouse.down = false;
-        manage("mouseup");
-        cs_mouseup();
-        if (e.pointerType != "touch") cs_multiup(0);
-        cindy_cancelmove();
-        delete multipos[0];
-        scheduleUpdate();
-        e.preventDefault();
-        canvas.releasePointerCapture(e.pointerId);
+        if (e.pointerType != "touch") {
+            mouse.down = false;
+            manage("mouseup");
+            cs_mouseup();
+            cs_multiup(0);
+            cindy_cancelmove();
+            delete multipos[0];
+            scheduleUpdate();
+            e.preventDefault();
+            canvas.releasePointerCapture(e.pointerId);
+        }
     });
 
     addAutoCleaningEventListener(canvas, "pointermove", function (e) {
-        updatePosition(e);
-        if (mouse.down) {
-            // this might be also a touchdown
-            if (
-                mousedownevent &&
-                (Math.abs(mousedownevent.clientX - e.clientX) > 2 || Math.abs(mousedownevent.clientY - e.clientY) > 2)
-            )
-                hasmoved = true;
-            cs_mousedrag();
-            if (e.pointerType != "touch") cs_multidrag(0);
-        } else {
-            cs_mousemove();
+        if (e.pointerType != "touch") {
+            updatePosition(e);
+            if (mouse.down) {
+                // this might be also a touchdown
+                if (
+                    mousedownevent &&
+                    (Math.abs(mousedownevent.clientX - e.clientX) > 2 ||
+                        Math.abs(mousedownevent.clientY - e.clientY) > 2)
+                )
+                    hasmoved = true;
+                cs_mousedrag();
+                cs_multidrag(0);
+            } else {
+                cs_mousemove();
+            }
+            manage("mousemove");
+            e.preventDefault();
         }
-        manage("mousemove");
-        e.preventDefault();
     });
 
     addAutoCleaningEventListener(canvas, "click", function (e) {
