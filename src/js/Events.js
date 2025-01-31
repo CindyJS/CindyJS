@@ -247,7 +247,7 @@ function setuplisteners(canvas, data) {
         mouse.button = e.which;
         updatePosition(e);
         manage("mousedown");
-        cs_multidown(0);
+        if (e.pointerType != "touch") cs_multidown(0);
         cs_mousedown();
         mouse.down = true;
         e.preventDefault();
@@ -258,7 +258,7 @@ function setuplisteners(canvas, data) {
         mouse.down = false;
         manage("mouseup");
         cs_mouseup();
-        cs_multiup(0);
+        if (e.pointerType != "touch") cs_multiup(0);
         cindy_cancelmove();
         delete multipos[0];
         scheduleUpdate();
@@ -276,10 +276,7 @@ function setuplisteners(canvas, data) {
             )
                 hasmoved = true;
             cs_mousedrag();
-            if (multipos[0]) {
-                //the physical mouse (not a finger acting as mouse) indeed is down
-                cs_multidrag(0);
-            }
+            if (e.pointerType != "touch") cs_multidrag(0);
         } else {
             cs_mousemove();
         }
@@ -565,7 +562,7 @@ function setuplisteners(canvas, data) {
         e.preventDefault();
     }
 
-    //TODO: re-enable multitouch
+    // adding listeners for touch events
     addAutoCleaningEventListener(canvas, "touchstart", touchDown, false);
     addAutoCleaningEventListener(canvas, "touchmove", touchMove, true);
     addAutoCleaningEventListener(canvas, "touchend", touchUp, false);
