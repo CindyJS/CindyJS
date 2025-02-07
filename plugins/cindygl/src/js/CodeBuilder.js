@@ -1,3 +1,8 @@
+const DepthType={
+    Flat: 0, // no depth information
+    Nearest: 1, // use depth of nearest point (lowest z)
+    // XXX? multi-layered depth information
+}
 /**
  * @constructor
  */
@@ -1045,7 +1050,7 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
 };
 
 
-CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
+CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TODO add arguments for #
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 

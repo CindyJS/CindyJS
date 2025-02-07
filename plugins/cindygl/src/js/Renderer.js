@@ -2,9 +2,10 @@
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression) {
+function Renderer(api, expression,depthType) {
     this.api = api;
     this.expression = expression;
+    this.depthType=depthType;
     this.rebuild();
 }
 
@@ -56,7 +57,7 @@ Renderer.prototype.generations
 
 Renderer.prototype.rebuild = function() {
     let cb = new CodeBuilder(this.api);
-    let cpg = cb.generateColorPlotProgram(this.expression);
+    let cpg = cb.generateColorPlotProgram(this.expression,this.depthType);
     this.cpguniforms = cpg.uniforms;
     this.texturereaders = cpg.texturereaders;
     this.generations = cpg.generations;

@@ -9,7 +9,7 @@ let CindyGL = function(api) {
     api.defineFunction("compile", 1, (args, modifs) => {
         let expr = args[0];
         let cb = new CodeBuilder(api);
-        let code = cb.generateColorPlotProgram(expr);
+        let code = cb.generateColorPlotProgram(expr,DepthType.Flat);
         console.log(code);
         return {
             ctype: 'string',
@@ -29,12 +29,12 @@ let CindyGL = function(api) {
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function compileAndRender(prog, a, b, width, height, canvaswrapper) {
+    function compileAndRender(prog,depthType, a, b, width, height, canvaswrapper) {
         if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
             //console.log("Program is not compiled. So we will do that");
             prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
             prog.compiletime = requiredcompiletime;
-            prog.renderer = new Renderer(api, prog);
+            prog.renderer = new Renderer(api, prog,depthType);
         }
         /*else {
              console.log("Program has been compiled; we will use that compiled code.");
@@ -61,7 +61,7 @@ let CindyGL = function(api) {
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
 
-        compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
+        compileAndRender(prog,DepthType.Flat, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -105,7 +105,7 @@ let CindyGL = function(api) {
         let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
         let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
-        compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
+        compileAndRender(prog,DepthType.Flat, ll, lr, iw * fx, ih * fy, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         let pt = {
@@ -143,7 +143,7 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
 
         return nada;
     });
@@ -168,8 +168,31 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
 
+
+        return nada;
+    });
+
+    /**
+     * plots colorplot on whole main canvas in CindyJS coordinates
+     * uses the z-coordinate for the nearest pixel as depth information
+     */
+    api.defineFunction("colorplot3d", 1, (args, modifs) => {
+        initGLIfRequired();
+
+        var prog = args[0];
+
+        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+        let ih = api.instance['canvas']['height'];
+
+        compileAndRender(prog,DepthType.Nearest, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
+        let csctx = api.instance['canvas'].getContext('2d');
+
+        csctx.save();
+        csctx.setTransform(1, 0, 0, 1, 0, 0);
+        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+        csctx.restore();
 
         return nada;
     });
@@ -208,7 +231,7 @@ let CindyGL = function(api) {
             //console.log("Program is not compiled. So we will do that");
             prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
             prog.compiletime = requiredcompiletime;
-            prog.renderer = new Renderer(api, prog);
+            prog.renderer = new Renderer(api, prog,DepthType.Flat);
         }
         prog.renderer.renderXR(viewIndex);
 
