@@ -174,6 +174,7 @@ let CindyGL = function(api) {
         return nada;
     });
 
+    // FIXME switching to webgl2 canvas+depth broke old code
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
@@ -194,6 +195,18 @@ let CindyGL = function(api) {
         csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
         csctx.restore();
 
+        return nada;
+    });
+    api.defineFunction("colorplotbegin3d", 0, (args, modifs) => {
+        initGLIfRequired();
+        gl.enable(gl.DEPTH_TEST);
+        gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+        return nada;
+    });
+    api.defineFunction("colorplotend3d", 0, (args, modifs) => {
+        initGLIfRequired();
+        gl.disable(gl.DEPTH_TEST);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
         return nada;
     });
 

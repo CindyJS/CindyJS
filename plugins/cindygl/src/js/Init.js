@@ -90,14 +90,32 @@ function initGLIfRequired() {
     if (useWebXR) {
         contextAttributes['xrCompatible'] = true;
     }
-    gl = /** @type {WebGLRenderingContext} */ (
-        glcanvas.getContext("webgl", contextAttributes));
-    if (!gl)
+    gl = /** @type {WebGL2RenderingContext} */ (
+        glcanvas.getContext("webgl2", contextAttributes));
+    if(gl){
+        gl.webgl2 = true;
+        console.log("Loaded WebGL 2.0.");
+    }else{
         gl = /** @type {WebGLRenderingContext} */ (
-            glcanvas.getContext("experimental-webgl", contextAttributes));
+            glcanvas.getContext("webgl", contextAttributes));
+        if (gl){
+            if (/[?&]frag_depth=0/.test(window.location.search)) {
+                this.glExtFragDepth = null;
+            }else {
+                this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
+                if (!this.glExtFragDepth) {
+                    console.log("EXT_frag_depth extension not supported.");
+                }
+            }
+        }else{
+            gl = /** @type {WebGLRenderingContext} */ (
+                glcanvas.getContext("experimental-webgl", contextAttributes));
+        }
+    }
     if (!gl)
         throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
     CindyGL.gl = gl;
+    // TODO update texture type test to wegl2 canvas
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);

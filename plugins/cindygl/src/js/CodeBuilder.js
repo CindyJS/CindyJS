@@ -1049,6 +1049,17 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
     return ans.join('\n');
 };
 
+function generateSetDepth(depthExrp){
+    return `
+    #ifdef webgl2
+    gl_FragDepth= ${depthExrp};
+    #else
+    #ifdef GL_EXT_frag_depth
+    gl_FragDepthEXT= ${depthExrp};
+    #else
+    #endif
+    #endif`
+}
 
 CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TODO add arguments for #
     helpercnt = 0;
@@ -1057,11 +1068,22 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
     let rtype = this.getType(expr);
-    let colorterm = this.castType(r.term, rtype, type.color);
-
-    if (!issubtypeof(rtype, type.color)) {
-        console.error("expression does not generate a color");
+    let colorterm;
+    if(depthType==DepthType.Flat){
+        colorterm = this.castType(r.term, rtype, type.color);
+        if (!issubtypeof(rtype, type.color)) {
+            console.error("expression does not generate a color");
+        }
+    }else if(depthType==DepthType.Nearest){
+        // TODO special type for color+depth
+        if (!typesareequal(rtype, type.vec(5))) {
+            console.error("expression does not generate a color(rgba)+depth");
+        }
+        colorterm=r.term;
+    }else{
+        console.error("unsupported depth type");
     }
+
     let code = this.generateSection('structs');
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
@@ -1081,13 +1103,21 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
     //by the current WebGL implementation on most machines
     //see https://stackoverflow.com/questions/79053598/bug-in-current-webgl-shader-implementation-concerning-variable-settings
     let randompatch="";
-    if (this.sections['includedfunctions']) 
+    if (this.sections['includedfunctions'])
       if(this.sections['includedfunctions'].marked.random)
         randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
     //////////////////////
 
-    code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
-
+    if(depthType==DepthType.Flat){
+        code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
+    }else if(depthType==DepthType.Nearest){
+        code += `void main(void) {\n ${randompatch} ${r.code}
+        vec5 colorAndDepth= ${colorterm};
+        gl_FragColor = vec4(colorAndDepth.a0,colorAndDepth.a1.xy);
+        ${generateSetDepth("colorAndDepth.a1.z")}\n}\n`;
+    }else{
+        console.error("unsupported depth type");
+    }
     console.log(code);
 
     let generations = {};

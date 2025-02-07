@@ -66,7 +66,6 @@ Renderer.prototype.rebuild = function() {
         cgl_resources["standardFragmentHeader"] + cpg.code;
     this.vertexShaderCode = cgl_resources["vshader"];
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
-
     /*
      *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
       gl.bufferData(
