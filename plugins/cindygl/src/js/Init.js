@@ -94,8 +94,10 @@ function initGLIfRequired() {
         glcanvas.getContext("webgl2", contextAttributes));
     if(gl){
         gl.webgl2 = true;
+        CindyGL.webgl2 = true;
         console.log("Loaded WebGL 2.0.");
     }else{
+        CindyGL.webgl2 = false;
         gl = /** @type {WebGLRenderingContext} */ (
             glcanvas.getContext("webgl", contextAttributes));
         if (gl){
@@ -115,11 +117,12 @@ function initGLIfRequired() {
     if (!gl)
         throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
     CindyGL.gl = gl;
-    // TODO update texture type test to wegl2 canvas
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
-    if (!use8bittextures) {
+    gl.depthFunc(gl.LEQUAL);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    if (!CindyGL.webgl2 && !use8bittextures) { // webgl2 supports float textures by default
         can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
         if (!can_use_texture_float) {
             console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
