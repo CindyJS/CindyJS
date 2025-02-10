@@ -52,6 +52,8 @@
                   );
 
                   S(r) := (r*r-4*4); //sphere with radius 4
+                  
+                  S2(r) := (r*r-2*2); //sphere with radius 2
 
                   ray(pos, t) := (
                     ([[cos(theta), 0, sin(theta)],
@@ -173,11 +175,20 @@
                         color2, lightdir2, n, 1),
                         color3, lightdir3, n, 2),
                         color4, lightdir4, n, 2);
-                      [rgb_1,rgb_2,rgb_3,1,dst/8-1.]
+                      [rgb_1,rgb_2,rgb_3,1,dst/16]
                     )
                   );
                   computeColor2(pos) := (
-                    [0.5,0.5,0.5,.75,0.1]
+                    spolyvalues = [S2(ray(pos, 0)), S2(ray(pos, 5)), S2(ray(pos, 10)), S2(ray(pos, 15))];
+                    spoly = B*spolyvalues; // interpolate
+
+                    D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
+                    if(D>=0, //ray intersects ball of radius 2
+                      z=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
+                      [0.5,0.5,0.5,.75,z/16.0]
+                      ,
+                      [0.5,0.5,0.5,.0,oo]
+                    )
                   );
         </script>
 
