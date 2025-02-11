@@ -348,7 +348,7 @@ Render2D.pointModifs = {
     size: true,
     color: true,
     alpha: true,
-    noborder: false,
+    noborder: true,
     border: true,
 };
 

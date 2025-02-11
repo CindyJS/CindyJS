@@ -1544,6 +1544,30 @@ evaluator.mod$2 = function (args, modifs) {
     return nada;
 };
 
+evaluator.d$2 = function (args, modifs) {
+    let lauf = "#";
+    let eps = modifs.eps;
+
+    if (eps === undefined) {
+        eps = CSNumber.real(0.0001);
+    } else {
+        eps = evaluate(eps);
+        if (eps.ctype !== "number") {
+            eps = CSNumber.real(0.0001);
+        }
+    }
+
+    const prog = args[0];
+    const x = evaluateAndVal(args[1]);
+    namespace.newvar(lauf);
+    namespace.setvar(lauf, CSNumber.add(x, eps));
+    let f1 = evaluate(prog);
+    namespace.setvar(lauf, CSNumber.sub(x, eps));
+    let f2 = evaluate(prog);
+    namespace.removevar(lauf);
+    return CSNumber.div(CSNumber.sub(f1, f2), CSNumber.mult(eps, CSNumber.real(2)));
+};
+
 evaluator.pow$2 = infix_pow;
 
 function infix_pow(args, modifs) {

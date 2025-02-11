@@ -20,8 +20,8 @@
             width: 100%;
         }
     </style>
-    <link rel="stylesheet" href="https://cindyjs.org/dist/v0.8/CindyJS.css">
-    <script type="text/javascript" src="https://cindyjs.org/dist/v0.8/Cindy.js"></script>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
 <script id="csinit" type="text/x-cindyscript">
 //Script (CindyScript)
 f(x):=0.05*x^3;
@@ -34,9 +34,7 @@ f(x):=0.05*x^3;
 plot(f(#));
 A.y=f(A.x);
 draw(A,A+5*(1,d(f(#),A.x)),color->red(1));
-err(d(f(#),1));
-;
-
+draw(A,A+5*(1,d(f(#),A.x,eps->3)),color->grey(1));
 </script>
     <script type="text/javascript">
 var cdy = CindyJS({
