@@ -1074,12 +1074,11 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
         if (!issubtypeof(rtype, type.color)) {
             console.error("expression does not generate a color");
         }
-    }else if(depthType==DepthType.Nearest){
-        // TODO special type for color+depth
-        if (!typesareequal(rtype, type.vec(5))) {
+    }else if(depthType==DepthType.Nearest){ // TODO special type for depth+color
+        if (!issubtypeof(rtype, type.vec(5))) {
             console.error("expression does not generate a color(rgba)+depth");
         }
-        colorterm=r.term;
+        colorterm = this.castType(r.term, rtype, type.vec(5));
     }else{
         console.error("unsupported depth type");
     }
@@ -1113,8 +1112,8 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
     }else if(depthType==DepthType.Nearest){
         code += `void main(void) {\n ${randompatch} ${r.code}
         vec5 colorAndDepth= ${colorterm};
-        gl_FragColor = vec4(colorAndDepth.a0,colorAndDepth.a1.xy);
-        ${generateSetDepth("colorAndDepth.a1.z")}\n}\n`;
+        gl_FragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
+        ${generateSetDepth("colorAndDepth.a0.x")}\n}\n`;
     }else{
         console.error("unsupported depth type");
     }

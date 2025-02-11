@@ -53,7 +53,8 @@
 
                   S(r) := (r*r-4*4); //sphere with radius 4
                   
-                  S2(r) := (r*r-2*2); //sphere with radius 2
+                  //sphere with radius from 1 to 3
+                  S2(r) := (r0=2+sin(.2*time); r*r-r0*r0);
 
                   ray(pos, t) := (
                     ([[cos(theta), 0, sin(theta)],
@@ -150,7 +151,7 @@
                     dst = getDistanceToObj(pos);
                     if(dst == oo,
                       rgb=gray(1.);
-                      [rgb_1,rgb_2,rgb_3,1,1.],
+                      [1,rgb_1,rgb_2,rgb_3,0],
                       x = ray(pos, dst);
                       n = dF(x);
                       n = n/abs(n);
@@ -175,7 +176,7 @@
                         color2, lightdir2, n, 1),
                         color3, lightdir3, n, 2),
                         color4, lightdir4, n, 2);
-                      [rgb_1,rgb_2,rgb_3,1,dst/16]
+                      [dst/16,rgb_1,rgb_2,rgb_3,1]
                     )
                   );
                   computeColor2(pos) := (
@@ -185,9 +186,9 @@
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
                     if(D>=0, //ray intersects ball of radius 2
                       z=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
-                      [0.5,0.5,0.5,.75,z/16.0]
+                      [z/16.0,0.5,0.5,0.5,.75]
                       ,
-                      [0.5,0.5,0.5,.0,oo]
+                      [oo,0.5,0.5,0.5,.0]
                     )
                   );
         </script>
