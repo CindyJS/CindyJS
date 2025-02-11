@@ -30,15 +30,21 @@ let CindyGL = function(api) {
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,depthType, a, b, width, height, canvaswrapper) {
+        prog=compile(prog,depthType);
+        render(prog, a, b, width, height, canvaswrapper);
+    }
+    function compile(prog,depthType) {
         if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
-            //console.log("Program is not compiled. So we will do that");
             prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
             prog.compiletime = requiredcompiletime;
             prog.renderer = new Renderer(api, prog,depthType);
         }
-        /*else {
-             console.log("Program has been compiled; we will use that compiled code.");
-        }*/
+        return prog;
+    }
+    /**
+     * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
+     */
+    function render(prog, a, b, width, height, canvaswrapper){
         prog.renderer.render(a, b, width, height, canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
@@ -174,20 +180,23 @@ let CindyGL = function(api) {
         return nada;
     });
 
-    // FIXME switching to webgl2 canvas+depth broke old code
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
      */
     api.defineFunction("colorplot3d", 1, (args, modifs) => {
         initGLIfRequired();
-
         var prog = args[0];
-
+        let ll=computeLowerLeftCorner(api);
+        let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
-
-        compileAndRender(prog,DepthType.Nearest, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
+        // TODO? use objects for elements of buffer
+        if(typeof(CindyGL.objectBuffer)!== "undefined"){
+            CindyGL.objectBuffer.push([compile(prog,DepthType.Nearest),ll,lr,iw,ih,null]);
+            return nada;
+        }
+        compileAndRender(prog,DepthType.Nearest, ll, lr, iw, ih, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -199,14 +208,37 @@ let CindyGL = function(api) {
     });
     api.defineFunction("colorplotbegin3d", 0, (args, modifs) => {
         initGLIfRequired();
-        gl.enable(gl.DEPTH_TEST);
-        gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+        CindyGL.objectBuffer=[];
         return nada;
     });
     api.defineFunction("colorplotend3d", 0, (args, modifs) => {
         initGLIfRequired();
+        if(typeof(CindyGL.objectBuffer)!== "undefined"){
+            let csctx = api.instance['canvas'].getContext('2d');
+            csctx.save();
+            csctx.setTransform(1, 0, 0, 1, 0, 0);
+            // render order for translucent obejcts copied from cindy3d:
+            // 1. render all objects once without depth testing
+            // 2. render all objects with current depth
+            // TODO ommit first render call when all objects are opaque
+            // TODO find better way for rendering multiple translucent objects
+            gl.disable(gl.DEPTH_TEST);
+            gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+            CindyGL.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
+                render(prog,ll,lr, iw, ih, cWrap);
+                csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+            });
+            gl.enable(gl.DEPTH_TEST);
+            CindyGL.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
+                render(prog,ll,lr, iw, ih, cWrap);
+                csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+            });
+            csctx.restore();
+            return nada;
+        }
         gl.disable(gl.DEPTH_TEST);
         gl.clear(gl.DEPTH_BUFFER_BIT);
+        CindyGL.objectBuffer=undefined;
         return nada;
     });
 
