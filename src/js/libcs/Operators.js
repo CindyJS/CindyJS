@@ -1568,6 +1568,35 @@ evaluator.d$2 = function (args, modifs) {
     return CSNumber.div(CSNumber.sub(f1, f2), CSNumber.mult(eps, CSNumber.real(2)));
 };
 
+evaluator.tangent$2 = function (args, modifs) {
+    let lauf = "#";
+    let eps = modifs.eps;
+
+    if (eps === undefined) {
+        eps = CSNumber.real(0.0001);
+    } else {
+        eps = evaluate(eps);
+        if (eps.ctype !== "number") {
+            eps = CSNumber.real(0.0001);
+        }
+    }
+
+    const prog = args[0];
+    const x = evaluateAndVal(args[1]);
+    namespace.newvar(lauf);
+    namespace.setvar(lauf, CSNumber.add(x, eps));
+    let f1 = List.turnIntoCSList([CSNumber.add(x, eps), evaluate(prog), CSNumber.one]);
+    namespace.setvar(lauf, CSNumber.sub(x, eps));
+    let f2 = List.turnIntoCSList([CSNumber.sub(x, eps), evaluate(prog), CSNumber.one]);
+    namespace.removevar(lauf);
+    if (f1 !== nada && f1 !== nada) {
+        let erg = List.cross(f1, f2);
+        erg = General.withUsage(erg, "Line");
+        return erg;
+    }
+    return nada;
+};
+
 evaluator.pow$2 = infix_pow;
 
 function infix_pow(args, modifs) {

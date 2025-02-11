@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Construction.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../build/js/CindyJS.css">
+    <script type="text/javascript" src="../build/js/Cindy.js"></script>
+<script id="csinit" type="text/x-cindyscript">
+//Script (CindyScript)
+f(x):=0.05*x^3;
+
+;
+
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+plot(f(#));
+A.y=f(A.x);
+draw(tangent(f(#),A.x));
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [4.0, 0.4862824410143571, -2.565255899852482], color: [1.0, 0.0, 0.0], labeled: true}
+  ],
+  ports: [{
+    width: 680,
+    height: 333,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-23.215108943081603, 13.40896034861407, 39.315468617894005, -17.212631309922514]}],
+    axes: true,
+    grid: 5.0,
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2089, version: [3, 0, 2089]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
