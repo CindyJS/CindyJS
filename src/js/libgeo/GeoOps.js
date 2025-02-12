@@ -654,8 +654,8 @@ geoOps.PointOnCircle.get_angle = function (el) {
     const dir = List.sub(pos, mid);
     let angle = CSNumber.arctan2(dir.value[0], dir.value[1]); //lives in [-pi, pi)
     //technically, we are done here. But we like to have the same behavior as Cinderella:
-    const twpopi = CSNumber.real(TWOPI);
-    angle = CSNumber.mod(CSNumber.add(angle, twpopi), twpopi); //lives in [0, 2*pi)
+    const twopi = CSNumber.real(TWOPI);
+    angle = CSNumber.mod(CSNumber.add(angle, twopi), twopi); //lives in [0, 2*pi)
     return General.withUsage(angle, "Angle");
 };
 geoOps.PointOnCircle.set_angle = function (el, value) {
@@ -706,7 +706,15 @@ geoOps.OtherPointOnCircle.updatePosition = function (el) {
     pos = List.normalizeMax(pos);
     el.homog = General.withUsage(pos, "Point");
 };
-
+geoOps.OtherPointOnCircle.get_angle = function (el) {
+    const first = csgeo.csnames[el.args[0]];
+    const pi = CSNumber.real(Math.PI);
+    let angle = CSNumber.sub(geoOps.PointOnCircle.get_angle(first), pi); //lives in [-pi, pi)
+    //technically, we are done here. But we like to have the same behavior as Cinderella:
+    const twopi = CSNumber.real(TWOPI);
+    angle = CSNumber.mod(CSNumber.add(angle, twopi), twopi); //lives in [0, 2*pi)
+    return General.withUsage(angle, "Angle");
+};
 geoOps.PointOnSegment = {};
 geoOps.PointOnSegment.kind = "P";
 geoOps.PointOnSegment.signature = ["S"];
