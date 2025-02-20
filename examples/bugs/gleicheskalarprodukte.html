@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Konstruktion.cdy</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+    <link rel="stylesheet" href="../../build/js/CindyJS.css">
+    <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+<script id="csdraw" type="text/x-cindyscript">
+//Script (CindyScript)
+prec1=30;
+
+OrthP = meet(join(A,B), perpendicular(C,join(A,B)));
+lambda = round(prec1*|A,OrthP.xy|/|A,B|)/prec1;
+OrthPCor = lambda*(B-A)+A;
+C.xy = meet(perpendicular(join(A,B),OrthPCor),perpendicular(perpendicular(join(A,B),OrthPCor),C));
+
+drawtext((0,0),"Skalarprodukt (gerundet):
+	$\vec{a}\bullet \vec b = $"+ round((C-A)*(B-A)*10)/10,
+	size -> 24,
+	align -> "mid",
+	offset -> [-10,-20]
+)
+
+;
+
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  geometry: [
+    {name: "A", type: "Free", pos: [0.0, 0.0, 4.0], color: [1.0, 0.0, 0.0], visible: false, pinned: true, labeled: true},
+    {name: "B", type: "Free", pos: [4.0, 1.233005315836883, 0.9557461406512285], color: [0.012, 0.655, 0.737], size: 2.0},
+    {name: "a", type: "Segment", color: [0.012, 0.655, 0.737], args: ["A", "B"], labeled: true, textsize: 22.0, size: 4, printname: "$\\vec a$ ", arrowshape: "full", arrowsides: "==>", arrowsize: 1.6, arrowposition: 1.0},
+    {name: "C", type: "Free", pos: [-1.600984138503635, -4.0, -1.4270430867789687], color: [0.012, 0.655, 0.737], size: 2.0},
+    {name: "b", type: "Segment", color: [0.012, 0.655, 0.737], args: ["A", "C"], text_fontfamily: "Arial", labeled: true, textsize: 22.0, size: 4, printname: "$\\vec{b}$ ", arrowshape: "full", arrowsides: "==>", arrowsize: 1.6, arrowposition: 1.0}
+  ],
+  ports: [{
+    width: 683,
+    height: 442,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-2.0490614314800024, 4.139395265860936, 5.586822961329266, -0.8021287482264671]}],
+    grid: 0.5,
+    background: "rgb(255,255,255)"
+  }],
+  csconsole: false,
+  use: ["katex"],
+  cinderella: {build: 2090, version: [3, 0, 2090]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>
