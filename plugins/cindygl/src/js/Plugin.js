@@ -1,3 +1,44 @@
+function mmult4(A,B){
+  // TODO better algorithm, ? use cindyscript matrix multiplication built-in
+  let C=[
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ];
+  for(let i=0;i<4;i++){
+    for(let j=0;j<4;j++){
+      for(let k=0;k<4;k++){
+        C[i][j]+=A[i][k]*B[k][j];
+      }
+    }
+  }
+  return C;
+}
+function mvmult4(A,v){
+  let w=[0,0,0,0];
+  for(let i=0;i<4;i++){
+    for(let j=0;j<4;j++){
+       w[i]+=A[i][j]*v[j];
+    }
+  }
+  return w;
+}
+function transposeM4(A){
+  let C=[
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0],
+    [0,0,0,0]
+  ];
+  for(let i=0;i<4;i++){
+    for(let j=0;j<4;j++){
+       C[i][j]=A[j][i];
+    }
+  }
+  return C;
+}
+
 let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
@@ -187,6 +228,7 @@ let CindyGL = function(api) {
     api.defineFunction("colorplot3d", 1, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
+        // TODO "bounding box" ( everywhere, center+radius, line+radius, polygon3D )
         let ll=computeLowerLeftCorner(api);
         let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
@@ -206,11 +248,71 @@ let CindyGL = function(api) {
 
         return nada;
     });
+    let recomputeProjMatrix=function(){
+        let x0=CindyGL.coordinateSystem.x0;
+        let x1=CindyGL.coordinateSystem.x1;
+        let y0=CindyGL.coordinateSystem.y0;
+        let y1=CindyGL.coordinateSystem.y1;
+        let z0=CindyGL.coordinateSystem.z0;
+        let z1=CindyGL.coordinateSystem.z1;
+        CindyGL.projectionMatrix=[
+            [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
+            [0, 2/(y1-y0), 0, - 2*y0/(y1-y0) -1],
+            [0, 0, 1/(z1-z0), - z0/(z1-z0) -.5],
+            [0, 0, 1/(z1-z0), - z0/(z1-z0)]
+        ];
+    }
     api.defineFunction("colorplotbegin3d", 0, (args, modifs) => {
         initGLIfRequired();
+        CindyGL.mode3D=true;
         CindyGL.objectBuffer=[];
+        CindyGL.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
+        CindyGL.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+        let ul=computeUpperLeftCorner(api);
+        let lr=computeLowerRightCorner(api);
+        // TODO? make z-coords customizable
+        CindyGL.coordinateSystem={
+            x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y,
+            z0: -10, z1:0
+        };
+        CindyGL.coordinateSystem.transformedViewPos=[0,0,CindyGL.coordinateSystem.z0,1];
+        recomputeProjMatrix();
         return nada;
     });
+    api.defineFunction("rotate3d", 2, (args, modifs) => {
+        let alpha = api.evaluateAndVal(args[0])["value"]["real"];
+        let beta = api.evaluateAndVal(args[1])["value"]["real"];
+        let trafoMatrix;
+        if(typeof(CindyGL.trafoMatrix)!== "undefined"){
+            trafoMatrix=CindyGL.trafoMatrix;
+        }else{
+            trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+        }
+        // TODO? are this the correct axex/directions
+        let rotZ=[
+          [1,0,0,0],
+          [0,Math.cos(beta),Math.sin(beta),0],
+          [0,-Math.sin(beta),Math.cos(beta),0],
+          [0,0,0,1]
+        ];
+        let rotY=[
+          [Math.cos(alpha),0,Math.sin(alpha),0],
+          [0,1,0,0],
+          [-Math.sin(alpha),0,Math.cos(alpha),0],
+          [0,0,0,1]
+        ];
+        let rotationMatrix=mmult4(rotY,rotZ);
+        CindyGL.trafoMatrix=mmult4(trafoMatrix,rotationMatrix);
+        CindyGL.invTrafoMatrix=mmult4(transposeM4(rotationMatrix),CindyGL.invTrafoMatrix);
+        if(typeof(CindyGL.coordinateSystem)!== "undefined"){
+            CindyGL.coordinateSystem.transformedViewPos=
+                mvmult4(CindyGL.invTrafoMatrix,[0,0,CindyGL.coordinateSystem.z0,1]);
+            return nada;
+        }
+        return nada;
+    });
+    // TODO? zoom function
+    // TODO? move position/canvas
     api.defineFunction("colorplotend3d", 0, (args, modifs) => {
         initGLIfRequired();
         if(typeof(CindyGL.objectBuffer)!== "undefined"){
@@ -239,6 +341,7 @@ let CindyGL = function(api) {
         gl.disable(gl.DEPTH_TEST);
         gl.clear(gl.DEPTH_BUFFER_BIT);
         CindyGL.objectBuffer=undefined;
+        CindyGL.mode3D=false;
         return nada;
     });
 
@@ -286,6 +389,8 @@ let CindyGL = function(api) {
 
 // Exports for CindyXR
 CindyGL.gl = null;
+CindyGL.mode3D = false;
+CindyGL.coordinateSystem = undefined;
 CindyGL.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL.initGLIfRequired = initGLIfRequired;
 CindyJS.registerPlugin(1, "CindyGL", CindyGL);

@@ -360,7 +360,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
     var variableDependendsOnPixel = {
         'cgl_pixel': true,
         'cgl_pixel.x': true,
-        'cgl_pixel.y': true
+        'cgl_pixel.y': true,
+        'cgl_pixel3d': true,
+        'cgl_viewPos': true,
     }; //dict of this.variables being dependent on #
 
     //KISS-Fix: every variable appearing on left side of assigment is varying
@@ -571,10 +573,15 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
 
     this.initvariable('cgl_pixel', false);
     this.variables['cgl_pixel'].T = type.vec2;
+    this.initvariable('cgl_pixel3d', false);
+    this.variables['cgl_pixel3d'].T = type.vec3;
+    this.initvariable('cgl_viewPos', false);
+    this.variables['cgl_viewPos'].T = type.vec3;
+    // TODO allow access to cgl_pixel3d, cgl_viewPos from arbitrary position in code
     if (Object.keys(free).length == 1) {
-        bindings[Object.keys(free)[0]] = 'cgl_pixel';
+        bindings[Object.keys(free)[0]] = CindyGL.mode3D ? 'cgl_pixel3d':'cgl_pixel';
     } else if (free['#']) {
-        bindings['#'] = 'cgl_pixel';
+        bindings['#'] = CindyGL.mode3D ? 'cgl_pixel3d':'cgl_pixel';
     } else if (free['x'] && free['y']) {
         this.initvariable('cgl_pixel.x', false);
         this.variables['cgl_pixel.x'].T = type.float;
@@ -601,6 +608,9 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
         } else if (free['z']) {
             bindings['z'] = 'cgl_pixel';
         }
+    }
+    if (CindyGL.mode3D && free['cglViewPos']) {
+        bindings['cglViewPos'] =  'cgl_viewPos';
     }
 
     if (bindings['z'] === 'cgl_pixel') {

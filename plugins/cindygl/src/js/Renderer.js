@@ -64,7 +64,11 @@ Renderer.prototype.rebuild = function() {
 
     this.fragmentShaderCode =
         cgl_resources["standardFragmentHeader"] + cpg.code;
-    this.vertexShaderCode = cgl_resources["vshader"];
+    if(CindyGL.mode3D){
+        this.vertexShaderCode = cgl_resources["vshader3d"];
+    }else{
+        this.vertexShaderCode = cgl_resources["vshader"];
+    }
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
     /*
      *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
@@ -82,14 +86,25 @@ Renderer.prototype.rebuild = function() {
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
-
-    var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    var vertices;
+    if(CindyGL.mode3D){
+        let x0=CindyGL.coordinateSystem.x0;
+        let x1=CindyGL.coordinateSystem.x1;
+        let y0=CindyGL.coordinateSystem.y0;
+        let y1=CindyGL.coordinateSystem.y1;
+        let z1=CindyGL.coordinateSystem.z1;
+        vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+    }else{
+        vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    }
 
     var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
     gl.enableVertexAttribArray(aPosLoc);
 
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
+    if(aTexLoc!=-1){ // aTexCoord may get optimized out
+        gl.enableVertexAttribArray(aTexLoc);
+    }
 
     var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
 
@@ -97,9 +112,11 @@ Renderer.prototype.rebuild = function() {
 
     gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    if(aTexLoc!=-1){ // aTexCoord may get optimized out
+        gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+        gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
 }
 
 /**
@@ -127,7 +144,25 @@ Renderer.prototype.setTransformMatrix = function(a, b, c) {
     if (this.shaderProgram.uniform.hasOwnProperty('transformMatrix'))
         this.shaderProgram.uniform["transformMatrix"](transpose3(m));
 }
-
+/**
+ * sets uniform space transformation matrices
+ */
+Renderer.prototype.setTransformMatrices3D = function() {
+    if (this.shaderProgram.uniform.hasOwnProperty('spaceTransformMatrix'))
+        this.shaderProgram.uniform["spaceTransformMatrix"](transposeM4(CindyGL.trafoMatrix).flat());
+    if (this.shaderProgram.uniform.hasOwnProperty('inverseSpaceTransformMatrix'))
+        this.shaderProgram.uniform["inverseSpaceTransformMatrix"](transposeM4(CindyGL.invTrafoMatrix).flat());
+    if (this.shaderProgram.uniform.hasOwnProperty('projectionMatrix'))
+        this.shaderProgram.uniform["projectionMatrix"](transposeM4(CindyGL.projectionMatrix).flat());
+    if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewPos')){
+        if(typeof(CindyGL.coordinateSystem.transformedViewPos)==="undefined"){
+            CindyGL.coordinateSystem.transformedViewPos=
+                mvmult4(CindyGL.invTrafoMatrix,[0,0,CindyGL.coordinateSystem.z0,1]);
+        }
+        let viewPos4=CindyGL.coordinateSystem.transformedViewPos;
+        this.shaderProgram.uniform["cgl_viewPos"]([viewPos4[0]/viewPos4[3],viewPos4[1]/viewPos4[3],viewPos4[2]/viewPos4[3]]);
+    }
+}
 
 Renderer.prototype.setUniforms = function() {
     function setUniform(setter, t, val) {
@@ -306,6 +341,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
     this.shaderProgram.use(gl);
     this.setUniforms();
     this.setTransformMatrix(a, b, c);
+    this.setTransformMatrices3D();
     this.loadTextures();
 
     if (canvaswrapper) {
@@ -351,6 +387,7 @@ Renderer.prototype.renderXR = function(viewIndex) {
         x: -1,
         y: 1
     });
+    this.setTransformMatrices3D();
     this.loadTextures();
 
     // Binds the necessary framebuffer object.

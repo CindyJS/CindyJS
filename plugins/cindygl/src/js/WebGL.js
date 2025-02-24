@@ -814,6 +814,7 @@ webgl["det"] = first([
         [type.point, type.point, type.point], type.float, useincludefunction('det3v')
     ]
 ]);
+
 Object.freeze(webgl);
 
 //depends on glsl-implementation
