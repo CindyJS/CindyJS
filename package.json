@@ -96,5 +96,8 @@
     "lint-staged": {
         "*.js": "eslint --cache --fix",
         "*.{ts,js,css,md}": "prettier --write"
+    },
+    "dependencies": {
+        "typescript": "^5.7.3"
     }
 }
