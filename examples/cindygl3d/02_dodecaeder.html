@@ -18,12 +18,33 @@
             rho = re(time/5+mouse().y);
             theta = re(mouse().x+time/10);
 
-            r=.5;
+            r=.7;
             colorplotbegin3d();
             rotate3d(theta,rho);
             // TODO find/create a way to pass fixed value to colorplot (allows to call plot in loop)
-            // TODO only draw spheres within their bounding box
-            // TODO add lines between points
+            colorplot3d(sphere(#,cglViewPos,vertices_1,r),vertices_1,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_2,r),vertices_2,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_3,r),vertices_3,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_4,r),vertices_4,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_5,r),vertices_5,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_6,r),vertices_6,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_7,r),vertices_7,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_8,r),vertices_8,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_9,r),vertices_9,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_10,r),vertices_10,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_11,r),vertices_11,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_12,r),vertices_12,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_13,r),vertices_13,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_14,r),vertices_14,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_15,r),vertices_15,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_16,r),vertices_16,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_17,r),vertices_17,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_18,r),vertices_18,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_19,r),vertices_19,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_20,r),vertices_20,r*1.05);
+            colorplotend3d();
+        </script>
+        <!--
             colorplot3d(sphere(#,cglViewPos,vertices_1,r));
             colorplot3d(sphere(#,cglViewPos,vertices_2,r));
             colorplot3d(sphere(#,cglViewPos,vertices_3,r));
@@ -44,8 +65,28 @@
             colorplot3d(sphere(#,cglViewPos,vertices_18,r));
             colorplot3d(sphere(#,cglViewPos,vertices_19,r));
             colorplot3d(sphere(#,cglViewPos,vertices_20,r));
-            colorplotend3d();
-        </script>
+
+            colorplot3d(sphere(#,cglViewPos,vertices_1,r),vertices_1,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_2,r),vertices_2,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_3,r),vertices_3,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_4,r),vertices_4,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_5,r),vertices_5,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_6,r),vertices_6,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_7,r),vertices_7,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_8,r),vertices_8,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_9,r),vertices_9,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_10,r),vertices_10,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_11,r),vertices_11,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_12,r),vertices_12,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_13,r),vertices_13,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_14,r),vertices_14,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_15,r),vertices_15,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_16,r),vertices_16,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_17,r),vertices_17,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_18,r),vertices_18,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_19,r),vertices_19,r*1.05);
+            colorplot3d(sphere(#,cglViewPos,vertices_20,r),vertices_20,r*1.05);
+        -->
 
         <script id="csinit" type="text/x-cindyscript">
                   use("CindyGL");
@@ -80,15 +121,15 @@
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
                     // TODO? draw back face (if transparent)
                     if(D<0, //ray intersects ball
-                      rgb=gray(1.);
-                      [1,rgb_1,rgb_2,rgb_3,0],
-                      dst=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
-                      spacePos = ray(pos,viewPos, dst);
+                      [1,0,1,0,0.5],
+                      lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
+                      spacePos = ray(pos,viewPos, lambda);
+                      dst=|spacePos-viewPos|;//XXX? sign
                       n = spacePos-M;
                       n = n/abs(n);
-                      lightdir0 = .6*(-10, 10, 0.)-spacePos;
+                      lightdir0 = viewPos-spacePos;
                       mouse2d=mouse();
-                      mouselightpos = ray((mouse2d_1,mouse2d_2,0.),viewPos, 7);
+                      mouselightpos = ray((mouse2d_1,mouse2d_2,.5),viewPos, 7);
                       lightdir2 = mouselightpos-spacePos;
                       lightdir3 = ray((.0,.0,1.),viewPos,-100.);
                       color0 = .6*(1., .6,.3);
@@ -102,8 +143,7 @@
                         color1, lightdir2, -n, 1),
                         color2, lightdir2, n, 1),
                         color3, lightdir3, n, 2);
-                      // TODO! transform z coordinate to interval 0-1
-                      [dst/4,rgb_1,rgb_2,rgb_3,1]
+                      [dst/16,rgb_1,rgb_2,rgb_3,1]
                     )
                   );
         </script>

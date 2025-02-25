@@ -20,7 +20,7 @@
 
             //mouselightpos = (ray(mouse(), min(getDistanceToObj(mouse())-1, 10)));
             colorplotbegin3d();
-            rotate3d(rho,theta);
+            rotate3d(theta,rho);
             colorplot3d(computeColor(#,cglViewPos));
             colorplot3d(computeColor2(#,cglViewPos));
             colorplotend3d();
@@ -153,9 +153,8 @@
 
                       lightdir0 = .6*(-10, 10, 0.)-x;
 
-                      //lightdir2 = (1.,0.,-1.);
-                      lightdir3 = ray((.0,.0,1.),viewPos,-100.);
-                      lightdir4 = ray((.0,.0,1.),viewPos,100.);
+                      lightdir3 = ray(-viewPos,viewPos,-100.);
+                      lightdir4 = ray(-viewPos,viewPos,100.);
 
                       color0 = .6*(1., .6,.3);
                       color3 = (.1,.3,.8);

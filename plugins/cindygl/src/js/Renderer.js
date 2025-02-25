@@ -1,14 +1,32 @@
+const BoundingBoxType = {
+    none: 0, // full screen
+    // XXX? add support for bounding boxes to 2D-mode?
+    // rect: 1, // draw on rectange [vec2,vec2]
+    sphere: 2, // draw on bounding cube of sphere [vec3,float]
+    cylinder: 3, // draw in bounding cuboid of cylinder [vec3,vec3,float]
+    // XXX polygon
+}
+// TODO find better names for box generator functions
+Renderer.noBounds = function(){
+    return { type: BoundingBoxType.none };
+}
+Renderer.boundingSphere = function(center,radius){
+    return {
+        type: BoundingBoxType.sphere,center: center, radius: radius
+    };
+}
+
 /**
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression,depthType) {
+function Renderer(api, expression,depthType,boundingBox=Renderer.noBounds()) {
     this.api = api;
     this.expression = expression;
     this.depthType=depthType;
+    this.boundingBox=boundingBox;
     this.rebuild();
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Members of the prototype objects
@@ -64,10 +82,28 @@ Renderer.prototype.rebuild = function() {
 
     this.fragmentShaderCode =
         cgl_resources["standardFragmentHeader"] + cpg.code;
+    var vertices;
     if(CindyGL.mode3D){
-        this.vertexShaderCode = cgl_resources["vshader3d"];
+        let x0=CindyGL.coordinateSystem.x0;
+        let x1=CindyGL.coordinateSystem.x1;
+        let y0=CindyGL.coordinateSystem.y0;
+        let y1=CindyGL.coordinateSystem.y1;
+        let z1=CindyGL.coordinateSystem.z1;
+        if(this.boundingBox.type == BoundingBoxType.none){
+            this.vertexShaderCode = cgl_resources["vshader3d"];
+            vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+        }else if(this.boundingBox.type==BoundingBoxType.sphere){
+            this.vertexShaderCode = cgl_resources["vshader3dSphere"];
+            let r=this.boundingBox.radius;
+            vertices = new Float32Array([r,r,-r, r,-r,-r, -r,r,-r, -r,-r,-r]);
+        }else{
+            console.error("unsupported bounding box type: ",this.boundingBox.type);
+            this.vertexShaderCode = cgl_resources["vshader3d"];
+            vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+        }
     }else{
         this.vertexShaderCode = cgl_resources["vshader"];
+        vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
     }
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
     /*
@@ -86,17 +122,9 @@ Renderer.prototype.rebuild = function() {
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
-    var vertices;
-    if(CindyGL.mode3D){
-        let x0=CindyGL.coordinateSystem.x0;
-        let x1=CindyGL.coordinateSystem.x1;
-        let y0=CindyGL.coordinateSystem.y0;
-        let y1=CindyGL.coordinateSystem.y1;
-        let z1=CindyGL.coordinateSystem.z1;
-        vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
-    }else{
-        vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
-    }
+    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    var texCoordOffset = vertices.byteLength;
+    let totalBufferSize = texCoordOffset;
 
     var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
     gl.enableVertexAttribArray(aPosLoc);
@@ -104,13 +132,11 @@ Renderer.prototype.rebuild = function() {
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
     if(aTexLoc!=-1){ // aTexCoord may get optimized out
         gl.enableVertexAttribArray(aTexLoc);
+        totalBufferSize+=texCoords.byteLength;
     }
 
-    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
 
-    var texCoordOffset = vertices.byteLength;
-
-    gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
     if(aTexLoc!=-1){ // aTexCoord may get optimized out
@@ -154,6 +180,14 @@ Renderer.prototype.setTransformMatrices3D = function() {
         this.shaderProgram.uniform["inverseSpaceTransformMatrix"](transposeM4(CindyGL.invTrafoMatrix).flat());
     if (this.shaderProgram.uniform.hasOwnProperty('projectionMatrix'))
         this.shaderProgram.uniform["projectionMatrix"](transposeM4(CindyGL.projectionMatrix).flat());
+    if (this.shaderProgram.uniform.hasOwnProperty('uCenter')){
+        if(this.boundingBox.type==BoundingBoxType.sphere){
+            this.shaderProgram.uniform["uCenter"]
+                (this.boundingBox.center);
+        }else{
+            console.error("center is not supported for current bounding box type");
+        }
+    }
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewPos')){
         if(typeof(CindyGL.coordinateSystem.transformedViewPos)==="undefined"){
             CindyGL.coordinateSystem.transformedViewPos=
@@ -401,11 +435,13 @@ Renderer.prototype.resetAttribLocations = function() {
     var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
     gl.enableVertexAttribArray(aPosLoc);
 
-    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
-
     var texCoordOffset = 4 * 3 * 4; // 4 vertices, 3 entries, 4 bytes per entry
 
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+
+    var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
+    if(aTexLoc!=-1){ // aTexCoord may get optimized out
+        gl.enableVertexAttribArray(aTexLoc);
+        gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
 }
