@@ -70,23 +70,21 @@ let CindyGL3D = function(api) {
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function compileAndRender(prog,depthType, a, b, width, height, canvaswrapper) {
+    function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
         prog=compile(prog,depthType);
-        render(prog, a, b, width, height, canvaswrapper);
+        render(prog, a, b, width, height,boundingBox, canvaswrapper);
     }
-    function compile(prog,depthType,boundingBox=Renderer.noBounds()) {
-        if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
-            prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
-            prog.compiletime = requiredcompiletime;
-            prog.renderer = new Renderer(api, prog, depthType, boundingBox);
+    function compile(prog,depthType) {
+        if (typeof(prog.renderer)=="undefined") {
+            prog.renderer = new Renderer(api, prog, depthType);
         }
         return prog;
     }
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function render(prog, a, b, width, height, canvaswrapper){
-        prog.renderer.render(a, b, width, height, canvaswrapper);
+    function render(prog, a, b, width, height, boundingBox,canvaswrapper){
+        prog.renderer.render(a, b, width, height, boundingBox,canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
@@ -108,7 +106,7 @@ let CindyGL3D = function(api) {
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
 
-        compileAndRender(prog,DepthType.Flat, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
+        compileAndRender(prog,DepthType.Flat, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih,Renderer.noBounds(),null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -152,7 +150,7 @@ let CindyGL3D = function(api) {
         let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
         let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
-        compileAndRender(prog,DepthType.Flat, ll, lr, iw * fx, ih * fy, null);
+        compileAndRender(prog,DepthType.Flat, ll, lr, iw * fx, ih * fy,Renderer.noBounds(), null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         let pt = {
@@ -190,7 +188,7 @@ let CindyGL3D = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog,DepthType.Flat, a, b, cw, ch,Renderer.noBounds(), canvaswrapper);
 
         return nada;
     });
@@ -221,6 +219,7 @@ let CindyGL3D = function(api) {
         return nada;
     });
 
+    // TODO! don't compute screen bounds in colorplot3d (use values computed by colorplotbegin3d)
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
@@ -235,10 +234,10 @@ let CindyGL3D = function(api) {
         let compiledProg=compile(prog,DepthType.Nearest);
         // TODO? use objects for elements of buffer
         if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
-            CindyGL3D.objectBuffer.push([compiledProg,ll,lr,iw,ih,null]);
+            CindyGL3D.objectBuffer.push([compiledProg,ll,lr,iw,ih,Renderer.noBounds(),null]);
             return nada;
         }
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih, null);
+        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,Renderer.noBounds(), null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -267,10 +266,10 @@ let CindyGL3D = function(api) {
         // TODO? use objects for elements of buffer
         if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
             CindyGL3D.objectBuffer.push(
-                [compiledProg,ll,lr,iw,ih,null]);
+                [compiledProg,ll,lr,iw,ih,boundingBox,null]);
             return nada;
         }
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih, null);
+        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,boundingBox, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -358,13 +357,14 @@ let CindyGL3D = function(api) {
             gl.disable(gl.DEPTH_TEST);
             gl.enable(gl.BLEND);
             gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
-                render(prog,ll,lr, iw, ih, cWrap);
+            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,boundingBox,cWrap])=>{
+                render(prog,ll,lr, iw, ih,boundingBox, cWrap);
             });
             gl.enable(gl.DEPTH_TEST);
-            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
-                render(prog,ll,lr, iw, ih, cWrap);
+            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,boundingBox,cWrap])=>{
+                render(prog,ll,lr, iw, ih,boundingBox, cWrap);
             });
+            //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
              //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
             let iw = api.instance['canvas']['width'];
             let ih = api.instance['canvas']['height'];
@@ -413,10 +413,7 @@ let CindyGL3D = function(api) {
         let viewIndex = api.evaluate(args[0])["value"]["real"];
         var prog = args[1];
 
-        if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
-            //console.log("Program is not compiled. So we will do that");
-            prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
-            prog.compiletime = requiredcompiletime;
+        if (typeof(prog.renderer)=="undefined") {
             prog.renderer = new Renderer(api, prog,DepthType.Flat);
         }
         prog.renderer.renderXR(viewIndex);

@@ -16,27 +16,22 @@ Renderer.boundingSphere = function(center,radius){
     };
 }
 
+Renderer.prevBoundingBoxType = undefined;
+
 /**
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression,depthType,boundingBox=Renderer.noBounds()) {
+function Renderer(api, expression,depthType) {
     this.api = api;
     this.expression = expression;
     this.depthType=depthType;
-    this.boundingBox=boundingBox;
-    this.rebuild();
+    this.boundingBox=Renderer.noBounds();
+    this.rebuild(false);
 }
 
 //////////////////////////////////////////////////////////////////////
 // Members of the prototype objects
-
-/**
- * List of uniforms that are required in cpg-prog
- * @type {Object}
- */
-Renderer.prototype.cpguniforms;
-
 /**
  * Source code of vertex shader
  * @type {string}
@@ -62,27 +57,31 @@ Renderer.prototype.expression;
 /** @type {CanvasWrapper} */
 Renderer.prototype.canvaswrapper
 
-
-/** @type {Object.<TextureReader>} */
-Renderer.prototype.texturereaders
-
-/**
- * The generation of the current compiled myfunctions
- * @type {Object.<number>}
- */
-Renderer.prototype.generations
-
-
-Renderer.prototype.rebuild = function() {
-    let cb = new CodeBuilder(this.api);
-    let cpg = cb.generateColorPlotProgram(this.expression,this.depthType);
-    this.cpguniforms = cpg.uniforms;
-    this.texturereaders = cpg.texturereaders;
-    this.generations = cpg.generations;
-
+Renderer.prototype.rebuildIfNeccessary = function() {
+    if(this.boundingBox.type==Renderer.prevBoundingBoxType)
+        return;
+    this.rebuild(false);
+}
+Renderer.prototype.recompile = function() {
+    console.log("recompile");
+    this.expression.cb = new CodeBuilder(this.api);
+    this.expression.cpg = this.expression.cb.generateColorPlotProgram(this.expression);
+    this.expression.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
+    this.expression.compiletime = requiredcompiletime;
+}
+Renderer.prototype.rebuild = function(forceRecompile) {
+    console.log("rebuild");
+    if(forceRecompile|| !this.expression.iscompiled || this.expression.compiletime < requiredcompiletime){
+        this.recompile();
+    }
+    if(this.expression.cpg===undefined){
+        console.error("cpg is undefined");
+    }
+    Renderer.prevBoundingBoxType=this.boundingBox.type;
     this.fragmentShaderCode =
-        cgl3d_resources["standardFragmentHeader"] + cpg.code;
+        cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
     var vertices;
+    //  -> change attribute format to form that allows
     if(CindyGL3D.mode3D){
         let x0=CindyGL3D.coordinateSystem.x0;
         let x1=CindyGL3D.coordinateSystem.x1;
@@ -95,6 +94,7 @@ Renderer.prototype.rebuild = function() {
         }else if(this.boundingBox.type==BoundingBoxType.sphere){
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
             let r=this.boundingBox.radius;
+            // TODO move radius to uniforms -> use same vertex coordinates for all spheres
             vertices = new Float32Array([r,r,-r, r,-r,-r, -r,r,-r, -r,-r,-r]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
@@ -184,7 +184,6 @@ Renderer.prototype.setTransformMatrices3D = function() {
         if(this.boundingBox.type==BoundingBoxType.sphere){
             this.shaderProgram.uniform["uCenter"]
                 (this.boundingBox.center);
-            console.log(this.boundingBox.center);
         }else{
             console.error("center is not supported for current bounding box type");
         }
@@ -276,14 +275,14 @@ Renderer.prototype.setUniforms = function() {
     }
 
 
-    for (let uname in this.cpguniforms) {
+    for (let uname in this.expression.cpg.uniforms) {
 
-        let val = this.api.evaluateAndVal(this.cpguniforms[uname].expr);
-        let t = this.cpguniforms[uname].type;
+        let val = this.api.evaluateAndVal(this.expression.cpg.uniforms[uname].expr);
+        let t = this.expression.cpg.uniforms[uname].type;
 
         if (!issubtypeof(constant(val), t)) {
             console.log(`Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(t)}); forcing rebuild.`);
-            this.rebuild();
+            this.rebuild(true);
             this.shaderProgram.use(gl);
             this.setUniforms();
             return;
@@ -315,10 +314,10 @@ Renderer.prototype.setUniforms = function() {
  */
 Renderer.prototype.loadTextures = function() {
     let cnt = 0;
-    for (let t in this.texturereaders) {
+    for (let t in this.expression.cpg.texturereaders) {
         gl.activeTexture(gl.TEXTURE0 + cnt);
 
-        let tr = this.texturereaders[t];
+        let tr = this.expression.cpg.texturereaders[t];
         let tname = tr.name;
 
         let properties = tr.properties;
@@ -341,8 +340,8 @@ Renderer.prototype.loadTextures = function() {
  * checks whether the generation of the compiled myfunctions is still the current one
  */
 Renderer.prototype.functionGenerationsOk = function() {
-    for (let fname in this.generations) {
-        if (this.api.getMyfunction(fname).generation > this.generations[fname]) {
+    for (let fname in this.expression.cpg.generations) {
+        if (this.api.getMyfunction(fname).generation > this.expression.cpg.generations[fname]) {
             console.log(`${fname} is outdated; forcing rebuild.`);
             return false;
         }
@@ -354,8 +353,16 @@ Renderer.prototype.functionGenerationsOk = function() {
  * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
  */
-Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
-    if (!this.functionGenerationsOk()) this.rebuild();
+Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrapper) {
+    let needsRebuild=this.boundingBox.type!=boundingBox.type;
+    this.boundingBox=boundingBox;
+    if (!this.functionGenerationsOk()){
+        this.rebuild(true);
+    }else if(needsRebuild){
+        this.rebuild(false);// TODO split shader update and attribute update
+    }else{
+        this.rebuildIfNeccessary();
+    }
     let alpha = sizeY / sizeX;
     let n = {
         x: -(b.y - a.y) * alpha,
@@ -385,7 +392,8 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, canvaswrapper) {
     } else
         gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.flush(); //renders stuff to canvaswrapper
+    if(!CindyGL3D.mode3D)
+        gl.flush(); //renders stuff to canvaswrapper
 
     /* render on glcanvas
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -407,7 +415,7 @@ Renderer.prototype.renderXR = function(viewIndex) {
         this.resetAttribLocations();
     }
 
-    if (!this.functionGenerationsOk()) this.rebuild();
+    if (!this.functionGenerationsOk()) this.rebuild(true);
 
     this.shaderProgram.use(gl);
     this.setUniforms();

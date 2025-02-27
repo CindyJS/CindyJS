@@ -1071,27 +1071,13 @@ function generateSetDepth(depthExrp){
     #endif`
 }
 
-CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TODO add arguments for #
+CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
     let rtype = this.getType(expr);
-    let colorterm;
-    if(depthType==DepthType.Flat){
-        colorterm = this.castType(r.term, rtype, type.color);
-        if (!issubtypeof(rtype, type.color)) {
-            console.error("expression does not generate a color");
-        }
-    }else if(depthType==DepthType.Nearest){ // TODO special type for depth+color
-        if (!issubtypeof(rtype, type.vec(5))) {
-            console.error("expression does not generate a color(rgba)+depth");
-        }
-        colorterm = this.castType(r.term, rtype, type.vec(5));
-    }else{
-        console.error("unsupported depth type");
-    }
 
     let code = this.generateSection('structs');
     code += this.generateSection('uniforms');
@@ -1107,6 +1093,41 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
         }
 
     code += this.generateSection('compiledfunctions');
+    console.log(code,r);
+
+    let generations = {};
+    if (this.sections['compiledfunctions'])
+        for (let fname in this.sections['compiledfunctions'].marked) {
+            generations[fname] = this.api.getMyfunction(fname).generation;
+        }
+    return {
+        code: code,
+        colorExpr: r,
+        colorType: rtype,
+        uniforms: this.uniforms,
+        texturereaders: this.texturereaders,
+        generations: generations //all used functions with their generation
+    };
+};
+CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
+    let code=plotProgram.code;
+    let colorExpr=plotProgram.colorExpr;
+    let colorType=plotProgram.colorType;
+
+    let colorterm;
+    if(depthType==DepthType.Flat){
+        colorterm = this.castType(colorExpr.term, colorType, type.color);
+        if (!issubtypeof(colorType, type.color)) {
+            console.error("expression does not generate a color");
+        }
+    }else if(depthType==DepthType.Nearest){ // TODO special type for depth+color
+        if (!issubtypeof(colorType, type.vec(5))) {
+            console.error("expression does not generate a color(rgba)+depth");
+        }
+        colorterm = this.castType(colorExpr.term, colorType, type.vec(5));
+    }else{
+        console.error("unsupported depth type");
+    }
 
     //JRG: THis snipped is used to bypass an error caused
     //by the current WebGL implementation on most machines
@@ -1117,27 +1138,17 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TO
         randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
     //////////////////////
 
+    // TODO? code for handling bounding box
+
     if(depthType==DepthType.Flat){
-        code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
+        code += `void main(void) {\n ${randompatch} ${colorExpr.code}gl_FragColor = ${colorterm};\n}\n`;
     }else if(depthType==DepthType.Nearest){
-        code += `void main(void) {\n ${randompatch} ${r.code}
+        code += `void main(void) {\n ${randompatch} ${colorExpr.code}
         vec5 colorAndDepth= ${colorterm};
         gl_FragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
         ${generateSetDepth("colorAndDepth.a0.x")}\n}\n`;
     }else{
         console.error("unsupported depth type");
     }
-    console.log(code);
-
-    let generations = {};
-    if (this.sections['compiledfunctions'])
-        for (let fname in this.sections['compiledfunctions'].marked) {
-            generations[fname] = this.api.getMyfunction(fname).generation;
-        }
-    return {
-        code: code,
-        uniforms: this.uniforms,
-        texturereaders: this.texturereaders,
-        generations: generations //all used functions with their generation
-    };
-};
+    return code
+}
