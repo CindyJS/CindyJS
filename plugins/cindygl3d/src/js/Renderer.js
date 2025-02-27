@@ -16,7 +16,9 @@ Renderer.boundingSphere = function(center,radius){
     };
 }
 
+// previous bounding box type used
 Renderer.prevBoundingBoxType = undefined;
+Renderer.prevShader = undefined;
 
 /**
  * param {TODO} expression for the Code that will be used for rendering
@@ -82,6 +84,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
     var vertices;
     //  -> change attribute format to form that allows
+    // TODO? share vertex attributes between different shader objects
     if(CindyGL3D.mode3D){
         let x0=CindyGL3D.coordinateSystem.x0;
         let x1=CindyGL3D.coordinateSystem.x1;
@@ -93,9 +96,8 @@ Renderer.prototype.rebuild = function(forceRecompile) {
             vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }else if(this.boundingBox.type==BoundingBoxType.sphere){
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
-            let r=this.boundingBox.radius;
             // TODO move radius to uniforms -> use same vertex coordinates for all spheres
-            vertices = new Float32Array([r,r,-r, r,-r,-r, -r,r,-r, -r,-r,-r]);
+            vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
@@ -162,32 +164,25 @@ function transpose3(m) {
  * sets uniform transformMatrix such that it represents an affine trafo with (0,0)->a, (1,0)->b, (0,1)->c
  */
 Renderer.prototype.setTransformMatrix = function(a, b, c) {
-    let m = [
-        b.x - a.x, c.x - a.x, a.x,
-        b.y - a.y, c.y - a.y, a.y,
-        0, 0, 1
-    ];
-    if (this.shaderProgram.uniform.hasOwnProperty('transformMatrix'))
+    if (this.shaderProgram.uniform.hasOwnProperty('transformMatrix')){
+        let m = [
+            b.x - a.x, c.x - a.x, a.x,
+            b.y - a.y, c.y - a.y, a.y,
+            0, 0, 1
+        ];
         this.shaderProgram.uniform["transformMatrix"](transpose3(m));
+    }
 }
 /**
  * sets uniform space transformation matrices
  */
-Renderer.prototype.setTransformMatrices3D = function() {
+Renderer.prototype.setCoordinateUniforms3D = function() {
     if (this.shaderProgram.uniform.hasOwnProperty('spaceTransformMatrix'))
         this.shaderProgram.uniform["spaceTransformMatrix"](transposeM4(CindyGL3D.trafoMatrix).flat());
     if (this.shaderProgram.uniform.hasOwnProperty('inverseSpaceTransformMatrix'))
         this.shaderProgram.uniform["inverseSpaceTransformMatrix"](transposeM4(CindyGL3D.invTrafoMatrix).flat());
     if (this.shaderProgram.uniform.hasOwnProperty('projectionMatrix'))
         this.shaderProgram.uniform["projectionMatrix"](transposeM4(CindyGL3D.projectionMatrix).flat());
-    if (this.shaderProgram.uniform.hasOwnProperty('uCenter')){
-        if(this.boundingBox.type==BoundingBoxType.sphere){
-            this.shaderProgram.uniform["uCenter"]
-                (this.boundingBox.center);
-        }else{
-            console.error("center is not supported for current bounding box type");
-        }
-    }
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewPos')){
         if(typeof(CindyGL3D.coordinateSystem.transformedViewPos)==="undefined"){
             CindyGL3D.coordinateSystem.transformedViewPos=
@@ -195,6 +190,24 @@ Renderer.prototype.setTransformMatrices3D = function() {
         }
         let viewPos4=CindyGL3D.coordinateSystem.transformedViewPos;
         this.shaderProgram.uniform["cgl_viewPos"]([viewPos4[0]/viewPos4[3],viewPos4[1]/viewPos4[3],viewPos4[2]/viewPos4[3]]);
+    }
+}
+Renderer.prototype.setBoundingBoxUniforms = function() {
+    if (this.shaderProgram.uniform.hasOwnProperty('uCenter')){
+        if(this.boundingBox.type==BoundingBoxType.sphere){
+            this.shaderProgram.uniform["uCenter"]
+                (this.boundingBox.center);
+        }else{
+            console.error("uCenter is not supported for current bounding box type");
+        }
+    }
+    if (this.shaderProgram.uniform.hasOwnProperty('uRadius')){
+        if(this.boundingBox.type==BoundingBoxType.sphere){
+            this.shaderProgram.uniform["uRadius"]
+                ([this.boundingBox.radius]);
+        }else{
+            console.error("uRadius is not supported for current bounding box type");
+        }
     }
 }
 
@@ -349,6 +362,11 @@ Renderer.prototype.functionGenerationsOk = function() {
     return true;
 }
 
+Renderer.prototype.prepareUniforms = function() {
+    this.shaderProgram.use(gl);
+    this.setUniforms();
+}
+
 /**
  * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
@@ -380,10 +398,14 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
     else
         gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
 
+    if(Renderer.prevShader!==this.shaderProgram){
+        Renderer.prevShader = this.shaderProgram;
+        this.prepareUniforms();
+    }
     this.shaderProgram.use(gl);
-    this.setUniforms();
     this.setTransformMatrix(a, b, c);
-    this.setTransformMatrices3D();
+    this.setCoordinateUniforms3D(); // TODO check for update of coord-system
+    this.setBoundingBoxUniforms(); // TODO? only change on change of coord-system
     this.loadTextures();
 
     if (canvaswrapper) {
