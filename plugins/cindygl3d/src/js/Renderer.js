@@ -16,9 +16,10 @@ Renderer.boundingSphere = function(center,radius){
     };
 }
 
-// previous bounding box type used
+// remember previous values to detect changes 
 Renderer.prevBoundingBoxType = undefined;
 Renderer.prevShader = undefined;
+Renderer.prevTrafo = undefined;
 
 /**
  * param {TODO} expression for the Code that will be used for rendering
@@ -83,7 +84,6 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     this.fragmentShaderCode =
         cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
     var vertices;
-    //  -> change attribute format to form that allows
     // TODO? share vertex attributes between different shader objects
     if(CindyGL3D.mode3D){
         let x0=CindyGL3D.coordinateSystem.x0;
@@ -107,6 +107,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         this.vertexShaderCode = cgl3d_resources["vshader"];
         vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
     }
+    // TODO split creating of shader program and updating of attributes
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
     /*
      *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
@@ -365,6 +366,10 @@ Renderer.prototype.functionGenerationsOk = function() {
 Renderer.prototype.prepareUniforms = function() {
     this.shaderProgram.use(gl);
     this.setUniforms();
+    this.updateCoordinateUniforms();
+}
+Renderer.prototype.updateCoordinateUniforms = function() {
+    this.setCoordinateUniforms3D();
 }
 
 /**
@@ -381,16 +386,6 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
     }else{
         this.rebuildIfNeccessary();
     }
-    let alpha = sizeY / sizeX;
-    let n = {
-        x: -(b.y - a.y) * alpha,
-        y: (b.x - a.x) * alpha
-    };
-    let c = {
-        x: a.x + n.x,
-        y: a.y + n.y
-    };
-    //let d = {x: b.x + n.x, y: b.y + n.y};
 
     enlargeCanvasIfRequired(sizeX, sizeY)
     if (canvaswrapper)
@@ -398,14 +393,29 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
     else
         gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
 
+    this.shaderProgram.use(gl);
     if(Renderer.prevShader!==this.shaderProgram){
         Renderer.prevShader = this.shaderProgram;
         this.prepareUniforms();
+    // TODO is there a better way to detect change of coordinate system
+    }else if(Renderer.prevTrafo!==CindyGL3D.trafoMatrix){
+        Renderer.prevTrafo = CindyGL3D.trafoMatrix;
+        this.updateCoordinateUniforms();
     }
-    this.shaderProgram.use(gl);
-    this.setTransformMatrix(a, b, c);
-    this.setCoordinateUniforms3D(); // TODO check for update of coord-system
-    this.setBoundingBoxUniforms(); // TODO? only change on change of coord-system
+    if(!CindyGL3D.mode3D){ // TODO? split render2d and render3d
+        let alpha = sizeY / sizeX;
+        let n = {
+            x: -(b.y - a.y) * alpha,
+            y: (b.x - a.x) * alpha
+        };
+        let c = {
+            x: a.x + n.x,
+            y: a.y + n.y
+        };
+        //let d = {x: b.x + n.x, y: b.y + n.y};
+        this.setTransformMatrix(a, b, c);
+    }
+    this.setBoundingBoxUniforms(); // TODO? only change if bounding box is different
     this.loadTextures();
 
     if (canvaswrapper) {

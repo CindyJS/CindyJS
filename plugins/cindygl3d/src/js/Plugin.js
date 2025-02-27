@@ -227,16 +227,16 @@ let CindyGL3D = function(api) {
     api.defineFunction("colorplot3d", 1, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
+        let compiledProg=compile(prog,DepthType.Nearest);
+        // TODO? use objects for elements of buffer
+        if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
+            CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),null]);
+            return nada;
+        }
         let ll=computeLowerLeftCorner(api);
         let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
-        let compiledProg=compile(prog,DepthType.Nearest);
-        // TODO? use objects for elements of buffer
-        if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
-            CindyGL3D.objectBuffer.push([compiledProg,ll,lr,iw,ih,Renderer.noBounds(),null]);
-            return nada;
-        }
         render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,Renderer.noBounds(), null);
         let csctx = api.instance['canvas'].getContext('2d');
 
@@ -258,17 +258,17 @@ let CindyGL3D = function(api) {
         var center = coerce.toDirection(api.evaluateAndVal(args[1]));
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance['canvas']['height'];
         let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
         // TODO? use objects for elements of buffer
         if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
             CindyGL3D.objectBuffer.push(
-                [compiledProg,ll,lr,iw,ih,boundingBox,null]);
+                [compiledProg,boundingBox,null]);
             return nada;
         }
+        let ll=computeLowerLeftCorner(api);
+        let lr=computeLowerRightCorner(api);
+        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+        let ih = api.instance['canvas']['height'];
         render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,boundingBox, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
@@ -346,6 +346,9 @@ let CindyGL3D = function(api) {
     });
     // TODO? zoom function
     // TODO? move position/canvas
+    // TODO? preserve scene between draw loops
+    //  * split end3d  in draw3d and end3d
+    //  * add cglReset / cglResetScene / cglResetTransform
     api.defineFunction("colorplotend3d", 0, (args, modifs) => {
         initGLIfRequired();
         if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
@@ -354,20 +357,22 @@ let CindyGL3D = function(api) {
             // 2. render all objects with current depth
             // TODO ommit first render call when all objects are opaque
             // TODO find better way for rendering multiple translucent objects
+             //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+            let ll=computeLowerLeftCorner(api);
+            let lr=computeLowerRightCorner(api);
+            let iw = api.instance['canvas']['width'];
+            let ih = api.instance['canvas']['height'];
             gl.disable(gl.DEPTH_TEST);
             gl.enable(gl.BLEND);
             gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,boundingBox,cWrap])=>{
+            CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
                 render(prog,ll,lr, iw, ih,boundingBox, cWrap);
             });
             gl.enable(gl.DEPTH_TEST);
-            CindyGL3D.objectBuffer.forEach(([prog,ll,lr,iw,ih,boundingBox,cWrap])=>{
+            CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
                 render(prog,ll,lr, iw, ih,boundingBox, cWrap);
             });
             //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
-             //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-            let iw = api.instance['canvas']['width'];
-            let ih = api.instance['canvas']['height'];
             // TODO? directly render to main canvas
             let csctx = api.instance['canvas'].getContext('2d');
             csctx.save();
