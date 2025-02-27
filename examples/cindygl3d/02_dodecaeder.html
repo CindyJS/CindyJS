@@ -9,7 +9,7 @@
     </head>
 
     <body style="font-family: Arial">
-        <h1>CindyGL3D: many spheres</h1>
+        <h1>CindyGL3D: multiple spheres</h1>
 
         <script id="csdraw" type="text/x-cindyscript">
             time = seconds()-t0;
@@ -119,9 +119,8 @@
                     spolyvalues = [S(ray(pos,viewPos, 0),M,r), S(ray(pos,viewPos, 5),M,r), S(ray(pos,viewPos, 10),M,r)];
                     spoly = B*spolyvalues; // interpolate
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
-                    // TODO? draw back face (if transparent)
                     if(D<0, //ray intersects ball
-                      [1,0,1,0,0.5],
+                      [1,0,0,0,0],
                       lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
                       spacePos = ray(pos,viewPos, lambda);
                       dst=|spacePos-viewPos|;//XXX? sign

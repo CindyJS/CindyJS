@@ -9,81 +9,38 @@
     </head>
 
     <body style="font-family: Arial">
-        <h1>CindyGL3D: lattice</h1>
+        <h1>CindyGL3D: N*N*N grid of spheres</h1>
 
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            oo = 1000; //"infinity"
+            t0 = seconds();
+            // TODO find way to access bounding box center/radius from compiled code
+            sphere(pos,viewPos):=(color=(pos+[1,1,1])/2;[|pos-viewPos|*0.05,color_1,color_2,color_3,0.9]);
+
+        </script>
         <script id="csdraw" type="text/x-cindyscript">
             time = seconds()-t0;
             alpha = .5+mouse().x;
 
+            y=A.y;
+            if(y<N0.y,y=N0.y);
+            if(y>N1.y,y=N1.y);
+            N=floor(47*(y-N0.y)/(N1.y-N0.y)+2);// 2 .. 49 -> side length: 3 ... 50
+            A.xy=(N0.x,y);
+            drawtext(A+(.03,.03),(N+1));
+
             rho = re(time/5+mouse().y);
             theta = re(mouse().x+time/10);
 
-            N=20;
             r=1/N;
             colorplotbegin3d();
             rotate3d(theta,rho);
-            // TODO unlink unlike program and renderer
-            //   the same compiled program can be rendered in multiple different ways
-            //   a) split renderer and program, renderer -> program+boundingBox+fixedVariables
-            //   b) move bounding box to render call, renderer -> collection of shader scripts attached to program
-            // TODO find/create a way to pass fixed value to colorplot (allows to call plot in loop)
-            f(pos,viewPos):=([|pos-viewPos|*0.05,0,1,0,0.5]);
+            // TODO move creation of geometry to initializer script, remember objects, update on draw
             forall(0..N,x,forall(0..N,y,forall(0..N,z,
-              colorplot3d(f(#,cglViewPos),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
+              colorplot3d(sphere(#,cglViewPos),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
             )));
             colorplotend3d();
-        </script>
-
-        <script id="csinit" type="text/x-cindyscript">
-                  use("CindyGL3D");
-                  oo = 1000; //"infinity"
-                  t0 = seconds();
-
-                  ray(pos3d,viewPos, t) := (
-                    t*(pos3d-viewPos)+viewPos
-                  );
-
-                  A = apply(0..2,c,apply(0..2,i,(5*c)^i));
-                  // A sends polynomials [p0, p1, p2] = p0+p1*X+p2*X*Xto [p(0), p(5), p(10)]
-                  B = inverse(A); //B interpolates polynomials, given the values [p(0), p(5), p(10))]
-
-                  addlight(oldcolor, lightcolor, lightdir, normal, gamma) := (
-                    illumination = max(0,(lightdir/abs(lightdir))*normal);
-                    oldcolor + (illumination^gamma)*lightcolor
-                  );
-
-                  S(p,M,r) := ( (p-M)*(p-M) - r*r );
-                  sphere(pos,viewPos,M,r) := (
-                    spolyvalues = [S(ray(pos,viewPos, 0),M,r), S(ray(pos,viewPos, 5),M,r), S(ray(pos,viewPos, 10),M,r)];
-                    spoly = B*spolyvalues; // interpolate
-                    D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
-                    // TODO? draw back face (if transparent)
-                    if(D<0, //ray intersects ball
-                      [1,0,1,0,0.5],
-                      lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
-                      spacePos = ray(pos,viewPos, lambda);
-                      dst=|spacePos-viewPos|;//XXX? sign
-                      n = spacePos-M;
-                      n = n/abs(n);
-                      lightdir0 = viewPos-spacePos;
-                      mouse2d=mouse();
-                      mouselightpos = ray((mouse2d_1,mouse2d_2,.5),viewPos, 7);
-                      lightdir2 = mouselightpos-spacePos;
-                      lightdir3 = ray((.0,.0,1.),viewPos,-100.);
-                      color0 = .6*(1., .6,.3);
-                      color1 = min(2.,1/(lightdir2*lightdir2))*(1.,.3,.3); //glowing mouse
-                      color2 = min(2.,1/(lightdir2*lightdir2))*(.6,.4,2.); //glowing mouse
-                      color3 = (.1,.3,.8);
-                      color4 = (.9,.3,.0);
-                      rgb=addlight(addlight(addlight(addlight(
-                      (0,0,0),
-                        color0, lightdir0, n, 2),
-                        color1, lightdir2, -n, 1),
-                        color2, lightdir2, n, 1),
-                        color3, lightdir3, n, 2);
-                      [dst/16,rgb_1,rgb_2,rgb_3,1]
-                    )
-                  );
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>
@@ -96,10 +53,16 @@
                 ports: [
                     {
                         id: "CSCanvas",
-                        width: 500,
-                        height: 500,
-                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                        width: 544,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2.25, 2] }],
                     },
+                ],
+                geometry: [
+                    { name: "N0", type: "Free", pos: [2, -1.5], color: [0, 1, 0], pinned: true, size: 4 },
+                    { name: "N1", type: "Free", pos: [2, 1.5], color: [1, 0, 0], pinned: true, size: 4 },
+                    { name: "l", type: "Segment", args: ["N0", "N1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "A", type: "Free", pos: [2, -1.0], color: [0, 0, 1], pinned: false, size: 4 },
                 ],
             });
         </script>
