@@ -16,7 +16,8 @@ void main(void) {
    vec3 n4= uCenter-cgl_viewPos;
    // create local coordinate system
    vec3 dir=normalize(n4);
-   vec3 up = normalize(cross(dir,uCenter));// TODO can dir and uCenter be the same
+   // dir and dir+(.5,0,0) are distinct non-zero vectors
+   vec3 up = normalize(cross(dir,dir+vec3(.5,0.,0.)));
    vec3 right = normalize(cross(dir,up));
    cgl_pixel3d=uCenter+aPos.x*right+aPos.y*up-aPos.z*dir;
    // transform to viewSpace

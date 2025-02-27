@@ -1,44 +1,3 @@
-function mmult4(A,B){
-  // TODO better algorithm, ? use cindyscript matrix multiplication built-in
-  let C=[
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0]
-  ];
-  for(let i=0;i<4;i++){
-    for(let j=0;j<4;j++){
-      for(let k=0;k<4;k++){
-        C[i][j]+=A[i][k]*B[k][j];
-      }
-    }
-  }
-  return C;
-}
-function mvmult4(A,v){
-  let w=[0,0,0,0];
-  for(let i=0;i<4;i++){
-    for(let j=0;j<4;j++){
-       w[i]+=A[i][j]*v[j];
-    }
-  }
-  return w;
-}
-function transposeM4(A){
-  let C=[
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0]
-  ];
-  for(let i=0;i<4;i++){
-    for(let j=0;j<4;j++){
-       C[i][j]=A[j][i];
-    }
-  }
-  return C;
-}
-
 let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
@@ -50,7 +9,7 @@ let CindyGL = function(api) {
     api.defineFunction("compile", 1, (args, modifs) => {
         let expr = args[0];
         let cb = new CodeBuilder(api);
-        let code = cb.generateColorPlotProgram(expr,DepthType.Flat);
+        let code = cb.generateColorPlotProgram(expr);
         console.log(code);
         return {
             ctype: 'string',
@@ -70,22 +29,16 @@ let CindyGL = function(api) {
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function compileAndRender(prog,depthType, a, b, width, height, canvaswrapper) {
-        prog=compile(prog,depthType);
-        render(prog, a, b, width, height, canvaswrapper);
-    }
-    function compile(prog,depthType,boundingBox=Renderer.noBounds()) {
+    function compileAndRender(prog, a, b, width, height, canvaswrapper) {
         if (!prog.iscompiled || prog.compiletime < requiredcompiletime) {
+            //console.log("Program is not compiled. So we will do that");
             prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
             prog.compiletime = requiredcompiletime;
-            prog.renderer = new Renderer(api, prog, depthType, boundingBox);
+            prog.renderer = new Renderer(api, prog);
         }
-        return prog;
-    }
-    /**
-     * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
-     */
-    function render(prog, a, b, width, height, canvaswrapper){
+        /*else {
+             console.log("Program has been compiled; we will use that compiled code.");
+        }*/
         prog.renderer.render(a, b, width, height, canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
@@ -108,7 +61,7 @@ let CindyGL = function(api) {
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
 
-        compileAndRender(prog,DepthType.Flat, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
+        compileAndRender(prog, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -152,7 +105,7 @@ let CindyGL = function(api) {
         let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
         let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
-        compileAndRender(prog,DepthType.Flat, ll, lr, iw * fx, ih * fy, null);
+        compileAndRender(prog, ll, lr, iw * fx, ih * fy, null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         let pt = {
@@ -190,7 +143,7 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
         return nada;
     });
@@ -215,171 +168,9 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog, a, b, cw, ch, canvaswrapper);
 
 
-        return nada;
-    });
-
-    /**
-     * plots colorplot on whole main canvas in CindyJS coordinates
-     * uses the z-coordinate for the nearest pixel as depth information
-     */
-    api.defineFunction("colorplot3d", 1, (args, modifs) => {
-        initGLIfRequired();
-        var prog = args[0];
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance['canvas']['height'];
-        let compiledProg=compile(prog,DepthType.Nearest);
-        // TODO? use objects for elements of buffer
-        if(typeof(CindyGL.objectBuffer)!== "undefined"){
-            CindyGL.objectBuffer.push([compiledProg,ll,lr,iw,ih,null]);
-            return nada;
-        }
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih, null);
-        let csctx = api.instance['canvas'].getContext('2d');
-
-        csctx.save();
-        csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-        csctx.restore();
-
-        return nada;
-    });
-    /**
-     * plots colorplot in region bounded by sphere in CindyJS coordinates
-     * uses the z-coordinate for the nearest pixel as depth information
-     * args:  <expr> <center> <radius>
-     */
-    api.defineFunction("colorplot3d", 3, (args, modifs) => {
-        initGLIfRequired();
-        var prog = args[0];
-        var center = coerce.toDirection(api.evaluateAndVal(args[1]));
-        var radius = api.evaluateAndVal(args[2])["value"]["real"];
-        let boundingBox=Renderer.boundingSphere(center,radius);
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance['canvas']['height'];
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
-        // TODO? use objects for elements of buffer
-        if(typeof(CindyGL.objectBuffer)!== "undefined"){
-            CindyGL.objectBuffer.push(
-                [compiledProg,ll,lr,iw,ih,null]);
-            return nada;
-        }
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih, null);
-        let csctx = api.instance['canvas'].getContext('2d');
-
-        csctx.save();
-        csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-        csctx.restore();
-
-        return nada;
-    });
-    // plot3d(expr)
-    // plot3d(expr,center,radius)
-    let recomputeProjMatrix=function(){
-        let x0=CindyGL.coordinateSystem.x0;
-        let x1=CindyGL.coordinateSystem.x1;
-        let y0=CindyGL.coordinateSystem.y0;
-        let y1=CindyGL.coordinateSystem.y1;
-        let z0=CindyGL.coordinateSystem.z0;
-        let z1=CindyGL.coordinateSystem.z1;
-        CindyGL.projectionMatrix=[
-            [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
-            [0, 2/(y1-y0), 0, - 2*y0/(y1-y0) -1],
-            [0, 0, 1/(z1-z0), - z0/(z1-z0) -.5],
-            [0, 0, 1/(z1-z0), - z0/(z1-z0)]
-        ];
-    }
-    api.defineFunction("colorplotbegin3d", 0, (args, modifs) => {
-        initGLIfRequired();
-        CindyGL.mode3D=true;
-        CindyGL.objectBuffer=[];
-        CindyGL.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
-        CindyGL.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-        let ul=computeUpperLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        // TODO? make z-coords customizable
-        CindyGL.coordinateSystem={
-            x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y,
-            z0: -10, z1:0
-        };
-        CindyGL.coordinateSystem.transformedViewPos=[0,0,CindyGL.coordinateSystem.z0,1];
-        recomputeProjMatrix();
-        return nada;
-    });
-    api.defineFunction("rotate3d", 2, (args, modifs) => {
-        let alpha = api.evaluateAndVal(args[0])["value"]["real"];
-        let beta = api.evaluateAndVal(args[1])["value"]["real"];
-        let trafoMatrix;
-        if(typeof(CindyGL.trafoMatrix)!== "undefined"){
-            trafoMatrix=CindyGL.trafoMatrix;
-        }else{
-            trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-        }
-        // TODO? are this the correct axex/directions
-        let rotZ=[
-          [1,0,0,0],
-          [0,Math.cos(beta),Math.sin(beta),0],
-          [0,-Math.sin(beta),Math.cos(beta),0],
-          [0,0,0,1]
-        ];
-        let rotY=[
-          [Math.cos(alpha),0,-Math.sin(alpha),0],
-          [0,1,0,0],
-          [Math.sin(alpha),0,Math.cos(alpha),0],
-          [0,0,0,1]
-        ];
-        let rotationMatrix=mmult4(rotY,rotZ);
-        CindyGL.trafoMatrix=mmult4(trafoMatrix,rotationMatrix);
-        CindyGL.invTrafoMatrix=mmult4(transposeM4(rotationMatrix),CindyGL.invTrafoMatrix);
-        if(typeof(CindyGL.coordinateSystem)!== "undefined"){
-            CindyGL.coordinateSystem.transformedViewPos=
-                mvmult4(CindyGL.invTrafoMatrix,[0,0,CindyGL.coordinateSystem.z0,1]);
-            return nada;
-        }
-        return nada;
-    });
-    // TODO? zoom function
-    // TODO? move position/canvas
-    api.defineFunction("colorplotend3d", 0, (args, modifs) => {
-        initGLIfRequired();
-        if(typeof(CindyGL.objectBuffer)!== "undefined"){
-            // render order for translucent obejcts copied from cindy3d:
-            // 1. render all objects once without depth testing
-            // 2. render all objects with current depth
-            // TODO ommit first render call when all objects are opaque
-            // TODO find better way for rendering multiple translucent objects
-            gl.disable(gl.DEPTH_TEST);
-            gl.enable(gl.BLEND);
-            gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-            CindyGL.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
-                render(prog,ll,lr, iw, ih, cWrap);
-            });
-            gl.enable(gl.DEPTH_TEST);
-            CindyGL.objectBuffer.forEach(([prog,ll,lr,iw,ih,cWrap])=>{
-                render(prog,ll,lr, iw, ih, cWrap);
-            });
-             //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-            let iw = api.instance['canvas']['width'];
-            let ih = api.instance['canvas']['height'];
-            // TODO? directly render to main canvas
-            let csctx = api.instance['canvas'].getContext('2d');
-            csctx.save();
-            csctx.setTransform(1, 0, 0, 1, 0, 0);
-            csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-            csctx.restore();
-            return nada;
-        }
-        gl.disable(gl.DEPTH_TEST);
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        CindyGL.objectBuffer=undefined;
-        CindyGL.mode3D=false;
         return nada;
     });
 
@@ -417,7 +208,7 @@ let CindyGL = function(api) {
             //console.log("Program is not compiled. So we will do that");
             prog.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
             prog.compiletime = requiredcompiletime;
-            prog.renderer = new Renderer(api, prog,DepthType.Flat);
+            prog.renderer = new Renderer(api, prog);
         }
         prog.renderer.renderXR(viewIndex);
 
@@ -427,8 +218,6 @@ let CindyGL = function(api) {
 
 // Exports for CindyXR
 CindyGL.gl = null;
-CindyGL.mode3D = false;
-CindyGL.coordinateSystem = undefined;
 CindyGL.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL.initGLIfRequired = initGLIfRequired;
 CindyJS.registerPlugin(1, "CindyGL", CindyGL);

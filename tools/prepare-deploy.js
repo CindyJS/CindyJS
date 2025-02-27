@@ -22,6 +22,8 @@ var handlers = {
     "Cindy3D.js.map": map,
     "CindyGL.js": true,
     "CindyGL.js.map": map,
+    "CindyGL3D.js": true,
+    "CindyGL3D.js.map": map,
     "CindyPrint.js": true,
     "CindyPrint.js.map": map,
     "CindyPrintWorker.js": true,

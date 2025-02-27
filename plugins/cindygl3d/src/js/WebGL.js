@@ -360,7 +360,7 @@ webgl["mult"] = args => {
             [type.complex, type.complex], type.complex, useincludefunction('multc')
         ],
         [
-            [type.mat2, type.mat2], type.mat2, useswapinfix('*') //CindyGL/JS interprets matrixes as lists of rows. Unlike GLSL, where matrices are lists of columns
+            [type.mat2, type.mat2], type.mat2, useswapinfix('*') //CindyGL3D/JS interprets matrixes as lists of rows. Unlike GLSL, where matrices are lists of columns
         ],
         [
             [type.mat3, type.mat3], type.mat3, useswapinfix('*')
@@ -814,6 +814,7 @@ webgl["det"] = first([
         [type.point, type.point, type.point], type.float, useincludefunction('det3v')
     ]
 ]);
+
 Object.freeze(webgl);
 
 //depends on glsl-implementation

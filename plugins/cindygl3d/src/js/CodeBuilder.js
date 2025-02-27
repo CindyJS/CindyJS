@@ -1,3 +1,8 @@
+const DepthType={
+    Flat: 0, // no depth information
+    Nearest: 1, // use depth of nearest point (lowest z)
+    // XXX? multi-layered depth information
+}
 /**
  * @constructor
  */
@@ -355,7 +360,9 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
     var variableDependendsOnPixel = {
         'cgl_pixel': true,
         'cgl_pixel.x': true,
-        'cgl_pixel.y': true
+        'cgl_pixel.y': true,
+        'cgl_pixel3d': true,
+        'cgl_viewPos': true,
     }; //dict of this.variables being dependent on #
 
     //KISS-Fix: every variable appearing on left side of assigment is varying
@@ -566,10 +573,15 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
 
     this.initvariable('cgl_pixel', false);
     this.variables['cgl_pixel'].T = type.vec2;
+    this.initvariable('cgl_pixel3d', false);
+    this.variables['cgl_pixel3d'].T = type.vec3;
+    this.initvariable('cgl_viewPos', false);
+    this.variables['cgl_viewPos'].T = type.vec3;
+    // TODO allow access to cgl_pixel3d, cgl_viewPos from arbitrary position in code
     if (Object.keys(free).length == 1) {
-        bindings[Object.keys(free)[0]] = 'cgl_pixel';
+        bindings[Object.keys(free)[0]] = CindyGL3D.mode3D ? 'cgl_pixel3d':'cgl_pixel';
     } else if (free['#']) {
-        bindings['#'] = 'cgl_pixel';
+        bindings['#'] = CindyGL3D.mode3D ? 'cgl_pixel3d':'cgl_pixel';
     } else if (free['x'] && free['y']) {
         this.initvariable('cgl_pixel.x', false);
         this.variables['cgl_pixel.x'].T = type.float;
@@ -596,6 +608,9 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
         } else if (free['z']) {
             bindings['z'] = 'cgl_pixel';
         }
+    }
+    if (CindyGL3D.mode3D && free['cglViewPos']) {
+        bindings['cglViewPos'] =  'cgl_viewPos';
     }
 
     if (bindings['z'] === 'cgl_pixel') {
@@ -1044,19 +1059,40 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
     return ans.join('\n');
 };
 
+function generateSetDepth(depthExrp){
+    return `
+    #ifdef webgl2
+    gl_FragDepth= ${depthExrp};
+    #else
+    #ifdef GL_EXT_frag_depth
+    gl_FragDepthEXT= ${depthExrp};
+    #else
+    #endif
+    #endif`
+}
 
-CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
+CodeBuilder.prototype.generateColorPlotProgram = function(expr,depthType) { //TODO add arguments for #
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
     let rtype = this.getType(expr);
-    let colorterm = this.castType(r.term, rtype, type.color);
-
-    if (!issubtypeof(rtype, type.color)) {
-        console.error("expression does not generate a color");
+    let colorterm;
+    if(depthType==DepthType.Flat){
+        colorterm = this.castType(r.term, rtype, type.color);
+        if (!issubtypeof(rtype, type.color)) {
+            console.error("expression does not generate a color");
+        }
+    }else if(depthType==DepthType.Nearest){ // TODO special type for depth+color
+        if (!issubtypeof(rtype, type.vec(5))) {
+            console.error("expression does not generate a color(rgba)+depth");
+        }
+        colorterm = this.castType(r.term, rtype, type.vec(5));
+    }else{
+        console.error("unsupported depth type");
     }
+
     let code = this.generateSection('structs');
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
@@ -1076,13 +1112,21 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arg
     //by the current WebGL implementation on most machines
     //see https://stackoverflow.com/questions/79053598/bug-in-current-webgl-shader-implementation-concerning-variable-settings
     let randompatch="";
-    if (this.sections['includedfunctions']) 
+    if (this.sections['includedfunctions'])
       if(this.sections['includedfunctions'].marked.random)
         randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
     //////////////////////
 
-    code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
-
+    if(depthType==DepthType.Flat){
+        code += `void main(void) {\n ${randompatch} ${r.code}gl_FragColor = ${colorterm};\n}\n`;
+    }else if(depthType==DepthType.Nearest){
+        code += `void main(void) {\n ${randompatch} ${r.code}
+        vec5 colorAndDepth= ${colorterm};
+        gl_FragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
+        ${generateSetDepth("colorAndDepth.a0.x")}\n}\n`;
+    }else{
+        console.error("unsupported depth type");
+    }
     console.log(code);
 
     let generations = {};
