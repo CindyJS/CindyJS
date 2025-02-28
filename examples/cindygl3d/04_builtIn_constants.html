@@ -9,14 +9,14 @@
     </head>
 
     <body style="font-family: Arial">
-        <h1>CindyGL3D: N*N*N grid of spheres</h1>
+        <h1>CindyGL3D: direct access to internal uniforms through built-in variables</h1>
 
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
-            oo = 1000; //"infinity"
             t0 = seconds();
-            normalize(v):=(v/|v|);// TODO? direct access to glsl normalize
-            sphere(direction):=(
+            normalize(v):=(v/|v|);
+            test():=(
+              direction=normalize(cglViewDirection);
               // |v+l*d -c|=r
               vc=cglViewPos-cglCenter;
               // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
@@ -28,33 +28,19 @@
                 dst=-b2-re(sqrt(D4));// sqrt should always be real
                 pos3d = cglViewPos+ dst*direction;
                 normal = normalize(pos3d - cglCenter);
-                brigthness = 0.4 - 0.1*direction*normal; // 0.3 ... 0.5
-                color = brigthness*(cglCenter+[1,1,1]);
-                [dst*0.05,color_1,color_2,color_3,1]
+                brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+                color = brigthness*normalize((pos3d/(2*cglRadius))+[.5,.5,.5]);
+                [dst*0.01,color_1,color_2,color_3,1]
               )
             );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             time = seconds()-t0;
-            alpha = .5+mouse().x;
-
-            y=A.y;
-            if(y<N0.y,y=N0.y);
-            if(y>N1.y,y=N1.y);
-            N=floor(47*(y-N0.y)/(N1.y-N0.y)+2);// 2 .. 49 -> side length: 3 ... 50
-            A.xy=(N0.x,y);
-            drawtext(A+(.03,.03),(N+1));
-
             rho = re(time/5+mouse().y);
-            theta = re(mouse().x+time/10);
-
-            r=1/N;
+            theta = re(mouse().x+time/3);
             colorplotbegin3d();
             rotate3d(theta,rho);
-            // TODO move creation of geometry to initializer script, remember objects, update on draw
-            forall(0..N,x,forall(0..N,y,forall(0..N,z,
-              colorplot3d(sphere(#),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
-            )));
+            colorplot3d(test(),[0,0,0],1.5);
             colorplotend3d();
         </script>
 
@@ -68,18 +54,13 @@
                 ports: [
                     {
                         id: "CSCanvas",
-                        width: 544,
+                        width: 512,
                         height: 512,
-                        transform: [{ visibleRect: [-2, -2, 2.25, 2] }],
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
                     },
-                ],
-                geometry: [
-                    { name: "N0", type: "Free", pos: [2, -1.5], color: [0, 1, 0], pinned: true, size: 4 },
-                    { name: "N1", type: "Free", pos: [2, 1.5], color: [1, 0, 0], pinned: true, size: 4 },
-                    { name: "l", type: "Segment", args: ["N0", "N1"], color: [0, 0, 0], pinned: false, size: 2 },
-                    { name: "A", type: "Free", pos: [2, -1.0], color: [0, 0, 1], pinned: false, size: 4 },
                 ],
             });
         </script>
+        You should see a rotating multi-colored sphere
     </body>
 </html>

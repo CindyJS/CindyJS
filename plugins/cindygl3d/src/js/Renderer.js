@@ -81,6 +81,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         console.error("cpg is undefined");
     }
     Renderer.prevBoundingBoxType=this.boundingBox.type;
+    // TODO? use different header for fshader depending on box type
     this.fragmentShaderCode =
         cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
     var vertices;

@@ -101,8 +101,8 @@
                     [phi,1/phi,0],[phi,-1/phi,0],[-phi,1/phi,0],[-phi,-1/phi,0]
                   ];
 
-                  ray(pos3d,viewPos, t) := (
-                    t*(pos3d-viewPos)+viewPos
+                  ray(direction,viewPos, t) := (
+                    t*direction+viewPos
                   );
 
                   A = apply(0..2,c,apply(0..2,i,(5*c)^i));
@@ -115,14 +115,14 @@
                   );
 
                   S(p,M,r) := ( (p-M)*(p-M) - r*r );
-                  sphere(pos,viewPos,M,r) := (
-                    spolyvalues = [S(ray(pos,viewPos, 0),M,r), S(ray(pos,viewPos, 5),M,r), S(ray(pos,viewPos, 10),M,r)];
+                  sphere(direction,viewPos,M,r) := (
+                    spolyvalues = [S(ray(direction,viewPos, 0),M,r), S(ray(direction,viewPos, 5),M,r), S(ray(direction,viewPos, 10),M,r)];
                     spoly = B*spolyvalues; // interpolate
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
                     if(D<0, //ray intersects ball
                       [1,0,0,0,0],
                       lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
-                      spacePos = ray(pos,viewPos, lambda);
+                      spacePos = ray(direction,viewPos, lambda);
                       dst=|spacePos-viewPos|;//XXX? sign
                       n = spacePos-M;
                       n = n/abs(n);

@@ -57,8 +57,8 @@
                   //sphere with radius from 1 to 3
                   S2(r) := (r0=2+sin(.2*time); r*r-r0*r0);
 
-                  ray(pos3d,viewPos, t) := (
-                    t*(pos3d-viewPos)+viewPos
+                  ray(direction,viewPos, t) := (
+                    t*direction+viewPos
                   );
 
                   eval(poly, t) := poly*(1,t,t*t,t*t*t);  //evals deg 3 poly at time t
@@ -124,14 +124,14 @@
                     oldcolor + (illumination^gamma)*lightcolor
                   );
 
-                  //traces the ray for the pixel at pos and returns the distance to the first intersection point of ray with (F^{-1}\{0\} intersected with ball with radius 4)
-                  getDistanceToObj(pos,viewPos) := (
-                    spolyvalues = [S(ray(pos,viewPos, 0)), S(ray(pos,viewPos, 5)), S(ray(pos,viewPos,  10)), S(ray(pos,viewPos,  15))];
+                  //traces the ray for the pixel in the given direction and returns the distance to the first intersection point of ray with (F^{-1}\{0\} intersected with ball with radius 4)
+                  getDistanceToObj(direction,viewPos) := (
+                    spolyvalues = [S(ray(direction,viewPos, 0)), S(ray(direction,viewPos, 5)), S(ray(direction,viewPos,  10)), S(ray(direction,viewPos,  15))];
                     spoly = B*spolyvalues; // interpolate
 
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
                     if(D>=0, //ray intersects ball
-                      polyvalues = [F(ray(pos,viewPos,  0)), F(ray(pos,viewPos,  5)), F(ray(pos,viewPos,  10)), F(ray(pos,viewPos,  15))];
+                      polyvalues = [F(ray(direction,viewPos,  0)), F(ray(direction,viewPos,  5)), F(ray(direction,viewPos,  10)), F(ray(direction,viewPos,  15))];
                       poly = B*polyvalues; // interpolate
                       firstroot(poly,
                         (-spoly_2-re(sqrt(D)))/(2.*spoly_3), //intersection entering the ball
@@ -142,12 +142,12 @@
                     )
                   );
 
-                  computeColor(pos,viewPos) := (
-                    dst = getDistanceToObj(pos,viewPos);
+                  computeColor(direction,viewPos) := (
+                    dst = getDistanceToObj(direction,viewPos);
                     if(dst == oo,
                       rgb=gray(1.);
                       [1,rgb_1,rgb_2,rgb_3,0],
-                      x = ray(pos,viewPos, dst);
+                      x = ray(direction,viewPos, dst);
                       n = dF(x);
                       n = n/abs(n);
 
@@ -167,8 +167,8 @@
                       [dst/16,rgb_1,rgb_2,rgb_3,1]
                     )
                   );
-                  computeColor2(pos,viewPos) := (
-                    spolyvalues = [S2(ray(pos,viewPos, 0)), S2(ray(pos,viewPos, 5)), S2(ray(pos,viewPos, 10)), S2(ray(pos,viewPos, 15))];
+                  computeColor2(direction,viewPos) := (
+                    spolyvalues = [S2(ray(direction,viewPos, 0)), S2(ray(direction,viewPos, 5)), S2(ray(direction,viewPos, 10)), S2(ray(direction,viewPos, 15))];
                     spoly = B*spolyvalues; // interpolate
 
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly

@@ -7,5 +7,7 @@ precision highp int;
 
 varying vec2 cgl_pixel;
 varying vec2 plain_pixel;
-varying vec3 cgl_pixel3d;
+varying vec3 cgl_viewDirection;
 uniform vec3 cgl_viewPos;
+uniform vec3 uCenter;
+uniform float uRadius;

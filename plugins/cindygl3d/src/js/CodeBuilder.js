@@ -83,6 +83,17 @@ CodeBuilder.prototype.api;
 /** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
+CodeBuilder.builtInVariables=new Map([
+    ["cglPixel",{type:"uniform",expr:"cgl_pixel",valueType:type.vec2}],
+    // 3D- only
+    ["cglViewPos",{type:"uniform",expr:"cgl_viewPos",valueType:type.vec3}],
+    ["cglViewDirection",{type:"uniform",expr:"cgl_viewDirection",valueType:type.vec3}],
+    // TODO? add a normalized version of viewDirection
+    // only for spherical bounding box
+    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3}], // TODO? merge center+radius to single variable
+    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float}]
+]);
+
 /**
  * Creates new term that is casted to toType
  * assert that fromType is Type of term
@@ -126,6 +137,13 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
     let bindings = expr.bindings;
     if (expr['isuniform']) {
         return this.uniforms[expr['uvariable']].type;
+    } else if(expr['isbuiltin']){
+        if (expr['ctype'] === 'variable') {
+            let name = expr['name'];
+            return CodeBuilder.builtInVariables.get(name).valueType;
+        }
+        console.error(`unsupported built-in ${JSON.stringify(expr)}`);
+        return false;
     } else if (expr['ctype'] === 'variable') {
         let name = expr['name'];
         name = bindings[name] || name;
@@ -242,6 +260,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
 
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
+            // TODO? special handling for built-in variables
             vname = bindings[vname] || vname;
             if (forceconstant && self.variables[vname]) {
                 //console.log(`mark ${vname} as constant iteration variable`);
@@ -361,8 +380,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         'cgl_pixel': true,
         'cgl_pixel.x': true,
         'cgl_pixel.y': true,
-        'cgl_pixel3d': true,
-        'cgl_viewPos': true,
+        'normalize(cgl_viewDirection)': true,
     }; //dict of this.variables being dependent on #
 
     //KISS-Fix: every variable appearing on left side of assigment is varying
@@ -390,6 +408,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         //Is expr a variable that depends on pixel? (according the current variableDependendsOnPixel)
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
+            if(CodeBuilder.builtInVariables.has(vname)){
+                expr["isbuiltin"] = true; // TODO? allow precomputing expressions containing built-ins in some cases
+                return expr["dependsOnPixel"] = true;
+            }
             vname = expr.bindings[vname] || vname;
             if (variableDependendsOnPixel[vname]) {
                 return expr["dependsOnPixel"] = true;
@@ -573,15 +595,13 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
 
     this.initvariable('cgl_pixel', false);
     this.variables['cgl_pixel'].T = type.vec2;
-    this.initvariable('cgl_pixel3d', false);
-    this.variables['cgl_pixel3d'].T = type.vec3;
-    this.initvariable('cgl_viewPos', false);
-    this.variables['cgl_viewPos'].T = type.vec3;
-    // TODO allow access to cgl_pixel3d, cgl_viewPos from arbitrary position in code
+    // TODO? should direction argument be normalized
+    this.initvariable('normalize(cgl_viewDirection)', false);
+    this.variables['normalize(cgl_viewDirection)'].T = type.vec3;
     if (Object.keys(free).length == 1) {
-        bindings[Object.keys(free)[0]] = CindyGL3D.mode3D ? 'cgl_pixel3d':'cgl_pixel';
+        bindings[Object.keys(free)[0]] = CindyGL3D.mode3D ? 'normalize(cgl_viewDirection)':'cgl_pixel';
     } else if (free['#']) {
-        bindings['#'] = CindyGL3D.mode3D ? 'cgl_pixel3d':'cgl_pixel';
+        bindings['#'] = CindyGL3D.mode3D ? 'normalize(cgl_viewDirection)':'cgl_pixel';
     } else if (free['x'] && free['y']) {
         this.initvariable('cgl_pixel.x', false);
         this.variables['cgl_pixel.x'].T = type.float;
@@ -608,9 +628,6 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
         } else if (free['z']) {
             bindings['z'] = 'cgl_pixel';
         }
-    }
-    if (CindyGL3D.mode3D && free['cglViewPos']) {
-        bindings['cglViewPos'] =  'cgl_viewPos';
     }
 
     if (bindings['z'] === 'cgl_pixel') {
@@ -654,6 +671,18 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         } : {
             code: ''
         };
+    } else if(expr['isbuiltin']){
+        if(expr['ctype'] === 'variable'){
+            let vname = expr['name'];
+            return generateTerm ? {
+                code: '',
+                term: CodeBuilder.builtInVariables.get(vname).expr,
+            } : {
+                code: ''
+            };
+        }
+        console.error(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);
+        return;
     } else if (expr['oper'] === ";") {
         let r = {
             term: ''
