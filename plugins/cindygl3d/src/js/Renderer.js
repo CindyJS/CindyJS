@@ -16,10 +16,17 @@ Renderer.boundingSphere = function(center,radius){
     };
 }
 
-// remember previous values to detect changes 
+// remember previous values to detect changes
 Renderer.prevBoundingBoxType = undefined;
 Renderer.prevShader = undefined;
 Renderer.prevTrafo = undefined;
+Renderer.prevSize = [0,0];
+Renderer.resetCachedState = function(){
+    Renderer.prevBoundingBoxType = undefined;
+    Renderer.prevShader = undefined;
+    Renderer.prevTrafo = undefined;
+    Renderer.prevSize = [0,0];
+};
 
 /**
  * param {TODO} expression for the Code that will be used for rendering
@@ -365,7 +372,6 @@ Renderer.prototype.functionGenerationsOk = function() {
 }
 
 Renderer.prototype.prepareUniforms = function() {
-    this.shaderProgram.use(gl);
     this.setUniforms();
     this.updateCoordinateUniforms();
 }
@@ -388,14 +394,17 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
         this.rebuildIfNeccessary();
     }
 
-    enlargeCanvasIfRequired(sizeX, sizeY)
-    if (canvaswrapper)
-        gl.viewport(0, 0, sizeX, sizeY);
-    else
-        gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
+    if(Renderer.prevSize[0]!==sizeX||Renderer.prevSize[1]!==sizeY){
+        Renderer.prevSize=[sizeX,sizeY];
+        enlargeCanvasIfRequired(sizeX, sizeY)
+        if (canvaswrapper)
+            gl.viewport(0, 0, sizeX, sizeY);
+        else
+            gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
+    }
 
-    this.shaderProgram.use(gl);
     if(Renderer.prevShader!==this.shaderProgram){
+        this.shaderProgram.use(gl);
         Renderer.prevShader = this.shaderProgram;
         this.prepareUniforms();
     // TODO is there a better way to detect change of coordinate system

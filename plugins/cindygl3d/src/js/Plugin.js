@@ -337,6 +337,7 @@ let CindyGL3D = function(api) {
         let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width'];
         let ih = api.instance['canvas']['height'];
+        Renderer.resetCachedState();
         gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
