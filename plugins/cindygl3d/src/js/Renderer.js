@@ -15,6 +15,11 @@ Renderer.boundingSphere = function(center,radius){
         type: BoundingBoxType.sphere,center: center, radius: radius
     };
 }
+Renderer.boundingCylinder = function(pointA,pointB,radius){
+    return {
+        type: BoundingBoxType.cylinder,pointA: pointA,pointB: pointB, radius: radius
+    };
+}
 
 // remember previous values to detect changes
 Renderer.prevBoundingBoxType = undefined;
@@ -97,7 +102,10 @@ Renderer.prototype.rebuild = function(forceRecompile) {
             this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }else if(this.boundingBox.type==BoundingBoxType.sphere){
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
-            // TODO move radius to uniforms -> use same vertex coordinates for all spheres
+            this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+        }else if(this.boundingBox.type==BoundingBoxType.cylinder){
+            this.vertexShaderCode = cgl3d_resources["vshader3dCylinder"];
+            // TODO? how to encode vertices for cylinder
             this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
@@ -114,19 +122,6 @@ Renderer.prototype.rebuild = function(forceRecompile) {
 };
 Renderer.prototype.updateAttributes = function() {
     Renderer.prevBoundingBoxType=this.boundingBox.type;
-    /*
-     *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER, new Float32Array([
-          1,  1,  1, 1,
-          -1,  1, 0, 1,
-          1, -1,  1, 0,
-          -1, -1, 0, 0]),
-        gl.STATIC_DRAW);
-      this.textureQuadProgram = new ShaderProgram(
-        gl, c3d_resources.texq_vert, c3d_resources.texq_frag);
-      this.textureQuadAttrib = gl.getAttribLocation(l
-        this.textureQuadProgram.handle, "aPos");*/
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
@@ -211,11 +206,27 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uRadius')){
-        if(this.boundingBox.type==BoundingBoxType.sphere){
+        if(this.boundingBox.type==BoundingBoxType.sphere||this.boundingBox.type==BoundingBoxType.cylinder){
             this.shaderProgram.uniform["uRadius"]
                 ([this.boundingBox.radius]);
         }else{
             console.error("uRadius is not supported for current bounding box type");
+        }
+    }
+    if (this.shaderProgram.uniform.hasOwnProperty('uPointA')){
+        if(this.boundingBox.type==BoundingBoxType.cylinder){
+            this.shaderProgram.uniform["uPointA"]
+                (this.boundingBox.pointA);
+        }else{
+            console.error("uPointA is not supported for current bounding box type");
+        }
+    }
+    if (this.shaderProgram.uniform.hasOwnProperty('uPointB')){
+        if(this.boundingBox.type==BoundingBoxType.cylinder){
+            this.shaderProgram.uniform["uPointB"]
+                (this.boundingBox.pointB);
+        }else{
+            console.error("uPointB is not supported for current bounding box type");
         }
     }
 }

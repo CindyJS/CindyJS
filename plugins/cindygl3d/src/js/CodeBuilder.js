@@ -89,9 +89,12 @@ CodeBuilder.builtInVariables=new Map([
     ["cglViewPos",{type:"uniform",expr:"cgl_viewPos",valueType:type.vec3}],
     ["cglViewDirection",{type:"uniform",expr:"cgl_viewDirection",valueType:type.vec3}],
     // TODO? add a normalized version of viewDirection
+    // TODO! make code/available constants dependent on bounding box type
     // only for spherical bounding box
     ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3}],
-    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float}]
+    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float}],
+    ["cglPointA",{type:"uniform",expr:"uPointA",valueType:type.vec3}],
+    ["cglPointB",{type:"uniform",expr:"uPointB",valueType:type.vec3}]
 ]);
 
 /**

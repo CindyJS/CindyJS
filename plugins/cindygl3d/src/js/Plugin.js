@@ -249,6 +249,24 @@ let CindyGL3D = function(api) {
             [compiledProg,boundingBox,null]);
         return nada;
     });
+    /**
+     * plots colorplot in region bounded by cylinder in CindyJS coordinates
+     * uses the z-coordinate for the nearest pixel as depth information
+     * args:  <expr> <pointA> <pointB> <radius>
+     */
+    api.defineFunction("colorplot3d", 4, (args, modifs) => {
+        initGLIfRequired();
+        var prog = args[0];
+        var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
+        var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
+        var radius = api.evaluateAndVal(args[3])["value"]["real"];
+        let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
+        let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
+        // TODO? use objects for elements of buffer
+        CindyGL3D.objectBuffer.push(
+            [compiledProg,boundingBox,null]);
+        return nada;
+    });
     // plot3d(expr)
     // plot3d(expr,center,radius)
     let recomputeProjMatrix = function(){

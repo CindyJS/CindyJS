@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: cylinder</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            t0 = seconds();
+            normalize(v):=(v/|v|);
+            cylinder(direction):=(
+              // TODO find good equation for cylinder point
+              // P lies on infinite cylinder around axis AB with radius r iff
+              // |(P-A) - <P-A,B-A>/<B-A,B-A>*(B-A)| = r
+              // P = V+l*D, C := (B - A)/|B-A|
+              // |((V+l*D)-A) - <(V+l*D)-A,C>*C| = r
+              // |(V-A)-<V-A,C>*C -+ l*(D-<D,C>*C)| = r
+              // S := (V-A)-<V-A,C>*C,  T := <D,C>*C+D
+              // |S - l*T| = r
+              // <S-l*T,S-l*T>-r²=0 -> l² <T,T> - l 2<S,T> + <S,S> - r^2 =0
+              lAB=|cglPointB-cglPointA|;
+              C=normalize(cglPointB-cglPointA);
+              VA = (cglViewPos-cglPointA);
+              S = VA - (VA*C)*C;
+              T = direction - (direction*C)*C;
+              a = T*T;
+              b = 2*S*T;
+              c = S*S - cglRadius*cglRadius;
+              D=b*b-4*a*c;
+              if(D<0,
+                [2,0,0,0,0],
+                l1 = (-b - re(sqrt(D)))/(2*a);
+                v1 = (cglViewPos+l1*direction)-cglPointA;
+                delta1 = (v1*C);
+                if((delta1>0) & (delta1<lAB),
+                  [l1/16,0,.25+.75*abs(direction*normalize(v1-delta1*C)),0,1],
+                  l2 = (-b + re(sqrt(D)))/(2*a);
+                  v2 = (cglViewPos+l2*direction)-cglPointA;
+                  delta2 = v2*C;
+                  if((delta2>0) & (delta2<lAB),
+                    [l2/16,.25+.75*abs(direction*normalize(v2-delta2*C)),0,0,1],
+                  [2,0,0,0,0])
+                )
+              );
+            );
+            cglBegin3d();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            time = seconds()-t0;
+            rho = re(time/5+mouse().y);
+            theta = re(mouse().x+time/3);
+
+            y=R.y;
+            if(y<R0.y,y=R0.y);
+            if(y>R1.y,y=R1.y);
+            r=(2*(y-R0.y)/(R1.y-R0.y));// 0 .. 2
+            R.xy=(R0.x,y);
+            y=H.y;
+            if(y<H0.y,y=H0.y);
+            if(y>H1.y,y=H1.y);
+            h=(4*(y-H0.y)/(H1.y-H0.y));// 0 .. 4
+            H.xy=(H0.x,y);
+
+            cglReset3d();
+            cglResetRotation();
+            rotate3d(theta,rho);
+            colorplot3d(cylinder(#),[0,-h/2,0],[0,h/2,0],r);
+            cglDraw3d();
+
+            drawtext(R1+(-.05,.1),"r");
+            drawtext(R+(.03,.03),format(r,2));
+            drawtext(H1+(-.05,.1),"h");
+            drawtext(H+(.03,.03),format(h,2));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 608,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2.75, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "R0", type: "Free", pos: [2, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "R1", type: "Free", pos: [2, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R", type: "Free", pos: [2, 0], color: [0, 0, 1], pinned: false, size: 4 },
+                    { name: "H0", type: "Free", pos: [2.4, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "H1", type: "Free", pos: [2.4, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["H0", "H1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "H", type: "Free", pos: [2.4, 0], color: [0, 0, 1], pinned: false, size: 4 },
+                ]
+            });
+        </script>
+    </body>
+</html>
