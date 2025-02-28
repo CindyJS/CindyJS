@@ -8,8 +8,7 @@ varying   vec2 plain_pixel;
 uniform   vec3 uCenter;
 uniform   float uRadius;
 uniform   vec3 cgl_viewPos;
-uniform   mat4 projectionMatrix;
-uniform   mat4 spaceTransformMatrix;
+uniform   mat4 projAndTrafoMatrix;
 uniform   mat3 transformMatrix;
 
 void main(void) {
@@ -22,7 +21,7 @@ void main(void) {
    vec3 right = normalize(cross(dir,up));
    vec3 pos3 = uCenter+uRadius*(aPos.x*right+aPos.y*up-dir);
    // transform to viewSpace
-   gl_Position = projectionMatrix*spaceTransformMatrix*vec4(pos3,1);// TODO procompute product of projection and space transform
+   gl_Position = projAndTrafoMatrix*vec4(pos3,1);
    cgl_viewDirection = pos3 - cgl_viewPos;
    // 2D coordinates
    plain_pixel = aTexCoord;

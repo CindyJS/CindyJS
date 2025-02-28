@@ -90,7 +90,7 @@ CodeBuilder.builtInVariables=new Map([
     ["cglViewDirection",{type:"uniform",expr:"cgl_viewDirection",valueType:type.vec3}],
     // TODO? add a normalized version of viewDirection
     // only for spherical bounding box
-    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3}], // TODO? merge center+radius to single variable
+    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3}],
     ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float}]
 ]);
 

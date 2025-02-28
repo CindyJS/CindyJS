@@ -192,6 +192,9 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
         this.shaderProgram.uniform["inverseSpaceTransformMatrix"](transposeM4(CindyGL3D.invTrafoMatrix).flat());
     if (this.shaderProgram.uniform.hasOwnProperty('projectionMatrix'))
         this.shaderProgram.uniform["projectionMatrix"](transposeM4(CindyGL3D.projectionMatrix).flat());
+    if (this.shaderProgram.uniform.hasOwnProperty('projAndTrafoMatrix'))
+        this.shaderProgram.uniform["projAndTrafoMatrix"]
+            (transposeM4(mmult4(CindyGL3D.projectionMatrix,CindyGL3D.trafoMatrix)).flat());
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewPos')){
         if(typeof(CindyGL3D.coordinateSystem.transformedViewPos)==="undefined"){
             CindyGL3D.coordinateSystem.transformedViewPos=
