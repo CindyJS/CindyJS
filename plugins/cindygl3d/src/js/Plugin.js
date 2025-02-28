@@ -219,7 +219,7 @@ let CindyGL3D = function(api) {
         return nada;
     });
 
-    // TODO! don't compute screen bounds in colorplot3d (use values computed by colorplotbegin3d)
+
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
@@ -229,22 +229,7 @@ let CindyGL3D = function(api) {
         var prog = args[0];
         let compiledProg=compile(prog,DepthType.Nearest);
         // TODO? use objects for elements of buffer
-        if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
-            CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),null]);
-            return nada;
-        }
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance['canvas']['height'];
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,Renderer.noBounds(), null);
-        let csctx = api.instance['canvas'].getContext('2d');
-
-        csctx.save();
-        csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-        csctx.restore();
-
+        CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),null]);
         return nada;
     });
     /**
@@ -260,28 +245,13 @@ let CindyGL3D = function(api) {
         let boundingBox=Renderer.boundingSphere(center,radius);
         let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
         // TODO? use objects for elements of buffer
-        if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
-            CindyGL3D.objectBuffer.push(
-                [compiledProg,boundingBox,null]);
-            return nada;
-        }
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
-        let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ih = api.instance['canvas']['height'];
-        render(compiledProg,DepthType.Nearest, ll, lr, iw, ih,boundingBox, null);
-        let csctx = api.instance['canvas'].getContext('2d');
-
-        csctx.save();
-        csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-        csctx.restore();
-
+        CindyGL3D.objectBuffer.push(
+            [compiledProg,boundingBox,null]);
         return nada;
     });
     // plot3d(expr)
     // plot3d(expr,center,radius)
-    let recomputeProjMatrix=function(){
+    let recomputeProjMatrix = function(){
         let x0=CindyGL3D.coordinateSystem.x0;
         let x1=CindyGL3D.coordinateSystem.x1;
         let y0=CindyGL3D.coordinateSystem.y0;
@@ -294,13 +264,15 @@ let CindyGL3D = function(api) {
             [0, 0, 1/(z1-z0), - z0/(z1-z0) -.5],
             [0, 0, 1/(z1-z0), - z0/(z1-z0)]
         ];
-    }
-    api.defineFunction("colorplotbegin3d", 0, (args, modifs) => {
-        initGLIfRequired();
-        CindyGL3D.mode3D=true;
-        CindyGL3D.objectBuffer=[];
+    };
+    let resetRotation = function(){
         CindyGL3D.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
         CindyGL3D.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+        CindyGL3D.coordinateSystem.transformedViewPos=[0,0,CindyGL3D.coordinateSystem.z0,1];
+    };
+    api.defineFunction("cglBegin3d", 0, (args, modifs) => {
+        initGLIfRequired();
+        CindyGL3D.mode3D=true;
         let ul=computeUpperLeftCorner(api);
         let lr=computeLowerRightCorner(api);
         // TODO? make z-coords customizable
@@ -308,7 +280,7 @@ let CindyGL3D = function(api) {
             x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y,
             z0: -10, z1:0
         };
-        CindyGL3D.coordinateSystem.transformedViewPos=[0,0,CindyGL3D.coordinateSystem.z0,1];
+        resetRotation();
         recomputeProjMatrix();
         return nada;
     });
@@ -346,44 +318,48 @@ let CindyGL3D = function(api) {
     });
     // TODO? zoom function
     // TODO? move position/canvas
-    // TODO? preserve scene between draw loops
-    //  * split end3d  in draw3d and end3d
-    //  * add cglReset / cglResetScene / cglResetTransform
-    api.defineFunction("colorplotend3d", 0, (args, modifs) => {
+    // TODO? combined reset for objects and coord-system
+    api.defineFunction("cglResetRotation", 0, (args, modifs) => {
+        resetRotation()
+    });
+    api.defineFunction("cglReset3d", 0, (args, modifs) => {
+        CindyGL3D.objectBuffer=[];
+    });
+    api.defineFunction("cglDraw3d", 0, (args, modifs) => {
         initGLIfRequired();
-        if(typeof(CindyGL3D.objectBuffer)!== "undefined"){
-            // render order for translucent obejcts copied from cindy3d:
-            // 1. render all objects once without depth testing
-            // 2. render all objects with current depth
-            // TODO ommit first render call when all objects are opaque
-            // TODO find better way for rendering multiple translucent objects
-             //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-            let ll=computeLowerLeftCorner(api);
-            let lr=computeLowerRightCorner(api);
-            let iw = api.instance['canvas']['width'];
-            let ih = api.instance['canvas']['height'];
-            gl.disable(gl.DEPTH_TEST);
-            gl.enable(gl.BLEND);
-            gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-            CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
-                render(prog,ll,lr, iw, ih,boundingBox, cWrap);
-            });
-            gl.enable(gl.DEPTH_TEST);
-            CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
-                render(prog,ll,lr, iw, ih,boundingBox, cWrap);
-            });
-            //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
-            // TODO? directly render to main canvas
-            let csctx = api.instance['canvas'].getContext('2d');
-            csctx.save();
-            csctx.setTransform(1, 0, 0, 1, 0, 0);
-            csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
-            csctx.restore();
-            return nada;
-        }
+        // render order for translucent obejcts copied from cindy3d:
+        // 1. render all objects once without depth testing
+        // 2. render all objects with current depth
+        // TODO ommit first render call when all objects are opaque
+        // TODO find better way for rendering multiple translucent objects
+            //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+        let ll=computeLowerLeftCorner(api);
+        let lr=computeLowerRightCorner(api);
+        let iw = api.instance['canvas']['width'];
+        let ih = api.instance['canvas']['height'];
+        gl.disable(gl.DEPTH_TEST);
+        gl.enable(gl.BLEND);
+        gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
+            render(prog,ll,lr, iw, ih,boundingBox, cWrap);
+        });
+        gl.enable(gl.DEPTH_TEST);
+        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
+            render(prog,ll,lr, iw, ih,boundingBox, cWrap);
+        });
+        //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
+        // TODO? directly render to main canvas
+        let csctx = api.instance['canvas'].getContext('2d');
+        csctx.save();
+        csctx.setTransform(1, 0, 0, 1, 0, 0);
+        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+        csctx.restore();
+        return nada;
+    });
+    api.defineFunction("cglEnd3d", 0, (args, modifs) => {
+        initGLIfRequired();
         gl.disable(gl.DEPTH_TEST);
         gl.clear(gl.DEPTH_BUFFER_BIT);
-        CindyGL3D.objectBuffer=undefined;
         CindyGL3D.mode3D=false;
         return nada;
     });
@@ -430,6 +406,7 @@ let CindyGL3D = function(api) {
 // Exports for CindyXR
 CindyGL3D.gl = null;
 CindyGL3D.mode3D = false;
+CindyGL3D.objectBuffer=[];
 CindyGL3D.coordinateSystem = undefined;
 CindyGL3D.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL3D.initGLIfRequired = initGLIfRequired;

@@ -11,21 +11,6 @@
     <body style="font-family: Arial">
         <h1>CindyJS: Raytracer</h1>
 
-        <script id="csdraw" type="text/x-cindyscript">
-            time = seconds()-t0;
-            alpha = .5+mouse().x;
-
-            rho = re(time/5+mouse().y);
-            theta = re(mouse().x+time/10);
-
-            //mouselightpos = (ray(mouse(), min(getDistanceToObj(mouse())-1, 10)));
-            colorplotbegin3d();
-            rotate3d(theta,rho);
-            colorplot3d(computeColor(#,cglViewPos));
-            colorplot3d(computeColor2(#,cglViewPos));
-            colorplotend3d();
-        </script>
-
         <script id="csinit" type="text/x-cindyscript">
                   use("CindyGL3D");
                   oo = 1000; //"infinity"
@@ -179,6 +164,24 @@
                       [oo,0.0,0.0,0.0,.0]
                     )
                   );
+
+            time=0;
+            cglBegin3d();
+            colorplot3d(computeColor(#,cglViewPos));
+            colorplot3d(computeColor2(#,cglViewPos));
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            time = seconds()-t0;
+            alpha = .5+mouse().x;
+
+            rho = re(time/5+mouse().y);
+            theta = re(mouse().x+time/10);
+
+            //mouselightpos = (ray(mouse(), min(getDistanceToObj(mouse())-1, 10)));
+            cglResetRotation();
+            rotate3d(theta,rho);
+            cglDraw3d();
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>

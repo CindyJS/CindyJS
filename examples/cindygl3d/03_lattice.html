@@ -33,6 +33,15 @@
                 [dst*0.05,color_1,color_2,color_3,1]
               )
             );
+            prevN=0;
+            updateImage(N):=(
+              r=1/N;
+              cglReset3d();
+              forall(0..N,x,forall(0..N,y,forall(0..N,z,
+                colorplot3d(sphere(#),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
+              )));
+            );
+            cglBegin3d();
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             time = seconds()-t0;
@@ -44,18 +53,14 @@
             N=floor(47*(y-N0.y)/(N1.y-N0.y)+2);// 2 .. 49 -> side length: 3 ... 50
             A.xy=(N0.x,y);
             drawtext(A+(.03,.03),(N+1));
+            if(N!=prevN,prevN=N;updateImage(N));
 
             rho = re(time/5+mouse().y);
             theta = re(mouse().x+time/10);
 
-            r=1/N;
-            colorplotbegin3d();
+            cglResetRotation();
             rotate3d(theta,rho);
-            // TODO move creation of geometry to initializer script, remember objects, update on draw
-            forall(0..N,x,forall(0..N,y,forall(0..N,z,
-              colorplot3d(sphere(#),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
-            )));
-            colorplotend3d();
+            cglDraw3d();
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>

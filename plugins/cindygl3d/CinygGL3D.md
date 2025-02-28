@@ -7,9 +7,12 @@
 
 All CindyGL functions are preserved with their original behaviour.
 
-* `colorPlotBegin3D` start 3D mode
-* `rotate3D` 
-* `colorPlotEnd3D` draw the current objects and end 3D mode
+* `cglBegin3d` start 3D mode, and reset coordinate system
+* `rotate3d(<alpha>,<beta>)` rotate coordinate system
+* `cglResetRotation` reset rotation
+* `cglReset3d` reset 3D scene
+* `cglDraw3d` draw 3D scene
+* `cglEnd3d` end 3D mode
 * `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of the) sphere aroung `<center>` with the given radius
 
