@@ -67,11 +67,6 @@ Renderer.prototype.expression;
 /** @type {CanvasWrapper} */
 Renderer.prototype.canvaswrapper
 
-Renderer.prototype.rebuildIfNeccessary = function() {
-    if(this.boundingBox.type==Renderer.prevBoundingBoxType)
-        return;
-    this.rebuild(false);
-}
 Renderer.prototype.recompile = function() {
     console.log("recompile");
     this.expression.cb = new CodeBuilder(this.api);
@@ -87,11 +82,9 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     if(this.expression.cpg===undefined){
         console.error("cpg is undefined");
     }
-    Renderer.prevBoundingBoxType=this.boundingBox.type;
     // TODO? use different header for fshader depending on box type
     this.fragmentShaderCode =
         cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
-    var vertices;
     // TODO? share vertex attributes between different shader objects
     if(CindyGL3D.mode3D){
         let x0=CindyGL3D.coordinateSystem.x0;
@@ -101,22 +94,26 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         let z1=CindyGL3D.coordinateSystem.z1;
         if(this.boundingBox.type == BoundingBoxType.none){
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
-            vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }else if(this.boundingBox.type==BoundingBoxType.sphere){
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
             // TODO move radius to uniforms -> use same vertex coordinates for all spheres
-            vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+            this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
-            vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }
     }else{
         this.vertexShaderCode = cgl3d_resources["vshader"];
-        vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+        this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
     }
     // TODO split creating of shader program and updating of attributes
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
+    this.updateAttributes();
+};
+Renderer.prototype.updateAttributes = function() {
+    Renderer.prevBoundingBoxType=this.boundingBox.type;
     /*
      *    gl.bindBuffer(gl.ARRAY_BUFFER, this.ssArrayBuffer);
       gl.bufferData(
@@ -134,7 +131,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
     var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
-    var texCoordOffset = vertices.byteLength;
+    var texCoordOffset = this.vertices.byteLength;
     let totalBufferSize = texCoordOffset;
 
     var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
@@ -148,7 +145,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
 
     gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
 
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
     if(aTexLoc!=-1){ // aTexCoord may get optimized out
         gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
@@ -377,11 +374,13 @@ Renderer.prototype.functionGenerationsOk = function() {
 Renderer.prototype.prepareUniforms = function() {
     this.setUniforms();
     this.updateCoordinateUniforms();
+    this.loadTextures();
 }
 Renderer.prototype.updateCoordinateUniforms = function() {
     this.setCoordinateUniforms3D();
 }
 
+// TODO? split 2d and 3d rendering functions
 /**
  * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
@@ -389,12 +388,13 @@ Renderer.prototype.updateCoordinateUniforms = function() {
 Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrapper) {
     let needsRebuild=this.boundingBox.type!=boundingBox.type;
     this.boundingBox=boundingBox;
-    if (!this.functionGenerationsOk()){
+    if ((Renderer.prevShader!==this.shaderProgram) // only check functions once per shader program per drawCycle
+            && (!this.functionGenerationsOk())){
         this.rebuild(true);
     }else if(needsRebuild){
-        this.rebuild(false);// TODO split shader update and attribute update
-    }else{
-        this.rebuildIfNeccessary();
+        this.rebuild(false);
+    }else if(this.boundingBox.type!=Renderer.prevBoundingBoxType){
+        this.updateAttributes();
     }
 
     if(Renderer.prevSize[0]!==sizeX||Renderer.prevSize[1]!==sizeY){
@@ -410,6 +410,13 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
         this.shaderProgram.use(gl);
         Renderer.prevShader = this.shaderProgram;
         this.prepareUniforms();
+        // ? -> make part of initial renderer setup
+        if (canvaswrapper) {
+            canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
+            canvaswrapper.generation = ++canvaswrapper.canvas.generation;
+        } else {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
+        }
     // TODO is there a better way to detect change of coordinate system
     }else if(Renderer.prevTrafo!==CindyGL3D.trafoMatrix){
         Renderer.prevTrafo = CindyGL3D.trafoMatrix;
@@ -429,13 +436,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
         this.setTransformMatrix(a, b, c);
     }
     this.setBoundingBoxUniforms(); // TODO? only change if bounding box is different
-    this.loadTextures();
 
-    if (canvaswrapper) {
-        canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
-        canvaswrapper.generation = ++canvaswrapper.canvas.generation;
-    } else
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     if(!CindyGL3D.mode3D)
         gl.flush(); //renders stuff to canvaswrapper
