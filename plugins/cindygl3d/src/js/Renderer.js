@@ -190,7 +190,7 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewPos')){
         if(typeof(CindyGL3D.coordinateSystem.transformedViewPos)==="undefined"){
             CindyGL3D.coordinateSystem.transformedViewPos=
-                mvmult4(CindyGL3D.invTrafoMatrix,[0,0,CindyGL3D.coordinateSystem.z0,1]);
+                mvmult4(CindyGL3D.invTrafoMatrix,CindyGL3D.coordinateSystem.viewPosition);
         }
         let viewPos4=CindyGL3D.coordinateSystem.transformedViewPos;
         this.shaderProgram.uniform["cgl_viewPos"]([viewPos4[0]/viewPos4[3],viewPos4[1]/viewPos4[3],viewPos4[2]/viewPos4[3]]);

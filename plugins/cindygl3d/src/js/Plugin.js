@@ -286,7 +286,7 @@ let CindyGL3D = function(api) {
     let resetRotation = function(){
         CindyGL3D.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
         CindyGL3D.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-        CindyGL3D.coordinateSystem.transformedViewPos=[0,0,CindyGL3D.coordinateSystem.z0,1];
+        CindyGL3D.coordinateSystem.transformedViewPos=CindyGL3D.coordinateSystem.viewPosition;
     };
     api.defineFunction("cglBegin3d", 0, (args, modifs) => {
         initGLIfRequired();
@@ -298,6 +298,12 @@ let CindyGL3D = function(api) {
             x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y,
             z0: -10, z1:0
         };
+        let x0=CindyGL3D.coordinateSystem.x0;
+        let y0=CindyGL3D.coordinateSystem.y0;
+        let x1=CindyGL3D.coordinateSystem.x1;
+        let y1=CindyGL3D.coordinateSystem.y1;
+        CindyGL3D.coordinateSystem.viewPosition=
+            [(x0+x1)/2,(y0+y1)/2,CindyGL3D.coordinateSystem.z0,1];
         resetRotation();
         recomputeProjMatrix();
         return nada;
@@ -329,7 +335,7 @@ let CindyGL3D = function(api) {
         CindyGL3D.invTrafoMatrix=mmult4(CindyGL3D.invTrafoMatrix,transposeM4(rotationMatrix));
         if(typeof(CindyGL3D.coordinateSystem)!== "undefined"){
             CindyGL3D.coordinateSystem.transformedViewPos=
-                mvmult4(CindyGL3D.invTrafoMatrix,[0,0,CindyGL3D.coordinateSystem.z0,1]);
+                mvmult4(CindyGL3D.invTrafoMatrix,CindyGL3D.coordinateSystem.viewPosition);
             return nada;
         }
         return nada;
