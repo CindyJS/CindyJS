@@ -325,8 +325,8 @@ let CindyGL3D = function(api) {
           [0,0,0,1]
         ];
         let rotationMatrix=mmult4(rotY,rotZ);
-        CindyGL3D.trafoMatrix=mmult4(trafoMatrix,rotationMatrix);
-        CindyGL3D.invTrafoMatrix=mmult4(transposeM4(rotationMatrix),CindyGL3D.invTrafoMatrix);
+        CindyGL3D.trafoMatrix=mmult4(rotationMatrix,trafoMatrix);
+        CindyGL3D.invTrafoMatrix=mmult4(CindyGL3D.invTrafoMatrix,transposeM4(rotationMatrix));
         if(typeof(CindyGL3D.coordinateSystem)!== "undefined"){
             CindyGL3D.coordinateSystem.transformedViewPos=
                 mvmult4(CindyGL3D.invTrafoMatrix,[0,0,CindyGL3D.coordinateSystem.z0,1]);

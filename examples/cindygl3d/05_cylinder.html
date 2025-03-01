@@ -11,9 +11,20 @@
     <body style="font-family: Arial">
         <h1>CindyGL3D: cylinder</h1>
 
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
-            t0 = seconds();
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
             normalize(v):=(v/|v|);
             cylinder(direction):=(
               // TODO find good equation for cylinder point
@@ -53,9 +64,13 @@
             cglBegin3d();
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-            time = seconds()-t0;
-            rho = re(time/5+mouse().y);
-            theta = re(mouse().x+time/3);
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+
+            sx = mouse().x;
+            sy = mouse().y;
 
             y=R.y;
             if(y<R0.y,y=R0.y);
@@ -69,8 +84,6 @@
             H.xy=(H0.x,y);
 
             cglReset3d();
-            cglResetRotation();
-            rotate3d(theta,rho);
             colorplot3d(cylinder(#),[0,-h/2,0],[0,h/2,0],r);
             cglDraw3d();
 
@@ -99,11 +112,11 @@
                     { name: "R0", type: "Free", pos: [2, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "R1", type: "Free", pos: [2, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
-                    { name: "R", type: "Free", pos: [2, 0], color: [0, 0, 1], pinned: false, size: 4 },
+                    { name: "R", type: "Free", pos: [2, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
                     { name: "H0", type: "Free", pos: [2.4, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "H1", type: "Free", pos: [2.4, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "l_1", type: "Segment", args: ["H0", "H1"], color: [0, 0, 0], pinned: false, size: 2 },
-                    { name: "H", type: "Free", pos: [2.4, 0], color: [0, 0, 1], pinned: false, size: 4 },
+                    { name: "H", type: "Free", pos: [2.4, 0], color: [0, 0, 1], narrow: true, pinned: false, size: 4 },
                 ]
             });
         </script>
