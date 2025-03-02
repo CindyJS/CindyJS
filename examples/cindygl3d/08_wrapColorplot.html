@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            phi=(1+sqrt(5))/2;
+
+            aColor=[1,0,0];
+            bColor=[0,1,0];
+            cColor=[0,1,1];
+            normalize(v):=(v/|v|);
+            cylinder(pointA,pointB,radius):=(
+              // TODO multiple versions (no-inside, transparency, color, shading)
+              cgl3dCylinderShaderCode(direction):=(
+                // P lies on infinite cylinder around axis AB with radius r iff
+                // |(P-A) - <P-A,B-A>/<B-A,B-A>*(B-A)| = r
+                // P = V+l*D, BA = B-A , U := (B - A)/|B-A|²
+                // |((V+l*D)-A) - <(V+l*D)-A,BA>*U| = r
+                // |(V-A)-<V-A,BA>*U + l*(D-<D,BA>*U)| = r
+                // S := (V-A)-<V-A,BA>*U,  T := <D,BA>*U+D
+                // |S + l*T| = r
+                // <S-l*T,S-l*T>-r²=0 -> l² <T,T> + l 2<S,T> + <S,S> - r^2 =0
+
+                // pick point on viewRay closer to cylinder to increase numeric stability
+                w = |cglViewPos-(cglPointA+cglPointB)/2|;
+                W = cglViewPos + w*direction;
+                BA=cglPointB-cglPointA;
+                U=BA/(BA*BA);
+                VA = (W-cglPointA);
+                S = VA - (VA*BA)*U;
+                T = direction - (direction*BA)*U;
+                a = T*T;
+                b = S*T;
+                c = S*S -cglRadius*cglRadius;
+                D= b*b-a*c;
+                if(D<0,
+                  [2,0,0,0,0],
+                  l1 = -(b + re(sqrt(D)))/a;
+                  v1 = (W+l1*direction)-cglPointA;
+                  delta1 = (v1*U);
+                  if((delta1>0)& (delta1<1),
+                    brigthness=.75-.25*direction*normalize(v1-delta1*U);
+                    color=brigthness*((aColor*delta1+bColor*(1-delta1)));
+                    [(w+l1)/16,color_1,color_2,color_3,1],
+                    l2 = (-b + re(sqrt(D)))/a;
+                    v2 = (W+l2*direction)-cglPointA;
+                    delta2 = v2*U;
+                    if((delta2>0) & (delta2<1),
+                      brigthness=.5-.25*direction*normalize(v1-delta2*U);
+                      color=brigthness*((aColor*delta2+bColor*(1-delta2)));
+                      [(l2+w)/16,color_1,color_2,color_3,1],
+                      [2,0,0,0,0]
+                    )
+                  )
+                )
+              );
+              colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius);
+            );
+            sphere(center,radius):=(
+              // TODO multiple versions (transparency, color, shading)
+              cgl3dSphereShaderCode(direction):=(
+                // |v+l*d -c|=r
+                vc=cglViewPos-cglCenter;
+                // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+                b2=(vc*direction); // 1/2 * b
+                c=vc*vc-cglRadius*cglRadius;
+                D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+                if(D4<0,
+                  [2,0,0,0,0],
+                  dst=-b2-re(sqrt(D4));// sqrt should always be real
+                  pos3d = cglViewPos+ dst*direction;
+                  normal = normalize(pos3d - cglCenter);
+                  brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+                  color = brigthness*cColor;
+                  [dst/16,color_1,color_2,color_3,1]
+                )
+              );
+              colorplot3d(cgl3dSphereShaderCode(#),center,radius);
+            );
+
+            cglBegin3d();
+            s=1.4;
+            r1=.3;
+            r2=.2;
+
+            drawTetrahedron():=(
+              vertices=[(0,1,0),(0,-1/3,-2*sqrt(2)/3),(sqrt(6)/3,-1/3,sqrt(2)/3),(-sqrt(6)/3,-1/3,sqrt(2)/3)];
+              repeat(length(vertices),i,
+                sphere(s*(vertices_i),r1);
+                repeat(length(vertices)-i,j,
+                  cylinder(s*(vertices_i),s*((vertices_(i+j))),r2);
+                )
+              );
+            );
+            drawOctahedron():=(
+              forall((1,-1),x,
+                sphere([s*x,0,0],r1);
+                forall((1,-1),y,
+                  sphere([0,s*y,0],r1);
+                  cylinder([s*x,0,0],[0,s*y,0],r2);
+                  forall((1,-1),z,
+                    sphere([0,0,s*z],r1);
+                    cylinder([s*x,0,0],[0,0,s*z],r2);
+                    cylinder([0,s*y,0],[0,0,s*z],r2);
+                  );
+                );
+              );
+            );
+            drawCube():=(
+              s0=s;
+              s=s/sqrt(3);
+              forall((1,-1),x,
+                forall((1,-1),y,
+                  cylinder([s*x,s*y,s],[s*x,s*y,-s],r2);
+                  cylinder([s*x,s,s*y],[s*x,-s,s*y],r2);
+                  cylinder([s,s*x,s*y],[-s,s*x,s*y],r2);
+                  forall((1,-1),z,
+                    sphere([s*x,s*y,s*z],r1);
+                  );
+                );
+              );
+              s=s0;
+            );
+            drawDodecahedron():=(
+              s0=s;
+              s=s/sqrt(3);
+              vertices=[
+                [1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],[-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],
+                [0,phi,1/phi],[0,phi,-1/phi],[0,-phi,1/phi],[0,-phi,-1/phi],
+                [1/phi,0,phi],[1/phi,0,-phi],[-1/phi,0,phi],[-1/phi,0,-phi],
+                [phi,1/phi,0],[phi,-1/phi,0],[-phi,1/phi,0],[-phi,-1/phi,0]
+              ];
+              repeat(length(vertices),i,
+                sphere(s*(vertices_i),r1);
+                repeat(length(vertices)-i,j,
+                  if(|(vertices_i)-(vertices_(i+j))|<s0,
+                    cylinder(s*(vertices_i),s*((vertices_(i+j))),r2)
+                  )
+                )
+              );
+              s=s0;
+            );
+            drawIcosahedron():=(
+              s0=s;
+              s=s/|[1,phi]|;
+              vertices=[
+                [0,1,phi],[0,1,-phi],[0,-1,phi],[0,-1,-phi],
+                [1,phi,0],[1,-phi,0],[-1,phi,0],[-1,-phi,0],
+                [phi,0,1],[phi,0,-1],[-phi,0,1],[-phi,0,-1]
+              ];
+              repeat(length(vertices),i,
+                sphere(s*(vertices_i),r1);
+                repeat(length(vertices)-i,j,
+                  if(|(vertices_i)-(vertices_(i+j))|<2*s0,
+                    cylinder(s*(vertices_i),s*((vertices_(i+j))),r2)
+                  )
+                )
+              );
+              s=s0;
+            );
+            //drawTetrahedron();
+            //drawOctahedron();
+            //drawCube();
+            drawDodecahedron();
+            drawIcosahedron();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+
+            // TODO UI controlls:
+            // select drawn polyeders
+            // slides for r1,r2,s
+
+            sx = mouse().x;
+            sy = mouse().y;
+
+
+            cglDraw3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ]
+            });
+        </script>
+    </body>
+</html>
