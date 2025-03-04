@@ -1,13 +1,14 @@
-#ifdef GL_ES
+#version 300 es
 precision highp float;
 precision highp int;
-#endif
 
 #define pi 3.141592653589793
 
-varying vec2 cgl_pixel;
-varying vec2 plain_pixel;
-varying vec3 cgl_viewDirection;
+in vec2 cgl_pixel;
+in vec2 plain_pixel;
+in vec3 cgl_viewDirection;
+out vec4 fragColor;
+
 uniform vec3 cgl_viewPos;
 uniform vec3 uCenter;
 uniform vec3 uPointA;

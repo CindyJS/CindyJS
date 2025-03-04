@@ -92,58 +92,14 @@ function initGLIfRequired() {
     }
     gl = /** @type {WebGL2RenderingContext} */ (
         glcanvas.getContext("webgl2", contextAttributes));
-    if(gl){
-        gl.webgl2 = true;
-        CindyGL3D.webgl2 = true;
-        console.log("Loaded WebGL 2.0.");
-    }else{
-        // TODO drop webgl1 support
-        CindyGL3D.webgl2 = false;
-        gl = /** @type {WebGLRenderingContext} */ (
-            glcanvas.getContext("webgl", contextAttributes));
-        if (gl){
-            if (/[?&]frag_depth=0/.test(window.location.search)) {
-                this.glExtFragDepth = null;
-            }else {
-                this.glExtFragDepth = gl.getExtension("EXT_frag_depth");
-                if (!this.glExtFragDepth) {
-                    console.log("EXT_frag_depth extension not supported.");
-                }
-            }
-        }else{
-            gl = /** @type {WebGLRenderingContext} */ (
-                glcanvas.getContext("experimental-webgl", contextAttributes));
-        }
-    }
     if (!gl)
-        throw new GlError(`Could not obtain a WebGL context.\nReason: ${errorInfo}`);
+        throw new GlError(`Could not obtain a WebGL2 context.\nReason: ${errorInfo}`);
+    console.log("Loaded WebGL 2.0.");
     CindyGL3D.gl = gl;
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
     gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    if (!CindyGL3D.webgl2 && !use8bittextures) { // webgl2 supports float textures by default
-        can_use_texture_float = gl.getExtension('OES_texture_float') && gl.getExtension('OES_texture_float_linear');
-        if (!can_use_texture_float) {
-            console.error("Your browser does not suppert OES_texture_float, trying OES_texture_half_float...");
-            halfFloat = gl.getExtension('OES_texture_half_float');
-            can_use_texture_half_float = halfFloat && gl.getExtension('OES_texture_half_float_linear');
-            if (!can_use_texture_half_float)
-                console.error("Your browser does not suppert OES_texture_half_float, will use 8-bit textures.");
-        }
-
-        if (navigator.userAgent.match(/(iPad|iPhone)/i)) { //TODO: detect this better by checking wheather building a toy shader fails...
-            console.log("You are using an iPhone/iPad.");
-            can_use_texture_float = can_use_texture_half_float = false;
-            if (gl.getExtension('OES_texture_half_float') && gl.getExtension('OES_texture_half_float_linear') && gl.getExtension('EXT_color_buffer_half_float')) {
-                can_use_texture_half_float = true;
-            } else {
-                console.error("Your browser does not suppert writing to half_float textures, we will use 8-bit textures.");
-            }
-
-
-        }
-    }
     isinitialized = true;
 }

@@ -1092,15 +1092,7 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
 };
 
 function generateSetDepth(depthExrp){
-    return `
-    #ifdef webgl2
-    gl_FragDepth= ${depthExrp};
-    #else
-    #ifdef GL_EXT_frag_depth
-    gl_FragDepthEXT= ${depthExrp};
-    #else
-    #endif
-    #endif`
+    return `gl_FragDepth= ${depthExrp};`
 }
 
 CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
@@ -1173,11 +1165,11 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     // TODO? code for handling bounding box
 
     if(depthType==DepthType.Flat){
-        code += `void main(void) {\n ${randompatch} ${colorExpr.code}gl_FragColor = ${colorterm};\n}\n`;
+        code += `void main(void) {\n ${randompatch} ${colorExpr.code}fragColor = ${colorterm};\n}\n`;
     }else if(depthType==DepthType.Nearest){
         code += `void main(void) {\n ${randompatch} ${colorExpr.code}
         vec5 colorAndDepth= ${colorterm};
-        gl_FragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
+        fragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
         ${generateSetDepth("colorAndDepth.a0.x")}\n}\n`;
     }else{
         console.error("unsupported depth type");

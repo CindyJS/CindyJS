@@ -1,9 +1,10 @@
-attribute vec2 aTexCoord;
-attribute vec3 aPos;
+#version 300 es
+in vec2 aTexCoord;
+in vec3 aPos;
 
-varying   vec2 cgl_pixel;
-varying   vec3 cgl_viewDirection;
-varying   vec2 plain_pixel;
+out   vec2 cgl_pixel;
+out   vec3 cgl_viewDirection;
+out   vec2 plain_pixel;
 
 uniform   vec3 uCenter;
 uniform   float uRadius;

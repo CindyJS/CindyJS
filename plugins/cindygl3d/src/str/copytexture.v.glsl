@@ -1,6 +1,7 @@
-attribute vec3 aPos;
-attribute vec2 aTexCoord;
-varying   vec2 cgl_pixel;
+#version 300 es
+in vec3 aPos;
+in vec2 aTexCoord;
+out   vec2 cgl_pixel;
 
 void main(void) {
    gl_Position = vec4(aPos, 1.);

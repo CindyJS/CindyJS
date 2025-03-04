@@ -1,9 +1,10 @@
-attribute vec3 aPos;
-attribute vec2 aTexCoord;
+#version 300 es
+in vec3 aPos;
+in vec2 aTexCoord;
 
-varying   vec2 cgl_pixel;
-varying   vec3 cgl_viewDirection;
-varying   vec2 plain_pixel;
+out   vec2 cgl_pixel;
+out   vec3 cgl_viewDirection;
+out   vec2 plain_pixel;
 
 uniform   vec3 cgl_viewPos;
 uniform   mat3 transformMatrix;
