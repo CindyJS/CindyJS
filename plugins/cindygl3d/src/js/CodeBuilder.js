@@ -83,6 +83,7 @@ CodeBuilder.prototype.api;
 /** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
+// TODO? add built-in functions (cglSetDepth, cglSetNormal, ...)
 CodeBuilder.builtInVariables=new Map([
     ["cglPixel",{type:"uniform",expr:"cgl_pixel",valueType:type.vec2}],
     // 3D- only
@@ -96,6 +97,8 @@ CodeBuilder.builtInVariables=new Map([
     ["cglPointA",{type:"uniform",expr:"uPointA",valueType:type.vec3}],
     ["cglPointB",{type:"uniform",expr:"uPointB",valueType:type.vec3}]
 ]);
+CodeBuilder.cindygl3dPrefix="cgl";
+CodeBuilder.modifierPrefix="uModifier_";
 
 /**
  * Creates new term that is casted to toType
@@ -146,6 +149,17 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             return CodeBuilder.builtInVariables.get(name).valueType;
         }
         console.error(`unsupported built-in ${JSON.stringify(expr)}`);
+        return false;
+    } else if(expr['ismodifier']){
+        if (expr['ctype'] === 'variable') {
+            let name = expr['name'];
+            if(this.modifierTypes.has(name)){
+                return this.modifierTypes.get(name).type;
+            }else{
+                console.error(`could not find modifier ${JSON.stringify(expr)}`);
+            }
+        }
+        console.error(`unsupported modifier ${JSON.stringify(expr)}`);
         return false;
     } else if (expr['ctype'] === 'variable') {
         let name = expr['name'];
@@ -272,6 +286,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         }
         //was there something happening to the (return)variables?
         if (expr['oper'] === '=') { //assignment to variable
+            // TODO? warning for assignment to (immutable) built-in or modifier
             let vname = expr['args'][0]['name'];
             vname = bindings[vname] || vname;
 
@@ -411,8 +426,12 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         //Is expr a variable that depends on pixel? (according the current variableDependendsOnPixel)
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
+            // TODO? allow precomputing expressions containing built-ins/call-dependent variables in some cases
             if(CodeBuilder.builtInVariables.has(vname)){
-                expr["isbuiltin"] = true; // TODO? allow precomputing expressions containing built-ins in some cases
+                expr["isbuiltin"] = true;
+                return expr["dependsOnPixel"] = true;
+            }else if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
+                expr["ismodifier"] = true;
                 return expr["dependsOnPixel"] = true;
             }
             vname = expr.bindings[vname] || vname;
@@ -651,6 +670,10 @@ CodeBuilder.prototype.precompile = function(expr) {
         if (this.uniforms[u].type.type === 'list') createstruct(this.uniforms[u].type, this);
     for (let v in this.variables)
         if (this.variables[v].T.type === 'list') createstruct(this.variables[v].T, this);
+    this.modifierTypes.forEach((value)=>{
+        if (value.type.type === 'list')
+            createstruct(value.type, this);
+    });
 };
 
 
@@ -680,6 +703,19 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             return generateTerm ? {
                 code: '',
                 term: CodeBuilder.builtInVariables.get(vname).expr,
+            } : {
+                code: ''
+            };
+        }
+        console.error(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);
+        return;
+    } else if(expr['ismodifier']){
+        if(expr['ctype'] === 'variable'){
+            let vname = expr['name'];
+            this.modifierTypes.get(vname).used=true;
+            return generateTerm ? {
+                code: '',
+                term: CodeBuilder.modifierPrefix+vname, // TODO! handle non-ascii characters in vname
             } : {
                 code: ''
             };
@@ -1088,6 +1124,9 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
     for (let uname in this.uniforms)
         if (this.uniforms[uname].type.type != 'constant' && this.uniforms[uname].type != type.image)
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
+    this.modifierTypes.forEach((value,name)=>{
+        ans.push(`uniform ${webgltype(value.type)} ${CodeBuilder.modifierPrefix}${name};`);
+    });
     return ans.join('\n');
 };
 
@@ -1095,9 +1134,14 @@ function generateSetDepth(depthExrp){
     return `gl_FragDepth= ${depthExrp};`
 }
 
-CodeBuilder.prototype.generateColorPlotProgram = function(expr) { //TODO add arguments for #
+/**
+ * @param {Map} modifierTypes  map from names of modifier types to their types
+ */
+CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { //TODO add arguments for #
     helpercnt = 0;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
+
+    this.modifierTypes = modifierTypes;
 
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);

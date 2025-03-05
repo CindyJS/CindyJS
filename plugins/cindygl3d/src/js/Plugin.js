@@ -50,7 +50,8 @@ let CindyGL3D = function(api) {
     api.defineFunction("compile", 1, (args, modifs) => {
         let expr = args[0];
         let cb = new CodeBuilder(api);
-        let code = cb.generateColorPlotProgram(expr,DepthType.Flat);
+        let plotModifiers = get3DPlotModifiers(modifs);
+        let code = cb.generateColorPlotProgram(expr,DepthType.Flat,plotModifiers);
         console.log(code);
         return {
             ctype: 'string',
@@ -67,24 +68,62 @@ let CindyGL3D = function(api) {
     });
 
 
+    const noModifers=new Map();
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
-        prog=compile(prog,depthType);
-        render(prog, a, b, width, height,boundingBox, canvaswrapper);
+        prog=compile(prog,depthType,noModifers);
+        render(prog, a, b, width, height,boundingBox, noModifers, canvaswrapper);
     }
-    function compile(prog,depthType) {
+    /**
+     * @param {DepthType} depthType
+     * @param {Map} plotModifiers values of plot-modifier arguments
+     */
+    function compile(prog,depthType,plotModifiers) {
+        const modifierTypes = new Map(
+            Array.from(plotModifiers, ([key, value]) => [key, {type: guessTypeOfValue(value),used: false}])
+        );
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog, depthType);
+            prog.renderer = new Renderer(api, prog, depthType,modifierTypes);
+        } else if(plotModifiers.size>0) {
+            // ensure modifier types are compatible with previous modifiers
+            let prevModifiers=prog.renderer.modifierTypes;
+            let changed = false;
+            modifierTypes.forEach(
+                (value,key)=>{
+                    if(prevModifiers.has(key)) {
+                        let prevVal = prevModifiers.get(key);
+                        if(prevVal.used) {
+                            let commonType = lca(value.type,prevVal.type);
+                            if(commonType===false){
+                                console.error(`incompatiable types for ${key}: ${typeToString(prevVal.type)} and ${value.type}`);
+                                return;
+                            } else if(! typesareequal(commonType, prevVal.type)) {
+                                changed = true;
+                                console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
+                            }
+                            value.type = commonType;
+                            value.used = true;
+                        }
+                    }
+                }
+            );
+            if(changed) {
+                prog.renderer.updateModifierTypes(modifierTypes);
+            }
         }
+        // remove unused modifiers
+        let unusedModifers=new Set();
+        modifierTypes.forEach((value,key)=>{if(!value.used){unusedModifers.add(key)}});
+        unusedModifers.forEach(key=>{plotModifiers.delete(key);modifierTypes.delete(key);});
         return prog;
     }
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function render(prog, a, b, width, height, boundingBox,canvaswrapper){
-        prog.renderer.render(a, b, width, height, boundingBox,canvaswrapper);
+    function render(prog, a, b, width, height, boundingBox, plotModifiers, canvaswrapper){
+        prog.renderer.render(a, b, width, height, boundingBox, plotModifiers, canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
@@ -219,7 +258,18 @@ let CindyGL3D = function(api) {
         return nada;
     });
 
-
+    // get plot modifers from object
+    function get3DPlotModifiers(callModifiers){
+        let modifiers = new Map();
+        for(let prop in callModifiers){
+            if(CodeBuilder.builtInVariables.has(prop)){
+                console.warn("modifer is shadowed by built-in: "+prop);
+            }else if(callModifiers.hasOwnProperty(prop)){
+                modifiers.set(prop,api.evaluateAndVal(callModifiers[prop]));
+            }
+        }
+        return modifiers;
+    }
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
@@ -227,9 +277,10 @@ let CindyGL3D = function(api) {
     api.defineFunction("colorplot3d", 1, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
-        let compiledProg=compile(prog,DepthType.Nearest);
+        let plotModifiers=get3DPlotModifiers(modifs);
+        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         // TODO? use objects for elements of buffer
-        CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),null]);
+        CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),plotModifiers,null]);
         return nada;
     });
     /**
@@ -240,13 +291,14 @@ let CindyGL3D = function(api) {
     api.defineFunction("colorplot3d", 3, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
+        let plotModifiers=get3DPlotModifiers(modifs);
         var center = coerce.toDirection(api.evaluateAndVal(args[1]));
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
+        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         // TODO? use objects for elements of buffer
         CindyGL3D.objectBuffer.push(
-            [compiledProg,boundingBox,null]);
+            [compiledProg,boundingBox,plotModifiers,null]);
         return nada;
     });
     /**
@@ -257,14 +309,15 @@ let CindyGL3D = function(api) {
     api.defineFunction("colorplot3d", 4, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
+        let plotModifiers=get3DPlotModifiers(modifs);
         var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
         let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox);
+        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         // TODO? use objects for elements of buffer
         CindyGL3D.objectBuffer.push(
-            [compiledProg,boundingBox,null]);
+            [compiledProg,boundingBox,plotModifiers,null]);
         return nada;
     });
     // plot3d(expr)
@@ -317,7 +370,7 @@ let CindyGL3D = function(api) {
         }else{
             trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         }
-        // TODO? are this the correct axex/directions
+        // TODO? are this the correct axes/directions
         let rotZ=[
           [1,0,0,0],
           [0,Math.cos(beta),Math.sin(beta),0],
@@ -365,12 +418,12 @@ let CindyGL3D = function(api) {
         gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
-            render(prog,ll,lr, iw, ih,boundingBox, cWrap);
+        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,plotModifiers,cWrap])=>{
+            render(prog,ll,lr, iw, ih,boundingBox,plotModifiers, cWrap);
         });
         gl.enable(gl.DEPTH_TEST);
-        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,cWrap])=>{
-            render(prog,ll,lr, iw, ih,boundingBox, cWrap);
+        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,plotModifiers,cWrap])=>{
+            render(prog,ll,lr, iw, ih,boundingBox,plotModifiers, cWrap);
         });
         //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
         // TODO? directly render to main canvas
@@ -420,7 +473,7 @@ let CindyGL3D = function(api) {
         var prog = args[1];
 
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog,DepthType.Flat);
+            prog.renderer = new Renderer(api, prog,DepthType.Flat,noModifers);
         }
         prog.renderer.renderXR(viewIndex);
 

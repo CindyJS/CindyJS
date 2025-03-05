@@ -37,9 +37,10 @@ Renderer.resetCachedState = function(){
  * param {TODO} expression for the Code that will be used for rendering
  * @constructor
  */
-function Renderer(api, expression,depthType) {
+function Renderer(api, expression,depthType,modifierTypes) {
     this.api = api;
     this.expression = expression;
+    this.modifierTypes = modifierTypes;
     this.depthType=depthType;
     this.boundingBox=Renderer.noBounds();
     this.rebuild(false);
@@ -68,14 +69,23 @@ Renderer.prototype.api;
 /** @type {CindyJS.anyval} */
 Renderer.prototype.expression;
 
+/** @type {CodeBuilder} */
+Renderer.prototype.cb;
+
+/** @type {object} */
+Renderer.prototype.cpg;
 
 /** @type {CanvasWrapper} */
 Renderer.prototype.canvaswrapper
 
+Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
+    this.modifierTypes=newModifierTypes;
+    this.recompile();
+}
 Renderer.prototype.recompile = function() {
     console.log("recompile");
-    this.expression.cb = new CodeBuilder(this.api);
-    this.expression.cpg = this.expression.cb.generateColorPlotProgram(this.expression);
+    this.cb = new CodeBuilder(this.api);
+    this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
     this.expression.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
     this.expression.compiletime = requiredcompiletime;
 }
@@ -84,12 +94,12 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     if(forceRecompile|| !this.expression.iscompiled || this.expression.compiletime < requiredcompiletime){
         this.recompile();
     }
-    if(this.expression.cpg===undefined){
+    if(this.cpg===undefined){
         console.error("cpg is undefined");
     }
     // TODO? use different header for fshader depending on box type
     this.fragmentShaderCode =
-        cgl3d_resources["standardFragmentHeader"] + this.expression.cb.generateShader(this.expression.cpg,this.depthType);
+        cgl3d_resources["standardFragmentHeader"] + this.cb.generateShader(this.cpg,this.depthType);
     // TODO? share vertex attributes between different shader objects
     if(CindyGL3D.mode3D){
         let x0=CindyGL3D.coordinateSystem.x0;
@@ -105,7 +115,6 @@ Renderer.prototype.rebuild = function(forceRecompile) {
             this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else if(this.boundingBox.type==BoundingBoxType.cylinder){
             this.vertexShaderCode = cgl3d_resources["vshader3dCylinder"];
-            // TODO? how to encode vertices for cylinder
             this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
@@ -116,7 +125,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         this.vertexShaderCode = cgl3d_resources["vshader"];
         this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
     }
-    // TODO split creating of shader program and updating of attributes
+    // TODO? split creating of shader program and updating of attributes
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
     this.updateAttributes();
 };
@@ -231,51 +240,65 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
     }
 }
 
+Renderer.computeUniformValue = function (uniformType,val){
+    switch (uniformType) {
+        case type.complex:
+            return [val['value']['real'], val['value']['imag']];
+        case type.bool:
+            return [(val['value']) ? 1 : 0];
+        case type.int:
+        case type.float:
+            return [val['value']['real']];
+        case type.point:
+        case type.line:
+            if (val.ctype === 'geo')
+                return val['value']['homog']['value'].map(x => x['value']['real']);
+            else if (val.ctype === 'list' && val['value'].length === 2)
+                return val['value'].map(x => x['value']['real']).concat([1]);
+            else if (val.ctype === 'list' && val['value'].length === 3)
+                return val['value'].map(x => x['value']['real']);
+            break;
+        default:
+            if (uniformType.type === 'list' && (uniformType.parameters === type.float
+                    || uniformType.parameters === type.int)) { // float-list or int-list
+                return val['value'].map(x => x['value']['real']);
+            } else if (uniformType.type === 'list' && uniformType.parameters.type === 'list'
+                && uniformType.parameters.parameters === type.float) { //float matrix
+                //probably: if isnativeglsl?
+                let m = [];
+                for (let j = 0; j < uniformType.length; j++)
+                    for (let i = 0; i < uniformType.parameters.length; i++)
+                        m.push(val['value'][j]['value'][i]['value']['real']);
+                return m;
+            }
+            console.error(`Don't know how to set uniform of type ${typeToString(uniformType)}, to ${val}`);
+            break;
+    }
+    return [];
+}
+/**
+ * @param {Map} plotModifiers
+ */
+Renderer.prototype.setModifierUniforms = function(plotModifiers){
+    plotModifiers.forEach((value,modifierName)=>{
+        let uniformName=CodeBuilder.modifierPrefix+modifierName;
+        if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
+            if(!value.uniformValue){
+                let modifierType = this.modifierTypes.get(modifierName);
+                value.uniformValue = Renderer.computeUniformValue(modifierType.type,value);
+            }
+            // TODO! handle composite uniforms
+            this.shaderProgram.uniform[uniformName](value.uniformValue);
+        }
+    });
+}
+
 Renderer.prototype.setUniforms = function() {
     function setUniform(setter, t, val) {
         if (!setter) return; //skip inactive uniforms
 
         if (typeof(setter) === 'function') {
-            switch (t) {
-                case type.complex:
-                    setter([val['value']['real'], val['value']['imag']]);
-                    break;
-                case type.bool:
-                    if (val['value'])
-                        setter([1]);
-                    else
-                        setter([0]);
-                    break;
-                case type.int:
-                case type.float:
-                    setter([val['value']['real']]);
-                    break;
-                case type.point:
-                case type.line:
-                    if (val.ctype === 'geo')
-                        setter(val['value']['homog']['value'].map(x => x['value']['real']));
-                    else if (val.ctype === 'list' && val['value'].length === 2)
-                        setter(val['value'].map(x => x['value']['real']).concat([1]));
-                    else if (val.ctype === 'list' && val['value'].length === 3)
-                        setter(val['value'].map(x => x['value']['real']));
-                    break;
-                default:
-                    if (t.type === 'list' && t.parameters === type.float) { //float-list
-                        setter(val['value'].map(x => x['value']['real']));
-                        break;
-                    } else if (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float) { //float matrix
-                        //probably: if isnativeglsl?
-                        let m = [];
-                        for (let j = 0; j < t.length; j++)
-                            for (let i = 0; i < t.parameters.length; i++)
-                                m.push(val['value'][j]['value'][i]['value']['real']);
-                        setter(m);
-                        break;
-                    }
-
-                    console.error(`Don't know how to set uniform of type ${typeToString(t)}, to ${val}`);
-                    break;
-            }
+            setter(Renderer.computeUniformValue(t,val));
         } else if (t.type === 'list') {
 
             let d = depth(t);
@@ -308,10 +331,10 @@ Renderer.prototype.setUniforms = function() {
     }
 
 
-    for (let uname in this.expression.cpg.uniforms) {
+    for (let uname in this.cpg.uniforms) {
 
-        let val = this.api.evaluateAndVal(this.expression.cpg.uniforms[uname].expr);
-        let t = this.expression.cpg.uniforms[uname].type;
+        let val = this.api.evaluateAndVal(this.cpg.uniforms[uname].expr);
+        let t = this.cpg.uniforms[uname].type;
 
         if (!issubtypeof(constant(val), t)) {
             console.log(`Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(t)}); forcing rebuild.`);
@@ -347,10 +370,10 @@ Renderer.prototype.setUniforms = function() {
  */
 Renderer.prototype.loadTextures = function() {
     let cnt = 0;
-    for (let t in this.expression.cpg.texturereaders) {
+    for (let t in this.cpg.texturereaders) {
         gl.activeTexture(gl.TEXTURE0 + cnt);
 
-        let tr = this.expression.cpg.texturereaders[t];
+        let tr = this.cpg.texturereaders[t];
         let tname = tr.name;
 
         let properties = tr.properties;
@@ -373,8 +396,8 @@ Renderer.prototype.loadTextures = function() {
  * checks whether the generation of the compiled myfunctions is still the current one
  */
 Renderer.prototype.functionGenerationsOk = function() {
-    for (let fname in this.expression.cpg.generations) {
-        if (this.api.getMyfunction(fname).generation > this.expression.cpg.generations[fname]) {
+    for (let fname in this.cpg.generations) {
+        if (this.api.getMyfunction(fname).generation > this.cpg.generations[fname]) {
             console.log(`${fname} is outdated; forcing rebuild.`);
             return false;
         }
@@ -396,7 +419,7 @@ Renderer.prototype.updateCoordinateUniforms = function() {
  * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
  */
-Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrapper) {
+Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
     let needsRebuild=this.boundingBox.type!=boundingBox.type;
     this.boundingBox=boundingBox;
     if ((Renderer.prevShader!==this.shaderProgram) // only check functions once per shader program per drawCycle
@@ -446,7 +469,8 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, canvaswrap
         //let d = {x: b.x + n.x, y: b.y + n.y};
         this.setTransformMatrix(a, b, c);
     }
-    this.setBoundingBoxUniforms(); // TODO? only change if bounding box is different
+    this.setBoundingBoxUniforms();
+    this.setModifierUniforms(plotModifiers);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     if(!CindyGL3D.mode3D)

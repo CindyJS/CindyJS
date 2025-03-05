@@ -36,3 +36,8 @@ Depending on the bouding box type there may be additional variables
 Sphere:
 * `cglCenter`: the center of the bounding sphere
 * `cglRadius`: the radius of the bounding sphere
+
+## Plot Modifiers
+
+Modifiers starting with `cgl` can be used as constant values in the colorplot expression.
+The concrete values passed to the colorplot call will be forwarded to the shader program as uniform variables.

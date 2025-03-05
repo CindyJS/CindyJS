@@ -107,7 +107,7 @@ let replaceCbyR = t => t === type.complex ? type.float : {
 let isnativeglsl = t =>
     (t.type === 'constant' && isnativeglsl(generalize(t))) ||
     t === type.bool || t === type.int || t === type.float || t === type.complex || t === type.point || t === type.line ||
-    (t.type === 'list' && t.parameters === type.float && 1 <= t.length && t.length <= 4) ||
+    (t.type === 'list' && (t.parameters === type.float || t.parameters === type.int) && 1 <= t.length && t.length <= 4) ||
     (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float && t.length === t.parameters.length && 2 <= t.length && t.length <= 4);
 
 let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a) !== -1;
@@ -305,6 +305,10 @@ function webgltype(ctype) {
         if (ctype.length == 1) return 'float';
         else
             return `vec${ctype.length}`;
+    } else if (ctype.type === 'list' && ctype.parameters === type.int) {
+        if (ctype.length == 1) return 'int';
+        else
+            return `ivec${ctype.length}`;
     } else if (ctype.type === 'list' && ctype.parameters === type.complex) {
         return `cvec${ctype.length}`;
     } else if (ctype.type === 'list' && ctype.parameters.type === 'list' && ctype.length === ctype.parameters.length && ctype.parameters.parameters === type.float) {
