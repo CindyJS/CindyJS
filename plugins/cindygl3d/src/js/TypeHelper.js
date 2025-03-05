@@ -35,6 +35,7 @@ const type = { //assert all indices are different
     vec4: list(4, 3),
     vec: n => list(n, 3),
     cvec: n => list(n, 4),
+    ivec: n => list(n, 2),
 
     mat2: list(2, list(2, 3)),
     mat3: list(3, list(3, 3)),
@@ -257,6 +258,7 @@ function inclusionfunction(toType) {
                 let fp = finalparameter(toType);
 
                 return args => {
+                    // TODO? use direct conversions vecN()<->ivecN()
                     let fromType = args[0];
                     let rec = inclusionfunction(toType.parameters)([fromType.parameters]).generator;
                     return {

@@ -303,13 +303,14 @@ Renderer.prototype.setUniforms = function() {
 
             let d = depth(t);
             let fp = finalparameter(t);
-            if (d === 1 && fp === type.float) {
+            if (d === 1 && (fp === type.float || fp === type.int )) {
                 let n = t.length;
                 let s = sizes(n);
+                let isFloat = (fp === type.float);
 
                 let cum = 0;
                 for (let k in s) {
-                    setUniform(setter[`a${k}`], type.vec(s[k]), {
+                    setUniform(setter[`a${k}`], (isFloat?type.vec:type.ivec)(s[k]), {
                         'ctype': 'list',
                         'value': range(s[k]).map(l => val['value'][cum + l])
                     });
