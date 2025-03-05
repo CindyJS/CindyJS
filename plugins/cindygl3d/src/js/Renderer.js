@@ -240,42 +240,91 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
     }
 }
 
-Renderer.computeUniformValue = function (uniformType,val){
-    switch (uniformType) {
-        case type.complex:
-            return [val['value']['real'], val['value']['imag']];
-        case type.bool:
-            return [(val['value']) ? 1 : 0];
-        case type.int:
-        case type.float:
-            return [val['value']['real']];
-        case type.point:
-        case type.line:
-            if (val.ctype === 'geo')
-                return val['value']['homog']['value'].map(x => x['value']['real']);
-            else if (val.ctype === 'list' && val['value'].length === 2)
-                return val['value'].map(x => x['value']['real']).concat([1]);
-            else if (val.ctype === 'list' && val['value'].length === 3)
-                return val['value'].map(x => x['value']['real']);
-            break;
-        default:
-            if (uniformType.type === 'list' && (uniformType.parameters === type.float
-                    || uniformType.parameters === type.int)) { // float-list or int-list
-                return val['value'].map(x => x['value']['real']);
-            } else if (uniformType.type === 'list' && uniformType.parameters.type === 'list'
-                && uniformType.parameters.parameters === type.float) { //float matrix
-                //probably: if isnativeglsl?
-                let m = [];
-                for (let j = 0; j < uniformType.length; j++)
-                    for (let i = 0; i < uniformType.parameters.length; i++)
-                        m.push(val['value'][j]['value'][i]['value']['real']);
-                return m;
+Renderer.computeUniformValue = function (setter,uniformType,val){
+    if (typeof(setter) === 'function') {
+        switch (uniformType) {
+            case type.complex:
+                return [val['value']['real'], val['value']['imag']];
+            case type.bool:
+                return [(val['value']) ? 1 : 0];
+            case type.int:
+            case type.float:
+                return [val['value']['real']];
+            case type.point:
+            case type.line:
+                if (val.ctype === 'geo')
+                    return val['value']['homog']['value'].map(x => x['value']['real']);
+                else if (val.ctype === 'list' && val['value'].length === 2)
+                    return val['value'].map(x => x['value']['real']).concat([1]);
+                else if (val.ctype === 'list' && val['value'].length === 3)
+                    return val['value'].map(x => x['value']['real']);
+                break;
+            default:
+                if (uniformType.type === 'list' && (uniformType.parameters === type.float
+                        || uniformType.parameters === type.int)) { // float-list or int-list
+                    return val['value'].map(x => x['value']['real']);
+                } else if (uniformType.type === 'list' && uniformType.parameters.type === 'list'
+                    && uniformType.parameters.parameters === type.float) { //float matrix
+                    //probably: if isnativeglsl?
+                    let m = [];
+                    for (let j = 0; j < uniformType.length; j++)
+                        for (let i = 0; i < uniformType.parameters.length; i++)
+                            m.push(val['value'][j]['value'][i]['value']['real']);
+                    return m;
+                }
+                break;
+        }
+    } else if (uniformType.type === 'list') {
+        let elts=[];
+        let d = depth(uniformType);
+        let fp = finalparameter(uniformType);
+        if (d === 1 && (fp === type.float || fp === type.int )) {
+            let n = uniformType.length;
+            let s = sizes(n);
+            let listBuilder = (fp === type.float)?type.vec:type.ivec;
+
+            let cum = 0;
+            for (let k in s) {
+                let setterKey = `a${k}`;
+                elts.push([
+                    setterKey,
+                    Renderer.computeUniformValue(setter[setterKey], listBuilder(s[k]), {
+                        'ctype': 'list',
+                        'value': range(s[k]).map(l => val['value'][cum + l])
+                    })
+                ]);
+                cum += s[k];
             }
-            console.error(`Don't know how to set uniform of type ${typeToString(uniformType)}, to ${val}`);
-            break;
+            return elts;
+        }
+        for (let k = 0; k < uniformType.length; k++) {
+            let setterKey = `a${k}`;
+            elts.push([
+                setterKey,
+                Renderer.computeUniformValue(setter[setterKey], uniformType.parameters, {
+                    'ctype': 'list',
+                    'value': val['value'][k]['value']
+                })
+            ]);
+        }
+        return elts;
     }
-    return [];
+    console.error(`Don't know how to set uniform of type ${typeToString(uniformType)}, to`);
+    console.log(val);
+    return undefined;
 }
+Renderer.setUniformValue = function (setter,uniformValue){
+    if(uniformValue===undefined)
+        return; // not a valid uniform value
+    if (typeof(setter) === 'function') {
+        setter(uniformValue);
+        return;
+    }
+    uniformValue.forEach(([setterKey,value])=>{
+        Renderer.setUniformValue(setter[setterKey],value);
+    });
+}
+
 /**
  * @param {Map} plotModifiers
  */
@@ -283,12 +332,12 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
     plotModifiers.forEach((value,modifierName)=>{
         let uniformName=CodeBuilder.modifierPrefix+modifierName;
         if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
+            let uniformSetter = this.shaderProgram.uniform[uniformName];
             if(!value.uniformValue){
                 let modifierType = this.modifierTypes.get(modifierName);
-                value.uniformValue = Renderer.computeUniformValue(modifierType.type,value);
+                value.uniformValue = Renderer.computeUniformValue(uniformSetter,modifierType.type,value);
             }
-            // TODO! handle composite uniforms
-            this.shaderProgram.uniform[uniformName](value.uniformValue);
+            Renderer.setUniformValue(uniformSetter,value.uniformValue);
         }
     });
 }
@@ -296,39 +345,7 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
 Renderer.prototype.setUniforms = function() {
     function setUniform(setter, t, val) {
         if (!setter) return; //skip inactive uniforms
-
-        if (typeof(setter) === 'function') {
-            setter(Renderer.computeUniformValue(t,val));
-        } else if (t.type === 'list') {
-
-            let d = depth(t);
-            let fp = finalparameter(t);
-            if (d === 1 && (fp === type.float || fp === type.int )) {
-                let n = t.length;
-                let s = sizes(n);
-                let isFloat = (fp === type.float);
-
-                let cum = 0;
-                for (let k in s) {
-                    setUniform(setter[`a${k}`], (isFloat?type.vec:type.ivec)(s[k]), {
-                        'ctype': 'list',
-                        'value': range(s[k]).map(l => val['value'][cum + l])
-                    });
-                    cum += s[k];
-                }
-                return;
-            }
-            for (let k = 0; k < t.length; k++) {
-                setUniform(setter[`a${k}`], t.parameters, {
-                    'ctype': 'list',
-                    'value': val['value'][k]['value']
-                });
-            }
-            return;
-        } else {
-            console.error(`Don't know how to set uniform of type ${typeToString(t)}, to`);
-            console.log(val);
-        }
+        Renderer.setUniformValue(setter,Renderer.computeUniformValue(setter,t,val));
     }
 
 
