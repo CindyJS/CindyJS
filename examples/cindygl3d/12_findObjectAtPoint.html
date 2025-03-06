@@ -55,7 +55,7 @@
                   v1 = (W+l1*direction)-cglPointA;
                   delta1 = (v1*U);
                   if((delta1>0)& (delta1<1),
-                    // v1 = X -A 
+                    // v1 = X -A
                     // normal = X - (B*delta1 + A*(1-delta1))
                     //     = v1 - (B-A)*delta1
                     brigthness = 0.25+0.75*max(-direction*normalize(v1-delta1*BA),0); // 0.25 ... 1.0
@@ -125,15 +125,15 @@
             sy = mouse().y;
 
             tagList=[];
-            target = cglFindObject(sx,-sy,tags->["sphere"]);            
+            target = cglFindObject(sx,sy,tags->["sphere"]);
             cglUpdate(target,cglColor->colSelectedS);
-            if(target!=prevTargetS,       
+            if(target!=prevTargetS,
               cglUpdate(prevTargetS,cglColor->col);
               prevTargetS=target;
             );
-            target = cglFindObject(sx,-sy,tags->["cylinder"]);          
+            target = cglFindObject(sx,sy,tags->["cylinder"]);
             cglUpdate(target,cglColorA->colSelectedC,cglColorB->colSelectedC);
-            if(target!=prevTargetC,       
+            if(target!=prevTargetC,
               cglUpdate(prevTargetC,cglColorA->col,cglColorB->col);
               prevTargetC=target;
             );

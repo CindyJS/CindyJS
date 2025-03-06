@@ -51,7 +51,7 @@ function dot3(u,v){
     return u[0]*v[0]+u[1]*v[1]+u[2]*v[2];
 }
 
-class CindyGL3DObject {    
+class CindyGL3DObject {
     /**
      * @param {string} name
      * @param {*} program rendering program
@@ -290,7 +290,7 @@ let CindyGL3D = function(api) {
     });
     /**
      * get plot modifers from object
-     * @param {object} callModifiers 
+     * @param {object} callModifiers
      * @returns {Map<string,any>
      */
     function get3DPlotModifiers(callModifiers){
@@ -307,7 +307,7 @@ let CindyGL3D = function(api) {
         return modifiers;
     }
     /**
-     * @param {object} callModifiers 
+     * @param {object} callModifiers
      * @returns {Set<string>}
      */
     function get3DPlotTags(callModifiers){
@@ -396,7 +396,7 @@ let CindyGL3D = function(api) {
         let lr=computeLowerRightCorner(api);
         // TODO? make z-coords customizable
         CindyGL3D.coordinateSystem={
-            x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y, // TODO! swap y direction
+            x0: ul.x , x1: lr.x, y0: lr.y, y1: ul.y,
             z0: -10, z1:0
         };
         let x0=CindyGL3D.coordinateSystem.x0;
@@ -421,8 +421,8 @@ let CindyGL3D = function(api) {
         // TODO? are this the correct axes/directions
         let rotZ=[
           [1,0,0,0],
-          [0,Math.cos(beta),Math.sin(beta),0],
-          [0,-Math.sin(beta),Math.cos(beta),0],
+          [0,Math.cos(beta),-Math.sin(beta),0],
+          [0,Math.sin(beta),Math.cos(beta),0],
           [0,0,0,1]
         ];
         let rotY=[
