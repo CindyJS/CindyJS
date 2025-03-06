@@ -55,14 +55,14 @@
                   v1 = (W+l1*direction)-cglPointA;
                   delta1 = (v1*U);
                   if((delta1>0)& (delta1<1),
-                    brigthness=.75-.25*direction*normalize(v1-delta1*U);
+                    brigthness=.25+0.75*max(-direction*normalize(v1-delta1*BA),0);
                     color=brigthness*((cglColorB*delta1+cglColorA*(1-delta1)));
                     [(w+l1)/16,color_1,color_2,color_3,1],
                     l2 = (-b + re(sqrt(D)))/a;
                     v2 = (W+l2*direction)-cglPointA;
                     delta2 = v2*U;
                     if((delta2>0) & (delta2<1),
-                      brigthness=.5-.25*direction*normalize(v2-delta2*U);
+                      brigthness=.25+0.75*max(direction*normalize(v2-delta2*BA),0);
                       color=brigthness*((cglColorB*delta2+cglColorA*(1-delta2)));
                       [(l2+w)/16,color_1,color_2,color_3,1],
                       [2,0,0,0,0]
@@ -87,7 +87,7 @@
                   dst=-b2-re(sqrt(D4));// sqrt should always be real
                   pos3d = cglViewPos+ dst*direction;
                   normal = normalize(pos3d - cglCenter);
-                  brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+                  brigthness = 0.25+ 0.75* max(- direction*normal,0);
                   color = brigthness*cglColor;
                   [dst/16,color_1,color_2,color_3,1]
                 )

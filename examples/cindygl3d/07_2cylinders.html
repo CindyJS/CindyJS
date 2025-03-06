@@ -56,14 +56,14 @@
                 v1 = (W+l1*direction)-cglPointA;
                 delta1 = (v1*U);
                 if((delta1>0)& (delta1<1),
-                  brigthness=.75-.25*direction*normalize(v1-delta1*U);
+                  brigthness=.25+.75*max(-direction*normalize(v1-delta1*BA),0);
                   color=brigthness*((aColor*delta1+bColor*(1-delta1))); //
                   [(l1+w)/16,color_1,color_2,color_3,1],
                   l2 = (-b + re(sqrt(D)))/a;
                   v2 = (W+l2*direction)-cglPointA;
                   delta2 = v2*U;
                   if((delta2>0) & (delta2<1),
-                    brigthness=.5-.25*direction*normalize(v1-delta2*U);
+                    brigthness=.25+.5*max(direction*normalize(v2-delta2*BA),0);
                     color=brigthness*((aColor*delta2+bColor*(1-delta2))); //
                     [(l2+w)/16,color_1,color_2,color_3,1],
                   [2,0,0,0,0]
