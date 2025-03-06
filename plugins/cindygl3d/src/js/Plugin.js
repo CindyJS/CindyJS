@@ -38,6 +38,39 @@ function transposeM4(A){
   }
   return C;
 }
+function addv3(u,v){
+    return [u[0]+v[0],u[1]+v[1],u[2]+v[2]];
+}
+function subv3(u,v){
+    return [u[0]-v[0],u[1]-v[1],u[2]-v[2]];
+}
+function scalev3(a,v){
+    return [a*v[0],a*v[1],a*v[2]];
+}
+function dot3(u,v){
+    return u[0]*v[0]+u[1]*v[1]+u[2]*v[2];
+}
+
+class CindyGL3DObject {    
+    /**
+     * @param {string} name
+     * @param {*} program rendering program
+     * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
+     * @param {Map<string,any>} plotModifiers
+     * @param { Set<string> } tags tags assigned to this Object
+     * @param {CanvasWrapper} canvaswrapper
+     */
+    constructor(program,boundingBox,plotModifiers,tags,canvaswrapper) {
+        this.id = CindyGL3DObject.NEXT_ID++;
+        this.name = "";
+        this.program = program;
+        this.boundingBox = boundingBox;
+        this.plotModifiers = plotModifiers;
+        this.tags = tags;
+        this.canvaswrapper = canvaswrapper;
+    }
+}
+CindyGL3DObject.NEXT_ID=0;
 
 let CindyGL3D = function(api) {
 
@@ -67,14 +100,12 @@ let CindyGL3D = function(api) {
         return api.nada;
     });
 
-
-    const noModifers=new Map();
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
-        prog=compile(prog,depthType,noModifers);
-        render(prog, a, b, width, height,boundingBox, noModifers, canvaswrapper);
+        prog=compile(prog,depthType,new Map());
+        render(prog, a, b, width, height,boundingBox, new Map(), canvaswrapper);
     }
     /**
      * @param {DepthType} depthType
@@ -257,18 +288,37 @@ let CindyGL3D = function(api) {
 
         return nada;
     });
-
-    // get plot modifers from object
+    /**
+     * get plot modifers from object
+     * @param {object} callModifiers 
+     * @returns {Map<string,any>
+     */
     function get3DPlotModifiers(callModifiers){
         let modifiers = new Map();
-        for(let prop in callModifiers){
-            if(CodeBuilder.builtInVariables.has(prop)){
-                console.warn("modifer is shadowed by built-in: "+prop);
-            }else if(callModifiers.hasOwnProperty(prop)){
-                modifiers.set(prop,api.evaluateAndVal(callModifiers[prop]));
+        Object.entries(callModifiers).forEach(([name, value])=>{
+            if(!name.startsWith(CodeBuilder.cindygl3dPrefix))
+                return;
+            if(CodeBuilder.builtInVariables.has(name)){
+                console.warn("modifer is shadowed by built-in: "+name);
+            }else{
+                modifiers.set(name,api.evaluateAndVal(value));
             }
-        }
+        });
         return modifiers;
+    }
+    /**
+     * @param {object} callModifiers 
+     * @returns {Set<string>}
+     */
+    function get3DPlotTags(callModifiers){
+        let tags = new Set();
+        if(callModifiers.hasOwnProperty("tags")){
+            let tagList = coerce.toList(api.evaluateAndVal(callModifiers["tags"]));
+            tagList.forEach((tagValue)=>{
+                tags.add(coerce.toString(tagValue));
+            });
+        }
+        return tags;
     }
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
@@ -279,8 +329,8 @@ let CindyGL3D = function(api) {
         var prog = args[0];
         let plotModifiers=get3DPlotModifiers(modifs);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
-        // TODO? use objects for elements of buffer
-        CindyGL3D.objectBuffer.push([compiledProg,Renderer.noBounds(),plotModifiers,null]);
+        let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs),null);
+        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
         return nada;
     });
     /**
@@ -296,9 +346,8 @@ let CindyGL3D = function(api) {
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
-        // TODO? use objects for elements of buffer
-        CindyGL3D.objectBuffer.push(
-            [compiledProg,boundingBox,plotModifiers,null]);
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
         return nada;
     });
     /**
@@ -315,9 +364,8 @@ let CindyGL3D = function(api) {
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
         let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
-        // TODO? use objects for elements of buffer
-        CindyGL3D.objectBuffer.push(
-            [compiledProg,boundingBox,plotModifiers,null]);
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
         return nada;
     });
     // plot3d(expr)
@@ -348,7 +396,7 @@ let CindyGL3D = function(api) {
         let lr=computeLowerRightCorner(api);
         // TODO? make z-coords customizable
         CindyGL3D.coordinateSystem={
-            x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y,
+            x0: ul.x , x1: lr.x, y0: ul.y, y1: lr.y, // TODO! swap y direction
             z0: -10, z1:0
         };
         let x0=CindyGL3D.coordinateSystem.x0;
@@ -400,7 +448,7 @@ let CindyGL3D = function(api) {
         resetRotation()
     });
     api.defineFunction("cglReset3d", 0, (args, modifs) => {
-        CindyGL3D.objectBuffer=[];
+        CindyGL3D.objectBuffer=new Map();
     });
     api.defineFunction("cglDraw3d", 0, (args, modifs) => {
         initGLIfRequired();
@@ -418,12 +466,12 @@ let CindyGL3D = function(api) {
         gl.disable(gl.DEPTH_TEST);
         gl.enable(gl.BLEND);
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,plotModifiers,cWrap])=>{
-            render(prog,ll,lr, iw, ih,boundingBox,plotModifiers, cWrap);
+        CindyGL3D.objectBuffer.forEach((obj3d)=>{
+            render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
         });
         gl.enable(gl.DEPTH_TEST);
-        CindyGL3D.objectBuffer.forEach(([prog,boundingBox,plotModifiers,cWrap])=>{
-            render(prog,ll,lr, iw, ih,boundingBox,plotModifiers, cWrap);
+        CindyGL3D.objectBuffer.forEach((obj3d)=>{
+            render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
         });
         //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
         // TODO? directly render to main canvas
@@ -432,6 +480,105 @@ let CindyGL3D = function(api) {
         csctx.setTransform(1, 0, 0, 1, 0, 0);
         csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
         csctx.restore();
+        return nada;
+    });
+    /**
+     * Finds the 3D object on the view-ray through the screen position (args[0],args[1]) that is closest to the camera.
+     * If the `tags` modifier is set only objects that have at least one of the specified tags are considered
+     */
+    api.defineFunction("cglFindObject", 2, (args, modifs) => {
+        let x = api.evaluateAndVal(args[0])["value"]["real"];
+        let y = api.evaluateAndVal(args[1])["value"]["real"];
+        // TODO? is this the correct z position
+        let screenPoint=[x,y,CindyGL3D.coordinateSystem.z1,1];
+        let tags = get3DPlotTags(modifs);
+        let spacePoint = mvmult4(CindyGL3D.invTrafoMatrix,screenPoint);
+        let viewPos = CindyGL3D.coordinateSystem.transformedViewPos;
+        let direction = subv3(spacePoint,viewPos);
+        let minDst = Infinity;
+        let pickedId = -1;
+        CindyGL3D.objectBuffer.forEach((obj3d)=>{
+            // TODO Set.intersection once suppported
+            let sharesTag = tags.size==0;
+            for(const tag of tags){
+                if(obj3d.tags.has(tag)){
+                    sharesTag=true;
+                    break;
+                }
+            };
+            if(!sharesTag)
+                return;
+            // TODO? execute colorplot code to get correct z-coordinate
+            if(obj3d.boundingBox.type == BoundingBoxType.sphere){
+                let center = obj3d.boundingBox.center;
+                // TODO? also detect positions sligthly outside sphere
+                let radius = obj3d.boundingBox.radius;
+                // |v+l*d -c|=r
+                let vc = subv3(viewPos,center);
+                let a = dot3(direction,direction);
+                let b = dot3(vc,direction);
+                let c = dot3(vc,vc) - radius*radius;
+                let D = b*b-a*c;
+                if(D<0){ return; } // ray does not hit sphere
+                let dst = (-b - Math.sqrt(D))/a;
+                if(dst>=0 && dst<=minDst){
+                    minDst = dst;
+                    pickedId = obj3d.id;
+                }
+            }else if(obj3d.boundingBox.type == BoundingBoxType.cylinder){
+                let radius = obj3d.boundingBox.radius;
+                let pointA = obj3d.boundingBox.pointA;
+                let pointB = obj3d.boundingBox.pointB;
+                let direction0 = scalev3(1/Math.sqrt(dot3(direction,direction)),direction);
+                let p1 = subv3(viewPos,scalev3(0.5,addv3(pointA,pointB)));
+                let w = Math.sqrt(dot3(p1,p1));
+                let W = addv3(viewPos,scalev3(w,direction0));
+                let BA= subv3(pointB,pointA);
+                let U=scalev3(1/dot3(BA,BA),BA);
+                let VA = subv3(W,pointA);
+                let S = subv3(VA,scalev3(dot3(VA,BA),U));
+                let T = subv3(direction0,scalev3(dot3(direction0,BA),U));
+                let a = dot3(T,T);
+                let b = dot3(S,T);
+                let c = dot3(S,S) -radius*radius;
+                let D= b*b-a*c;
+                if(D<0){ return; } // ray does not hit cylinder
+                let l1 = -(b + Math.sqrt(D))/a;
+                let v1 = subv3(addv3(W,scalev3(l1,direction0)),pointA);
+                let delta = Math.max(0,Math.min(dot3(v1,U),1));
+                let center = addv3(scalev3(delta,pointB),scalev3(1-delta,pointA));
+                let vc = subv3(viewPos,center);
+                // a = dot3(direction0,direction0) // == 1
+                b = dot3(vc,direction0);
+                c = dot3(vc,vc) - radius*radius;
+                D = b*b-c;
+                if(D<0){ return; } // ray does not hit sphere
+                let dst = -b - Math.sqrt(D);
+                if(dst>=0 && dst<=minDst){
+                    minDst = dst;
+                    pickedId = obj3d.id;
+                }
+            }
+            // TODO? checks different bouning box types
+        });
+        // TODO? convert picked 3D-object to CindyJS object
+        //   make name,position, readable, ? writable
+        return {
+            ctype: 'number',
+            value: {
+                'real': pickedId,
+                'imag': 0
+            }
+        };
+    });
+    api.defineFunction("cglUpdate", 1, (args, modifs) => {
+        let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
+        if(objId<0)
+            return nada;
+        let obj3d = CindyGL3D.objectBuffer.get(objId);
+        let plotModifiers=get3DPlotModifiers(modifs);
+        // TODO! update modifers types in renderer
+        obj3d.plotModifiers = plotModifiers;
         return nada;
     });
     api.defineFunction("cglEnd3d", 0, (args, modifs) => {
@@ -473,7 +620,7 @@ let CindyGL3D = function(api) {
         var prog = args[1];
 
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog,DepthType.Flat,noModifers);
+            prog.renderer = new Renderer(api, prog,DepthType.Flat,new Map());
         }
         prog.renderer.renderXR(viewIndex);
 
@@ -484,7 +631,8 @@ let CindyGL3D = function(api) {
 // Exports for CindyXR
 CindyGL3D.gl = null;
 CindyGL3D.mode3D = false;
-CindyGL3D.objectBuffer=[];
+/**@type {Map<Number,CindyGL3DObject>} */
+CindyGL3D.objectBuffer=new Map();
 CindyGL3D.coordinateSystem = undefined;
 CindyGL3D.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL3D.initGLIfRequired = initGLIfRequired;
