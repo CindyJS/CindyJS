@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: change type of modifer after initial compilation</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            oo = 1000; //"infinity"
+            t0 = seconds();
+            test():=(
+              color = cglColor;
+              colAndDepth=[0.1,color_1,color_2,color_3,1];
+              colAndDepth
+            );
+            cglBegin3d();
+            // cglColor will be compiled as int[3]
+            colorplot3d(test(),cglColor->[1,0,0]);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 2 * (mouse().x -sx); dy = 2 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+            t = seconds()-t0;
+
+            // update value of cglColor with float array
+            cglUpdate(0,cglColor->[sin(t),cos(t),0]);
+
+            cglDraw3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ]
+            });
+        </script>
+        You should see a square with smoothly changing colors
+    </body>
+</html>

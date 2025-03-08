@@ -128,8 +128,11 @@ let CindyGL3D = function(api) {
                         if(prevVal.used) {
                             let commonType = lca(value.type,prevVal.type);
                             if(commonType===false){
+                                // TODO? support multiple independent versions of program depending on types of modifiers
                                 console.error(`incompatiable types for ${key}: ${typeToString(prevVal.type)} and ${value.type}`);
-                                return;
+                                // use new type
+                                commonType = value.type;
+                                changed = true;
                             } else if(! typesareequal(commonType, prevVal.type)) {
                                 changed = true;
                                 console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
@@ -291,7 +294,7 @@ let CindyGL3D = function(api) {
     /**
      * get plot modifers from object
      * @param {object} callModifiers
-     * @returns {Map<string,any>
+     * @returns {Map<string,any>}
      */
     function get3DPlotModifiers(callModifiers){
         let modifiers = new Map();
@@ -577,7 +580,8 @@ let CindyGL3D = function(api) {
             return nada;
         let obj3d = CindyGL3D.objectBuffer.get(objId);
         let plotModifiers=get3DPlotModifiers(modifs);
-        // TODO! update modifers types in renderer
+        // update modifers types in renderer
+        obj3d.program = compile(obj3d.program,obj3d.program.renderer.depthType,plotModifiers);
         obj3d.plotModifiers = plotModifiers;
         return nada;
     });

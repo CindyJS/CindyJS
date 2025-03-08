@@ -80,7 +80,7 @@ Renderer.prototype.canvaswrapper
 
 Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
     this.modifierTypes=newModifierTypes;
-    this.recompile();
+    this.rebuild(true);
 }
 Renderer.prototype.recompile = function() {
     console.log("recompile");
@@ -333,9 +333,11 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
         let uniformName=CodeBuilder.modifierPrefix+modifierName;
         if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
             let uniformSetter = this.shaderProgram.uniform[uniformName];
-            if(!value.uniformValue){
+            if(!value.uniformValue || value.modifierTypes!==this.modifierTypes){ // uniform value not up to date
                 let modifierType = this.modifierTypes.get(modifierName);
                 value.uniformValue = Renderer.computeUniformValue(uniformSetter,modifierType.type,value);
+                // remember current modifier types to ensure update when type changes
+                value.modifierTypes=this.modifierTypes;
             }
             Renderer.setUniformValue(uniformSetter,value.uniformValue);
         }
