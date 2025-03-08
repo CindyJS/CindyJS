@@ -53,7 +53,7 @@
                 c = S*S -cglRadius*cglRadius;
                 D= b*b-a*c;
                 if(D<0,
-                  [2,0,0,0,0],
+                  [0,0,0,0],
                   l1 = -(b + re(sqrt(D)))/a;
                   v1 = (W+l1*direction)-cglPointA;
                   delta = (v1*U);
@@ -66,13 +66,14 @@
                   c2=vc*vc-cglRadius*cglRadius;
                   D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
                   if(D4<0,
-                    [2,0,0,0,0],
+                    [0,0,0,0],
                     dst=-b2-re(sqrt(D4));// sqrt should always be real
                     pos3d = cglViewPos+ dst*direction;
                     normal = normalize(pos3d - center);
                     brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
                     color = brigthness*((cglColorB*delta+cglColorA*(1-delta)));
-                    [dst/64,color_1,color_2,color_3,1]
+                    cglDepth = dst/64;
+                    [color_1,color_2,color_3,1]
                   )
                 )
               );

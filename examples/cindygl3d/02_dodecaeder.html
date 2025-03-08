@@ -121,7 +121,7 @@
               spoly = B*spolyvalues; // interpolate
               D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
               if(D<0, //ray intersects ball
-                [1,0,0,0,0],
+                [0,0,0,0],
                 lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
                 spacePos = ray(direction,viewPos, lambda);
                 dst=|spacePos-viewPos|;//XXX? sign
@@ -143,7 +143,8 @@
                   color1, lightdir2, -n, 1),
                   color2, lightdir2, n, 1),
                   color3, lightdir3, n, 2);
-                [dst/16,rgb_1,rgb_2,rgb_3,1]
+                cglDepth = dst/16;
+                [rgb_1,rgb_2,rgb_3,1]
               )
             );
             cglBegin3d();

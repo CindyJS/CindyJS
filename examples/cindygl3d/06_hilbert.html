@@ -40,16 +40,17 @@
               c = S*S - cglRadius*cglRadius;
               D=b*b-4*a*c;
               if(D<0,
-                [2,0,0,0,0],
+                [0,0,0,0],
                 l1 = (-b - re(sqrt(D)))/(2*a);
                 v1 = (cglViewPos+l1*direction)-cglPointA;
                 delta1 = (v1*C);
                 if((delta1>0) & (delta1<lAB),
                   brigthness = 0.4 - 0.2*direction*normalize(v1-delta1*C); // 0.2 ... 0.6
                   color = brigthness*(0.5*(cglPointA+cglPointB)+[1,1,1]);
-                  [l1/16,color_1,color_2,color_3,1],
+                  cglDepth = l1/16;
+                  [color_1,color_2,color_3,1],
                   // interior face is never visible -> can be skipped
-                  [2,0,0,0,0]
+                  [0,0,0,0]
                 )
               );
             );
@@ -61,13 +62,14 @@
               c=vc*vc-cglRadius*cglRadius;
               D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
               if(D4<0,
-                [2,0,0,0,0],
+                [0,0,0,0],
                 dst=-b2-re(sqrt(D4));// sqrt should always be real
                 pos3d = cglViewPos+ dst*direction;
                 normal = normalize(pos3d - cglCenter);
                 brigthness = 0.25 - 0.25*direction*normal; // 0.25 ... 0.75
                 color = brigthness*(cglCenter+[1,1,1]);
-                [dst/16,color_1,color_2,color_3,1]
+                cglDepth = dst/16;
+                [color_1,color_2,color_3,1]
               )
             );
             scaleBy(p,q) := (

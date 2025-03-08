@@ -144,7 +144,7 @@
                 b0=(vc*direction);
                 c0=vc*vc-cglRadius*cglRadius;//cglRadius = r1+r2
                 D0=b0*b0-c0;
-                if(D0<0,[2,0,0,0,0],
+                if(D0<0,[0,0,0,0],
                   eps=0.05;// small buffer distance to balance out numeric instability
                   x0=-b0-re(sqrt(D0))-eps;
                   x1=-b0+re(sqrt(D0))+eps;
@@ -182,7 +182,7 @@
                   //  ? is root algorithm correct
                   dst=firstRoot4([p0,p1,p2,p3,1],x0,x1,x0);
                   if(dst<=x0,
-                    [2,0,0,0,0],
+                    [0,0,0,0],
                     pos3d = cglViewPos+ (v+dst)*direction;
                     pc=pos3d-center;
                     arcDirection = normalize(pc-(orientation*pc)*orientation);
@@ -190,7 +190,8 @@
                     normal = normalize(pos3d - arcCenter);
                     brigthness = 0.25 +0.75*max(-direction*normal,0);
                     color = brigthness*[0,1,0];
-                    [(v+dst)/16,color_1,color_2,color_3,1]
+                    cglDepth = (v+dst)/16;
+                    [color_1,color_2,color_3,1]
                   )
                 )
               );

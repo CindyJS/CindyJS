@@ -46,18 +46,20 @@
               c = S*S - cglRadius*cglRadius;
               D=b*b-4*a*c;
               if(D<0,
-                [2,0,0,0,0],
+                [0,0,0,0],
                 l1 = (-b - re(sqrt(D)))/(2*a);
                 v1 = (cglViewPos+l1*direction)-cglPointA;
                 delta1 = (v1*C);
                 if((delta1>0) & (delta1<lAB),
-                  [l1/16,0,.25+.75*abs(direction*normalize(v1-delta1*C)),0,1],
+                  cglDepth = l1/16;
+                  [0,.25+.75*abs(direction*normalize(v1-delta1*C)),0,1],
                   l2 = (-b + re(sqrt(D)))/(2*a);
                   v2 = (cglViewPos+l2*direction)-cglPointA;
                   delta2 = v2*C;
                   if((delta2>0) & (delta2<lAB),
-                    [l2/16,.25+.75*abs(direction*normalize(v2-delta2*C)),0,0,1],
-                  [2,0,0,0,0])
+                    cglDepth = l2/16;
+                    [.25+.75*abs(direction*normalize(v2-delta2*C)),0,0,1],
+                  [0,0,0,0])
                 )
               );
             );

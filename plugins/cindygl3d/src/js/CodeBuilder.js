@@ -83,19 +83,20 @@ CodeBuilder.prototype.api;
 /** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
-// TODO? add built-in functions (cglSetDepth, cglSetNormal, ...)
+// TODO? add global constant cglNormal?
 CodeBuilder.builtInVariables=new Map([
-    ["cglPixel",{type:"uniform",expr:"cgl_pixel",valueType:type.vec2}],
+    ["cglPixel",{type:"pixelAttribute",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
     // 3D- only
-    ["cglViewPos",{type:"uniform",expr:"cgl_viewPos",valueType:type.vec3}],
-    ["cglViewDirection",{type:"uniform",expr:"cgl_viewDirection",valueType:type.vec3}],
+    ["cglViewPos",{type:"uniform",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
+    ["cglViewDirection",{type:"pixelAttribute",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
+    ["cglDepth",{type:"pixelAttribute",expr:"gl_FragDepth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
     // TODO! make code/available constants dependent on bounding box type
     // only for spherical bounding box
-    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3}],
-    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float}],
-    ["cglPointA",{type:"uniform",expr:"uPointA",valueType:type.vec3}],
-    ["cglPointB",{type:"uniform",expr:"uPointB",valueType:type.vec3}]
+    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3,writable:false}],
+    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float,writable:false}],
+    ["cglPointA",{type:"uniform",expr:"uPointA",valueType:type.vec3,writable:false}],
+    ["cglPointB",{type:"uniform",expr:"uPointB",valueType:type.vec3,writable:false}]
 ]);
 CodeBuilder.cindygl3dPrefix="cgl";
 CodeBuilder.modifierPrefix="uModifier_";
@@ -1183,18 +1184,11 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     let colorType=plotProgram.colorType;
 
     let colorterm;
-    if(depthType==DepthType.Flat){
-        colorterm = this.castType(colorExpr.term, colorType, type.color);
-        if (!issubtypeof(colorType, type.color)) {
-            console.error("expression does not generate a color");
-        }
-    }else if(depthType==DepthType.Nearest){ // TODO special type for depth+color
-        if (!issubtypeof(colorType, type.vec(5))) {
-            console.error("expression does not generate a color(rgba)+depth");
-        }
-        colorterm = this.castType(colorExpr.term, colorType, type.vec(5));
+    if (!issubtypeof(colorType, type.color)) {
+        console.error("expression does not generate a color");
+        colorterm=`vec4(.5,.5,.5,1.);\n`; // replace broken shader with solid gray region
     }else{
-        console.error("unsupported depth type");
+        colorterm = this.castType(colorExpr.term, colorType, type.color);
     }
 
     //JRG: THis snipped is used to bypass an error caused
@@ -1211,10 +1205,11 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     if(depthType==DepthType.Flat){
         code += `void main(void) {\n ${randompatch} ${colorExpr.code}fragColor = ${colorterm};\n}\n`;
     }else if(depthType==DepthType.Nearest){
-        code += `void main(void) {\n ${randompatch} ${colorExpr.code}
-        vec5 colorAndDepth= ${colorterm};
-        fragColor = vec4(colorAndDepth.a0.y,colorAndDepth.a1);
-        ${generateSetDepth("colorAndDepth.a0.x")}\n}\n`;
+        // set depth at start of procedure to ensure value is updated on every path
+        code += `void main(void) {\n ${randompatch}
+        ${generateSetDepth("gl_FragCoord.z")}
+        ${colorExpr.code}
+        fragColor = ${colorterm};\n}\n`;
     }else{
         console.error("unsupported depth type");
     }

@@ -64,9 +64,10 @@
                 z=((normalAndDepth_1)/(1-normalAndDepth_3))
                   +i*((normalAndDepth_2)/(1-normalAndDepth_3));
                 fz=expr(z);
-                brigthness=0.25+0.75*max(0,-normal*direction);// TODO better ligth calucation
-                colRGB=brigthness*color(fz);
-                [depth/16,colRGB_1,colRGB_2,colRGB_3,if(depth>=oo,0,1)]
+                brigthness = 0.25+0.75*max(0,-normal*direction);// TODO better ligth calucation
+                colRGB = brigthness*color(fz);
+                cglDepth = depth/16;
+                [colRGB_1,colRGB_2,colRGB_3,if(depth>=oo,0,1)]
               );
               colorplot3d(f(#),[0,0,0],1);
             );

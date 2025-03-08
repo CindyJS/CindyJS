@@ -24,13 +24,14 @@
               c=vc*vc-cglRadius*cglRadius;
               D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
               if(D4<0,
-                [2,0,0,0,0],
+                [0,0,0,0],
                 dst=-b2-re(sqrt(D4));// sqrt should always be real
                 pos3d = cglViewPos+ dst*direction;
                 normal = normalize(pos3d - cglCenter);
                 brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
                 color = brigthness*normalize((pos3d/(2*cglRadius))+[.5,.5,.5]);
-                [dst*0.01,color_1,color_2,color_3,1]
+                cglDepth = dst*0.01;
+                [color_1,color_2,color_3,1]
               )
             );
             cglBegin3d();

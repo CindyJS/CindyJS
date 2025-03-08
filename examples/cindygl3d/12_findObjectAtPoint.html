@@ -50,7 +50,7 @@
                 c = S*S -cglRadius*cglRadius;
                 D= b*b-a*c;
                 if(D<0,
-                  [2,0,0,0,0],
+                  [0,0,0,0],
                   l1 = -(b + re(sqrt(D)))/a;
                   v1 = (W+l1*direction)-cglPointA;
                   delta1 = (v1*U);
@@ -59,9 +59,10 @@
                     // normal = X - (B*delta1 + A*(1-delta1))
                     //     = v1 - (B-A)*delta1
                     brigthness = 0.25+0.75*max(-direction*normalize(v1-delta1*BA),0); // 0.25 ... 1.0
-                    color=brigthness*((cglColorB*delta1+cglColorA*(1-delta1)));
-                    [(w+l1)/16,color_1,color_2,color_3,1],
-                    [2,0,0,0,0] // back-side of cylinder is never visible
+                    color = brigthness*((cglColorB*delta1+cglColorA*(1-delta1)));
+                    cglDepth = (w+l1)/16;
+                    [color_1,color_2,color_3,1],
+                    [0,0,0,0] // back-side of cylinder is never visible
                   )
                 )
               );
@@ -78,13 +79,14 @@
                 c=vc*vc-cglRadius*cglRadius;
                 D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
                 if(D4<0,
-                  [2,0,0,0,0],
+                  [0,0,0,0],
                   dst=-b2-re(sqrt(D4));// sqrt should always be real
                   pos3d = cglViewPos+ dst*direction;
                   normal = normalize(pos3d - cglCenter);
                   brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
                   color = brigthness*cglColor;
-                  [dst/16,color_1,color_2,color_3,1]
+                  cglDepth = dst/16;
+                  [color_1,color_2,color_3,1]
                 )
               );
               colorplot3d(cgl3dSphereShaderCode(#),center,radius,cglColor->color,tags->["sphere"]);

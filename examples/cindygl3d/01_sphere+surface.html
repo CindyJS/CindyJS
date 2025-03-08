@@ -131,7 +131,7 @@
                     dst = getDistanceToObj(direction,viewPos);
                     if(dst == oo,
                       rgb=gray(1.);
-                      [1,rgb_1,rgb_2,rgb_3,0],
+                      [rgb_1,rgb_2,rgb_3,0],
                       x = ray(direction,viewPos, dst);
                       n = dF(x);
                       n = n/abs(n);
@@ -149,7 +149,8 @@
                         color0, lightdir0, n, 2),
                         color3, lightdir3, n, 2),
                         color4, lightdir4, n, 2);
-                      [dst/16,rgb_1,rgb_2,rgb_3,1]
+                      cglDepth = dst/16;
+                      [rgb_1,rgb_2,rgb_3,1]
                     )
                   );
                   computeColor2(direction,viewPos) := (
@@ -159,9 +160,10 @@
                     D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
                     if(D>=0, //ray intersects ball of radius 2
                       z=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
-                      [z/16.0,0.5,0.5,0.5,.75]
+                      cglDepth = z/16;
+                      [0.5,0.5,0.5,.75]
                       ,
-                      [oo,0.0,0.0,0.0,.0]
+                      [0,0,0,0]
                     )
                   );
 
