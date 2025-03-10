@@ -25,11 +25,13 @@ Renderer.boundingCylinder = function(pointA,pointB,radius){
 Renderer.prevBoundingBoxType = undefined;
 Renderer.prevShader = undefined;
 Renderer.prevTrafo = undefined;
+Renderer.prevProjection = undefined;
 Renderer.prevSize = [0,0];
 Renderer.resetCachedState = function(){
     Renderer.prevBoundingBoxType = undefined;
     Renderer.prevShader = undefined;
     Renderer.prevTrafo = undefined;
+    Renderer.prevProjection = undefined;
     Renderer.prevSize = [0,0];
 };
 
@@ -100,35 +102,48 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     // TODO? use different header for fshader depending on box type
     this.fragmentShaderCode =
         cgl3d_resources["standardFragmentHeader"] + this.cb.generateShader(this.cpg,this.depthType);
-    // TODO? share vertex attributes between different shader objects
     if(CindyGL3D.mode3D){
-        let x0=CindyGL3D.coordinateSystem.x0;
-        let x1=CindyGL3D.coordinateSystem.x1;
-        let y0=CindyGL3D.coordinateSystem.y0;
-        let y1=CindyGL3D.coordinateSystem.y1;
-        let z1=CindyGL3D.coordinateSystem.z1;
         if(this.boundingBox.type == BoundingBoxType.none){
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
-            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }else if(this.boundingBox.type==BoundingBoxType.sphere){
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
-            this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else if(this.boundingBox.type==BoundingBoxType.cylinder){
             this.vertexShaderCode = cgl3d_resources["vshader3dCylinder"];
-            this.vertices = new Float32Array([-1, -1, 1, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
-            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }
     }else{
         this.vertexShaderCode = cgl3d_resources["vshader"];
-        this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
     }
     // TODO? split creating of shader program and updating of attributes
     this.shaderProgram = new ShaderProgram(gl, this.vertexShaderCode, this.fragmentShaderCode);
-    this.updateAttributes();
+    this.updateVertices();
 };
+Renderer.prototype.updateVertices = function() {
+    // TODO? share vertex attributes between different shader objects
+    if(CindyGL3D.mode3D){
+        let zoom = CindyGL3D.coordinateSystem.zoom;
+        let x0=CindyGL3D.coordinateSystem.x0*zoom;
+        let x1=CindyGL3D.coordinateSystem.x1*zoom;
+        let y0=CindyGL3D.coordinateSystem.y0*zoom;
+        let y1=CindyGL3D.coordinateSystem.y1*zoom;
+        let z1=CindyGL3D.coordinateSystem.z1*zoom;
+        if(this.boundingBox.type == BoundingBoxType.none){
+            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+        }else if(this.boundingBox.type==BoundingBoxType.sphere){
+            this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+        }else if(this.boundingBox.type==BoundingBoxType.cylinder){
+            this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+        }else{
+            console.error("unsupported bounding box type: ",this.boundingBox.type);
+            this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
+        }
+    }else{
+        this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    }
+    this.updateAttributes();
+}
 Renderer.prototype.updateAttributes = function() {
     Renderer.prevBoundingBoxType=this.boundingBox.type;
     var posBuffer = gl.createBuffer();
@@ -447,6 +462,10 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
         this.rebuild(true);
     }else if(needsRebuild){
         this.rebuild(false);
+    }else if(CindyGL3D.projectionMatrix!=Renderer.prevProjection){
+        this.updateVertices();
+        Renderer.prevProjection=CindyGL3D.projectionMatrix;
+        Renderer.prevTrafo=undefined;
     }else if(this.boundingBox.type!=Renderer.prevBoundingBoxType){
         this.updateAttributes();
     }

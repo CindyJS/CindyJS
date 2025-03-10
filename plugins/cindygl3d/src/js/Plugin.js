@@ -374,12 +374,15 @@ let CindyGL3D = function(api) {
     // plot3d(expr)
     // plot3d(expr,center,radius)
     let recomputeProjMatrix = function(){
-        let x0=CindyGL3D.coordinateSystem.x0;
-        let x1=CindyGL3D.coordinateSystem.x1;
-        let y0=CindyGL3D.coordinateSystem.y0;
-        let y1=CindyGL3D.coordinateSystem.y1;
-        let z0=CindyGL3D.coordinateSystem.z0;
-        let z1=CindyGL3D.coordinateSystem.z1;
+        let zoom = CindyGL3D.coordinateSystem.zoom;
+        let x0=CindyGL3D.coordinateSystem.x0*zoom;
+        let x1=CindyGL3D.coordinateSystem.x1*zoom;
+        let y0=CindyGL3D.coordinateSystem.y0*zoom;
+        let y1=CindyGL3D.coordinateSystem.y1*zoom;
+        let z0=CindyGL3D.coordinateSystem.z0*zoom;
+        let z1=CindyGL3D.coordinateSystem.z1*zoom;
+        CindyGL3D.coordinateSystem.viewPosition=
+            [(x0+x1)/2,(y0+y1)/2,z0,1];
         CindyGL3D.projectionMatrix=[
             [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
             [0, 2/(y1-y0), 0, - 2*y0/(y1-y0) -1],
@@ -397,20 +400,30 @@ let CindyGL3D = function(api) {
         CindyGL3D.mode3D=true;
         let ul=computeUpperLeftCorner(api);
         let lr=computeLowerRightCorner(api);
+        let z0 = modifs.hasOwnProperty("z0") ?
+            api.evaluateAndVal(modifs["z0"])["value"]["real"] : -10;
         // TODO? make z-coords customizable
         CindyGL3D.coordinateSystem={
             x0: ul.x , x1: lr.x, y0: lr.y, y1: ul.y,
-            z0: -10, z1:0
+            z0: z0, z1:0, zoom: 1
         };
-        let x0=CindyGL3D.coordinateSystem.x0;
-        let y0=CindyGL3D.coordinateSystem.y0;
-        let x1=CindyGL3D.coordinateSystem.x1;
-        let y1=CindyGL3D.coordinateSystem.y1;
-        CindyGL3D.coordinateSystem.viewPosition=
-            [(x0+x1)/2,(y0+y1)/2,CindyGL3D.coordinateSystem.z0,1];
         resetRotation();
         recomputeProjMatrix();
         return nada;
+    });
+    api.defineFunction("cglViewPos", 0, (args, modifs) => { // TODO? variable instead of function
+        // TODO? initialize coordinate-system if not existent
+        let viewPos = CindyGL3D.coordinateSystem.transformedViewPos.slice(0,3);
+        return { // convert to CindyJS list
+            ctype: 'list',
+            value: viewPos.map(v => ({
+                ctype: 'number',
+                value: {
+                    'real': v,
+                    'imag': 0
+                }
+            }))
+        };
     });
     api.defineFunction("rotate3d", 2, (args, modifs) => {
         let alpha = api.evaluateAndVal(args[0])["value"]["real"];
@@ -444,14 +457,21 @@ let CindyGL3D = function(api) {
         }
         return nada;
     });
-    // TODO? zoom function
+    // TODO? directly set zoom or update previous value
+    api.defineFunction("zoom3d", 1, (args, modifs) => {
+        let zoom = api.evaluateAndVal(args[0])["value"]["real"];
+        CindyGL3D.coordinateSystem.zoom = zoom;
+        recomputeProjMatrix();
+    });
     // TODO? move position/canvas
     // TODO? combined reset for objects and coord-system
     api.defineFunction("cglResetRotation", 0, (args, modifs) => {
-        resetRotation()
+        resetRotation();
+        return nada;
     });
     api.defineFunction("cglReset3d", 0, (args, modifs) => {
         CindyGL3D.objectBuffer=new Map();
+        return nada;
     });
     api.defineFunction("cglDraw3d", 0, (args, modifs) => {
         initGLIfRequired();
