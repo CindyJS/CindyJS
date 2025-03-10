@@ -29,7 +29,6 @@
             cColor=[0,1,1];
             normalize(v):=(v/|v|);
             cylinder(pointA,pointB,radius):=(
-              // TODO multiple versions (no-inside, transparency, color, shading)
               cgl3dCylinderShaderCode(direction):=(
                 // P lies on infinite cylinder around axis AB with radius r iff
                 // |(P-A) - <P-A,B-A>/<B-A,B-A>*(B-A)| = r
@@ -78,7 +77,6 @@
               colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius);
             );
             sphere(center,radius):=(
-              // TODO multiple versions (transparency, color, shading)
               cgl3dSphereShaderCode(direction):=(
                 // |v+l*d -c|=r
                 vc=cglViewPos-cglCenter;

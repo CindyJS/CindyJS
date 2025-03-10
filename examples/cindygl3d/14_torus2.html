@@ -26,21 +26,18 @@
             dragging = false;
 
             normalize(v):=(v/|v|);
-            cross(a,b):=(a_2*b_3-a_3*b_2,a_3*b_1-a_1*b_3,a_1*b_2-a_2*b_1);
             torus(center,orientation,radius1,radius2):=(
               regional(v1,v2,N);
               // create local coordinate system of torus
               orientation=normalize(orientation);
-              // TODO? make v1 a parameter
               if(orientation_1<orientation_2,
                 v1=normalize(cross(orientation,(1,0,0)));
               ,
                 v1=normalize(cross(orientation,(0,1,0)));
               );
               v2 = normalize(cross(orientation,v1));
-              alpha0=0; // TODO allow passing starting/end-angle as modifier
+              alpha0=0;
               alpha1=2*pi;
-              // TODO find good boundry values
               N = max(32,min(floor(abs(alpha1-alpha0)*(radius1/radius2)),128));
               cgl3dArcRodShaderCode(direction):=(
                 // P lies on infinite cylinder around axis AB with radius r iff
@@ -92,13 +89,11 @@
                   )
                 )
               );
-              // TODO? add way to group multiple sub-objects into a composite object
               repeat(N,n,
                 fromAngle=alpha0+((n-1)/N)*(alpha1-alpha0);
                 toAngle=alpha0+(n/N)*(alpha1-alpha0);
                 p0 = center + radius1 * (cos(fromAngle)*v1+sin(fromAngle)*v2);
                 p1 = center + radius1 * (cos(toAngle)*v1+sin(toAngle)*v2);
-                // TODO pass center and current angle/orientation
                 colorplot3d(cgl3dArcRodShaderCode(#),p0,p1,radius2,
                   cglTCenter->center,cglTRadius->radius1,cglTOrientation->orientation);
               );
