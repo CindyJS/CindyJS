@@ -1206,6 +1206,7 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
         code += `void main(void) {\n ${randompatch} ${colorExpr.code}fragColor = ${colorterm};\n}\n`;
     }else if(depthType==DepthType.Nearest){
         // set depth at start of procedure to ensure value is updated on every path
+        // TODO! do not write to depth if code does not use cglDepth
         code += `void main(void) {\n ${randompatch}
         ${generateSetDepth("gl_FragCoord.z")}
         ${colorExpr.code}

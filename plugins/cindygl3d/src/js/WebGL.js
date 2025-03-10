@@ -38,6 +38,12 @@ webgl['meet'] = first([
     ]
 ]);
 
+webgl['cross'] = first([
+    [
+        [type.vec3, type.vec3], type.vec3, usefunction('cross')
+    ]
+]);
+
 webgl['gauss'] = first([
     [
         [type.complex], type.vec2, identity
