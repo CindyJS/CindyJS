@@ -23,20 +23,27 @@ All CindyGL functions are preserved with their original behaviour.
 If a free parameter is passed to the expression in the colorplot function it will be initialized to the normalized viewDirection in 3D-mode
 In 2D mode the current pixel position will be used instead.
 
-The following read only variables are automatically initialized in the code passed to colorplot3d.
+The following variables are automatically initialized in the code passed to colorplot3d.
 ! Any CindyJS variables with the same name will be ignored,
 all built-in variables start with the prefix `cgl` to reduce the risk for name collisions.
 
 * `cglPixel`: the 2D pixel coordinate on the texture, currently only supported in 2D-mode
 * `cglViewPos`: the current camera position
 * `cglViewDirection`: the direction of the view ray for the current pixel
+* `cglDepth` can be used to read and write the depth of the current pixel. before rendering the depth values will be truncated to the range [0,1], with 0 beein closest to the camera.
 
 
 Depending on the bouding box type there may be additional variables
 
 Sphere:
 * `cglCenter`: the center of the bounding sphere
-* `cglRadius`: the radius of the bounding sphere
+* `cglRadius`: the radius of the bounding sphere/cylinder
+* `cglPointA` `cglPointB` the two endpoints of the bounding cylinder
+
+## Built-in functions
+
+* `cglDiscard()` when this function is called the current pixel will not be drawn to the screen.
+Due to compiler limitations the source code still has to be valid if all `cglDiscrad` calls are ignored.
 
 ## Plot Modifiers
 

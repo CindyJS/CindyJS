@@ -83,20 +83,24 @@ CodeBuilder.prototype.api;
 /** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
+const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are lower-case
 // TODO? add global constant cglNormal?
-CodeBuilder.builtInVariables=new Map([
-    ["cglPixel",{type:"pixelAttribute",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
+/** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}> */
+CodeBuilder.builtIns=new Map([
+    ["cglPixel",{type:"pixelAttribute",code:"",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
+    // TODO prevent reading from discard
+    [BUILTIN_DISCARD,{type:"function",code:"discard;\n",expr:"",valueType:type.voidt,writable:true}],
     // 3D- only
-    ["cglViewPos",{type:"uniform",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
-    ["cglViewDirection",{type:"pixelAttribute",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
-    ["cglDepth",{type:"pixelAttribute",expr:"gl_FragDepth",valueType:type.float,writable:true}],
+    ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
+    ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
+    ["cglDepth",{type:"pixelAttribute",code:"",expr:"gl_FragDepth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
     // TODO! make code/available constants dependent on bounding box type
     // only for spherical bounding box
-    ["cglCenter",{type:"uniform",expr:"uCenter",valueType:type.vec3,writable:false}],
-    ["cglRadius",{type:"uniform",expr:"uRadius",valueType:type.float,writable:false}],
-    ["cglPointA",{type:"uniform",expr:"uPointA",valueType:type.vec3,writable:false}],
-    ["cglPointB",{type:"uniform",expr:"uPointB",valueType:type.vec3,writable:false}]
+    ["cglCenter",{type:"uniform",code:"",expr:"uCenter",valueType:type.vec3,writable:false}],
+    ["cglRadius",{type:"uniform",code:"",expr:"uRadius",valueType:type.float,writable:false}],
+    ["cglPointA",{type:"uniform",code:"",expr:"uPointA",valueType:type.vec3,writable:false}],
+    ["cglPointB",{type:"uniform",code:"",expr:"uPointB",valueType:type.vec3,writable:false}]
 ]);
 CodeBuilder.cindygl3dPrefix="cgl";
 CodeBuilder.modifierPrefix="uModifier_";
@@ -147,7 +151,10 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
     } else if(expr['isbuiltin']){
         if (expr['ctype'] === 'variable') {
             let name = expr['name'];
-            return CodeBuilder.builtInVariables.get(name).valueType;
+            return CodeBuilder.builtIns.get(name).valueType;
+        } else if (expr['ctype'] === 'function') {
+            let name = getPlainName(expr['oper']);
+            return CodeBuilder.builtIns.get(name).valueType;
         }
         console.error(`unsupported built-in ${JSON.stringify(expr)}`);
         return false;
@@ -428,10 +435,11 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         if (expr['ctype'] === 'variable') {
             let vname = expr['name'];
             // TODO? allow precomputing expressions containing built-ins/call-dependent variables in some cases
-            if(CodeBuilder.builtInVariables.has(vname)){
+            if(CodeBuilder.builtIns.has(vname)){
                 expr["isbuiltin"] = true;
                 return expr["dependsOnPixel"] = true;
             }else if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
+                // TODO? allow shaddowning modifiers with local variables
                 expr["ismodifier"] = true;
                 return expr["dependsOnPixel"] = true;
             }
@@ -451,6 +459,10 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             'verbatimglsl' //we dont analyse verbatimglsl functions
         ];
         if (expr['ctype'] === 'function' && alwaysPixelDependent.indexOf(getPlainName(expr['oper'])) !== -1) {
+            return expr["dependsOnPixel"] = true;
+        } else if (expr['ctype'] === 'function' &&
+                CodeBuilder.builtIns.has(getPlainName(expr['oper']))) {
+            expr['isbuiltin'] = true;
             return expr["dependsOnPixel"] = true;
         }
 
@@ -701,11 +713,21 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     } else if(expr['isbuiltin']){
         if(expr['ctype'] === 'variable'){
             let vname = expr['name'];
+            let builtIn = CodeBuilder.builtIns.get(vname);
             return generateTerm ? {
-                code: '',
-                term: CodeBuilder.builtInVariables.get(vname).expr,
+                code: builtIn.code,
+                term: builtIn.expr,
             } : {
-                code: ''
+                code: builtIn.code
+            };
+        } else if(expr['ctype'] === 'function' && expr['args'].length == 0){
+            let fname = getPlainName(expr['oper']);
+            let builtIn = CodeBuilder.builtIns.get(fname);
+            return generateTerm ? {
+                code: builtIn.code,
+                term: builtIn.expr,
+            } : {
+                code: builtIn.code
             };
         }
         console.error(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);

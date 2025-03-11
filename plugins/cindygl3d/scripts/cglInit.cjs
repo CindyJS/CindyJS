@@ -13,28 +13,32 @@ cglSphereNormalAndDepth(direction,center):=(
   b2=(vc*direction); // 1/2 * b
   c=vc*vc-cglRadius*cglRadius;
   D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-  if(D4<0,
-    cglDepth = -1;
-    [0,0,0],
-    dst=-b2-re(sqrt(D4));// sqrt should always be real
-    pos3d = cglViewPos+ dst*direction;
-    cglDepth = dst/(2*|cglViewPos|);
-    normal = normalize(pos3d - center);
-    [normal_1,normal_2,normal_3]
-  )
+  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
+  dst=-b2-re(sqrt(D4));// sqrt should always be real
+  pos3d = cglViewPos+ dst*direction;
+  cglDepth = dst/(2*|cglViewPos|);
+  normal = normalize(pos3d - center);
+  [normal_1,normal_2,normal_3]
+);
+cglSphereDepths(direction,center):=(
+  regional(vc,b2,c,D4,r);
+  // |v+l*d -c|=r
+  vc=cglViewPos-center;
+  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+  b2=(vc*direction); // 1/2 * b
+  c=vc*vc-cglRadius*cglRadius;
+  D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
+  r=re(sqrt(D4)); // sqrt should always be real
+  (-b2-r,-b2+r)
 );
 sphere(center,radius,color):=(
   // TODO multiple versions (transparency, color, shading)
   cgl3dSphereShaderCode(direction):=(
-    regional(normal,brigthness,color);
+    regional(normal,brigthness);
     normal = cglSphereNormalAndDepth(direction,cglCenter);
-    if(cglDepth<0,
-      cglDepth = 2;
-      [0,0,0,0], // TODO find way to use glsl `dicard;` built-in
-      brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
-      color = brigthness*cglColor;
-      [color_1,color_2,color_3,2]
-    )
+    brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
+    brigthness*cglColor
   );
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,cglColor->color,tags->["sphere"]);
 );
@@ -62,45 +66,32 @@ cglCylinderDepths(direction):=(
     b = S*T;
     c = S*S -cglRadius*cglRadius;
     D= b*b-a*c;
+    if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
     r = re(sqrt(D));
-    if(D<0,
-      cglDepth = -1;
-      (0,0),
-      (w - (b + r)/a,
-        w - (b - r)/a);
-    )
+    (w - (b + r)/a, w - (b - r)/a);
 );
 cylinder(pointA,pointB,radius,colorA,colorB):=(
   // TODO multiple versions (skip-back, end-cap style, transparency, color, shading)
   cgl3dCylinderShaderCode(direction):=(
-    regional(l,v1,delta1,brigthness,color,v2,delta2,BA,U);
+    regional(l,v1,delta1,brigthness,v2,delta2,BA,U);
     l = cglCylinderDepths(direction);
     BA = cglPointB-cglPointA;
     U = BA/(BA*BA);
-    if(cglDepth<0,
-      cglDepth = 2;
-      [0,0,0,0],
-      v1 = (cglViewPos+l_1*direction)-cglPointA;
-      delta1 = (v1*U);
-      if((delta1>0)& (delta1<1),
-        // v1 = X -A
-        // normal = X - (B*delta1 + A*(1-delta1))
-        //     = v1 - (B-A)*delta1
-        brigthness = 0.25+0.75*max(-direction*normalize(v1-delta1*BA),0); // 0.25 ... 1.0
-        color = brigthness*((cglColorB*delta1+cglColorA*(1-delta1)));
-        cglDepth = (l_1)/(2*|cglViewPos|);
-        [color_1,color_2,color_3,1], // TODO? version without back face
-        v2 = (cglViewPos+l_2*direction)-cglPointA;
-        delta2 = v2*U;
-        if((delta2>0) & (delta2<1),
-          brigthness = 0.25+.5*max(direction*normalize(v2-delta2*BA),0);
-          color = brigthness*((cglColorB*delta2+cglColorA*(1-delta2)));
-          cglDepth = (l_2)/(2*|cglViewPos|);
-          [color_1,color_2,color_3,1],
-          cglDepth = 2;
-          [0,0,0,0]
-        )
-      )
+    v1 = (cglViewPos+l_1*direction)-cglPointA;
+    delta1 = (v1*U);
+    if((delta1>0)& (delta1<1),
+      cglDepth = (l_1)/(2*|cglViewPos|);
+      // v1 = X -A
+      // normal = X - (B*delta1 + A*(1-delta1))
+      //     = v1 - (B-A)*delta1
+      brigthness = 0.25+0.75*max(-direction*normalize(v1-delta1*BA),0); // 0.25 ... 1.0
+      brigthness*((cglColorB*delta1+cglColorA*(1-delta1))),
+      v2 = (cglViewPos+l_2*direction)-cglPointA;
+      delta2 = v2*U;
+      if((delta2<0) % (delta2>1),cglDiscard());
+      cglDepth = (l_2)/(2*|cglViewPos|);
+      brigthness = 0.25+.5*max(direction*normalize(v2-delta2*BA),0);
+      brigthness*((cglColorB*delta2+cglColorA*(1-delta2)))
     )
   );
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
@@ -109,25 +100,16 @@ cylinder(pointA,pointB,radius,colorA,colorB):=(
 // cylinder with spherical end caps
 rod(pointA,pointB,radius,colorA,colorB):=(
   cgl3dRodShaderCode(direction):=(
-    regional(l,v,BA,delta,center,normal,brigthness,color);
+    regional(l,v,BA,delta,center,normal,brigthness);
     l = cglCylinderDepths(direction);
-    if(cglDepth<0,
-      cglDepth = 2;
-      [0,0,0,0],
-      v = (cglViewPos+l_1*direction)-cglPointA;
-      BA = cglPointB-cglPointA;
-      delta = (v*BA)/(BA*BA);
-      delta = max(0,min(delta,1));
-      center = delta*cglPointB+(1-delta)*cglPointA;
-      normal=cglSphereNormalAndDepth(direction,center);
-      if(cglDepth<0,
-        cglDepth = 2;
-        [0,0,0,0],
-        brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
-        color = brigthness*((cglColorB*delta+cglColorA*(1-delta)));
-        [color_1,color_2,color_3,1]
-      )
-    )
+    v = (cglViewPos+l_1*direction)-cglPointA;
+    BA = cglPointB-cglPointA;
+    delta = (v*BA)/(BA*BA);
+    delta = max(0,min(delta,1));
+    center = delta*cglPointB+(1-delta)*cglPointA;
+    normal=cglSphereNormalAndDepth(direction,center);
+    brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+    brigthness*((cglColorB*delta+cglColorA*(1-delta)))
   );
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
     cglColorA->colorA,cglColorB->colorB,tags->["rod"]);
@@ -152,41 +134,33 @@ torus(center,orientation,radius1,radius2,color):=(
   v2 = normalize(cross(orientation,v1));
   N = max(32,min(floor(abs(alpha1-alpha0)*(radius1/radius2)),128));
   cgl3dArcRodShaderCode(direction):=(
-    regional(l,pos3d,radiusDirection,arcDirection,arcCenter,planeOffset,normal,brigthness,color);
+    regional(l,pos3d,radiusDirection,arcDirection,arcCenter,planeOffset,normal,brigthness);
     l = cglCylinderDepths(direction);
-    if(cglDepth<0,
-      cglDepth = 2;
-      [0,0,0,0],
-      pos3d = (cglViewPos+l_1*direction);
+    pos3d = (cglViewPos+l_1*direction);
+    pc=pos3d-cglTCenter;
+    radiusDirection = normalize(pc-(cglTOrientation*pc)*cglTOrientation);
+    arcDirection = normalize(cross(radiusDirection,cglTOrientation));
+    planeOffset = pos3d*arcDirection;
+    // check if A and B are on same side of normal plane to torus through pos3d, add small tolerance to balance out numerical errors
+    if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))<1e-5,
+      cglDepth = (l_1)/(2*|cglViewPos|);
+      arcCenter = cglTCenter+cglTRadius*radiusDirection;
+      normal = normalize(pos3d - arcCenter);
+      brigthness = 0.25 +0.75*max(-direction*normal,0);
+      brigthness*cglColor,
+      // TODO add option to ignore inner side (e.g. for drawing closed torus)
+      pos3d = (cglViewPos+l_2*direction);
       pc=pos3d-cglTCenter;
       radiusDirection = normalize(pc-(cglTOrientation*pc)*cglTOrientation);
       arcDirection = normalize(cross(radiusDirection,cglTOrientation));
       planeOffset = pos3d*arcDirection;
-      // check if A and B are on same side of normal plane to torus through pos3d, add small tolerance to balance out numerical errors
-      if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))<1e-5,
-        arcCenter = cglTCenter+cglTRadius*radiusDirection;
-        normal = normalize(pos3d - arcCenter);
-        brigthness = 0.25 +0.75*max(-direction*normal,0);
-        color = brigthness*cglColor;
-        cglDepth = (l_1)/(2*|cglViewPos|);
-        [color_1,color_2,color_3,1],
-        // TODO add option to ignore inner side (e.g. for drawing closed torus)
-        pos3d = (cglViewPos+l_2*direction);
-        pc=pos3d-cglTCenter;
-        radiusDirection = normalize(pc-(cglTOrientation*pc)*cglTOrientation);
-        arcDirection = normalize(cross(radiusDirection,cglTOrientation));
-        planeOffset = pos3d*arcDirection;
-        if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))<1e-5,
-          arcCenter = cglTCenter+cglTRadius*radiusDirection;
-          normal = normalize(pos3d - arcCenter);
-          brigthness = 0.25 +0.5*max(direction*normal,0);
-          color = brigthness*cglColor;
-          cglDepth = (l_2)/(2*|cglViewPos|);
-          [color_1,color_2,color_3,1],
-          [0,0,0,0]
-        )
-      );
-    )
+      if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))>1e-5,cglDiscard());
+      cglDepth = (l_2)/(2*|cglViewPos|);
+      arcCenter = cglTCenter+cglTRadius*radiusDirection;
+      normal = normalize(pos3d - arcCenter);
+      brigthness = 0.25 +0.5*max(direction*normal,0);
+      brigthness*cglColor
+    );
   );
   // TODO? add way to group multiple sub-objects into a composite object
   repeat(N,n,

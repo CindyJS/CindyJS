@@ -301,7 +301,7 @@ let CindyGL3D = function(api) {
         Object.entries(callModifiers).forEach(([name, value])=>{
             if(!name.startsWith(CodeBuilder.cindygl3dPrefix))
                 return;
-            if(CodeBuilder.builtInVariables.has(name)){
+            if(CodeBuilder.builtIns.has(name)){
                 console.warn("modifer is shadowed by built-in: "+name);
             }else{
                 modifiers.set(name,api.evaluateAndVal(value));
