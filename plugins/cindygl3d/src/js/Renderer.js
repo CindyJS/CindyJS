@@ -88,6 +88,7 @@ Renderer.prototype.recompile = function() {
     console.log("recompile");
     this.cb = new CodeBuilder(this.api);
     this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
+    this.opaque = this.cpg.opaque;
     this.expression.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
     this.expression.compiletime = requiredcompiletime;
 }

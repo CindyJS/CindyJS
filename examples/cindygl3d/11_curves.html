@@ -52,30 +52,25 @@
                 b = S*T;
                 c = S*S -cglRadius*cglRadius;
                 D= b*b-a*c;
-                if(D<0,
-                  [0,0,0,0],
-                  l1 = -(b + re(sqrt(D)))/a;
-                  v1 = (W+l1*direction)-cglPointA;
-                  delta = (v1*U);
-                  delta = max(0,min(delta,1));
-                  center = delta*cglPointB+(1-delta)*cglPointA;
-                  // |v+l*d -c|=r
-                  vc=cglViewPos-center;
-                  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-                  b2=(vc*direction);
-                  c2=vc*vc-cglRadius*cglRadius;
-                  D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
-                  if(D4<0,
-                    [0,0,0,0],
-                    dst=-b2-re(sqrt(D4));// sqrt should always be real
-                    pos3d = cglViewPos+ dst*direction;
-                    normal = normalize(pos3d - center);
-                    brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
-                    color = brigthness*((colorB*delta+colorA*(1-delta)));
-                    cglDepth = dst/64;
-                    [color_1,color_2,color_3,1]
-                  )
-                )
+                if(D<0,cglDiscard());
+                l1 = -(b + re(sqrt(D)))/a;
+                v1 = (W+l1*direction)-cglPointA;
+                delta = (v1*U);
+                delta = max(0,min(delta,1));
+                center = delta*cglPointB+(1-delta)*cglPointA;
+                // |v+l*d -c|=r
+                vc=cglViewPos-center;
+                // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+                b2=(vc*direction);
+                c2=vc*vc-cglRadius*cglRadius;
+                D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
+                if(D4<0,cglDiscard());
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                cglDepth = dst/64;
+                pos3d = cglViewPos+ dst*direction;
+                normal = normalize(pos3d - center);
+                brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+                brigthness*((colorB*delta+colorA*(1-delta)))
               );
               colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
                 UcolorA->colorA,UcolorB->colorB);

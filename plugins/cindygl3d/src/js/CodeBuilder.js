@@ -1210,10 +1210,13 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
         this.modifierTypes.get(name).uniformName=uniformName;
     });
 
+    let hasAlpha = (rtype === type.color ||
+        rtype.type === 'list' && rtype.length >= 4);
     return {
         code: code,
         colorExpr: r,
         colorType: rtype,
+        opaque: !hasAlpha,
         uniforms: this.uniforms,
         texturereaders: this.texturereaders,
         generations: generations //all used functions with their generation

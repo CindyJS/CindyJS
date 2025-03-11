@@ -23,16 +23,14 @@
               b2=(vc*direction); // 1/2 * b
               c=vc*vc-cglRadius*cglRadius;
               D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-              if(D4<0,
-                [0,0,0,0],
-                dst=-b2-re(sqrt(D4));// sqrt should always be real
-                pos3d = cglViewPos+ dst*direction;
-                normal = normalize(pos3d - cglCenter);
-                brigthness = 0.4 - 0.1*direction*normal; // 0.3 ... 0.5
-                color = brigthness*(cglCenter+[1,1,1]);
-                cglDepth = dst*0.05;
-                [color_1,color_2,color_3,1]
-              )
+              if(D4<0,cglDiscard());
+              dst=-b2-re(sqrt(D4));// sqrt should always be real
+              pos3d = cglViewPos+ dst*direction;
+              normal = normalize(pos3d - cglCenter);
+              brigthness = 0.4 - 0.1*direction*normal; // 0.3 ... 0.5
+              color = brigthness*(cglCenter+[1,1,1]);
+              cglDepth = dst*0.05;
+              [color_1,color_2,color_3]
             );
             prevN=0;
             updateImage(N):=(

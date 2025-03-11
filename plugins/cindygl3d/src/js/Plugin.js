@@ -334,6 +334,17 @@ let CindyGL3D = function(api) {
         return tags;
     }
     /**
+     * @param {number} objId
+     * @param {CindyGL3DObject} obj3d
+     */
+    function setObject(objId,obj3d){
+        if(obj3d.program.renderer.opaque) {
+            CindyGL3D.objectBuffer.opaque.set(objId,obj3d);
+        } else {
+            CindyGL3D.objectBuffer.translucent.set(objId,obj3d);
+        }
+    }
+    /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
      */
@@ -343,7 +354,7 @@ let CindyGL3D = function(api) {
         let plotModifiers=get3DPlotModifiers(modifs);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs),null);
-        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
+        setObject(obj3d.id,obj3d);
         return nada;
     });
     /**
@@ -360,7 +371,7 @@ let CindyGL3D = function(api) {
         let boundingBox=Renderer.boundingSphere(center,radius);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
-        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
+        setObject(obj3d.id,obj3d);
         return nada;
     });
     /**
@@ -378,7 +389,7 @@ let CindyGL3D = function(api) {
         let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
         let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
-        CindyGL3D.objectBuffer.set(obj3d.id,obj3d);
+        setObject(obj3d.id,obj3d);
         return nada;
     });
     // plot3d(expr)
@@ -482,32 +493,72 @@ let CindyGL3D = function(api) {
         return nada;
     });
     api.defineFunction("cglReset3d", 0, (args, modifs) => {
-        CindyGL3D.objectBuffer=new Map();
+        CindyGL3D.objectBuffer={opaque:new Map(),translucent:new Map()};
         return nada;
     });
     api.defineFunction("cglDraw3d", 0, (args, modifs) => {
         initGLIfRequired();
         // render order for translucent obejcts copied from cindy3d:
-        // 1. render all objects once without depth testing
-        // 2. render all objects with current depth
-        // TODO ommit first render call when all objects are opaque
+        // 1. render translucent objects to get correct background for transparent pixels
+        // 2. render all opaque objects
+        // 3. render translucent objects above opaque objects where neccessary
         // TODO find better way for rendering multiple translucent objects
-            //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
+
+        // internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ll=computeLowerLeftCorner(api);
         let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width'];
         let ih = api.instance['canvas']['height'];
         Renderer.resetCachedState();
-        gl.disable(gl.DEPTH_TEST);
-        gl.enable(gl.BLEND);
+        /*
+            changing global variables can change internal code of rendered objects
+             -> check for each object if it is in the correct category
+        */
+        /** @type{Set<CindyGL3DObject>} */
+        const wrongOpacity = new Set();
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-        CindyGL3D.objectBuffer.forEach((obj3d)=>{
-            render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-        });
+        if(CindyGL3D.objectBuffer.translucent.size>0){
+            // draw translucent objects without depth testing
+            //  needed to correctly display translucent objects behind other transparent objects
+            gl.enable(gl.BLEND);
+            gl.disable(gl.DEPTH_TEST);
+            CindyGL3D.objectBuffer.translucent.forEach((obj3d)=>{
+                render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+                if(obj3d.program.renderer.opaque){
+                    wrongOpacity.add(obj3d);
+                }
+            });
+        }
+        gl.disable(gl.BLEND); // no need to blend opaque objects
         gl.enable(gl.DEPTH_TEST);
-        CindyGL3D.objectBuffer.forEach((obj3d)=>{
+        CindyGL3D.objectBuffer.opaque.forEach((obj3d)=>{
             render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+            if(!obj3d.program.renderer.opaque){
+                wrongOpacity.add(obj3d);
+            }
         });
+        if(CindyGL3D.objectBuffer.translucent.size>0){
+            // reenable blending
+            gl.enable(gl.BLEND);
+            CindyGL3D.objectBuffer.translucent.forEach((obj3d)=>{
+                render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+                if(obj3d.program.renderer.opaque){
+                    wrongOpacity.add(obj3d);
+                }
+            });
+        }
+        if(wrongOpacity.size>0){
+            console.log(`changing opacity of ${wrongOpacity.size} objects`);
+            // update objects that had the wrong opacity
+            wrongOpacity.forEach((obj3d)=>{
+                if(obj3d.program.renderer.opaque){
+                    CindyGL3D.objectBuffer.opaque.delete(obj3d.id);
+                }else{
+                    CindyGL3D.objectBuffer.translucent.delete(obj3d.id);
+                }
+                setObject(obj3d.id,obj3d);
+            });
+        }
         //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
         // TODO? directly render to main canvas
         let csctx = api.instance['canvas'].getContext('2d');
@@ -532,7 +583,7 @@ let CindyGL3D = function(api) {
         let direction = subv3(spacePoint,viewPos);
         let minDst = Infinity;
         let pickedId = -1;
-        CindyGL3D.objectBuffer.forEach((obj3d)=>{
+        let searchObject = (obj3d)=>{
             // TODO Set.intersection once suppported
             let sharesTag = tags.size==0;
             for(const tag of tags){
@@ -595,7 +646,10 @@ let CindyGL3D = function(api) {
                 }
             }
             // TODO? checks different bouning box types
-        });
+        };
+        CindyGL3D.objectBuffer.opaque.forEach(searchObject);
+        // TODO? parameter to select if translucent objects should be checked
+        CindyGL3D.objectBuffer.translucent.forEach(searchObject);
         // TODO? convert picked 3D-object to CindyJS object
         //   make name,position, readable, ? writable
         return {
@@ -610,7 +664,16 @@ let CindyGL3D = function(api) {
         let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
         if(objId<0)
             return nada;
-        let obj3d = CindyGL3D.objectBuffer.get(objId);
+        let obj3d = CindyGL3D.objectBuffer.opaque.get(objId);
+        let wasOpaque = true;
+        if(obj3d === undefined){
+            obj3d = CindyGL3D.objectBuffer.translucent.get(objId);
+            wasOpaque = false;
+            if(obj3d === undefined){
+                console.warn(`could not find object with id ${objId}`);
+                return nada;
+            }
+        }
         let plotModifiers=get3DPlotModifiers(modifs);
         // copy unchanged modifiers
         obj3d.plotModifiers.forEach((value,key)=>{
@@ -620,6 +683,16 @@ let CindyGL3D = function(api) {
         });
         // update modifers types in renderer
         obj3d.program = compile(obj3d.program,obj3d.program.renderer.depthType,plotModifiers);
+        if(obj3d.program.renderer.opaque !== wasOpaque){
+            // opacity changed
+            if(wasOpaque) {
+                CindyGL3D.objectBuffer.opaque.delete(objId);
+                CindyGL3D.objectBuffer.translucent.set(objId,obj3d);
+            } else {
+                CindyGL3D.objectBuffer.translucent.delete(objId);
+                CindyGL3D.objectBuffer.opaque.set(objId,obj3d);
+            }
+        }
         obj3d.plotModifiers = plotModifiers;
         return nada;
     });
@@ -673,8 +746,8 @@ let CindyGL3D = function(api) {
 // Exports for CindyXR
 CindyGL3D.gl = null;
 CindyGL3D.mode3D = false;
-/**@type {Map<Number,CindyGL3DObject>} */
-CindyGL3D.objectBuffer=new Map();
+/**@type {{opaque:Map<Number,CindyGL3DObject>, translucent:Map<Number,CindyGL3DObject>}} */
+CindyGL3D.objectBuffer={opaque:new Map(),translucent:new Map()};
 CindyGL3D.coordinateSystem = undefined;
 CindyGL3D.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL3D.initGLIfRequired = initGLIfRequired;
