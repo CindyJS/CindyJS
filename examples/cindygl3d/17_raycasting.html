@@ -76,6 +76,7 @@
 
 
             cglReset3d(); // TODO only reset+redraw when shape changed
+            colorplot3d(background(#)); //render background
             colorplot3d(computeColor(#)); //render the scene. # is the view direction
             if(drawAxes,
               sphere([0,0,0],0.075,[.25,.25,.25]);
@@ -155,6 +156,11 @@
             drawXYplane = true;
             drawXZplane = false;
             drawYZplane = false;
+            
+            background(dir):=(
+              cglDepth = 1;
+              gray(.7);
+            );
 
             cglBegin3d(z0->2.2);
 
@@ -344,48 +350,49 @@
 
                 color = gray(.7); //the color, which will be returned
 
-                if (D >= 0, //ray intersects ball
-                    l = (-spoly_2 - re(sqrt(D))) / (2 * spoly_3); //intersection entering the ball
-                    u = (-spoly_2 + re(sqrt(D))) / (2 * spoly_3); //intersection leaving the ball
+                if (D < 0, cglDiscard()); //ray does not intersect ball
+                l = (-spoly_2 - re(sqrt(D))) / (2 * spoly_3); //intersection entering the ball
+                u = (-spoly_2 + re(sqrt(D))) / (2 * spoly_3); //intersection leaving the ball
 
-                    a = l;
-                    b = u;
+                a = l;
+                b = u;
 
-                    //traverse binary tree (DFS) using heap-indices
-                    //1 is root node and node v has children 2*v and 2*v+1
-                    id = 1;
-                    //maximum number of steps
-                    repeat(N*6,
-                      //id=0 means we are done; do only a DFS-step if we are not finished yet
-                      if(id>0,
-                        s = gets(id); //s = floor(log_2(id))
+                //traverse binary tree (DFS) using heap-indices
+                //1 is root node and node v has children 2*v and 2*v+1
+                id = 1;
+                hasRoot = false;
+                //maximum number of steps
+                repeat(N*6,
+                  //id=0 means we are done; do only a DFS-step if we are not finished yet
+                  if(id>0,
+                    s = gets(id); //s = floor(log_2(id))
 
-                        //the intervals [a,b] are chossen such that (id in binary notation)
-                        //id = 1   => [a,b]=[l,u]
-                        //id = 10  => [a,b]=[l,(u+l)/2]
-                        //id = 101 => [a,b]=[l,(u+3*l)/4]
-                        //id = 11  => [a,b]=[(u+l)/2,u]
-                        //...
-                        a = u - (u-l)*((id+1)/s-1);
-                        b = u - (u-l)*((id+0)/s-1);
+                    //the intervals [a,b] are chossen such that (id in binary notation)
+                    //id = 1   => [a,b]=[l,u]
+                    //id = 10  => [a,b]=[l,(u+l)/2]
+                    //id = 101 => [a,b]=[l,(u+3*l)/4]
+                    //id = 11  => [a,b]=[(u+l)/2,u]
+                    //...
+                    a = u - (u-l)*((id+1)/s-1);
+                    b = u - (u-l)*((id+0)/s-1);
 
-                        //how many sign changes has F(ray(direction, ·)) in (a,b)?
-                        cnt = nsign(direction, a, b);
-                        if(cnt == 1 % (b-a)<.01*zoom, //in this case we found a root (or it is likely to have a multiple root)
-                          //=>colorize and break DFS
-                          color = updatecolor(direction, bisectf(direction, a, b), color);
-                          id = next(id),
-                        if(cnt == 0, //there is no root
-                          id = next(id), //break DFS
+                    //how many sign changes has F(ray(direction, ·)) in (a,b)?
+                    cnt = nsign(direction, a, b);
+                    if(cnt == 1 % (b-a)<.01*zoom, //in this case we found a root (or it is likely to have a multiple root)
+                      //=>colorize and break DFS
+                      color = updatecolor(direction, bisectf(direction, a, b), color);
+                      hasRoot = true;
+                      id = next(id),
+                    if(cnt == 0, //there is no root
+                      id = next(id), //break DFS
 
-                          //otherwise cnt>=2: there are cnt - 2*k roots.
-                          id = 2*id;  //visit first child within DFS
-                        )
-                    );
-                  ));
-
+                      //otherwise cnt>=2: there are cnt - 2*k roots.
+                      id = 2*id;  //visit first child within DFS
+                    )
                 );
-                color //return value
+              ));
+              if(!hasRoot,cglDiscard());
+              [color_1,color_2,color_3,alpha] //return value
             );
 
             // elementary shapes
