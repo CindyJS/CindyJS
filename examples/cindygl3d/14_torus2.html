@@ -78,9 +78,9 @@
                     [0,0,0,0],
                     dst=-b2-re(sqrt(D4));// sqrt should always be real
                     pos3d = cglViewPos+ dst*direction;
-                    pc=pos3d-cglTCenter;
-                    arcDirection = normalize(pc-(cglTOrientation*pc)*cglTOrientation);
-                    arcCenter = cglTCenter+cglTRadius*arcDirection;
+                    pc=pos3d-tCenter;
+                    arcDirection = normalize(pc-(tOrientation*pc)*tOrientation);
+                    arcCenter = tCenter+tRadius*arcDirection;
                     normal = normalize(pos3d - arcCenter);
                     brigthness = 0.25 +0.75*max(-direction*normal,0);
                     color = brigthness*[0,1,0];
@@ -95,7 +95,7 @@
                 p0 = center + radius1 * (cos(fromAngle)*v1+sin(fromAngle)*v2);
                 p1 = center + radius1 * (cos(toAngle)*v1+sin(toAngle)*v2);
                 colorplot3d(cgl3dArcRodShaderCode(#),p0,p1,radius2,
-                  cglTCenter->center,cglTRadius->radius1,cglTOrientation->orientation);
+                  UtCenter->center,UtRadius->radius1,UtOrientation->orientation);
               );
             );
             cglBegin3d();

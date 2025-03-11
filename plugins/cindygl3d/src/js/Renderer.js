@@ -345,7 +345,7 @@ Renderer.setUniformValue = function (setter,uniformValue){
  */
 Renderer.prototype.setModifierUniforms = function(plotModifiers){
     plotModifiers.forEach((value,modifierName)=>{
-        let uniformName=CodeBuilder.modifierPrefix+modifierName;
+        let uniformName=this.modifierTypes.get(modifierName).uniformName;
         if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
             let uniformSetter = this.shaderProgram.uniform[uniformName];
             if(!value.uniformValue || value.modifierTypes!==this.modifierTypes){ // uniform value not up to date
@@ -355,6 +355,8 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
                 value.modifierTypes=this.modifierTypes;
             }
             Renderer.setUniformValue(uniformSetter,value.uniformValue);
+        } else {
+            console.warn(`missing uniform ${uniformName} for modifier ${modifierName}`);
         }
     });
 }

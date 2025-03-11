@@ -56,7 +56,7 @@
                   delta1 = (v1*U);
                   if((delta1>0)& (delta1<1),
                     brigthness = .25+0.75*max(-direction*normalize(v1-delta1*BA),0);
-                    color = brigthness*((cglColorB*delta1+cglColorA*(1-delta1)));
+                    color = brigthness*((colorB*delta1+colorA*(1-delta1)));
                     cglDepth = (w+l1)/16;
                     [color_1,color_2,color_3,1],
                     l2 = (-b + re(sqrt(D)))/a;
@@ -64,7 +64,7 @@
                     delta2 = v2*U;
                     if((delta2>0) & (delta2<1),
                       brigthness = .25+0.75*max(direction*normalize(v2-delta2*BA),0);
-                      color = brigthness*((cglColorB*delta2+cglColorA*(1-delta2)));
+                      color = brigthness*((colorB*delta2+colorA*(1-delta2)));
                       cglDepth = (l2+w)/16;
                       [color_1,color_2,color_3,1],
                       [0,0,0,0]
@@ -73,7 +73,7 @@
                 )
               );
               colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-                cglColorA->colorA,cglColorB->colorB);
+                UcolorA->colorA,UcolorB->colorB);
             );
             sphere(center,radius,color):=(
               // TODO multiple versions (transparency, color, shading)
@@ -84,18 +84,15 @@
                 b2=(vc*direction); // 1/2 * b
                 c=vc*vc-cglRadius*cglRadius;
                 D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-                if(D4<0,
-                  [0,0,0,0],
-                  dst=-b2-re(sqrt(D4));// sqrt should always be real
-                  pos3d = cglViewPos+ dst*direction;
-                  normal = normalize(pos3d - cglCenter);
-                  brigthness = 0.25+ 0.75* max(- direction*normal,0);
-                  color = brigthness*cglColor;
-                  cglDepth = dst/16;
-                  [color_1,color_2,color_3,1]
-                )
+                if(D4<0,cglDiscard());
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                pos3d = cglViewPos+ dst*direction;
+                normal = normalize(pos3d - cglCenter);
+                brigthness = 0.25+ 0.75* max(- direction*normal,0);
+                cglDepth = dst/16;
+                brigthness*color
               );
-              colorplot3d(cgl3dSphereShaderCode(#),center,radius,cglColor->color);
+              colorplot3d(cgl3dSphereShaderCode(#),center,radius,Ucolor->color);
             );
 
             cglBegin3d();

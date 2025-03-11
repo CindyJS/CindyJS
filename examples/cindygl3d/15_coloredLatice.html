@@ -38,26 +38,23 @@
                 b2=(vc*direction); // 1/2 * b
                 c=vc*vc-cglRadius*cglRadius;
                 D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-                if(D4<0,
-                  [0,0,0,0],
-                  dst=-b2-re(sqrt(D4));// sqrt should always be real
-                  pos3d = cglViewPos+ dst*direction;
-                  normal = normalize(pos3d - cglCenter);
-                  lightdir0 = (10, 10, 10)-pos3d;
-                  lightdir3 = 10*cglViewPos;
-                  lightdir4 = -10*cglViewPos;
-                  color0 = .2*(1,1,1)+.3*cglColor;
-                  color1 = (1,1,1)-cglColor;
-                  color=addlight(addlight(addlight(
-                    (0,0,0),
-                    color0, lightdir0, -normal, 2),
-                    color1, lightdir3, -normal, 2),
-                    cglColor, lightdir4, -normal, 2);
-                  cglDepth=dst/16;
-                  [color_1,color_2,color_3,1]
-                )
+                if(D4<0,cglDiscard());
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                cglDepth=dst/16;
+                pos3d = cglViewPos+ dst*direction;
+                normal = normalize(pos3d - cglCenter);
+                lightdir0 = (10, 10, 10)-pos3d;
+                lightdir3 = 10*cglViewPos;
+                lightdir4 = -10*cglViewPos;
+                color0 = .2*(1,1,1)+.3*color;
+                color1 = (1,1,1)-color;
+                addlight(addlight(addlight(
+                  (0,0,0),
+                  color0, lightdir0, -normal, 2),
+                  color1, lightdir3, -normal, 2),
+                  color, lightdir4, -normal, 2);
               );
-              colorplot3d(cgl3dSphereShaderCode(#),center,radius,cglColor->color);
+              colorplot3d(cgl3dSphereShaderCode(#),center,radius,Ucolor->color);
             );
             prevN=0;
             updateImage(N):=(

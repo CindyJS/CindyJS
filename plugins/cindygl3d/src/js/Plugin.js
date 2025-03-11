@@ -120,6 +120,7 @@ let CindyGL3D = function(api) {
         } else if(plotModifiers.size>0) {
             // ensure modifier types are compatible with previous modifiers
             let prevModifiers=prog.renderer.modifierTypes;
+            let sameKeys = prevModifiers.length == modifierTypes.length;
             let changed = false;
             modifierTypes.forEach(
                 (value,key)=>{
@@ -140,9 +141,16 @@ let CindyGL3D = function(api) {
                             value.type = commonType;
                             value.used = true;
                         }
+                    } else {
+                        sameKeys = false;
+                        changed = true;
                     }
                 }
             );
+            if(!sameKeys){
+                // TODO? allow and handle multiple modifier-sets on one program
+                console.error("the set of modifiers associated with a plot expression should not change");
+            }
             if(changed) {
                 prog.renderer.updateModifierTypes(modifierTypes);
             }
@@ -299,13 +307,15 @@ let CindyGL3D = function(api) {
     function get3DPlotModifiers(callModifiers){
         let modifiers = new Map();
         Object.entries(callModifiers).forEach(([name, value])=>{
-            if(!name.startsWith(CodeBuilder.cindygl3dPrefix))
+            if(name.length < 2 || !name.startsWith("U"))
                 return;
-            if(CodeBuilder.builtIns.has(name)){
-                console.warn("modifer is shadowed by built-in: "+name);
-            }else{
-                modifiers.set(name,api.evaluateAndVal(value));
+            let modName=name.substring(1);
+            if(CodeBuilder.builtIns.has(modName)){
+                console.warn("modifer is shadowed by built-in: "+modName);
+            }else if(modName.startsWith(CodeBuilder.cindygl3dPrefix)){
+                console.warn(`names starting with "${CodeBuilder.cindygl3dPrefix}" are reserved for internal use`);
             }
+            modifiers.set(modName,api.evaluateAndVal(value));
         });
         return modifiers;
     }
@@ -381,14 +391,16 @@ let CindyGL3D = function(api) {
         let y1=CindyGL3D.coordinateSystem.y1*zoom;
         let z0=CindyGL3D.coordinateSystem.z0*zoom;
         let z1=CindyGL3D.coordinateSystem.z1*zoom;
-        CindyGL3D.coordinateSystem.viewPosition=
-            [(x0+x1)/2,(y0+y1)/2,z0,1];
         CindyGL3D.projectionMatrix=[
             [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
             [0, 2/(y1-y0), 0, - 2*y0/(y1-y0) -1],
             [0, 0, 1/(z1-z0), - z0/(z1-z0) -.5],
             [0, 0, 1/(z1-z0), - z0/(z1-z0)]
         ];
+        CindyGL3D.coordinateSystem.viewPosition=
+            [(x0+x1)/2,(y0+y1)/2,z0,1];
+        CindyGL3D.coordinateSystem.transformedViewPos=
+            mvmult4(CindyGL3D.invTrafoMatrix,CindyGL3D.coordinateSystem.viewPosition);
     };
     let resetRotation = function(){
         CindyGL3D.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
@@ -600,6 +612,12 @@ let CindyGL3D = function(api) {
             return nada;
         let obj3d = CindyGL3D.objectBuffer.get(objId);
         let plotModifiers=get3DPlotModifiers(modifs);
+        // copy unchanged modifiers
+        obj3d.plotModifiers.forEach((value,key)=>{
+            if(!plotModifiers.has(key)){
+                plotModifiers.set(key,value);
+            }
+        });
         // update modifers types in renderer
         obj3d.program = compile(obj3d.program,obj3d.program.renderer.depthType,plotModifiers);
         obj3d.plotModifiers = plotModifiers;

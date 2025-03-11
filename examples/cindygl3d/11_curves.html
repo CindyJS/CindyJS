@@ -71,14 +71,14 @@
                     pos3d = cglViewPos+ dst*direction;
                     normal = normalize(pos3d - center);
                     brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
-                    color = brigthness*((cglColorB*delta+cglColorA*(1-delta)));
+                    color = brigthness*((colorB*delta+colorA*(1-delta)));
                     cglDepth = dst/64;
                     [color_1,color_2,color_3,1]
                   )
                 )
               );
               colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
-                cglColorA->colorA,cglColorB->colorB);
+                UcolorA->colorA,UcolorB->colorB);
             );
             curve3d(t0,t1,N):=(
               prevPos=posExpr(t0);

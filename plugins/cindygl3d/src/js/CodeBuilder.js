@@ -294,7 +294,6 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         }
         //was there something happening to the (return)variables?
         if (expr['oper'] === '=') { //assignment to variable
-            // TODO? warning for assignment to (immutable) built-in or modifier
             let vname = expr['args'][0]['name'];
             vname = bindings[vname] || vname;
 
@@ -401,6 +400,7 @@ CodeBuilder.prototype.determineTypes = function() {
 CodeBuilder.prototype.determineUniforms = function(expr) {
     let variables = this.variables;
     let myfunctions = this.myfunctions;
+    let self = this;
 
     var variableDependendsOnPixel = {
         'cgl_pixel': true,
@@ -433,17 +433,21 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
 
         //Is expr a variable that depends on pixel? (according the current variableDependendsOnPixel)
         if (expr['ctype'] === 'variable') {
-            let vname = expr['name'];
+            let vname0 = expr['name'];
+            let vname =  expr.bindings[vname0] || vname0;
             // TODO? allow precomputing expressions containing built-ins/call-dependent variables in some cases
             if(CodeBuilder.builtIns.has(vname)){
                 expr["isbuiltin"] = true;
                 return expr["dependsOnPixel"] = true;
-            }else if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
-                // TODO? allow shaddowning modifiers with local variables
+            }else if(self.modifierTypes.has(vname)){
+                // give each modifier a unique id
+                if(!self.modifierNames.has(vname)){
+                    self.modifierNames.set(vname,
+                        CodeBuilder.modifierPrefix+self.modifierNames.size);
+                }
                 expr["ismodifier"] = true;
                 return expr["dependsOnPixel"] = true;
             }
-            vname = expr.bindings[vname] || vname;
             if (variableDependendsOnPixel[vname]) {
                 return expr["dependsOnPixel"] = true;
             }
@@ -738,7 +742,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             this.modifierTypes.get(vname).used=true;
             return generateTerm ? {
                 code: '',
-                term: CodeBuilder.modifierPrefix+vname, // TODO! handle non-ascii characters in vname
+                term: this.modifierNames.get(vname),
             } : {
                 code: ''
             };
@@ -778,6 +782,15 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         };
     } else if (expr['oper'] === "=") {
         let r = this.compile(expr['args'][1], true);
+        if(expr['args'][0]['ismodifier']) {
+            console.error(`assignment to immutable modifier "${expr['args'][0]['name']}"`);
+        } else if(expr['args'][0]['isbuiltin']){
+            if(expr['args'][0]['ctype'] !== 'variable') {
+                console.error(`assignment to immutable built-in "${getPlainName(expr['args'][0]['oper'])}"`);
+            } else if(!CodeBuilder.builtIns.get(expr['args'][0]['name']).writable) {
+                console.error(`assignment to immutable built-in "${expr['args'][0]['name']}"`);
+            }
+        }
         let varexpr = this.compile(expr['args'][0], true).term; //note: this migth be also a field access
         let t = `${varexpr} = ${this.castType(r.term, this.getType(expr['args'][1]), this.getType(expr['args'][0]))}`;
         if (generateTerm) {
@@ -1148,7 +1161,7 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
         if (this.uniforms[uname].type.type != 'constant' && this.uniforms[uname].type != type.image)
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
     this.modifierTypes.forEach((value,name)=>{
-        ans.push(`uniform ${webgltype(value.type)} ${CodeBuilder.modifierPrefix}${name};`);
+        ans.push(`uniform ${webgltype(value.type)} ${this.modifierNames.get(name)};`);
     });
     return ans.join('\n');
 };
@@ -1165,6 +1178,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
     this.modifierTypes = modifierTypes;
+    this.modifierNames = new Map();
 
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
@@ -1176,7 +1190,6 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
     code += generateHeaderOfTextureReaders(this);
     code += this.generateSection('includedfunctions');;
     code += this.generateSection('functions');
-
 
     for (let iname in this.variables)
         if (this.variables[iname].T && this.variables[iname]['global']) {
@@ -1191,6 +1204,12 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
         for (let fname in this.sections['compiledfunctions'].marked) {
             generations[fname] = this.api.getMyfunction(fname).generation;
         }
+
+    // attach uniform names to modifier types
+    this.modifierNames.forEach((uniformName,name)=>{
+        this.modifierTypes.get(name).uniformName=uniformName;
+    });
+
     return {
         code: code,
         colorExpr: r,

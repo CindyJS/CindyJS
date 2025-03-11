@@ -132,8 +132,8 @@
                 // TODO? seperate bounding box-type for torus
                 // XXX? more viewPos closer to torus
                 center = (cglPointA+cglPointB)/2;
-                radius1 = cglRadii_1;
-                radius2 = cglRadii_2;
+                radius1 = radii_1;
+                radius2 = radii_2;
                 v=|center-cglViewPos|;
                 V=cglViewPos+v*direction;
                 // 1. find intersections of view-ray with sphere around center with given radius r1+r2
@@ -199,7 +199,7 @@
                 center+radius2*orientation,
                 center-radius2*orientation,
                 radius1+radius2,
-                cglRadii->[radius1,radius2]);
+                Uradii->[radius1,radius2]);
             );
             cglBegin3d();
         </script>
