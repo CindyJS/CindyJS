@@ -16,21 +16,21 @@ def main():
         if os.path.isfile(filename):
             if not filename.endswith(".html"):
                 continue ## only consider html files
-            if filename.endswith(".local.html"):
+            if filename.endswith(".noimport.html"):
                 continue ## exclude generated files
             # Open the file for reading
             with open(filename, mode = 'r') as file:
                 lines = file.readlines()
-            
+
             changed=False;
             for index,line in enumerate(lines):
-                if line.endswith('//! XSS\n'):                
+                if line.endswith('//! XSS\n'):
                     lines[index:index+1]=replaceInclude(line);
                     changed=True
-            
-            if changed:        
+
+            if changed:
                 # write replaced contents to copy of file
-                with open(filename[:-len(".html")]+".local.html", mode = 'w') as file:
+                with open(filename[:-len(".html")]+".noimport.html", mode = 'w') as file:
                     file.write("<!-- AUTO-GENERATED FILE, DO NOT MODIFY -->\n");
                     for line in lines:
                         file.write(line)
@@ -42,10 +42,10 @@ def contains_unescaped_double_quotes(s):
 
 def replaceInclude(line):
     expr=line[:line.rindex("//")].strip(); ## remove comment and leading whitespaces
-    if not expr.startswith("include(\"") or not expr.endswith("\");"):        
+    if not expr.startswith("import(\"") or not expr.endswith("\");"):
         print(f"line is not a single include expression: `{expr}`")
         return line
-    path=expr[len("include(\""):expr.rindex("\");")];
+    path=expr[len("import(\""):expr.rindex("\");")];
     if contains_unescaped_double_quotes(path):
         print(f"line is not a single fixed-path include expression: `{expr}`")
         return line

@@ -2,8 +2,9 @@
 precision highp float;
 
 uniform sampler2D sampler;
-out vec2 cgl_pixel;
+layout(location = 0) out vec4 fragColor;
+layout(location = 1) out vec2 cgl_pixel;
 
 void main(void) {
-	gl_FragColor = texture2D(sampler, cgl_pixel);
+	fragColor = texture(sampler, cgl_pixel);
 }

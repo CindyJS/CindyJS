@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            // include the implementation for the cindyscript built-ins
+            //   when executing locally import(...) will fail due to cross-site scripting
+            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
+            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            drawSphere=true;
+            drawCylinder=false;
+            drawTorus=false;
+
+            updateSphere():=(
+              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
+              // there seems to be no way around using global variables for passing functions to other functions
+              cglGlobTextureExpr(x,y):=(
+                cglTextureRGB("lambert",(x,y));
+              );
+              textureSphere([0,0,0],1);
+            );
+            updateCylinder():=(
+              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
+              // there seems to be no way around using global variables for passing functions to other functions
+              cglGlobTextureExpr(x,y):=(
+                cglTextureRGB("lambert",(x,y));
+              );
+              textureCylinder([0,-1,0],[0,1,0],1);
+            );
+            updateTorus():=(
+              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
+              // there seems to be no way around using global variables for passing functions to other functions
+              cglGlobTextureExpr(x,y):=(
+                cglTextureRGB("mercator",(x,y))
+              );
+              textureTorus([0,0,0],[0,1,0],0.75,0.5);
+            );
+            update():=(
+              cglReset3D();
+              if(drawSphere,updateSphere());
+              if(drawCylinder,updateCylinder());
+              if(drawTorus,updateTorus());
+            );
+
+            cglBegin3d();
+            update();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = (mouse().x -sx); dy = (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            // TODO UI select drawn shape(s)
+
+            cglDraw3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        <div>
+            <input
+                id="drawSphere"
+                onclick="cdy.evokeCS('drawSphere = ' + this.checked+';update()');"
+                type="checkbox"
+            /> sphere
+            <input
+                id="drawCylinder"
+                onclick="cdy.evokeCS('drawCylinder = ' + this.checked+';update()');"
+                type="checkbox"
+            /> cylinder
+            <input
+                id="drawTorus"
+                onclick="cdy.evokeCS('drawTorus = ' + this.checked+';update()');"
+                type="checkbox"
+            /> torus
+        </div>
+
+        <script type="text/javascript">
+            drawSphere.checked=true;   // reset checkbox on reload
+            drawCylinder.checked=false;// reset checkbox on reload
+            drawTorus.checked=false;   // reset checkbox on reload
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 700,
+                        height: 700,
+                        transform: [{ visibleRect: [-1.5, -1.5, 1.5, 1.5] }],
+                    },
+                ],
+                images: { lambert: "images/Lambert.jpg", mercator: "images/Mercator.jpg"},
+            });
+        </script>
+    </body>
+</html>

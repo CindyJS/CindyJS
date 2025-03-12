@@ -15,6 +15,12 @@ function TextureReader(name, expr, modifs, api) {
         `uniform sampler2D _sampler${name};
 uniform float _ratio${name};
 uniform vec2 _cropfact${name};
+vec4 _plainimagergba${name}(vec2 p) {
+    if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
+        return texture(_sampler${name}, p*_cropfact${name});
+    else
+        return vec4(0.);
+}
 vec4 _imagergba${name}(vec2 A, vec2 B, vec2 p) {
   p -= A; B -= A;
   float b = dot(B,B);
@@ -30,14 +36,14 @@ vec4 _imagergba${name}(vec2 A, vec2 B, vec2 p) {
       float dst = dot(abs(tc-center),vec2(1.));
       float w = max(.5-dst,0.);
       w=w*w;
-      color += w * texture2D(_sampler${name}, tc*_cropfact${name});
+      color += w * texture(_sampler${name}, tc*_cropfact${name});
       totalWeight += w;
     }
     return color/totalWeight;` : (
       properties.repeat ?
-      `return texture2D(_sampler${name}, p*_cropfact${name});` :
+      `return texture(_sampler${name}, p*_cropfact${name});` :
       `if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
-          return texture2D(_sampler${name}, p*_cropfact${name});
+          return texture(_sampler${name}, p*_cropfact${name});
        else
           return vec4(0.);`)
   }
@@ -130,11 +136,18 @@ function useimagergba2(args, modifs, codebuilder) {
     return ['_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(_lowerleft, _lowerright, ', args[1], ')'].join('');
 }
 
+function useplainimagergba2(args, modifs, codebuilder) {
+    return `_plainimagergba${generateTextureReaderIfRequired(args[0], modifs, codebuilder)}(${args[1]})`;
+}
+
 function useimagergb2(args, modifs, codebuilder) {
     codebuilder.add('uniforms', 'corners', () => 'uniform vec2 _lowerleft, _lowerright;');
     return ['(_imagergba', generateTextureReaderIfRequired(args[0], modifs, codebuilder), '(_lowerleft, _lowerright, ', args[1], ').rgb)'].join('');
 }
 
+function useplainimagergb2(args, modifs, codebuilder) {
+    return `(_plainimagergba${generateTextureReaderIfRequired(args[0], modifs, codebuilder)}(${args[1]}).rgb)`;
+}
 
 function generateHeaderOfTextureReaders(codebuilder) {
     let ans = '';

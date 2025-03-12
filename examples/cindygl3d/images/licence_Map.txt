@@ -1,0 +1,9 @@
+Lambert:
+  source: https://en.wikipedia.org/wiki/File:Lambert_cylindrical_equal-area_projection_SW.jpg
+  Licence: Creative Commons Attribution-Share Alike 3.0 Unported (https://creativecommons.org/licenses/by-sa/3.0/)
+  Author: Strebe (https://commons.wikimedia.org/wiki/User:Strebe)
+
+Mercator:
+  source: https://commons.wikimedia.org/wiki/File:Mercator_projection_Square.JPG
+  Licence: Creative Commons Attribution-Share Alike 3.0 Unported (https://creativecommons.org/licenses/by-sa/3.0/)
+  Author: Strebe (https://commons.wikimedia.org/wiki/User:Strebe)

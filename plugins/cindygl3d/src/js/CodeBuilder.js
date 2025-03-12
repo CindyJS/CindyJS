@@ -84,12 +84,16 @@ CodeBuilder.prototype.api;
 CodeBuilder.prototype.texturereaders;
 
 const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are lower-case
+const BUILTIN_TEXTURE4 = "cgltexture";
+const BUILTIN_TEXTURE3 = "cgltexturergb";
 // TODO? add global constant cglNormal?
 /** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}> */
 CodeBuilder.builtIns=new Map([
     ["cglPixel",{type:"pixelAttribute",code:"",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
     // TODO prevent reading from discard
-    [BUILTIN_DISCARD,{type:"function",code:"discard;\n",expr:"",valueType:type.voidt,writable:true}],
+    [BUILTIN_DISCARD,{type:"operator",code:"discard;\n",expr:"",valueType:type.voidt,writable:false}],
+    [BUILTIN_TEXTURE4,{type:"function",code:"",expr:"texture",valueType:type.vec4,args:[type.image,type.vec2],writable:false}],
+    [BUILTIN_TEXTURE3,{type:"function",code:"",expr:"texture",valueType:type.vec3,args:[type.image,type.vec2],writable:false}],
     // 3D- only
     ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
     ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
@@ -714,28 +718,24 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         } : {
             code: ''
         };
-    } else if(expr['isbuiltin']){
-        if(expr['ctype'] === 'variable'){
-            let vname = expr['name'];
-            let builtIn = CodeBuilder.builtIns.get(vname);
-            return generateTerm ? {
-                code: builtIn.code,
-                term: builtIn.expr,
-            } : {
-                code: builtIn.code
-            };
-        } else if(expr['ctype'] === 'function' && expr['args'].length == 0){
-            let fname = getPlainName(expr['oper']);
-            let builtIn = CodeBuilder.builtIns.get(fname);
-            return generateTerm ? {
-                code: builtIn.code,
-                term: builtIn.expr,
-            } : {
-                code: builtIn.code
-            };
-        }
-        console.error(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);
-        return;
+    } else if(expr['isbuiltin'] && expr['ctype'] === 'variable'){
+        let vname = expr['name'];
+        let builtIn = CodeBuilder.builtIns.get(vname);
+        return generateTerm ? {
+            code: builtIn.code,
+            term: builtIn.expr,
+        } : {
+            code: builtIn.code
+        };
+    } else if(expr['isbuiltin'] && expr['ctype'] === 'function' && getPlainName(expr['oper']) == BUILTIN_DISCARD){
+        let fname = getPlainName(expr['oper']);
+        let builtIn = CodeBuilder.builtIns.get(fname);
+        return generateTerm ? {
+            code: builtIn.code,
+            term: builtIn.expr,
+        } : {
+            code: builtIn.code
+        };
     } else if(expr['ismodifier']){
         if(expr['ctype'] === 'variable'){
             let vname = expr['name'];
@@ -1012,7 +1012,20 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let currenttype = expr['args'].map(e => self.getType(e)); //recursion on all arguments
         let targettype;
 
-        if (this.myfunctions.hasOwnProperty(fname)) { //user defined function
+        if (expr['isbuiltin']){
+            let fname = getPlainName(expr['oper']);
+            let builtIn = CodeBuilder.builtIns.get(fname);
+            targettype = builtIn.args;
+            if(fname == BUILTIN_TEXTURE4) {
+                termGenerator = useplainimagergba2
+            } else if(fname == BUILTIN_TEXTURE3){
+                termGenerator = useplainimagergb2
+            } else {
+                termGenerator = (args,modifs,self)=>{
+                    return usefunction(builtIn.expr)(args);
+                };
+            }
+        } else if (this.myfunctions.hasOwnProperty(fname)) { //user defined function
             termGenerator = this.usemyfunction(fname);
             targettype = new Array(r.length)
             for (let i = 0; i < r.length; i++) {
