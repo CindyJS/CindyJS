@@ -10,6 +10,10 @@ let constant = (value) => ({ /* variables that are constant in GLSL */
     value: value
 });
 
+let lazyExprType = (value) =>({ /* cglLazy expressions */
+    type: 'cglLazy',
+    value: value
+});
 
 let constint = n => constant({
     "ctype": "number",
@@ -42,6 +46,7 @@ const type = { //assert all indices are different
     mat4: list(4, list(4, 3)),
     // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
     // nonnegativefloat: 15 //@TODO: negative float...
+    cglLazy: val => lazyExprType(val),
 };
 Object.freeze(type);
 

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            
+            f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
+            g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));
+            cglBegin3d();
+            shaderCode(direction):=(
+              // |v+l*d -c|=r
+              vc=cglViewPos-cglCenter;
+              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+              b2=(vc*direction); // 1/2 * b
+              c=vc*vc-cglRadius*cglRadius;
+              if(b2*b2-c<0,cglDiscard()); // 1/4* ( b*b - 4 *a*c)              
+              cglEval(f,direction);
+            );
+            test(f,x,y):=(
+              colorplot3d(shaderCode(#),[x,y,0],1,Uf->f);
+            );
+            test(f,-1.5,-1.5);
+            test(g,-1.5,1.5);
+            test(cglLazy([a],[1,0,0]),1.5,-1.5);
+            test(cglLazy([a],[0,1,0]),1.5,1.5);
+            test(f,0,0);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            cglDraw3d();            
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ]
+            });
+        </script>
+    </body>
+</html>

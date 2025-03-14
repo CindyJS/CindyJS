@@ -45,6 +45,8 @@ function Renderer(api, expression,depthType,modifierTypes) {
     this.modifierTypes = modifierTypes;
     this.depthType=depthType;
     this.boundingBox=Renderer.noBounds();
+    this.iscompiled = false;
+    this.compiletime = -1;
     this.rebuild(false);
 }
 
@@ -74,11 +76,17 @@ Renderer.prototype.expression;
 /** @type {CodeBuilder} */
 Renderer.prototype.cb;
 
-/** @type {object} */
+/** @type {Object} */
 Renderer.prototype.cpg;
 
 /** @type {CanvasWrapper} */
 Renderer.prototype.canvaswrapper
+
+/** @type {boolean} */
+Renderer.prototype.iscompiled
+
+/** @type {number} */
+Renderer.prototype.compiletime
 
 Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
     this.modifierTypes=newModifierTypes;
@@ -89,12 +97,12 @@ Renderer.prototype.recompile = function() {
     this.cb = new CodeBuilder(this.api);
     this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
     this.opaque = this.cpg.opaque;
-    this.expression.iscompiled = true; //Note we are adding attributes to the parsed cindyJS-Code tree
-    this.expression.compiletime = requiredcompiletime;
+    this.iscompiled = true;
+    this.compiletime = requiredcompiletime;
 }
 Renderer.prototype.rebuild = function(forceRecompile) {
     console.log("rebuild");
-    if(forceRecompile|| !this.expression.iscompiled || this.expression.compiletime < requiredcompiletime){
+    if(forceRecompile|| !this.iscompiled || this.compiletime < requiredcompiletime){
         this.recompile();
     }
     if(this.cpg===undefined){
@@ -525,7 +533,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
   */
 }
 
-
+// TODO? make 3D mode compatible with CindyXR
 /**
  * For use with CindyXR.
  */
@@ -553,7 +561,6 @@ Renderer.prototype.renderXR = function(viewIndex) {
         x: -1,
         y: 1
     });
-    this.setTransformMatrices3D();
     this.loadTextures();
 
     // Binds the necessary framebuffer object.

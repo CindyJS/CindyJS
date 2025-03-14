@@ -19,6 +19,8 @@ All CindyGL functions are preserved with their original behaviour.
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
 * `cglFindObject(<x>,<y>)` finds the id of object closest to the camera on the ray at position `(x,y)`
 * `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id
+* `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can be reconstructed in the compiled code using the `cglEval` built-in.
+`<args>` is a list of parameters that should be passed to the expression.
 
 ## Built-in variables
 
@@ -46,6 +48,8 @@ Sphere:
 
 * `cglDiscard()` when this function is called the current pixel will not be drawn to the screen.
 Due to compiler limitations the source code still has to be valid if all `cglDiscrad` calls are ignored.
+* `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression
+* `cglTexture(<image>,<pos>)` and `cglTextureRGB(<image>,<pos>)` can be used to obtain the pixel of a texture without the transformations applied by `imagergba` / `imagergb`
 
 ## Plot Modifiers
 

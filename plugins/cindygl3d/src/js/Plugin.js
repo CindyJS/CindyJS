@@ -51,24 +51,26 @@ function dot3(u,v){
     return u[0]*v[0]+u[1]*v[1]+u[2]*v[2];
 }
 
-class CindyGL3DObject {
-    /**
-     * @param {string} name
-     * @param {*} program rendering program
-     * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
-     * @param {Map<string,any>} plotModifiers
-     * @param { Set<string> } tags tags assigned to this Object
-     * @param {CanvasWrapper} canvaswrapper
-     */
-    constructor(program,boundingBox,plotModifiers,tags,canvaswrapper) {
-        this.id = CindyGL3DObject.NEXT_ID++;
-        this.name = "";
-        this.program = program;
-        this.boundingBox = boundingBox;
-        this.plotModifiers = plotModifiers;
-        this.tags = tags;
-        this.canvaswrapper = canvaswrapper;
-    }
+/**
+ * @param {*} program rendering program
+ * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
+ * @param {Map<string,any>} plotModifiers
+ * @param { Set<string> } tags tags assigned to this Object
+ * @param {CanvasWrapper} canvaswrapper
+ * @constructor
+ */
+function CindyGL3DObject(program,boundingBox,plotModifiers,tags,canvaswrapper) {
+    /**@type {number} */
+    this.id = CindyGL3DObject.NEXT_ID++;
+    this.program = program;
+    /**@type {BoundingBoxType} */
+    this.boundingBox = boundingBox;
+    /**@type {Map<string,any>} */
+    this.plotModifiers = plotModifiers;
+    /**@type {Set<string>} */
+    this.tags = tags;
+    /**@type {CanvasWrapper} */
+    this.canvaswrapper = canvaswrapper;
 }
 CindyGL3DObject.NEXT_ID=0;
 
@@ -84,7 +86,7 @@ let CindyGL3D = function(api) {
         let expr = args[0];
         let cb = new CodeBuilder(api);
         let plotModifiers = get3DPlotModifiers(modifs);
-        let code = cb.generateColorPlotProgram(expr,DepthType.Flat,plotModifiers);
+        let code = cb.generateColorPlotProgram(expr,plotModifiers);
         console.log(code);
         return {
             ctype: 'string',
@@ -109,18 +111,20 @@ let CindyGL3D = function(api) {
     }
     /**
      * @param {DepthType} depthType
-     * @param {Map} plotModifiers values of plot-modifier arguments
+     * @param {Map<string,any>} plotModifiers values of plot-modifier arguments
      */
     function compile(prog,depthType,plotModifiers) {
-        const modifierTypes = new Map(
-            Array.from(plotModifiers, ([key, value]) => [key, {type: guessTypeOfValue(value),used: false}])
-        );
+        /**@type {Map<string,{type: type,used: boolean}>} */
+        const modifierTypes = new Map();
+        plotModifiers.forEach((value,key) => {
+            modifierTypes.set(key, {type: guessTypeOfValue(value),used: false});
+        });
         if (typeof(prog.renderer)=="undefined") {
             prog.renderer = new Renderer(api, prog, depthType,modifierTypes);
         } else if(plotModifiers.size>0) {
             // ensure modifier types are compatible with previous modifiers
             let prevModifiers=prog.renderer.modifierTypes;
-            let sameKeys = prevModifiers.length == modifierTypes.length;
+            let sameKeys = prevModifiers.size == modifierTypes.size;
             let changed = false;
             modifierTypes.forEach(
                 (value,key)=>{
@@ -294,14 +298,14 @@ let CindyGL3D = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, canvaswrapper);
+        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, Renderer.noBounds() ,canvaswrapper);
 
 
         return nada;
     });
     /**
      * get plot modifers from object
-     * @param {object} callModifiers
+     * @param {Object} callModifiers
      * @returns {Map<string,any>}
      */
     function get3DPlotModifiers(callModifiers){
@@ -320,7 +324,7 @@ let CindyGL3D = function(api) {
         return modifiers;
     }
     /**
-     * @param {object} callModifiers
+     * @param {Object} callModifiers
      * @returns {Set<string>}
      */
     function get3DPlotTags(callModifiers){
@@ -392,8 +396,6 @@ let CindyGL3D = function(api) {
         setObject(obj3d.id,obj3d);
         return nada;
     });
-    // plot3d(expr)
-    // plot3d(expr,center,radius)
     let recomputeProjMatrix = function(){
         let zoom = CindyGL3D.coordinateSystem.zoom;
         let x0=CindyGL3D.coordinateSystem.x0*zoom;
@@ -426,9 +428,11 @@ let CindyGL3D = function(api) {
         let z0 = modifs.hasOwnProperty("z0") ?
             api.evaluateAndVal(modifs["z0"])["value"]["real"] : -10;
         // TODO? make z-coords customizable
-        CindyGL3D.coordinateSystem={
+        CindyGL3D.coordinateSystem = {
             x0: ul.x , x1: lr.x, y0: lr.y, y1: ul.y,
-            z0: z0, z1:0, zoom: 1
+            z0: z0, z1:0, zoom: 1,
+            // will be correctly initialized by recomputeProjMatrix()
+            viewPosition: [0,0,0,0], transformedViewPos: [0,0,0,0]
         };
         resetRotation();
         recomputeProjMatrix();
@@ -703,6 +707,32 @@ let CindyGL3D = function(api) {
         CindyGL3D.mode3D=false;
         return nada;
     });
+    // wrapper for unevaluated expression that can be passed to colorplot program
+    api.defineFunction("cglLazy", 2, (args, modifs) => {
+        let params;
+        if(args[0]['ctype'] === "list") {
+            params = args[0]['value'];
+        } else if(args[0]['ctype'] === "function" && args[0]['oper'] === "genList"){
+            params = args[0]['args'];
+        } else {
+            params = [args[0]];
+        }
+        let paramsOk = true;
+        params.forEach(val=>{
+            if(val['ctype'] !== 'variable'){
+                console.error("unexpected parameter in cglLazy expected variable got:",val);
+                paramsOk = false;
+            }
+        });
+        if(!paramsOk)
+            return nada;
+        return {
+            ctype: "cglLazy",
+            params: params,
+            expr: args[1]
+        };
+    });
+
 
     api.defineFunction("setpixel", 4, (args, modifs) => {
 
@@ -746,9 +776,13 @@ let CindyGL3D = function(api) {
 // Exports for CindyXR
 CindyGL3D.gl = null;
 CindyGL3D.mode3D = false;
-/**@type {{opaque:Map<Number,CindyGL3DObject>, translucent:Map<Number,CindyGL3DObject>}} */
+/**@type {{opaque:Map<number,CindyGL3DObject>, translucent:Map<number,CindyGL3DObject>}} */
 CindyGL3D.objectBuffer={opaque:new Map(),translucent:new Map()};
-CindyGL3D.coordinateSystem = undefined;
+// initialize with dummy values to make type-resolving easier
+CindyGL3D.coordinateSystem = {
+    x0:0 , x1: 0, y0: 0, y1: 0,  z0: 0, z1:0, zoom: 1,
+    viewPosition: [0,0,0,0], transformedViewPos: [0,0,0,0]
+};
 CindyGL3D.generateCanvasWrapperIfRequired = generateCanvasWrapperIfRequired;
 CindyGL3D.initGLIfRequired = initGLIfRequired;
 CindyJS.registerPlugin(1, "CindyGL3D", CindyGL3D);

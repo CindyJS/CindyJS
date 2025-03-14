@@ -62,18 +62,18 @@ sphere(center,radius,color):=(
 );
 // TODO? merge with sphere
 // creates a sphere with the given center and radius
-// the colors on the surface are defined using the function  `cglGlobTextureExpr` (<x>,<y>)-> <color>
+// the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
-textureSphere(center,radius):=(
-  cgl3dSphereShaderCode(direction):=(
+colorplotSphere(center,radius,pixelExpr):=(
+  cgl3dSpherePlotShaderCode(direction):=(
     regional(normal,texturePos,color,brigthness);
     normal = cglSphereNormalAndDepth(direction,cglCenter);
     texturePos = cglProjSphereToSquare(normal);
-    color = cglGlobTextureExpr(texturePos_1,texturePos_2);
+    color = cglEval(pixelExpr,texturePos);
     brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
     brigthness*color
   );
-  colorplot3d(cgl3dSphereShaderCode(#),center,radius,tags->["sphere"]);
+  colorplot3d(cgl3dSpherePlotShaderCode(#),center,radius,UpixelExpr->pixelExpr,tags->["sphere"]);
 );
 // the two distances where the viewRay in the given direction intersects the cylinder defined by cglPointA, cglPointB and cglRadius
 cglCylinderDepths(direction):=(
@@ -156,21 +156,21 @@ cylinder(pointA,pointB,radius,colorA,colorB):=(
 );
 // TODO? merge with cylinder
 // creates a cylinder with the given endpoints and radius
-// the colors on the surface are defined using the function  `cglGlobTextureExpr` (<x>,<y>)-> <color>
+// the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
-textureCylinder(pointA,pointB,radius):=(
-  cgl3dTextureCylinderShaderCode(direction):=(
+colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
+  cgl3dCylinderPlotShaderCode(direction):=(
     regional(normalAndHeigth,normal,texturePos,color,brigthness);
     normalAndHeigth=cgl3dCylinderNormalAndHeigth(direction);
     normal = (normalAndHeigth_1,normalAndHeigth_2,normalAndHeigth_3);
     texturePos = cglProjCylinderToSquare(normal,normalAndHeigth_4,cglPointB-cglPointA);
-    color = cglGlobTextureExpr(texturePos_1,texturePos_2);
+    color = cglEval(pixelExpr,texturePos);
     brigthness = direction*normal;
     // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
     brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
     brigthness*color
   );
-  colorplot3d(cgl3dTextureCylinderShaderCode(#),pointA,pointB,radius,tags->["cylinder"]);
+  colorplot3d(cgl3dCylinderPlotShaderCode(#),pointA,pointB,radius,UpixelExpr->pixelExpr,tags->["cylinder"]);
 );
 // cylinder with spherical end caps
 rod(pointA,pointB,radius,colorA,colorB):=(
@@ -273,24 +273,24 @@ torus(center,orientation,radius1,radius2,color):=(
 
 // TODO! is there a way to define this function without relying on a global variable
 // creates a torus with the given center pointing in the given orientation, with outer radius radius1 and inner radius radius1
-// the colors on the surface are defined using the function  `cglGlobTextureExpr` (<x>,<y>)-> <color>
+// the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
-textureTorus(center,orientation,radius1,radius2):=(
+colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
   regional(points);
   points = cglTorusSegments(center,orientation,radius1,radius2);
-  cgl3dTextureArcRodShaderCode(direction):=(
+  cgl3dArcRodPlotShaderCode(direction):=(
     regional(normalAndDir,normal,texturePos,color,brigthness);
     normalAndDir = cgl3dArcRodNormalAndRadius(direction);
     normal = normalAndDir_1;
     texturePos = cglProjTorusToSquare(normal,normalAndDir_2,tOrientation);
-    color = cglGlobTextureExpr(texturePos_1,texturePos_2);
+    color = cglEval(pixelExpr,texturePos);
     brigthness = direction*normal;
     // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
     brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
     brigthness*color
   );
   forall(consecutive(points),arcEnds,
-    colorplot3d(cgl3dTextureArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
-      UtCenter->center,UtRadius->radius1,UtOrientation->orientation,tags->["arc","torus"]);
+    colorplot3d(cgl3dArcRodPlotShaderCode(#),arcEnds_1,arcEnds_2,radius2,
+      UtCenter->center,UtRadius->radius1,UtOrientation->orientation,UpixelExpr->pixelExpr,tags->["arc","torus"]);
   );
 );

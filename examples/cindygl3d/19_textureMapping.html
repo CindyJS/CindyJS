@@ -32,35 +32,11 @@
             drawCylinder=false;
             drawTorus=false;
 
-            updateSphere():=(
-              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
-              // there seems to be no way around using global variables for passing functions to other functions
-              cglGlobTextureExpr(x,y):=(
-                cglTextureRGB("lambert",(x,y));
-              );
-              textureSphere([0,0,0],1);
-            );
-            updateCylinder():=(
-              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
-              // there seems to be no way around using global variables for passing functions to other functions
-              cglGlobTextureExpr(x,y):=(
-                cglTextureRGB("lambert",(x,y));
-              );
-              textureCylinder([0,-1,0],[0,1,0],1);
-            );
-            updateTorus():=(
-              // assigning function for mapping coordinates to texture to `cglGlobTextureExpr`
-              // there seems to be no way around using global variables for passing functions to other functions
-              cglGlobTextureExpr(x,y):=(
-                cglTextureRGB("mercator",(x,y))
-              );
-              textureTorus([0,0,0],[0,1,0],0.75,0.5);
-            );
             update():=(
               cglReset3D();
-              if(drawSphere,updateSphere());
-              if(drawCylinder,updateCylinder());
-              if(drawTorus,updateTorus());
+              if(drawSphere,colorplotSphere([0,0,0],1,cglLazy(pos,cglTextureRGB("lambert",pos))));
+              if(drawCylinder,colorplotCylinder([0,-1,0],[0,1,0],1,cglLazy(pos,cglTextureRGB("lambert",pos))));
+              if(drawTorus,colorplotTorus([0,0,0],[0,1,0],0.75,0.5,cglLazy(pos,cglTextureRGB("mercator",pos))));
             );
 
             cglBegin3d();

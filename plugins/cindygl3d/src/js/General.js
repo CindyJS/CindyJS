@@ -156,6 +156,8 @@ function guessTypeOfValue(tval) {
         return type.image;
     } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
         return type.line;
+    } else if (tval['ctype'] === 'cglLazy') {
+        return type.cglLazy(tval);
     }
     console.error(`Cannot guess type of the following type:`);
     console.log(tval);

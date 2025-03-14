@@ -86,14 +86,16 @@ CodeBuilder.prototype.texturereaders;
 const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are lower-case
 const BUILTIN_TEXTURE4 = "cgltexture";
 const BUILTIN_TEXTURE3 = "cgltexturergb";
+const BUILTIN_EVAL_LAZY = "cgleval";
 // TODO? add global constant cglNormal?
-/** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}> */
+/** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}>} */
 CodeBuilder.builtIns=new Map([
     ["cglPixel",{type:"pixelAttribute",code:"",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
     // TODO prevent reading from discard
     [BUILTIN_DISCARD,{type:"operator",code:"discard;\n",expr:"",valueType:type.voidt,writable:false}],
     [BUILTIN_TEXTURE4,{type:"function",code:"",expr:"texture",valueType:type.vec4,args:[type.image,type.vec2],writable:false}],
     [BUILTIN_TEXTURE3,{type:"function",code:"",expr:"texture",valueType:type.vec3,args:[type.image,type.vec2],writable:false}],
+    [BUILTIN_EVAL_LAZY,{type:"function",code:"",expr:"",valueType:undefined,args:undefined,writable:false}],
     // 3D- only
     ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
     ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
@@ -158,6 +160,10 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             return CodeBuilder.builtIns.get(name).valueType;
         } else if (expr['ctype'] === 'function') {
             let name = getPlainName(expr['oper']);
+            if(name == BUILTIN_EVAL_LAZY){
+                // type of lazy is type of contained expression
+                return this.getType(expr['args'][0]);
+            }
             return CodeBuilder.builtIns.get(name).valueType;
         }
         console.error(`unsupported built-in ${JSON.stringify(expr)}`);
@@ -267,6 +273,68 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     //dfs over executed code
     function rec(expr, bindings, scope, forceconstant) {
         expr.bindings = bindings;
+        if (expr['ctype'] === 'function' &&
+            getPlainName(expr['oper']) === BUILTIN_EVAL_LAZY && expr['args'].length > 0
+        ) {
+            let argCount = expr['args'].length-1;
+            let exprExpr = expr['args'][0];
+            if(exprExpr['ctype'] !== 'variable'){
+                // TODO? allow other expressions
+                console.error(`unexpected argument for ${
+                    BUILTIN_EVAL_LAZY
+                } expected variable got`,exprExpr);
+                return;
+            }
+            let exprName = exprExpr['name'];
+            exprName = bindings[exprName] || exprName;
+            let exprData;
+            if(self.modifierTypes.has(exprName)){
+                let exprType = self.modifierTypes.get(exprName).type;
+                if(!exprType.value || !exprType.value.ctype || exprType.value.ctype !== 'cglLazy'){
+                    console.error(`unexpected argument for ${
+                        BUILTIN_EVAL_LAZY
+                    } expected cglLazy got`,exprType, exprExpr);
+                    return;
+                }
+                exprData = exprType.value;
+            } else {
+                let val = self.api.evaluate(exprExpr);
+                if(val['ctype'] !== 'cglLazy'){
+                    console.error(`unexpected argument for ${
+                        BUILTIN_EVAL_LAZY
+                    } expected cglLazy got`,val);
+                    return;
+                }
+                exprData = val;
+            }
+            if(argCount !== exprData.params.length){
+                // TODO? better message
+                console.error(`wrong number of arguments for lazy function expected ${
+                    exprData.params.length
+                } got ${argCount}`);
+                return;
+            }
+            // create independent copy of bindings
+            bindings = Object.assign({}, bindings);
+            expr.bindings = bindings;
+            exprData.params.forEach((param,index) => {
+                let vname = param['name'];
+                let iname = generateUniqueHelperString();
+                bindings[vname] = iname;
+                if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
+                myfunctions[scope].variables.push(iname);
+                self.initvariable(iname, false);
+                variables[iname].assigments.push(expr['args'][index+1]);
+            });
+            // clone expression to allow more than one instantiation
+            expr['args'][0] = cloneExpression(exprData.expr);
+            expr.params = exprData.params.map(param=>{
+                // create independent copy of parameter
+                let newParam = Object.assign({}, param);
+                newParam.bindings = bindings;
+                return newParam;
+            });
+        }
         for (let i in expr['args']) {
             let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
             let nbindings = bindings;
@@ -697,6 +765,16 @@ CodeBuilder.prototype.precompile = function(expr) {
     });
 };
 
+// creates an expression for the assignemnt of rigth to left
+function opAssign(left,rigth){
+    // minimal object that is accepted as assignment operation
+    // cannot use object literal due to renaming for fields during compilation
+    let op = {};
+    op['ctype'] = 'infix';
+    op['oper'] = '=';
+    op['args'] = [left,rigth];
+    return op;
+}
 
 /**
  * compiles an CindyJS-expression to GLSL-Code
@@ -736,6 +814,17 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         } : {
             code: builtIn.code
         };
+    } else if(expr['isbuiltin'] && expr['ctype'] === 'function' && getPlainName(expr['oper']) == BUILTIN_EVAL_LAZY){
+        let code = "";
+        // assign arguments to parameters
+        expr.params.forEach((param,index)=>{
+            code+=this.compile(opAssign(param,expr['args'][index+1]),false).code;
+        });
+        // evaluate "lazy" expression
+        let result = this.compile(expr['args'][0],generateTerm);
+        // insert assignemnt code before expression code
+        result.code = code+result.code;
+        return result;
     } else if(expr['ismodifier']){
         if(expr['ctype'] === 'variable'){
             let vname = expr['name'];
@@ -1171,10 +1260,17 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
 CodeBuilder.prototype.generateListOfUniforms = function() {
     let ans = [];
     for (let uname in this.uniforms)
-        if (this.uniforms[uname].type.type != 'constant' && this.uniforms[uname].type != type.image)
+        if (this.uniforms[uname].type.type != 'constant' &&
+             this.uniforms[uname].type != type.image &&
+             this.uniforms[uname].type.type != 'cglLazy'
+        ) {
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
+        }
     this.modifierTypes.forEach((value,name)=>{
-        ans.push(`uniform ${webgltype(value.type)} ${this.modifierNames.get(name)};`);
+        // TODO? should image modifiers be allowed
+        if(value.type.type != 'cglLazy') {
+            ans.push(`uniform ${webgltype(value.type)} ${this.modifierNames.get(name)};`);
+        }
     });
     return ans.join('\n');
 };
