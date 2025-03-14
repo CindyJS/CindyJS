@@ -39,7 +39,7 @@
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
-                dx = (mouse().x -sx); dy = (mouse().y -sy);
+                dx = 0.5*(mouse().x -sx); dy = 0.5*(mouse().y -sy);
                 rotate3d(dx,dy);
             );
             sx = mouse().x;

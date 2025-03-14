@@ -21,6 +21,11 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
+            // include the implementation for the cindyscript built-ins
+            //   when executing locally import(...) will fail due to cross-site scripting
+            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
+            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
+
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
@@ -38,41 +43,8 @@
 
               hue(im(z))*(.9+.1*re(sqrt(grey1*grey2)));
             );
-            normalize(v):=(v/|v|);            
-            cglSphereNormalAndDepth(direction):=(
-              // |v+l*d -c|=r
-              vc=cglViewPos-cglCenter;
-              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-              b2=(vc*direction); // 1/2 * b
-              c=vc*vc-cglRadius*cglRadius;
-              D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-              if(D4<0,
-                [0,0,0,oo],
-                dst=-b2-re(sqrt(D4));// sqrt should always be real
-                pos3d = cglViewPos+ dst*direction;
-                normal = normalize(pos3d - cglCenter);
-                [normal_1,normal_2,normal_3,dst]
-              )
-            );
-
             cglBegin3d();
-            update():=(
-              cglReset3d();
-              f(direction):=(
-                normalAndDepth=cglSphereNormalAndDepth(direction);
-                depth=normalAndDepth_4;
-                z=((normalAndDepth_1)/(1-normalAndDepth_3))
-                  +i*((normalAndDepth_2)/(1-normalAndDepth_3));
-                fz=expr(z);
-                brigthness = 0.25+0.75*max(0,-normal*direction);// TODO better ligth calucation
-                colRGB = brigthness*color(fz);
-                cglDepth = depth/16;
-                [colRGB_1,colRGB_2,colRGB_3,if(depth>=oo,0,1)]
-              );
-              colorplot3d(f(#),[0,0,0],1);
-            );
-            // expression is set during script initialisation
-            update();
+            colorplotSphereC([0,0,0],1,cglLazy(z,color(expr(z))));
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,

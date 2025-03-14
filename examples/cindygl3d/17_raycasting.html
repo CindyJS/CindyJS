@@ -138,6 +138,10 @@
         </script>
 
         <script id="csinit" type="text/x-cindyscript">
+            // include the implementation for the cindyscript built-ins
+            //   when executing locally import(...) will fail due to cross-site scripting
+            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
+            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
             //initialize some variables
             mat = [
                 [0.3513, -0.4908, -0.7973],
@@ -393,76 +397,6 @@
               ));
               if(!hasRoot,cglDiscard());
               [color_1,color_2,color_3,alpha] //return value
-            );
-
-            // elementary shapes
-            // TODO use same ligth computation as for curve
-            normalize(v):=(v/|v|);
-            // cylinder with spherical end caps
-            rod(pointA,pointB,radius,colorA,colorB):=(
-              cgl3dRodShaderCode(direction):=(
-                // P lies on infinite cylinder around axis AB with radius r iff
-                // |(P-A) - <P-A,B-A>/<B-A,B-A>*(B-A)| = r
-                // P = V+l*D, BA = B-A , U := (B - A)/|B-A|²
-                // |((V+l*D)-A) - <(V+l*D)-A,BA>*U| = r
-                // |(V-A)-<V-A,BA>*U + l*(D-<D,BA>*U)| = r
-                // S := (V-A)-<V-A,BA>*U,  T := <D,BA>*U+D
-                // |S + l*T| = r
-                // <S-l*T,S-l*T>-r²=0 -> l² <T,T> + l 2<S,T> + <S,S> - r^2 =0
-
-                // pick point on viewRay closer to cylinder to increase numeric stability
-                w = |cglViewPos-(cglPointA+cglPointB)/2|;
-                W = cglViewPos + w*direction;
-                BA=cglPointB-cglPointA;
-                U=BA/(BA*BA);
-                VA = (W-cglPointA);
-                S = VA - (VA*BA)*U;
-                T = direction - (direction*BA)*U;
-                a = T*T;
-                b = S*T;
-                c = S*S -cglRadius*cglRadius;
-                D= b*b-a*c;
-                if(D<0,cglDiscard());
-                l1 = -(b + re(sqrt(D)))/a;
-                v1 = (W+l1*direction)-cglPointA;
-                delta = (v1*U);
-                delta = max(0,min(delta,1));
-                center = delta*cglPointB+(1-delta)*cglPointA;
-                // |v+l*d -c|=r
-                vc=cglViewPos-center;
-                // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-                b2=(vc*direction);
-                c2=vc*vc-cglRadius*cglRadius;
-                D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
-                if(D4<0,cglDiscard());
-                dst=-b2-re(sqrt(D4));// sqrt should always be real
-                pos3d = cglViewPos+ dst*direction;
-                cglDepth = dst/(2*|cglViewPos|);
-                normal = normalize(pos3d - center);
-                brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
-                brigthness*((colorB*delta+colorA*(1-delta)))
-              );
-              colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
-                UcolorA->colorA,UcolorB->colorB);
-            );
-            sphere(center,radius,color):=(
-              // TODO multiple versions (transparency, color, shading)
-              cgl3dSphereShaderCode(direction):=(
-                // |v+l*d -c|=r
-                vc=cglViewPos-cglCenter;
-                // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-                b2=(vc*direction); // 1/2 * b
-                c=vc*vc-cglRadius*cglRadius;
-                D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-                if(D4<0,cglDiscard());
-                dst=-b2-re(sqrt(D4));// sqrt should always be real
-                cglDepth = dst/(2*|cglViewPos|);
-                pos3d = cglViewPos+ dst*direction;
-                normal = normalize(pos3d - cglCenter);
-                brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
-                brigthness*color
-              );
-              colorplot3d(cgl3dSphereShaderCode(#),center,radius,Ucolor->color,tags->["sphere"]);
             );
         </script>
 

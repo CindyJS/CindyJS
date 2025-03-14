@@ -21,6 +21,11 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
+            // include the implementation for the cindyscript built-ins
+            //   when executing locally import(...) will fail due to cross-site scripting
+            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
+            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
+
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
@@ -28,42 +33,6 @@
             prevN = -1;
             isClosed = false;
 
-            normalize(v):=(v/|v|);
-            cylinder(direction):=(
-              lAB=|cglPointB-cglPointA|;
-              C=normalize(cglPointB-cglPointA);
-              VA = (cglViewPos-cglPointA);
-              S = VA - (VA*C)*C;
-              T = direction - (direction*C)*C;
-              a = T*T;
-              b = 2*S*T;
-              c = S*S - cglRadius*cglRadius;
-              D=b*b-4*a*c;
-              if(D<0,cglDiscard());
-              l1 = (-b - re(sqrt(D)))/(2*a);
-              v1 = (cglViewPos+l1*direction)-cglPointA;
-              delta1 = (v1*C);
-              // interior face is never visible -> can be skipped
-              if((delta1<0) % (delta1>lAB),cglDiscard());
-              cglDepth = l1/16;
-              brigthness = 0.4 - 0.2*direction*normalize(v1-delta1*C); // 0.2 ... 0.6
-              brigthness*(0.5*(cglPointA+cglPointB)+[1,1,1]);
-            );
-            sphere(direction):=(
-              // |v+l*d -c|=r
-              vc=cglViewPos-cglCenter;
-              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-              b2=(vc*direction); // 1/2 * b
-              c=vc*vc-cglRadius*cglRadius;
-              D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-              if(D4<0,cglDiscard());
-              dst=-b2-re(sqrt(D4));// sqrt should always be real
-              cglDepth = dst/16;
-              pos3d = cglViewPos+ dst*direction;
-              normal = normalize(pos3d - cglCenter);
-              brigthness = 0.25 - 0.25*direction*normal; // 0.25 ... 0.75
-              brigthness*(cglCenter+[1,1,1])
-            );
             scaleBy(p,q) := (
               [p_1*q_1,p_2*q_2,p_3*q_3] // TODO is there a built-in for this
             );
@@ -126,10 +95,10 @@
               // TODO? add option to color elements by index instead of position
               // -> need color params for sphere, cylinder
               forall(points,p,
-                colorplot3d(sphere(#),p,r1)
+                sphere(p,r1,(p+(1,1,1))/2)
               );
               forall(consecutive(points),l,
-                colorplot3d(cylinder(#),l_1,l_2,r2)
+                cylinder(l_1,l_2,r2,(l_1+(1,1,1))/2,(l_2+(1,1,1))/2)
               )
             );
             cglBegin3d();

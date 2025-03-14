@@ -4,7 +4,6 @@
 // collection of CindyScript code for drawing elementary shapes with CindyGL3D
 normalize(v):=(v/|v|); // TODO? make built-in
 
-// TODO merge common code
 cglSphereNormalAndDepth(direction,center):=(
   regional(vc,b2,c,D4,dst,pos3d,normal);
   // |v+l*d -c|=r
@@ -82,7 +81,7 @@ colorplotSphere(center,radius,pixelExpr):=(
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
 colorplotSphereC(center,radius,pixelExpr):=(
-  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereC(normal)));
+  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToC(normal)));
 );
 
 // the two distances where the viewRay in the given direction intersects the cylinder defined by cglPointA, cglPointB and cglRadius
