@@ -254,6 +254,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
     //for some reason this reference does not work in local function. Hence generate local variables
     let variables = this.variables; //functionname -> list of variables occuring in this scope. global corresponds to ''-function
     let myfunctions = this.myfunctions;
+    /**@type {CodeBuilder} */
     var self = this;
 
     rec(expr, bindings, 'global', false);
@@ -289,13 +290,15 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             exprName = bindings[exprName] || exprName;
             let exprData;
             if(self.modifierTypes.has(exprName)){
-                let exprType = self.modifierTypes.get(exprName).type;
+                let modifierData = self.modifierTypes.get(exprName);
+                let exprType = modifierData.type;
                 if(!exprType.value || !exprType.value.ctype || exprType.value.ctype !== 'cglLazy'){
                     console.error(`unexpected argument for ${
                         BUILTIN_EVAL_LAZY
                     } expected cglLazy got`,exprType, exprExpr);
                     return;
                 }
+                modifierData.used = true;
                 exprData = exprType.value;
             } else {
                 let val = self.api.evaluate(exprExpr);

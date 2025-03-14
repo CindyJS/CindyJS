@@ -36,17 +36,18 @@ Renderer.resetCachedState = function(){
 };
 
 /**
- * param {TODO} expression for the Code that will be used for rendering
+ * @param {CindyJS.anyval} expression for the Code that will be used for rendering
+ * @param {DepthType} depthType
+ * @param {Map<string,{type:type, used: boolean}>} modifierTypes
  * @constructor
  */
 function Renderer(api, expression,depthType,modifierTypes) {
     this.api = api;
     this.expression = expression;
     this.modifierTypes = modifierTypes;
+    this.activeModifierTypes = modifierTypes;
     this.depthType=depthType;
     this.boundingBox=Renderer.noBounds();
-    this.iscompiled = false;
-    this.compiletime = -1;
     this.rebuild(false);
 }
 
@@ -88,6 +89,17 @@ Renderer.prototype.iscompiled
 /** @type {number} */
 Renderer.prototype.compiletime
 
+/** @type {boolean} */
+Renderer.prototype.opaque
+
+/** @type {Map<string,{type:type, used: boolean}>} */
+Renderer.prototype.modifierTypes
+
+// keep seperate map for active modifers to skip unneccessary checks in render loop
+/** @type {Map<string,{type:type, used: boolean}>} */
+Renderer.prototype.activeModifierTypes
+
+/** @param {Map<string,{type:type, used: boolean}>} newModifierTypes*/
 Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
     this.modifierTypes=newModifierTypes;
     this.rebuild(true);
@@ -96,6 +108,12 @@ Renderer.prototype.recompile = function() {
     console.log("recompile");
     this.cb = new CodeBuilder(this.api);
     this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
+    this.activeModifierTypes = new Map();
+    this.modifierTypes.forEach((value,key)=>{
+        if(!value.used||value.type.type == "cglLazy")
+            return; //ignore unused modifers
+        this.activeModifierTypes.set(key,value);
+    });
     this.opaque = this.cpg.opaque;
     this.iscompiled = true;
     this.compiletime = requiredcompiletime;
@@ -353,15 +371,15 @@ Renderer.setUniformValue = function (setter,uniformValue){
  * @param {Map} plotModifiers
  */
 Renderer.prototype.setModifierUniforms = function(plotModifiers){
-    plotModifiers.forEach((value,modifierName)=>{
-        let uniformName=this.modifierTypes.get(modifierName).uniformName;
+    this.activeModifierTypes.forEach((modifierType,modifierName)=>{
+        let uniformName=modifierType.uniformName;
         if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
+            let value = plotModifiers.get(modifierName);
             let uniformSetter = this.shaderProgram.uniform[uniformName];
             if(!value.uniformValue || value.modifierTypes!==this.modifierTypes){ // uniform value not up to date
-                let modifierType = this.modifierTypes.get(modifierName);
                 value.uniformValue = Renderer.computeUniformValue(uniformSetter,modifierType.type,value);
                 // remember current modifier types to ensure update when type changes
-                value.modifierTypes=this.modifierTypes;
+                value.modifierTypes=this.activeModifierTypes;
             }
             Renderer.setUniformValue(uniformSetter,value.uniformValue);
         } else {

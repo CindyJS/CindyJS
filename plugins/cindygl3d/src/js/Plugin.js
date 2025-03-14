@@ -52,24 +52,20 @@ function dot3(u,v){
 }
 
 /**
- * @param {*} program rendering program
+ * @param {Renderer} renderer rendering program
  * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
- * @param {Map<string,any>} plotModifiers
+ * @param {Map<string,*>} plotModifiers
  * @param { Set<string> } tags tags assigned to this Object
  * @param {CanvasWrapper} canvaswrapper
  * @constructor
  */
-function CindyGL3DObject(program,boundingBox,plotModifiers,tags,canvaswrapper) {
+function CindyGL3DObject(renderer,boundingBox,plotModifiers,tags,canvaswrapper) {
     /**@type {number} */
     this.id = CindyGL3DObject.NEXT_ID++;
-    this.program = program;
-    /**@type {BoundingBoxType} */
+    this.renderer = renderer;
     this.boundingBox = boundingBox;
-    /**@type {Map<string,any>} */
     this.plotModifiers = plotModifiers;
-    /**@type {Set<string>} */
     this.tags = tags;
-    /**@type {CanvasWrapper} */
     this.canvaswrapper = canvaswrapper;
 }
 CindyGL3DObject.NEXT_ID=0;
@@ -106,70 +102,85 @@ let CindyGL3D = function(api) {
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
-        prog=compile(prog,depthType,new Map());
-        render(prog, a, b, width, height,boundingBox, new Map(), canvaswrapper);
+        let renderer=compile(prog,depthType,new Map());
+        render(renderer, a, b, width, height,boundingBox, new Map(), canvaswrapper);
     }
     /**
+     * @param {CindyJS.anyval} prog
      * @param {DepthType} depthType
-     * @param {Map<string,any>} plotModifiers values of plot-modifier arguments
+     * @param {Map<string,*>} plotModifiers values of plot-modifier arguments
+     * @returns {Renderer}
      */
     function compile(prog,depthType,plotModifiers) {
         /**@type {Map<string,{type: type,used: boolean}>} */
         const modifierTypes = new Map();
+        /**@type {Map<string,{type: type,used: boolean}>} */
+        const mergedTypes = new Map();
         plotModifiers.forEach((value,key) => {
-            modifierTypes.set(key, {type: guessTypeOfValue(value),used: false});
+            let valType = guessTypeOfValue(value);
+            modifierTypes.set(key, {type: valType,used: false});
+            mergedTypes.set(key, {type: valType,used: false});
         });
-        if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog, depthType,modifierTypes);
-        } else if(plotModifiers.size>0) {
+        if (typeof(prog.renderers)=="undefined") prog.renderers = [];
+        /**@type {Renderer} */
+        let renderer;
+        let foundMatch = false;
+        for(const candidate of prog.renderers){
+            renderer = candidate;
             // ensure modifier types are compatible with previous modifiers
-            let prevModifiers=prog.renderer.modifierTypes;
-            let sameKeys = prevModifiers.size == modifierTypes.size;
+            let prevModifiers=renderer.modifierTypes;
+            if(prevModifiers.size != modifierTypes.size)
+                continue; // differernt sets of modifers -> try next renderer
             let changed = false;
-            modifierTypes.forEach(
-                (value,key)=>{
-                    if(prevModifiers.has(key)) {
-                        let prevVal = prevModifiers.get(key);
-                        if(prevVal.used) {
-                            let commonType = lca(value.type,prevVal.type);
-                            if(commonType===false){
-                                // TODO? support multiple independent versions of program depending on types of modifiers
-                                console.error(`incompatiable types for ${key}: ${typeToString(prevVal.type)} and ${value.type}`);
-                                // use new type
-                                commonType = value.type;
-                                changed = true;
-                            } else if(! typesareequal(commonType, prevVal.type)) {
-                                changed = true;
-                                console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
-                            }
-                            value.type = commonType;
-                            value.used = true;
-                        }
-                    } else {
-                        sameKeys = false;
+            let compatible = true;
+            for(const key of mergedTypes.keys()){
+                let value = modifierTypes.get(key);
+                if(prevModifiers.has(key)) {
+                    let prevVal = prevModifiers.get(key);
+                    let commonType = lca(value.type,prevVal.type);
+                    if(commonType===false){
+                        // incompatible modifier types
+                        compatible = false;
+                        break;
+                    } else if(! typesareequal(commonType, prevVal.type)) {
                         changed = true;
+                        console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
                     }
+                    value.type = commonType;
+                    value.used = true;
+                } else {
+                    // differernt sets of modifers
+                    compatible = false;
+                    break;
                 }
-            );
-            if(!sameKeys){
-                // TODO? allow and handle multiple modifier-sets on one program
-                console.error("the set of modifiers associated with a plot expression should not change");
             }
+            if(!compatible)
+                continue; // differernt sets of modifers -> try next renderer
             if(changed) {
-                prog.renderer.updateModifierTypes(modifierTypes);
+                renderer.updateModifierTypes(mergedTypes);
             }
+            foundMatch = true;
+            break;
         }
+        if(!foundMatch){
+            console.log("create new Renderer for modifiers: ",modifierTypes);
+            renderer = new Renderer(api, prog, depthType,modifierTypes);
+            prog.renderers.push(renderer);
+        }
+        // TODO? sort renderes by number of instances
         // remove unused modifiers
-        let unusedModifers=new Set();
-        modifierTypes.forEach((value,key)=>{if(!value.used){unusedModifers.add(key)}});
-        unusedModifers.forEach(key=>{plotModifiers.delete(key);modifierTypes.delete(key);});
-        return prog;
+        modifierTypes.forEach((value,key)=>{
+            if(!value.used){
+                console.log(`modifier ${key} is never used`)
+            }
+        });
+        return renderer;
     }
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function render(prog, a, b, width, height, boundingBox, plotModifiers, canvaswrapper){
-        prog.renderer.render(a, b, width, height, boundingBox, plotModifiers, canvaswrapper);
+    function render(renderer, a, b, width, height, boundingBox, plotModifiers, canvaswrapper){
+        renderer.render(a, b, width, height, boundingBox, plotModifiers, canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
@@ -306,7 +317,7 @@ let CindyGL3D = function(api) {
     /**
      * get plot modifers from object
      * @param {Object} callModifiers
-     * @returns {Map<string,any>}
+     * @returns {Map<string,*>}
      */
     function get3DPlotModifiers(callModifiers){
         let modifiers = new Map();
@@ -342,7 +353,7 @@ let CindyGL3D = function(api) {
      * @param {CindyGL3DObject} obj3d
      */
     function setObject(objId,obj3d){
-        if(obj3d.program.renderer.opaque) {
+        if(obj3d.renderer.opaque) {
             CindyGL3D.objectBuffer.opaque.set(objId,obj3d);
         } else {
             CindyGL3D.objectBuffer.translucent.set(objId,obj3d);
@@ -527,8 +538,8 @@ let CindyGL3D = function(api) {
             gl.enable(gl.BLEND);
             gl.disable(gl.DEPTH_TEST);
             CindyGL3D.objectBuffer.translucent.forEach((obj3d)=>{
-                render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-                if(obj3d.program.renderer.opaque){
+                render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+                if(obj3d.renderer.opaque){
                     wrongOpacity.add(obj3d);
                 }
             });
@@ -536,8 +547,8 @@ let CindyGL3D = function(api) {
         gl.disable(gl.BLEND); // no need to blend opaque objects
         gl.enable(gl.DEPTH_TEST);
         CindyGL3D.objectBuffer.opaque.forEach((obj3d)=>{
-            render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-            if(!obj3d.program.renderer.opaque){
+            render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+            if(!obj3d.renderer.opaque){
                 wrongOpacity.add(obj3d);
             }
         });
@@ -545,8 +556,8 @@ let CindyGL3D = function(api) {
             // reenable blending
             gl.enable(gl.BLEND);
             CindyGL3D.objectBuffer.translucent.forEach((obj3d)=>{
-                render(obj3d.program,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-                if(obj3d.program.renderer.opaque){
+                render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
+                if(obj3d.renderer.opaque){
                     wrongOpacity.add(obj3d);
                 }
             });
@@ -555,7 +566,7 @@ let CindyGL3D = function(api) {
             console.log(`changing opacity of ${wrongOpacity.size} objects`);
             // update objects that had the wrong opacity
             wrongOpacity.forEach((obj3d)=>{
-                if(obj3d.program.renderer.opaque){
+                if(obj3d.renderer.opaque){
                     CindyGL3D.objectBuffer.opaque.delete(obj3d.id);
                 }else{
                     CindyGL3D.objectBuffer.translucent.delete(obj3d.id);
@@ -679,15 +690,18 @@ let CindyGL3D = function(api) {
             }
         }
         let plotModifiers=get3DPlotModifiers(modifs);
-        // copy unchanged modifiers
-        obj3d.plotModifiers.forEach((value,key)=>{
-            if(!plotModifiers.has(key)){
-                plotModifiers.set(key,value);
-            }
-        });
-        // update modifers types in renderer
-        obj3d.program = compile(obj3d.program,obj3d.program.renderer.depthType,plotModifiers);
-        if(obj3d.program.renderer.opaque !== wasOpaque){
+        // modifiers changed -> recompile if neccessary
+        if(plotModifiers.size > 0) {
+            // copy unchanged modifiers
+            obj3d.plotModifiers.forEach((value,key)=>{
+                if(!plotModifiers.has(key)){
+                    plotModifiers.set(key,value);
+                }
+            });
+            // update modifers types in renderer
+            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.renderer.depthType,plotModifiers);
+        }
+        if(obj3d.renderer.opaque !== wasOpaque){
             // opacity changed
             if(wasOpaque) {
                 CindyGL3D.objectBuffer.opaque.delete(objId);
@@ -729,7 +743,7 @@ let CindyGL3D = function(api) {
         return {
             ctype: "cglLazy",
             params: params,
-            expr: args[1]
+            expr: cloneExpression(args[1])
         };
     });
 

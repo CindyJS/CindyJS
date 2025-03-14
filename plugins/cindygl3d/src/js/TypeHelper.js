@@ -120,8 +120,8 @@ let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a
 
 let typesareequal = (a, b) => (a === b) ||
     (a.type === 'constant' && b.type === 'constant' && expressionsAreEqual(a.value, b.value)) ||
-    (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters));
-
+    (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters)) ||
+    (a.type === 'cglLazy' && b.type === 'cglLazy' && arraysAreEqual(a.value.params,b.value.params)&& expressionsAreEqual(a.value.expr,b.value.expr));
 
 function issubtypeof(a, b) {
     if (typesareequal(a, b)) return true;

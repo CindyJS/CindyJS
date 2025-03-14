@@ -48,11 +48,27 @@ function cloneExpression(obj) {
     }
 }
 
+// checks if all elements of arrays a and b are equal (wrt. == operator)
+function arraysAreEqual(a,b) {
+    if(a==b)
+        return true;
+    if(!(a instanceof Array && b instanceof Array))
+        return false;
+    if(a.length!=b.length)
+        return false;
+    for (let i = 0, len = a.length; i < len; i++) {
+        if (a[i] != b[i]) return false;
+    }
+    return true;
+}
+
 /**
  * checks recursively whether two expressions are equal
  */
 function expressionsAreEqual(a, b) {
     if (null == a || "object" != typeof a) return a === b;
+    if(a === b) // identical expressions are equal
+        return true;
     if (a instanceof Array && b instanceof Array) {
         if (a.length != b.length) return false;
         for (var i = 0, len = a.length; i < len; i++) {
