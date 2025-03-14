@@ -317,13 +317,12 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 } got ${argCount}`);
                 return;
             }
-            // create independent copy of bindings
-            bindings = Object.assign({}, bindings);
-            expr.bindings = bindings;
+            // create independent set of bindings for body of expression
+            let nbindings = {};
             exprData.params.forEach((param,index) => {
                 let vname = param['name'];
                 let iname = generateUniqueHelperString();
-                bindings[vname] = iname;
+                nbindings[vname] = iname;
                 if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
                 myfunctions[scope].variables.push(iname);
                 self.initvariable(iname, false);
@@ -331,10 +330,13 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             });
             // clone expression to allow more than one instantiation
             expr['args'][0] = cloneExpression(exprData.expr);
+            // expression added to code in indirect way -> some functions may not yet have been copied
+            self.copyRequiredFunctions(expr['args'][0]);
+            expr['args'][0].bindings = nbindings;
             expr.params = exprData.params.map(param=>{
                 // create independent copy of parameter
                 let newParam = Object.assign({}, param);
-                newParam.bindings = bindings;
+                newParam.bindings = nbindings;
                 return newParam;
             });
         }
@@ -350,6 +352,8 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 } else if (i == 2) { //take same bindings as for second argument
                     nbindings = expr['args'][1].bindings;
                 }
+            } else if(i==0 && getPlainName(expr['oper']) === BUILTIN_EVAL_LAZY){
+                nbindings = expr['args'][0].bindings;
             }
             rec(expr['args'][i],
                 nbindings,

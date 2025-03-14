@@ -34,9 +34,9 @@
 
             update():=(
               cglReset3D();
-              if(drawSphere,colorplotSphere([0,0,0],1,cglLazy(pos,cglTextureRGB("lambert",pos))));
+              if(drawSphere,colorplotSphere([0,0,0],1,cglLazy(pos,cglTextureRGB("equirect",pos))));
               if(drawCylinder,colorplotCylinder([0,-1,0],[0,1,0],1,cglLazy(pos,cglTextureRGB("lambert",pos))));
-              if(drawTorus,colorplotTorus([0,0,0],[0,1,0],0.75,0.5,cglLazy(pos,cglTextureRGB("mercator",pos))));
+              if(drawTorus,colorplotTorus([0,0,0],[0,1,0],0.75,0.5,cglLazy(pos,cglTextureRGB("equirect",pos))));
             );
 
             cglBegin3d();
@@ -90,7 +90,7 @@
                         transform: [{ visibleRect: [-1.5, -1.5, 1.5, 1.5] }],
                     },
                 ],
-                images: { lambert: "images/Lambert.jpg", mercator: "images/Mercator.jpg"},
+                images: { lambert: "images/Lambert.jpg", mercator: "images/Mercator.jpg", equirect: "images/Equirectangular.jpg"},
             });
         </script>
     </body>
