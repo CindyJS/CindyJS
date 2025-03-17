@@ -87,6 +87,7 @@ const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are
 const BUILTIN_TEXTURE4 = "cgltexture";
 const BUILTIN_TEXTURE3 = "cgltexturergb";
 const BUILTIN_EVAL_LAZY = "cgleval";
+const BUILTIN_CGLDEPTH = "cglDepth";
 // TODO? add global constant cglNormal?
 /** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}>} */
 CodeBuilder.builtIns=new Map([
@@ -99,7 +100,7 @@ CodeBuilder.builtIns=new Map([
     // 3D- only
     ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
     ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
-    ["cglDepth",{type:"pixelAttribute",code:"",expr:"gl_FragDepth",valueType:type.float,writable:true}],
+    [BUILTIN_CGLDEPTH,{type:"pixelAttribute",code:"",expr:"cgl_depth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
     // TODO! make code/available constants dependent on bounding box type
     // only for spherical bounding box
@@ -381,6 +382,9 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional' && scope != 'global') {
             for (let i in expr['args']) {
                 let vname = expr['args'][i]['name'];
+                if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
+                    console.wran(`${vname}: identifiers starting with ${CodeBuilder.cindygl3dPrefix} are reserved for internal use`);
+                }
                 let iname = generateUniqueHelperString();
                 bindings[vname] = iname;
 
@@ -805,6 +809,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         };
     } else if(expr['isbuiltin'] && expr['ctype'] === 'variable'){
         let vname = expr['name'];
+        if(vname == BUILTIN_CGLDEPTH){
+            this.readsDepth = true;
+        }
         let builtIn = CodeBuilder.builtIns.get(vname);
         return generateTerm ? {
             code: builtIn.code,
@@ -885,6 +892,8 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 console.error(`assignment to immutable built-in "${getPlainName(expr['args'][0]['oper'])}"`);
             } else if(!CodeBuilder.builtIns.get(expr['args'][0]['name']).writable) {
                 console.error(`assignment to immutable built-in "${expr['args'][0]['name']}"`);
+            } else if(expr['args'][0]['name'] == BUILTIN_CGLDEPTH) {
+                this.writesDepth = true;
             }
         }
         let varexpr = this.compile(expr['args'][0], true).term; //note: this migth be also a field access
@@ -1282,10 +1291,6 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
     return ans.join('\n');
 };
 
-function generateSetDepth(depthExrp){
-    return `gl_FragDepth= ${depthExrp};`
-}
-
 /**
  * @param {Map} modifierTypes  map from names of modifier types to their types
  */
@@ -1295,6 +1300,8 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
 
     this.modifierTypes = modifierTypes;
     this.modifierNames = new Map();
+    this.readsDepth = false;
+    this.writesDepth = false;
 
     this.precompile(expr); //determine this.variables, types etc.
     let r = this.compile(expr, true);
@@ -1360,17 +1367,20 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
         randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
     //////////////////////
 
-    // TODO? code for handling bounding box
 
-    if(depthType==DepthType.Flat){
-        code += `void main(void) {\n ${randompatch} ${colorExpr.code}fragColor = ${colorterm};\n}\n`;
-    }else if(depthType==DepthType.Nearest){
+    let initDepth = "";
+    let setDepth = "";
+    if(this.readsDepth||this.writesDepth){
+        initDepth="cgl_depth=gl_FragCoord.z;\n";
+    }
+    if(this.writesDepth){
+        setDepth="gl_FragDepth = cgl_depth;\n";
+    }
+
+    if(depthType==DepthType.Flat||depthType==DepthType.Nearest){
         // set depth at start of procedure to ensure value is updated on every path
         // TODO! do not write to depth if code does not use cglDepth
-        code += `void main(void) {\n ${randompatch}
-        ${generateSetDepth("gl_FragCoord.z")}
-        ${colorExpr.code}
-        fragColor = ${colorterm};\n}\n`;
+        code += `void main(void) {\n ${randompatch} ${initDepth} ${colorExpr.code} fragColor = ${colorterm};\n${setDepth}}\n`;
     }else{
         console.error("unsupported depth type");
     }

@@ -14,3 +14,4 @@ uniform vec3 uCenter;
 uniform vec3 uPointA;
 uniform vec3 uPointB;
 uniform float uRadius;
+float cgl_depth;
