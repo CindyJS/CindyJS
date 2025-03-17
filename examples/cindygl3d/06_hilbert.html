@@ -21,10 +21,6 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
-            // include the implementation for the cindyscript built-ins
-            //   when executing locally import(...) will fail due to cross-site scripting
-            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
-            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
 
             sx = mouse().x;
             sy = mouse().y;
@@ -156,7 +152,10 @@
                     { name: "R1", type: "Free", pos: [2, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
                     { name: "R", type: "Free", pos: [2, -0.75], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
-                ]
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                }
             });
         </script>
     </body>

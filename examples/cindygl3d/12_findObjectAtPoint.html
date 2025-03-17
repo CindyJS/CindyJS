@@ -19,10 +19,6 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL3D");
-            // include the implementation for the cindyscript built-ins
-            //   when executing locally import(...) will fail due to cross-site scripting
-            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
-            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
 
             sx = mouse().x;
             sy = mouse().y;
@@ -94,7 +90,10 @@
                         height: 512,
                         transform: [{ visibleRect: [-2, -2, 2, 2] }],
                     },
-                ]
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                }
             });
         </script>
     </body>

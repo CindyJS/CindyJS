@@ -138,10 +138,6 @@
         </script>
 
         <script id="csinit" type="text/x-cindyscript">
-            // include the implementation for the cindyscript built-ins
-            //   when executing locally import(...) will fail due to cross-site scripting
-            //   run `replaceLocalIncludes.py` to obtain a locally executable version of this file
-            import("../../plugins/cindygl3d/scripts/cglInit.cjs");//! XSS
             //initialize some variables
             mat = [
                 [0.3513, -0.4908, -0.7973],
@@ -445,6 +441,9 @@
                         transform: [{ visibleRect: [-0.7, -0.5, 0.7, 0.5] }],
                     },
                 ],
+                import: {
+                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                },
             });
         </script>
 
