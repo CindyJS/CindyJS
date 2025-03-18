@@ -1,6 +1,6 @@
 // cindyscript source for drawing elementary geometric objects in CindyGL3D
 // TODO is this the correct file extension
-
+use("CindyGL3D");
 // collection of CindyScript code for drawing elementary shapes with CindyGL3D
 normalize(v):=(v/|v|); // TODO? make built-in
 
@@ -19,13 +19,13 @@ cglSphereNormalAndDepth(direction,center):=(
   normal = normalize(pos3d - center);
   [normal_1,normal_2,normal_3]
 );
-cglSphereDepths(direction,center):=(
+cglSphereDepths(direction,center,radius):=(
   regional(vc,b2,c,D4,r);
   // |v+l*d -c|=r
   vc=cglViewPos-center;
   // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
   b2=(vc*direction); // 1/2 * b
-  c=vc*vc-cglRadius*cglRadius;
+  c=vc*vc-radius*radius;
   D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
   if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
   r=re(sqrt(D4)); // sqrt should always be real
@@ -49,27 +49,37 @@ cglProjSphereToSquare(normal):=(
   (1/(2*pi))*(phi+pi,2*theta+pi)
 );
 cgl3dSphereShaderCode(direction):=(
-  regional(normal,texturePos,color,brigthness);
+  regional(normal,texturePos,color);
   normal = cglSphereNormalAndDepth(direction,cglCenter);
   texturePos = cglEval(projection,normal);
   color = cglEval(pixelExpr,texturePos);
-  brigthness = 0.25+0.75*max(-direction*normal,0); // 0.25 ... 1.0
-  brigthness*color
+  cglEval(light,color,direction,normal);
 );
+cglSimpleLight(color,viewDirection,normal):=(
+  regional(brigthness);
+  // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
+  brigthness = viewDirection*normal;
+  brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
+  brigthness*color;
+);
+cglDefaultLight = cglLazy((color,direction,normal),cglSimpleLight(color,direction,normal));
 // TODO multiple versions (transparency, color, shading)
 sphere(center,radius,color):=(
-  regional(pixelExpr,projection);
+  regional(pixelExpr,projection,light);
   pixelExpr=cglLazy(pos,color);
   projection=cglLazy(normal,0); // position does not matter
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,Ucolor->color,tags->["sphere"]);
+    UpixelExpr->pixelExpr,Uprojection->projection,Ucolor->color,Ulight->light,tags->["sphere"]);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<pos>)-> <color>
 // where the position is computed from the normal vector using the lazy function `projection`
 colorplotSphere(center,radius,pixelExpr,projection):=(
+  regional(light);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,tags->["sphere"]);
+    UpixelExpr->pixelExpr,Uprojection->projection,Ulight->light,tags->["sphere"]);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<z>)-> <color>
@@ -147,46 +157,48 @@ cglProjCylinderToSquare(normal,heigth,orientation):=(
   ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),heigth)
 );
 cgl3dCylinderShaderCode(direction):=(
-  regional(normalAndHeigth,normal,texturePos,color,brigthness);
+  regional(normalAndHeigth,normal,texturePos,color);
   normalAndHeigth=cgl3dCylinderNormalAndHeigth(direction);
   normal = (normalAndHeigth_1,normalAndHeigth_2,normalAndHeigth_3);
   texturePos = cglProjCylinderToSquare(normal,normalAndHeigth_4,cglPointB-cglPointA);
   color = cglEval(pixelExpr,texturePos);
-  brigthness = direction*normal;
-  // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
-  brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
-  brigthness*color
+  cglEval(light,color,direction,normal);
 );
 // TODO multiple versions of cylinder (skip-back, end-cap style, transparency, color, shading)
 cylinder(pointA,pointB,radius,colorA,colorB):=(
-  regional(pixelExpr);
+  regional(pixelExpr,light);
   pixelExpr = cglLazy(pos,(pos_2)*colorB + (1-pos_2)*colorA);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-    UpixelExpr->pixelExpr,UcolorA->colorA,UcolorB->colorB,tags->["cylinder"]);
+    UpixelExpr->pixelExpr,Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["cylinder"]);
 );
 // creates a cylinder with the given endpoints and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
 colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
-  colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,UpixelExpr->pixelExpr,tags->["cylinder"]);
+  regional(light);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
+    UpixelExpr->pixelExpr,Ulight->light,tags->["cylinder"]);
+);
+cgl3dRodShaderCode(direction):=(
+  regional(l,v,BA,delta,center,normal);
+  // TODO? extract rodNormalAndDepth
+  l = cglCylinderDepths(direction);
+  v = (cglViewPos+l_1*direction)-cglPointA;
+  BA = cglPointB-cglPointA;
+  delta = (v*BA)/(BA*BA);
+  delta = max(0,min(delta,1));
+  center = delta*cglPointB+(1-delta)*cglPointA;
+  normal=cglSphereNormalAndDepth(direction,center);
+  cglEval(light,(colorB*delta+colorA*(1-delta)),direction,normal);
 );
 // cylinder with spherical end caps
 rod(pointA,pointB,radius,colorA,colorB):=(
-  cgl3dRodShaderCode(direction):=(
-    regional(l,v,BA,delta,center,normal,brigthness);
-    // TODO? extract rodNormalAndDepth
-    l = cglCylinderDepths(direction);
-    v = (cglViewPos+l_1*direction)-cglPointA;
-    BA = cglPointB-cglPointA;
-    delta = (v*BA)/(BA*BA);
-    delta = max(0,min(delta,1));
-    center = delta*cglPointB+(1-delta)*cglPointA;
-    normal=cglSphereNormalAndDepth(direction,center);
-    brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
-    brigthness*((colorB*delta+colorA*(1-delta)))
-  );
+  regional(light);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
-    UcolorA->colorA,UcolorB->colorB,tags->["rod"]);
+    Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["rod"]);
 );
 
 // helper for computing normal vector and radius-direction of a arc-rod
@@ -253,36 +265,35 @@ cglTorusSegments(center,orientation,radius1,radius2):=(
 );
 
 cgl3dArcRodShaderCode(direction):=(
-  regional(normalAndDir,normal,texturePos,color,brigthness);
+  regional(normalAndDir,normal,texturePos,color);
   normalAndDir = cgl3dArcRodNormalAndRadius(direction);
   normal = normalAndDir_1;
   texturePos = cglProjTorusToSquare(normal,normalAndDir_2,tOrientation);
   color = cglEval(pixelExpr,texturePos);
-  brigthness = direction*normal;
-  // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
-  brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
-  brigthness*color
+  cglEval(light,color,direction,normal);
 );
 torus(center,orientation,radius1,radius2,color):=(
-  regional(points,pixelExpr);
+  regional(points,pixelExpr,light);
   points = cglTorusSegments(center,orientation,radius1,radius2);
   pixelExpr = cglLazy(pos,color);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   // TODO? add way to group multiple sub-objects into a composite object
   forall(consecutive(points),arcEnds,
     colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
       UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      Ucolor->color,UpixelExpr->pixelExpr,tags->["arc","torus"]);
+      UpixelExpr->pixelExpr,Ulight->light,Ucolor->color,tags->["arc","torus"]);
   );
 );
 // creates a torus with the given center pointing in the given orientation, with outer radius radius1 and inner radius radius1
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
 colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
-  regional(points);
+  regional(points,light);
   points = cglTorusSegments(center,orientation,radius1,radius2);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   forall(consecutive(points),arcEnds,
     colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
       UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->pixelExpr,tags->["arc","torus"]);
+      UpixelExpr->pixelExpr,Ulight->light,tags->["arc","torus"]);
   );
 );
