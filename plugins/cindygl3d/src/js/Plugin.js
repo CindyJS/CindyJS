@@ -103,6 +103,7 @@ let CindyGL3D = function(api) {
      */
     function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
         let renderer=compile(prog,depthType,new Map());
+        Renderer.resetCachedState();
         render(renderer, a, b, width, height,boundingBox, new Map(), canvaswrapper);
     }
     /**
