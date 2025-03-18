@@ -4,7 +4,8 @@ const BoundingBoxType = {
     // rect: 1, // draw on rectange [vec2,vec2]
     sphere: 2, // draw on bounding cube of sphere [vec3,float]
     cylinder: 3, // draw in bounding cuboid of cylinder [vec3,vec3,float]
-    // XXX polygon
+    triangles: 4, // draw on triangular mesh (given as list of triangles [3*vec3]
+    // TODO? rectangle orientated towarsd camera: [center: vec3, width: float, heigth: float]
 }
 // TODO find better names for box generator functions
 Renderer.noBounds = function(){
@@ -18,6 +19,21 @@ Renderer.boundingSphere = function(center,radius){
 Renderer.boundingCylinder = function(pointA,pointB,radius){
     return {
         type: BoundingBoxType.cylinder,pointA: pointA,pointB: pointB, radius: radius
+    };
+}
+/**
+ * @param {Array<number>} vertices list of coordinates in form [x1,y1,z1,x2,y2,z2,x3,...] groups of three vertices form a triangle
+ */
+Renderer.boundingTriangles = function(vertices){
+    if(vertices.length%9 !== 0) {
+        console.error("the length of vertices should be a multiple of 9");
+    }
+    // TODO optional additional parameters
+    // normals: array[vec3] + normal-type (per-face/per-vertex)
+    // textureCoordinates: array[vec2]  (attached to each vertex)
+    // triangles: array[ivec3] verte indices (to reduce data consumption)
+    return {
+        type: BoundingBoxType.triangles,vertices: vertices
     };
 }
 
@@ -130,13 +146,16 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     this.fragmentShaderCode =
         cgl3d_resources["standardFragmentHeader"] + this.cb.generateShader(this.cpg,this.depthType);
     if(CindyGL3D.mode3D){
-        if(this.boundingBox.type == BoundingBoxType.none){
+        if(this.boundingBox.type == BoundingBoxType.none) {
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
-        }else if(this.boundingBox.type==BoundingBoxType.sphere){
+        } else if(this.boundingBox.type==BoundingBoxType.sphere) {
             this.vertexShaderCode = cgl3d_resources["vshader3dSphere"];
-        }else if(this.boundingBox.type==BoundingBoxType.cylinder){
+        } else if(this.boundingBox.type==BoundingBoxType.cylinder) {
             this.vertexShaderCode = cgl3d_resources["vshader3dCylinder"];
-        }else{
+        } else if(this.boundingBox.type==BoundingBoxType.triangles) {
+            // TODO? dependent on vertex data
+            this.vertexShaderCode = cgl3d_resources["vshader3dTriangles"];
+        } else {
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
         }
@@ -162,6 +181,8 @@ Renderer.prototype.updateVertices = function() {
             this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
         }else if(this.boundingBox.type==BoundingBoxType.cylinder){
             this.vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+        }else if(this.boundingBox.type==BoundingBoxType.triangles){
+            this.vertices = new Float32Array(this.boundingBox.vertices);
         }else{
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
@@ -176,7 +197,21 @@ Renderer.prototype.updateAttributes = function() {
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
-    var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    var texCoords;
+    if(this.boundingBox.type==BoundingBoxType.triangles){
+        if(this.boundingBox.texCoords){
+            texCoords = new Float32Array(this.boundingBox.texCoords);
+        } else {
+            let baseCoords = [0, 0, 1, 0, 0, 1];
+            texCoords = []; // ! no let here, this is the function-level variable
+            for(let i=0;i<this.vertices.length;i+=3){
+                texCoords = texCoords.concat(baseCoords);
+            }
+            texCoords = new Float32Array(texCoords);
+        }
+    }else {
+        texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    }
     var texCoordOffset = this.vertices.byteLength;
     let totalBufferSize = texCoordOffset;
 
@@ -248,6 +283,7 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
     }
 }
 Renderer.prototype.setBoundingBoxUniforms = function() {
+    // TODO? check first box-type then uniform existence
     if (this.shaderProgram.uniform.hasOwnProperty('uCenter')){
         if(this.boundingBox.type==BoundingBoxType.sphere){
             this.shaderProgram.uniform["uCenter"]
@@ -540,7 +576,12 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
     this.setBoundingBoxUniforms();
     this.setModifierUniforms(plotModifiers);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if(this.boundingBox.type != BoundingBoxType.triangles){
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    } else {
+        // TODO? seperate render-call for drawing triangles
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length/3);
+    }
     if(!CindyGL3D.mode3D)
         gl.flush(); //renders stuff to canvaswrapper
 

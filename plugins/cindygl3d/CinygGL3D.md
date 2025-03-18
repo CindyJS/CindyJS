@@ -17,6 +17,10 @@ All CindyGL functions are preserved with their original behaviour.
 * `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
+* `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of trinagles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
+     - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
+     - [v1,v2,v3,v4,...]            list of vertices
+     - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
 * `cglFindObject(<x>,<y>)` finds the id of object closest to the camera on the ray at position `(x,y)`
 * `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id
 * `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can be reconstructed in the compiled code using the `cglEval` built-in.

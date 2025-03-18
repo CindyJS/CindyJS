@@ -373,6 +373,55 @@ let CindyGL3D = function(api) {
         return nada;
     });
     /**
+     * plots colorplot on whole main canvas in CindyJS coordinates
+     * uses the z-coordinate for the nearest pixel as depth information
+     *
+     * renderes the given colorplot function on a triangual mesh given in the second parameter.
+     * the triangles can be given in one of the following three formats:
+     *   - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
+     *   - [v1,v2,v3,v4,...]            list of vertices
+     *   - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
+     */
+    api.defineFunction("colorplot3d", 2, (args, modifs) => {
+        initGLIfRequired();
+        let prog = args[0];
+        let plotModifiers=get3DPlotModifiers(modifs);
+        let vertices = coerce.toList(api.evaluateAndVal(args[1]));
+        if(!(vertices instanceof Array)||vertices.length == 0){
+            // no array or no vertices
+            return nada;
+        }
+        let eltType = vertices[0]['ctype'];
+        // flatten vertex list
+        // TODO! check if all components have same size
+        if(eltType === 'list') {
+            // nested list
+            vertices = vertices.flatMap(coerce.toList);
+            eltType = vertices[0]['ctype'];
+            // doubly nested list
+            if(eltType === 'list') {
+                vertices = vertices.flatMap(coerce.toList);
+                eltType = vertices[0]['ctype'];
+            }
+        }
+        if(eltType === 'number') {
+            vertices = vertices.map(coerce.toReal);
+            if(vertices.length % 3 !== 0){
+                console.error("the number of coordinates should be divisible by 3");
+            }else if(vertices.length % 9 !== 0){
+                console.error("the number of vertices should be divisible by 3");
+            }
+        } else {
+            console.error(`unexpected type for vertex-coordinate: ${eltType}`);
+            return nada;
+        }
+        let boundingBox=Renderer.boundingTriangles(vertices);
+        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        setObject(obj3d.id,obj3d);
+        return nada;
+    });
+    /**
      * plots colorplot in region bounded by sphere in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
      * args:  <expr> <center> <radius>
