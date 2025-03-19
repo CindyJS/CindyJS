@@ -55,14 +55,14 @@ cgl3dSphereShaderCode(direction):=(
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
-cglSimpleLight(color,viewDirection,normal):=(
-  regional(brigthness);
+cglNoLight = cglLazy((color,viewDirection,normal),color);
+cglSimpleLight = cglLazy((color,viewDirection,normal),
   // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
   brigthness = viewDirection*normal;
   brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
   brigthness*color;
 );
-cglDefaultLight = cglLazy((color,direction,normal),cglSimpleLight(color,direction,normal));
+cglDefaultLight = cglSimpleLight;
 // TODO multiple versions (transparency, color, shading)
 sphere(center,radius,color):=(
   regional(pixelExpr,projection,light);
@@ -297,3 +297,45 @@ colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
       UpixelExpr->pixelExpr,Ulight->light,tags->["arc","torus"]);
   );
 );
+
+
+cgl3dColorShaderCode():=(
+  color
+);
+background(color):=(
+  colorplot3d(cgl3dColorShaderCode(),Ucolor->color);
+);
+
+// triangualtes a convex polygon
+cglTriangulatePolygon(vertices):=(
+  regional(root,v1,v2,n,triangles,normals);
+  // TODO make algorithm work for non-convex shapes
+  // TODO? better triangualtion algorithm (? area maximizing instead of fan)
+  root = vertices_1;
+  triangles=[];
+  normals=[];
+  forall(2..(length(vertices)-1),i,
+    v1=vertices_i;
+    v2=vertices_(i+1);
+    n=normalize(cross(v1-root,v2-root));
+    // TODO ensure normals point in rigth direction
+    triangles=triangles++[root,v1,v2];
+    normals=normals++[n,n,n]
+  );
+  [triangles,normals]
+);
+cgl3dTriangleShaderCode(direction):=(
+  regional(color);
+  color = cglEval(pixelExpr,direction);
+  cglEval(light,color,direction,normal);
+);
+
+// single colored polygon
+polygon3d(vertices,color):=(
+  regional(pixelExpr,light,triangles);
+  pixelExpr = cglLazy(dir,color);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  trianglesAndNormals = cglTriangulatePolygon(vertices);
+  colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,Vnormal->trianglesAndNormals_2,
+    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+)

@@ -109,6 +109,12 @@ let replaceCbyR = t => t === type.complex ? type.float : {
     parameters: replaceCbyR(t.parameters)
 };
 
+let replaceIntbyFloat = t => t === type.int ? type.float : t.type === 'list' ? {
+    type: 'list',
+    length: t.length,
+    parameters: replaceIntbyFloat(t.parameters)
+} : t;
+
 /* is t implementented in native glsl, as bool, float, int, vec2, vec3, vec4, mat2, mat3, mat4 */
 let isnativeglsl = t =>
     (t.type === 'constant' && isnativeglsl(generalize(t))) ||

@@ -1,16 +1,4 @@
-#version 300 es
-in vec2 aTexCoord;
-in vec3 aPos;
-
-out   vec2 cgl_pixel;
-out   vec3 cgl_viewDirection;
-out   vec2 plain_pixel;
-
-uniform   vec3 cgl_viewPos;
-uniform   mat4 projAndTrafoMatrix;
-uniform   mat3 transformMatrix;
-
-void main(void) {
+ // code inside main function of triangle vertex shader, will be combined during shader compilation
    // transform to screen space
    vec4 screenPos = projAndTrafoMatrix*vec4(aPos,1);
    // use same z-coordinate as cglInit shaders
@@ -30,4 +18,3 @@ void main(void) {
    // vec3 r = transformMatrix*vec3(plain_pixel,1);
    // cgl_pixel = r.xy/r.z;
    cgl_pixel = aTexCoord;
-}

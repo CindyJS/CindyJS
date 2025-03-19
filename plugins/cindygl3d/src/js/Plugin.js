@@ -102,25 +102,31 @@ let CindyGL3D = function(api) {
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
-        let renderer=compile(prog,depthType,new Map());
+        let renderer=compile(prog,depthType,boundingBox,new Map(),new Map());
         Renderer.resetCachedState();
         render(renderer, a, b, width, height,boundingBox, new Map(), canvaswrapper);
     }
     /**
      * @param {CindyJS.anyval} prog
      * @param {DepthType} depthType
+     * @param {boundingBox} boundingBox
      * @param {Map<string,*>} plotModifiers values of plot-modifier arguments
+     * @param {Map<string,{values:Array<*>,eltType:type}>} vModifiers vertex modifiers
      * @returns {Renderer}
      */
-    function compile(prog,depthType,plotModifiers) {
-        /**@type {Map<string,{type: type,used: boolean}>} */
+    function compile(prog,depthType,boundingBox,plotModifiers,vModifiers) {
+        /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
         const modifierTypes = new Map();
-        /**@type {Map<string,{type: type,used: boolean}>} */
+        /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
         const mergedTypes = new Map();
         plotModifiers.forEach((value,key) => {
             let valType = guessTypeOfValue(value);
-            modifierTypes.set(key, {type: valType,used: false});
-            mergedTypes.set(key, {type: valType,used: false});
+            modifierTypes.set(key, {type: valType,isuniform: true,used: false});
+            mergedTypes.set(key, {type: valType,isuniform: true,used: false});
+        });
+        vModifiers.forEach((value,key) => {
+            modifierTypes.set(key, {type: value.eltType,isuniform: false,used: false});
+            mergedTypes.set(key, {type: value.eltType,isuniform: false,used: false});
         });
         if (typeof(prog.renderers)=="undefined") prog.renderers = [];
         /**@type {Renderer} */
@@ -138,6 +144,10 @@ let CindyGL3D = function(api) {
                 let value = modifierTypes.get(key);
                 if(prevModifiers.has(key)) {
                     let prevVal = prevModifiers.get(key);
+                    if(prevVal.isuniform != value.isuniform){
+                        compatible = false;
+                        break;
+                    }
                     let commonType = lca(value.type,prevVal.type);
                     if(commonType===false){
                         // incompatible modifier types
@@ -148,7 +158,6 @@ let CindyGL3D = function(api) {
                         console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
                     }
                     value.type = commonType;
-                    value.used = true;
                 } else {
                     // differernt sets of modifers
                     compatible = false;
@@ -165,16 +174,15 @@ let CindyGL3D = function(api) {
         }
         if(!foundMatch){
             console.log("create new Renderer for modifiers: ",modifierTypes);
-            renderer = new Renderer(api, prog, depthType,modifierTypes);
+            renderer = new Renderer(api, prog, depthType,boundingBox, modifierTypes);
             prog.renderers.push(renderer);
+            // TODO? sort renderes by number of instances
+            modifierTypes.forEach((value,key)=>{
+                if(!value.used){
+                    console.log(`modifier ${key} is never used`)
+                }
+            });
         }
-        // TODO? sort renderes by number of instances
-        // remove unused modifiers
-        modifierTypes.forEach((value,key)=>{
-            if(!value.used){
-                console.log(`modifier ${key} is never used`)
-            }
-        });
         return renderer;
     }
     /**
@@ -336,6 +344,41 @@ let CindyGL3D = function(api) {
         return modifiers;
     }
     /**
+     * get vertex modifers from object
+     * @param {Object} callModifiers
+     * @param {number} vCount
+     * @returns {Map<string,{values: Array<*>,eltType: type}>}
+     */
+    function get3DPlotVertexModifiers(callModifiers,vCount,plotModifiers){
+        let modifiers = new Map();
+        Object.entries(callModifiers).forEach(([name, value])=>{
+            if(name.length < 2 || !name.startsWith("V"))
+                return;
+            let modName=name.substring(1);
+            if(plotModifiers.has(modName)){
+                console.warn("vertex modifer is shadowed by uniform moif-in: "+modName);
+                return;
+            }
+            if(CodeBuilder.builtIns.has(modName)){
+                console.warn("modifer is shadowed by built-in: "+modName);
+            }else if(modName.startsWith(CodeBuilder.cindygl3dPrefix)){
+                console.warn(`names starting with "${CodeBuilder.cindygl3dPrefix}" are reserved for internal use`);
+            }
+            let valList = coerce.toList(api.evaluateAndVal(value),[]);
+            if(valList.length != vCount){
+                console.error(`vertex modifier should be list with one element for each vertex: ${name}`);
+                return;
+            }
+            // compute common element type
+            let eltType = valList.map(guessTypeOfValue).reduce(lca);
+            // promote int to float to allow interpolation
+            // TODO? allow int-types if value is constant accross each triangle
+            eltType = replaceIntbyFloat(eltType);
+            modifiers.set(modName,{values: valList,eltType: eltType});
+        });
+        return modifiers;
+    }
+    /**
      * @param {Object} callModifiers
      * @returns {Set<string>}
      */
@@ -368,7 +411,7 @@ let CindyGL3D = function(api) {
         initGLIfRequired();
         var prog = args[0];
         let plotModifiers=get3DPlotModifiers(modifs);
-        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
+        let compiledProg=compile(prog,DepthType.Nearest,Renderer.noBounds(),plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
         return nada;
@@ -386,7 +429,7 @@ let CindyGL3D = function(api) {
     api.defineFunction("colorplot3d", 2, (args, modifs) => {
         initGLIfRequired();
         let prog = args[0];
-        let plotModifiers=get3DPlotModifiers(modifs);
+        let plotModifiers = get3DPlotModifiers(modifs);
         let vertices = coerce.toList(api.evaluateAndVal(args[1]));
         if(!(vertices instanceof Array)||vertices.length == 0){
             // no array or no vertices
@@ -397,11 +440,29 @@ let CindyGL3D = function(api) {
         // TODO! check if all components have same size
         if(eltType === 'list') {
             // nested list
-            vertices = vertices.flatMap(coerce.toList);
+            vertices = vertices.flatMap(v=>{
+                let xyz=coerce.toList(v);
+                if(!Array.isArray(xyz)||xyz.length!=3){
+                    let contentType="vertices";
+                    if(Array.isArray(xyz)&&xyz.length>0&&xyz[0]['ctype']=='list'){
+                        contentType = "triangles";
+                    }
+                    console.warn(`${contentType} should be lists of length 3`);
+                    return [];
+                }
+                return xyz;
+            });
             eltType = vertices[0]['ctype'];
             // doubly nested list
             if(eltType === 'list') {
-                vertices = vertices.flatMap(coerce.toList);
+                vertices = vertices.flatMap(v=>{
+                    let xyz=coerce.toList(v);
+                    if(!Array.isArray(xyz)||xyz.length!=3){
+                        console.warn("vertices should be lists of length 3");
+                        return [];
+                    }
+                    return xyz;
+                });
                 eltType = vertices[0]['ctype'];
             }
         }
@@ -416,8 +477,14 @@ let CindyGL3D = function(api) {
             console.error(`unexpected type for vertex-coordinate: ${eltType}`);
             return nada;
         }
-        let boundingBox=Renderer.boundingTriangles(vertices);
-        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
+        let vCount = vertices.length/3;
+        if(vCount < 3) {
+            console.warn("not enough vertices for triangle");
+            return nada; // not enough vertices
+        }
+        let vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
+        let boundingBox=Renderer.boundingTriangles(vertices,vModifiers);
+        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,vModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
         return nada;
@@ -434,7 +501,7 @@ let CindyGL3D = function(api) {
         var center = coerce.toDirection(api.evaluateAndVal(args[1]));
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
+        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
         return nada;
@@ -452,7 +519,7 @@ let CindyGL3D = function(api) {
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
         let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,plotModifiers);
+        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
         return nada;
@@ -740,16 +807,37 @@ let CindyGL3D = function(api) {
             }
         }
         let plotModifiers=get3DPlotModifiers(modifs);
+        let vModifiers;
+        if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
+            let vCount = obj3d.boundingBox.vertices.length/3;
+            vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
+        } else {
+            vModifiers = new Map();
+        }
         // modifiers changed -> recompile if neccessary
-        if(plotModifiers.size > 0) {
+        if(plotModifiers.size > 0 || vModifiers.size > 0) {
+            let vModsChanged = vModifiers.size > 0;
             // copy unchanged modifiers
             obj3d.plotModifiers.forEach((value,key)=>{
                 if(!plotModifiers.has(key)){
                     plotModifiers.set(key,value);
                 }
             });
+            if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
+                obj3d.boundingBox.vModifiers.forEach((value,key)=>{
+                    if(!vModifiers.has(key)) {
+                        vModifiers.set(key,value);
+                    } else if(value.aName !== undefined) {
+                        // copy attribute names (if existent)
+                        vModifiers.get(key).aName = value.aName;
+                    }
+                });
+            }
+            if(vModsChanged){ // update bounding box
+                obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
+            }
             // update modifers types in renderer
-            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.renderer.depthType,plotModifiers);
+            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.renderer.depthType,obj3d.boundingBox,plotModifiers,vModifiers);
         }
         if(obj3d.renderer.opaque !== wasOpaque){
             // opacity changed
@@ -829,7 +917,7 @@ let CindyGL3D = function(api) {
         var prog = args[1];
 
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog,DepthType.Flat,new Map());
+            prog.renderer = new Renderer(api, prog,DepthType.Flat,Renderer.noBounds(),new Map());
         }
         prog.renderer.renderXR(viewIndex);
 

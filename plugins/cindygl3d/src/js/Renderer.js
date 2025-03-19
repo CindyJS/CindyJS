@@ -23,19 +23,23 @@ Renderer.boundingCylinder = function(pointA,pointB,radius){
 }
 /**
  * @param {Array<number>} vertices list of coordinates in form [x1,y1,z1,x2,y2,z2,x3,...] groups of three vertices form a triangle
+ * @param {Map<string,{values: Array<*>,eltType: type}>} vModifiers vertex modifiers
  */
-Renderer.boundingTriangles = function(vertices){
+Renderer.boundingTriangles = function(vertices,vModifiers){
     if(vertices.length%9 !== 0) {
         console.error("the length of vertices should be a multiple of 9");
     }
-    // TODO optional additional parameters
-    // normals: array[vec3] + normal-type (per-face/per-vertex)
-    // textureCoordinates: array[vec2]  (attached to each vertex)
-    // triangles: array[ivec3] verte indices (to reduce data consumption)
+    // TODO optional additional parameter
+    // triangles: array[ivec3] vertex indices (to reduce data consumption)
+    // ? automatically create vertex indices to compress list of vertices
     return {
-        type: BoundingBoxType.triangles,vertices: vertices
+        type: BoundingBoxType.triangles,vertices: vertices, vModifiers: vModifiers
     };
 }
+
+Renderer.uModifierPrefix = "uModifier_";
+Renderer.vModifierPrefix = "vModifier_";
+Renderer.vModifierPrefixV = "aModifier_";
 
 // remember previous values to detect changes
 Renderer.prevBoundingBoxType = undefined;
@@ -54,16 +58,17 @@ Renderer.resetCachedState = function(){
 /**
  * @param {CindyJS.anyval} expression for the Code that will be used for rendering
  * @param {DepthType} depthType
- * @param {Map<string,{type:type, used: boolean}>} modifierTypes
+ * @param {{type: BoundingBoxType}} boundingBox 
+ * @param {Map<string,{type:type, isuniform: boolean, used: boolean}>} modifierTypes
  * @constructor
  */
-function Renderer(api, expression,depthType,modifierTypes) {
+function Renderer(api, expression,depthType,boundingBox,modifierTypes) {
     this.api = api;
     this.expression = expression;
     this.modifierTypes = modifierTypes;
     this.activeModifierTypes = modifierTypes;
-    this.depthType=depthType;
-    this.boundingBox=Renderer.noBounds();
+    this.depthType = depthType;
+    this.boundingBox = boundingBox;
     this.rebuild(false);
 }
 
@@ -108,14 +113,16 @@ Renderer.prototype.compiletime
 /** @type {boolean} */
 Renderer.prototype.opaque
 
-/** @type {Map<string,{type:type, used: boolean}>} */
+/** @type {Map<string,{type:type, isuniform: boolean, used: boolean}>} */
 Renderer.prototype.modifierTypes
 
 // keep seperate map for active modifers to skip unneccessary checks in render loop
 /** @type {Map<string,{type:type, used: boolean}>} */
 Renderer.prototype.activeModifierTypes
 
-/** @param {Map<string,{type:type, used: boolean}>} newModifierTypes*/
+/**
+ * @param {Map<string,{type:type, isuniform: boolean, used: boolean}>} newModifierTypes
+ * */
 Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
     this.modifierTypes=newModifierTypes;
     this.rebuild(true);
@@ -126,7 +133,7 @@ Renderer.prototype.recompile = function() {
     this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
     this.activeModifierTypes = new Map();
     this.modifierTypes.forEach((value,key)=>{
-        if(!value.used||value.type.type == "cglLazy")
+        if(!value.used||!value.isuniform||value.type.type == "cglLazy")
             return; //ignore unused modifers
         this.activeModifierTypes.set(key,value);
     });
@@ -153,8 +160,21 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         } else if(this.boundingBox.type==BoundingBoxType.cylinder) {
             this.vertexShaderCode = cgl3d_resources["vshader3dCylinder"];
         } else if(this.boundingBox.type==BoundingBoxType.triangles) {
-            // TODO? dependent on vertex data
-            this.vertexShaderCode = cgl3d_resources["vshader3dTriangles"];
+            let attributeVars = "";
+            let attributeCopies = "";
+            let index=0;
+            this.boundingBox.vModifiers.forEach((value,name)=>{
+                // name given to this modifier by code-builder
+                let vname = this.modifierTypes.get(name).uniformName;
+                value.aName = Renderer.vModifierPrefixV+index;
+                // TODO? create structs for composite types
+                attributeVars +=`in  ${webgltype(value.eltType)} ${value.aName};\nout ${webgltype(value.eltType)} ${vname};\n`;
+                attributeCopies += `${vname}=${value.aName};\n`;
+                index++;
+            });
+            this.vertexShaderCode = `${cgl3d_resources["vshader3dTrianglesHeader"]}${attributeVars}`+
+            `void main(void){\n${attributeCopies}${cgl3d_resources["vshader3dTrianglesCode"]}}`;
+            console.log(this.vertexShaderCode);
         } else {
             console.error("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl3d_resources["vshader3d"];
@@ -192,28 +212,124 @@ Renderer.prototype.updateVertices = function() {
     }
     this.updateAttributes();
 }
+
+Renderer.computeAttributeData = function (eltType,values){
+    let eltConverter = undefined;
+    let attributeType = gl.FLOAT;
+    switch (eltType) {
+        case type.complex:
+            eltConverter = (elts,val) => elts.concat(val['value']['real'], val['value']['imag']);
+            break;
+        case type.bool:
+            eltConverter = (elts,val) => elts.concat((val['value']) ? 1 : 0);
+            attributeType = gl.BYTE;
+            break;
+        case type.int:
+            eltConverter = (elts,val) => elts.concat(val['value']['real']);
+            attributeType = gl.INT;
+            break;
+        case type.float:
+            eltConverter = (elts,val) => elts.concat(val['value']['real']);
+            break;
+        case type.point:
+        case type.line:
+            eltConverter = (elts,val) => {
+                if (val.ctype === 'geo') {
+                    return elts.concat(val['value']['homog']['value'].map(x => x['value']['real']));
+                } else if (val.ctype === 'list' && val['value'].length === 2) {
+                    return elts.concat(val['value'].map(x => x['value']['real'])).concat([1]);
+                } else if (val.ctype === 'list' && val['value'].length === 3) {
+                    return elts.concat(val['value'].map(x => x['value']['real']));
+                }
+                console.error("unexpected value for geometry object: ",val);
+            }
+            break;
+        default:
+            if(eltType.parameters === type.int) {
+                attributeType = gl.INT;
+            }
+            // TODO? do i need special handling for composite attributes
+            //  or is structure memory layout linear in memory
+            if (eltType.type === 'list' && (eltType.parameters === type.float
+                    || eltType.parameters === type.int)) { // float-list or int-list
+                eltConverter = (elts,val) => elts.concat(val['value'].map(x => x['value']['real']));
+                break;
+            } else if (eltType.type === 'list' && eltType.parameters.type === 'list'
+                && eltType.parameters.parameters === type.float) { //float matrix
+                eltConverter = (elts,val) => {
+                    //probably: if isnativeglsl?
+                    for (let j = 0; j < eltType.length; j++)
+                        for (let i = 0; i < eltType.parameters.length; i++)
+                            elts.push(val['value'][j]['value'][i]['value']['real']);
+                    return elts;
+                }
+            }
+            break;
+    }
+    if(!eltConverter) {
+        console.error(`Don't know how to set vertex attribute array of type ${typeToString(eltType)}, to`);
+        console.log(values);
+        return {aData: undefined, aSize: 0, aType: attributeType};
+    }
+    let data = [];
+    values.forEach(elt => {data = eltConverter(data,elt);});
+    let aData = attributeType == gl.FLOAT ?
+        new Float32Array(data) :
+        attributeType == gl.INT ?
+            new Int32Array(data) :
+            new Int8Array(data);
+    return {aData: aData, aSize: aData.length/values.length, aType: attributeType};
+}
+// TODO? seperate version for triangles
 Renderer.prototype.updateAttributes = function() {
     Renderer.prevBoundingBoxType=this.boundingBox.type;
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
+    var texCoordOffset = this.vertices.byteLength;
+    let totalBufferSize = texCoordOffset;
     var texCoords;
-    if(this.boundingBox.type==BoundingBoxType.triangles){
+    if(this.boundingBox.type == BoundingBoxType.triangles) {
         if(this.boundingBox.texCoords){
-            texCoords = new Float32Array(this.boundingBox.texCoords);
+            texCoords = this.boundingBox.texCoords;
         } else {
+            // texCoords is unsed by random operator
+            // -> TODO? generate unique coordinates for each pixel
+            // TODO? compress using index table
             let baseCoords = [0, 0, 1, 0, 0, 1];
             texCoords = []; // ! no let here, this is the function-level variable
-            for(let i=0;i<this.vertices.length;i+=3){
+            for(let i=0;i<this.vertices.length;i+=9){ // 3floats / vertex * 3 vertex / triangle
                 texCoords = texCoords.concat(baseCoords);
             }
             texCoords = new Float32Array(texCoords);
+            this.boundingBox.texCoords =texCoords;
         }
-    }else {
+        totalBufferSize+=texCoords.byteLength;
+
+        let index=0;
+        // TODO? compress vertex data using element index table
+        // find name and location of vertex modifier attributes
+        this.boundingBox.vModifiers.forEach((value)=>{
+            // compute name if it does not curently exist
+            let aName = value.aName || Renderer.vModifierPrefixV+index;
+            let aLoc = gl.getAttribLocation(this.shaderProgram.handle, aName);
+            if(aLoc != -1)
+                gl.enableVertexAttribArray(aLoc);
+            value.aLoc = aLoc;
+            value.aOffset = totalBufferSize;
+            if(value.aData === undefined) {
+                let aData = Renderer.computeAttributeData(value.eltType,value.values);
+                value.aData = aData.aData;
+                value.aSize = aData.aSize;
+                value.aType = aData.aType;
+            }
+            totalBufferSize += value.aData.byteLength;
+            index ++;
+        });
+    } else {
         texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+        totalBufferSize+=texCoords.byteLength;
     }
-    var texCoordOffset = this.vertices.byteLength;
-    let totalBufferSize = texCoordOffset;
 
     var aPosLoc = gl.getAttribLocation(this.shaderProgram.handle, "aPos");
     gl.enableVertexAttribArray(aPosLoc);
@@ -221,16 +337,23 @@ Renderer.prototype.updateAttributes = function() {
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
     if(aTexLoc!=-1){ // aTexCoord may get optimized out
         gl.enableVertexAttribArray(aTexLoc);
-        totalBufferSize+=texCoords.byteLength;
     }
 
     gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
 
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    if(aTexLoc!=-1){ // aTexCoord may get optimized out
+    if(aTexLoc!=-1) { // aTexCoord may get optimized out
         gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
         gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
+    if(this.boundingBox.type == BoundingBoxType.triangles) {
+        this.boundingBox.vModifiers.forEach((value)=>{
+            if(value.aLoc < 0 || value.aSize <= 0)
+                return; // no attribute / no data
+            gl.bufferSubData(gl.ARRAY_BUFFER, value.aOffset, value.aData);
+            gl.vertexAttribPointer(value.aLoc, value.aSize, value.aType, false, 0, value.aOffset);
+        });
     }
 }
 
@@ -520,8 +643,8 @@ Renderer.prototype.updateCoordinateUniforms = function() {
  * or if argument canvaswrapper is not given, then to glcanvas
  */
 Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
-    let needsRebuild=this.boundingBox.type!=boundingBox.type;
-    this.boundingBox=boundingBox;
+    let needsRebuild = this.boundingBox.type!=boundingBox.type;
+    this.boundingBox = boundingBox;
     if ((Renderer.prevShader!==this.shaderProgram) // only check functions once per shader program per drawCycle
             && (!this.functionGenerationsOk())){
         this.rebuild(true);
@@ -531,7 +654,9 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
         this.updateVertices();
         Renderer.prevProjection=CindyGL3D.projectionMatrix;
         Renderer.prevTrafo=undefined;
-    }else if(this.boundingBox.type!=Renderer.prevBoundingBoxType){
+    }else if(this.boundingBox.type == BoundingBoxType.triangles){
+        this.updateVertices();
+    }else if(this.boundingBox.type != Renderer.prevBoundingBoxType){
         this.updateAttributes();
     }
 

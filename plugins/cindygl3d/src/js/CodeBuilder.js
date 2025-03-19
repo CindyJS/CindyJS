@@ -110,7 +110,6 @@ CodeBuilder.builtIns=new Map([
     ["cglPointB",{type:"uniform",code:"",expr:"uPointB",valueType:type.vec3,writable:false}]
 ]);
 CodeBuilder.cindygl3dPrefix="cgl";
-CodeBuilder.modifierPrefix="uModifier_";
 
 /**
  * Creates new term that is casted to toType
@@ -383,7 +382,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             for (let i in expr['args']) {
                 let vname = expr['args'][i]['name'];
                 if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
-                    console.wran(`${vname}: identifiers starting with ${CodeBuilder.cindygl3dPrefix} are reserved for internal use`);
+                    console.warn(`${vname}: identifiers starting with ${CodeBuilder.cindygl3dPrefix} are reserved for internal use`);
                 }
                 let iname = generateUniqueHelperString();
                 bindings[vname] = iname;
@@ -525,8 +524,14 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             }else if(self.modifierTypes.has(vname)){
                 // give each modifier a unique id
                 if(!self.modifierNames.has(vname)){
-                    self.modifierNames.set(vname,
-                        CodeBuilder.modifierPrefix+self.modifierNames.size);
+                    let modType = self.modifierTypes.get(vname);
+                    if(modType.isuniform) {
+                        self.modifierNames.set(vname,
+                            Renderer.uModifierPrefix+self.modifierNames.size);
+                    } else {
+                        self.modifierNames.set(vname,
+                            Renderer.vModifierPrefix+self.modifierNames.size);
+                    }
                 }
                 expr["ismodifier"] = true;
                 return expr["dependsOnPixel"] = true;
@@ -1283,9 +1288,12 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
             ans.push(`uniform ${webgltype(this.uniforms[uname].type)} ${uname};`);
         }
     this.modifierTypes.forEach((value,name)=>{
+        if(value.type.type == 'cglLazy') return;
         // TODO? should image modifiers be allowed
-        if(value.type.type != 'cglLazy') {
+        if(value.isuniform) {
             ans.push(`uniform ${webgltype(value.type)} ${this.modifierNames.get(name)};`);
+        } else { // TODO? locations
+            ans.push(`in ${webgltype(value.type)} ${this.modifierNames.get(name)};`);
         }
     });
     return ans.join('\n');

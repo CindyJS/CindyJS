@@ -17,7 +17,7 @@ All CindyGL functions are preserved with their original behaviour.
 * `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
-* `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of trinagles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
+* `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of triangles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
      - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
      - [v1,v2,v3,v4,...]            list of vertices
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
@@ -58,7 +58,9 @@ Due to compiler limitations the source code still has to be valid if all `cglDis
 ## Plot Modifiers
 
 Modifiers passed to `colorplot3d` that are prefixed with `U` can be used as constant values in the color-plot expression (without the `U` prefix).
-The values of the constant are directly associated with the draw object and can be changed by calling `cglUpdate` with the matching modifiers.
+For plots on triangular meshes defined using the `colorPlot3d(<expr>,<triangles>)` function, it is additionally possible to attach a value to each vertex by prefixing the variable name with `V` and attaching the array of all values (in the same order as the corresponding vertices).
+
+The values of the constants are directly associated with the drawn object and can be changed by calling `cglUpdate` with the matching modifiers.
 
 ## Primitive objects
 
@@ -66,13 +68,15 @@ The file `scripts/cglInit.cjs` contains definitions for gemometric primitive obj
 
 * `sphere(center: vec3,radius: float,color: vec3|vec4)` a sphere with the given midpoint, radius and color
 * `colorplotSphere(center: vec3,radius: float,pixelExpr: cglLazy,projection: cglLazy)` a sphere with the given midpoint, radius the color is computed by applying the given `projection` to the normal vector and then evaluating `pixelExpr` at that position
-* `colorplotSphere(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection linearly maps the angles on the sphere to points in the unit square `[0,1]x[0,1]` 
+* `colorplotSphere(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection linearly maps the angles on the sphere to points in the unit square `[0,1]x[0,1]`
 * `colorplotSphereC(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection stereographically maps the sphere to the complex projective line CP1
 * `cylinder(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a (uncaped) cylinder with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
 * `colorplotCylinder(pointA: vec3,pointB: vec3,radius: float,pixelExpr: cglLazy)` draws a (uncaped) cylinder with the given endpoints and radius the color is computed by evaluating `pixelExpr` at `[a: float,h: float]`, where `a` is the angle around the cylinder and `h` is the higth of the current point starting at `pointA` going towards `pointB` both values are mapped to the interval `[0,1]`
 * `rod(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a cylinder with round endcaps, with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
 * `torus(center: vec3,orientation: vec3,radius1: float,radius2: float,color: vec3|vec4)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` with color `color`
 * `colorplotTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` the pixel colors will be determined using `pixelExpr` at the position `[a,b]` where `a` and `b` are the angles along the two circles, both mappped to the interval `[0,1]`
+* `background(color: vec3|vec4)` fill the back of the canvas with the given color (ignores ligthing information)
+* `polygon3d(vertices: list<vec3>,color: vec3|vec4)` plot a single colored polygon with the given vertex set (currently only works correctly for convex polygons)
 
 all main plotting functions take a modifier `Ulight: cglLazy` that can be used to modify the lighting calucation,
 the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order.

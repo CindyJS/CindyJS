@@ -26,29 +26,29 @@
 
             r1 = 0.1;
 
-            cglBegin3d(z0->-5);
-            v1 = [1,0,0];
-            v2 = [0,1,0];
-            v3 = [0,0,1];
+            cglBegin3d(z0->-10);
+            v1 = [1,1,1];
+            v2 = [1,1,-1];
+            v3 = [1,-1,1];
+            v4 = [1,-1,-1];
+            v5 = [-1,1,1];
+            v6 = [-1,1,-1];
+            v7 = [-1,-1,1];
+            v8 = [-1,-1,-1];
+            col1 = [1,0,0];
+            col2 = [0,1,0];
+            col3 = [0,0,1];
+            col4 = [1,1,1];
+            col5 = [1,1,0];
+            col6 = [1,0.5,0];
 
-            triangleTextureD():=(
-              [cglDepth,1-cglDepth,0]
-            );
-            triangleTextureC():=(
-              color
-            );
-
-            update():=(
-              sphere(v1,r1,v1);
-              sphere(v2,r1,v2);
-              sphere(v3,r1,v3);
-              colorplot3d(triangleTextureC(),[v1,v2,v3],Vcolor->[v1,v2,v3]);
-              colorplotSphere(-v1,r1,cglLazy(pos,triangleTextureD()));
-              colorplotSphere(-v2,r1,cglLazy(pos,triangleTextureD()));
-              colorplotSphere(-v3,r1,cglLazy(pos,triangleTextureD()));
-              colorplot3d(triangleTextureD(),[-v1,-v2,-v3]);
-            );
-            update();
+            background(gray(.7));
+            polygon3d([v1,v3,v4,v2],col1);
+            polygon3d([v1,v2,v6,v5],col2);
+            polygon3d([v3,v7,v8,v4],col3);
+            polygon3d([v1,v5,v7,v3],col4);
+            polygon3d([v2,v4,v8,v6],col5);
+            polygon3d([v5,v6,v8,v7],col6);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
