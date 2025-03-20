@@ -4,7 +4,9 @@
    // use same z-coordinate as cglInit shaders
    // TODO find better way to synchronize z-coords between surface and triangle renderers
    //   ? is distance from viewPosition constant?
-   float z = length(aPos-cgl_viewPos)/(2.*length(cgl_viewPos));
+   float v = length(cgl_viewPos);
+   float d = length(aPos-cgl_viewPos);
+   float z = 1. - v/(d+v);
    gl_Position = vec4(
       screenPos.xy/screenPos.w,
       // TODO is there a way to modify the clip planes in webgl

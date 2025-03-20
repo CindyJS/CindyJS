@@ -4,6 +4,13 @@ use("CindyGL3D");
 // collection of CindyScript code for drawing elementary shapes with CindyGL3D
 normalize(v):=(v/|v|); // TODO? make built-in
 
+/** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */
+cglSetDepth(rawDepth):=(
+  regional(v);
+  v = |cglViewPos|;
+  cglDepth = 1-(v/(rawDepth+v));
+);
+
 cglSphereNormalAndDepth(direction,center):=(
   regional(vc,b2,c,D4,dst,pos3d,normal);
   // |v+l*d -c|=r
@@ -15,7 +22,7 @@ cglSphereNormalAndDepth(direction,center):=(
   if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
   dst=-b2-re(sqrt(D4));// sqrt should always be real
   pos3d = cglViewPos+ dst*direction;
-  cglDepth = dst/(2*|cglViewPos|);
+  cglSetDepth(dst);
   normal = normalize(pos3d - center);
   [normal_1,normal_2,normal_3]
 );
@@ -133,13 +140,13 @@ cgl3dCylinderNormalAndHeigth(direction):=(
   v1 = (cglViewPos+l_1*direction)-cglPointA;
   delta1 = (v1*U);
   if((delta1>0)& (delta1<1),
-    cglDepth = (l_1)/(2*|cglViewPos|);
+    cglSetDepth(l_1);
     normal = normalize(v1-delta1*BA);
     (normal_1,normal_2,normal_3,delta1),
     v2 = (cglViewPos+l_2*direction)-cglPointA;
     delta2 = v2*U;
     if((delta2<0) % (delta2>1),cglDiscard());
-    cglDepth = (l_2)/(2*|cglViewPos|);
+    cglSetDepth(l_2);
     normal = normalize(v2-delta2*BA);
     (normal_1,normal_2,normal_3,delta2)
   );
@@ -212,7 +219,7 @@ cgl3dArcRodNormalAndRadius(direction):=(
   planeOffset = pos3d*arcDirection;
   // check if A and B are on same side of normal plane to torus through pos3d, add small tolerance to balance out numerical errors
   if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))<1e-5,
-    cglDepth = (l_1)/(2*|cglViewPos|);
+    cglSetDepth(l_1);
     arcCenter = tCenter+tRadius*radiusDirection;
     normal = normalize(pos3d - arcCenter),
     // TODO add option to ignore inner side (e.g. for drawing closed torus)
@@ -222,7 +229,7 @@ cgl3dArcRodNormalAndRadius(direction):=(
     arcDirection = normalize(cross(radiusDirection,tOrientation));
     planeOffset = pos3d*arcDirection;
     if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))>1e-5,cglDiscard());
-    cglDepth = (l_2)/(2*|cglViewPos|);
+    cglSetDepth(l_2);
     arcCenter = tCenter+tRadius*radiusDirection;
     normal = normalize(pos3d - arcCenter);
   );

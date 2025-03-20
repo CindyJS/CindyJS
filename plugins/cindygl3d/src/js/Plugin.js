@@ -404,6 +404,39 @@ let CindyGL3D = function(api) {
         }
     }
     /**
+     * @param {*} modifs
+     * @param {string} name
+     * @param {number} defValue
+     * @returns {number} */
+    function getRealModifier(modifs,name,defValue) {
+        if(!modifs.hasOwnProperty(name))
+            return defValue;
+        return coerce.toReal(api.evaluateAndVal(modifs[name]),defValue);
+    }
+    /**
+     * @param {*} modifs
+     * @param {string} name
+     * @param {Array<number>} defValue
+     * @returns {Array<number>} */
+    function getPoint2DModifier(modifs,name,defValue) {
+        if(!modifs.hasOwnProperty(name))
+            return defValue;
+        let val0 = api.evaluateAndVal(modifs[name]);
+        val0 = coerce.toList(val0);
+        if(val0 === null)
+            return defValue;
+        /**@type {Array<number>} */
+        let val = val0.map(coerce.toReal);
+        if(val.length < 2) {
+            console.warn(`not enough elements for point ${name} expected 2 got ${val.length}`);
+            return val.length > 0 ? [val[0],val[0]] : defValue;
+        } else if(val.length > 2) {
+            console.warn("point has to many components, truncating");
+            return val.slice(0,2);
+        }
+        return val;
+    }
+    /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
      */
@@ -548,23 +581,35 @@ let CindyGL3D = function(api) {
         CindyGL3D.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         CindyGL3D.coordinateSystem.transformedViewPos=CindyGL3D.coordinateSystem.viewPosition;
     };
-    api.defineFunction("cglBegin3d", 0, (args, modifs) => {
-        initGLIfRequired();
-        CindyGL3D.mode3D=true;
+    let updateCoordSytem = function(modifs) {
         let ul=computeUpperLeftCorner(api);
         let lr=computeLowerRightCorner(api);
-        let z0 = modifs.hasOwnProperty("z0") ?
-            api.evaluateAndVal(modifs["z0"])["value"]["real"] : -10;
-        // TODO? make z-coords customizable
+        let x0 = getRealModifier(modifs,"x0",ul.x);
+        let x1 = getRealModifier(modifs,"x1",lr.x);
+        let y0 = getRealModifier(modifs,"y0",lr.y);
+        let y1 = getRealModifier(modifs,"y1",ul.y);
+        [x0, y0] = getPoint2DModifier(modifs,"p0",[x0, y0]);
+        [x1, y1] = getPoint2DModifier(modifs,"p1",[x1, y1]);
+        let z1 = getRealModifier(modifs,"z1",0);
+        let z0 = getRealModifier(modifs,"z0",z1-2*Math.abs(x1-x0));
+        let zoom = getRealModifier(modifs,"zoom",1);
         CindyGL3D.coordinateSystem = {
-            x0: ul.x , x1: lr.x, y0: lr.y, y1: ul.y,
-            z0: z0, z1:0, zoom: 1,
+            x0: x0 , x1: x1, y0: y0, y1: y1,
+            z0: z0, z1: z1, zoom: zoom,
             // will be correctly initialized by recomputeProjMatrix()
             viewPosition: [0,0,0,0], transformedViewPos: [0,0,0,0]
         };
-        resetRotation();
         recomputeProjMatrix();
+    }
+    api.defineFunction("cglBegin3d", 0, (args, modifs) => {
+        initGLIfRequired();
+        CindyGL3D.mode3D=true;
+        resetRotation();
+        updateCoordSytem(modifs);
         return nada;
+    });
+    api.defineFunction("cglCoordSystem", 0, (args, modifs) => {
+        updateCoordSytem(modifs);
     });
     api.defineFunction("cglViewPos", 0, (args, modifs) => { // TODO? variable instead of function
         // TODO? initialize coordinate-system if not existent

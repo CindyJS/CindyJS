@@ -121,6 +121,7 @@
               spoly = B*spolyvalues; // interpolate
               D = (spoly_2*spoly_2)-4.*spoly_3*spoly_1; //discriminant of spoly
               if(D<0, //ray intersects ball
+                cglDepth=oo;
                 [0,0,0,0],
                 lambda=(-spoly_2-re(sqrt(D)))/(2.*spoly_3);
                 spacePos = ray(direction,viewPos, lambda);

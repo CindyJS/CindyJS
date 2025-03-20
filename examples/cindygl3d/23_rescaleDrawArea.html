@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+    <script id="csmousedown" type="text/x-cindyscript">
+        x0 = mouse().x;
+        y0 = mouse().y;
+        dragging = x0 < 2;
+    </script>
+    <script id="csmouseup" type="text/x-cindyscript">
+        dragging = false;
+    </script>
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: change size of view-area while keeping view position the same</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            oo = 1000; //"infinity"
+            t0 = seconds();
+            addlight(oldcolor, lightcolor, lightdir, normal, gamma) := (
+              illumination = max(0,(lightdir/abs(lightdir))*normal);
+              oldcolor + (illumination^gamma)*lightcolor
+            );
+            normalize(v):=(v/|v|);
+            light=cglLazy((color,viewDirection,normal),
+                lightdir0 = (10, 10, 10)-cglViewPos+cglDepth*viewDirection;
+                lightdir3 = 10*cglViewPos;
+                lightdir4 = -10*cglViewPos;
+                color0 = .2*(1,1,1)+.3*color;
+                color1 = (1,1,1)-color;
+                addlight(addlight(addlight(
+                  (0,0,0),
+                  color0, lightdir0, -normal, 2),
+                  color1, lightdir3, -normal, 2),
+                  color, lightdir4, -normal, 2);
+            );
+            prevN=0;
+            cglBegin3d();
+            forall(-24..24,x,
+              forall(-24..24,y,
+                sphere([2*x,2*y,0],1,[0,1,0],Ulight->light);                
+              )
+            )
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 2 * (mouse().x -sx); dy = 2 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            y=A.y;
+            if(y<S0.y,y=S0.y);
+            if(y>S1.y,y=S1.y);
+            S=31*(y-S0.y)/(S1.y-S0.y)+1;// 1 .. 32
+            A.xy=(S0.x,y);
+            y=B.y;
+            if(y<Z0.y,y=Z0.y);
+            if(y>Z1.y,y=Z1.y);
+            Z=30.5*(y-Z0.y)/(Z1.y-Z0.y)+1.5;// 1.5 .. 32
+            B.xy=(Z0.x,y);
+
+            cglCoordSystem(p0->[-S,-S],x1->1.25*S,y1->S,z0->Z);
+            cglDraw3d();
+            drawtext(A+(.03,.03),format(S,1));
+            drawtext(B+(.03,.03),format(Z,1));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 576,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2.5, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "S0", type: "Free", pos: [2, -1.5], color: [0, 1, 0], pinned: true, size: 4 },
+                    { name: "S1", type: "Free", pos: [2, 1.5], color: [1, 0, 0], pinned: true, size: 4 },
+                    { name: "l1", type: "Segment", args: ["S0", "S1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "A", type: "Free", pos: [2, -1.0], color: [0, 0, 1], pinned: false,narrow: true, size: 4 },
+                    { name: "Z0", type: "Free", pos: [2.25, -1.5], color: [0, 1, 0], pinned: true, size: 4 },
+                    { name: "Z1", type: "Free", pos: [2.25, 1.5], color: [1, 0, 0], pinned: true, size: 4 },
+                    { name: "l2", type: "Segment", args: ["Z0", "Z1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "B", type: "Free", pos: [2.25, -1.0], color: [0, 0, 1], pinned: false,narrow: true, size: 4 },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                },
+            });
+        </script>
+    </body>
+</html>

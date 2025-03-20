@@ -7,7 +7,9 @@
 
 All CindyGL functions are preserved with their original behaviour.
 
-* `cglBegin3d` start 3D mode, and reset coordinate system, the modifier `z0` can be used to set the initial viewDepth (z0 should be a negative real number, the default is `-10`. a good range of values is approximately `-2` to `-20` )
+* `cglBegin3d()` start 3D mode, and reset coordinate system, the modifier `z0` can be used to set the initial viewDepth (for rotations to work correctly z0 should be a negative real number).
+The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `y1` (or `p0`/`p1` for setting both coordinates of a corner at once), the z-coordinate of the view-plane can be set with `z1`.
+* `cglCoordSystem()` allows updating the coordinate system set with `cglBegin3d`
 * `rotate3d(<alpha>,<beta>)` rotate coordinate system
 * `zoom3d(<zoom>)` set coordinate system scaling factor to given value
 * `cglResetRotation` reset rotation
