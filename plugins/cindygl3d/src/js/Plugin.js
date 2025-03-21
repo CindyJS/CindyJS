@@ -604,7 +604,9 @@ let CindyGL3D = function(api) {
     api.defineFunction("cglBegin3d", 0, (args, modifs) => {
         initGLIfRequired();
         CindyGL3D.mode3D=true;
-        resetRotation();
+        if(typeof(CindyGL3D.trafoMatrix) === "undefined"){
+            resetRotation();
+        }
         updateCoordSytem(modifs);
         return nada;
     });
@@ -693,6 +695,8 @@ let CindyGL3D = function(api) {
         */
         /** @type{Set<CindyGL3DObject>} */
         const wrongOpacity = new Set();
+        // TODO? put this line at end of render loops using frame-buffer
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); // ensure frame-buffers are detached before clearing canvas
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
         if(CindyGL3D.objectBuffer.translucent.size>0){
             // draw translucent objects without depth testing

@@ -1315,6 +1315,18 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
     let r = this.compile(expr, true);
     let rtype = this.getType(expr);
 
+
+    let hasAlpha = (rtype === type.color ||
+        rtype.type === 'list' && rtype.length >= 4);
+
+    let colorterm;
+    if (!issubtypeof(rtype, type.color)) {
+        console.error("expression does not generate a color");
+        colorterm=`vec4(.5,.5,.5,1.);\n`; // replace broken shader with solid gray region
+    }else{
+        colorterm = this.castType(r.term, rtype, type.color);
+    }
+
     let code = this.generateSection('structs');
     code += this.generateSection('uniforms');
     code += this.generateListOfUniforms();
@@ -1341,12 +1353,10 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
         this.modifierTypes.get(name).uniformName=uniformName;
     });
 
-    let hasAlpha = (rtype === type.color ||
-        rtype.type === 'list' && rtype.length >= 4);
     return {
         code: code,
-        colorExpr: r,
-        colorType: rtype,
+        colorCode: r.code,
+        colorTerm: colorterm,
         opaque: !hasAlpha,
         uniforms: this.uniforms,
         texturereaders: this.texturereaders,
@@ -1355,16 +1365,8 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
 };
 CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     let code=plotProgram.code;
-    let colorExpr=plotProgram.colorExpr;
-    let colorType=plotProgram.colorType;
-
-    let colorterm;
-    if (!issubtypeof(colorType, type.color)) {
-        console.error("expression does not generate a color");
-        colorterm=`vec4(.5,.5,.5,1.);\n`; // replace broken shader with solid gray region
-    }else{
-        colorterm = this.castType(colorExpr.term, colorType, type.color);
-    }
+    let colorCode=plotProgram.colorCode;
+    let colorTerm=plotProgram.colorTerm;
 
     //JRG: THis snipped is used to bypass an error caused
     //by the current WebGL implementation on most machines
@@ -1388,7 +1390,7 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     if(depthType==DepthType.Flat||depthType==DepthType.Nearest){
         // set depth at start of procedure to ensure value is updated on every path
         // TODO! do not write to depth if code does not use cglDepth
-        code += `void main(void) {\n ${randompatch} ${initDepth} ${colorExpr.code} fragColor = ${colorterm};\n${setDepth}}\n`;
+        code += `void main(void) {\n ${randompatch} ${initDepth} ${colorCode} fragColor = ${colorTerm};\n${setDepth}}\n`;
     }else{
         console.error("unsupported depth type");
     }
