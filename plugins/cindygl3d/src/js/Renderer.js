@@ -643,20 +643,21 @@ Renderer.prototype.updateCoordinateUniforms = function() {
  * or if argument canvaswrapper is not given, then to glcanvas
  */
 Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
-    let needsRebuild = this.boundingBox.type!=boundingBox.type;
+    let shaderChanged = Renderer.prevShader !== this.shaderProgram;
+    let needsRebuild = this.boundingBox.type !== boundingBox.type;
     this.boundingBox = boundingBox;
-    if ((Renderer.prevShader!==this.shaderProgram) // only check functions once per shader program per drawCycle
-            && (!this.functionGenerationsOk())){
+    if (shaderChanged && (!this.functionGenerationsOk())) { // only check functions once per shader program per drawCycle
         this.rebuild(true);
-    }else if(needsRebuild){
+    } else if(needsRebuild) {
         this.rebuild(false);
-    }else if(CindyGL3D.projectionMatrix!=Renderer.prevProjection){
+    } else if(CindyGL3D.projectionMatrix !== Renderer.prevProjection) {
         this.updateVertices();
         Renderer.prevProjection=CindyGL3D.projectionMatrix;
         Renderer.prevTrafo=undefined;
-    }else if(this.boundingBox.type == BoundingBoxType.triangles){
+    } else if(shaderChanged || this.boundingBox.type === BoundingBoxType.triangles) {
+        // TODO? don't update vertices for every shader change
         this.updateVertices();
-    }else if(this.boundingBox.type != Renderer.prevBoundingBoxType){
+    } else if(this.boundingBox.type !== Renderer.prevBoundingBoxType) {
         this.updateAttributes();
     }
 
@@ -669,7 +670,7 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
             gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
     }
 
-    if(Renderer.prevShader!==this.shaderProgram){
+    if(shaderChanged){
         this.shaderProgram.use(gl);
         Renderer.prevShader = this.shaderProgram;
         this.prepareUniforms();
