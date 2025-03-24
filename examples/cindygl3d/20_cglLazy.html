@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Cindy JS</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
@@ -18,7 +18,7 @@
             dragging = false;
         </script>
         <script id="csinit" type="text/x-cindyscript">
-            use("CindyGL3D");
+            use("CindyGL");
             
             f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
             g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));

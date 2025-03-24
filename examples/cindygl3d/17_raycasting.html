@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Cindy JS</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
@@ -403,7 +403,7 @@
                 canvasname: "CSCanvas",
                 scripts: "cs*",
                 animation: { autoplay: true },
-                use: ["CindyGL3D", "katex"],
+                use: ["CindyGL", "katex"],
                 geometry: [
                     {
                         name: "PA",
@@ -442,7 +442,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
                 },
             });
         </script>

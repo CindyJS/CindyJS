@@ -1,7 +1,6 @@
-// cindyscript source for drawing elementary geometric objects in CindyGL3D
-// TODO is this the correct file extension
-use("CindyGL3D");
-// collection of CindyScript code for drawing elementary shapes with CindyGL3D
+// collection of CindyScript functions for drawing elementary shapes with CindyGL3D
+use("CindyGL");
+
 normalize(v):=(v/|v|); // TODO? make built-in
 
 /** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */

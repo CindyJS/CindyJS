@@ -27,8 +27,6 @@ module.exports = function Settings() {
         cc_closure_warnings: "DEFAULT",
         cgl_closure_level: "ADVANCED",
         cgl_closure_warnings: "VERBOSE",
-        cgl3d_closure_level: "ADVANCED",
-        cgl3d_closure_warnings: "VERBOSE",
         qh3d_closure_warnings: "DEFAULT",
         qh3d_closure_level: "SIMPLE",
         gwt_version: "2.7.0",

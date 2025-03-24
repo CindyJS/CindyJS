@@ -26,6 +26,11 @@ function genchilds(t) {
             type: type.vec(k),
             name: `a${i}`
         }));
+    } else if (d == 1 && fp === type.int) {
+        return sizes(t.length).map((k, i) => ({
+            type: type.ivec(k),
+            name: `a${i}`
+        }));
     } else if (d >= 1) {
         return range(t.length).map(i => ({
             type: t.parameters,
@@ -191,6 +196,16 @@ function usevec(n) {
         ).join(',')
       })`;
 }
+function useintvec(n) {
+    if (2 <= n && n <= 4) return args => `ivec${n}(${args.join(',')})`;
+    if (n == 1) return args => `int(${args.join(',')})`;
+    let cum = 0;
+    return (args, modifs, codebuilder) => createstruct(type.ivec(n), codebuilder) || `ivec${n}(${
+        sizes(n).map( s =>
+          `ivec${s}(${range(s).map(l => ++cum && args[cum-1]).join(',')})`
+        ).join(',')
+      })`;
+}
 
 function uselist(t) {
     let d = depth(t);
@@ -198,13 +213,14 @@ function uselist(t) {
         return (args, modifs, codebuilder) => `${webgltype(t)}(${args.join(',')})`;
     }
     if (d == 1 && t.parameters === type.float) return usevec(t.length);
+    if (d == 1 && t.parameters === type.int) return useintvec(t.length);
     return (args, modifs, codebuilder) => createstruct(t, codebuilder) || `${webgltype(t)}(${args.join(',')})`;
 }
 
 function accesslist(t, k) {
     let d = depth(t);
     let fp = finalparameter(t);
-    if (d == 1 && fp === type.float) {
+    if (d == 1 && (fp === type.float || fp === type.int)) {
         return accessvecbyshifted(t.length, k);
     } else if (isnativeglsl(t)) {
         return (args, modifs, codebuilder) => `(${args[0]})[${k}]`;

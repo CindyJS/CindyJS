@@ -411,74 +411,6 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
-    // Build JavaScript version of CindyGL3D
-    //////////////////////////////////////////////////////////////////////
-
-    var cgl3d_str_res = glob.sync("plugins/cindygl3d/src/str/*.glsl");
-
-    var cgl3d_mods = [
-        "Init",
-        "General",
-        "CanvasWrapper",
-        "Renderer",
-        "Plugin",
-        "TypeHelper",
-        "IncludeFunctions",
-        "LinearAlgebra",
-        "Sorter",
-        "WebGL",
-        "CodeBuilder",
-        "TextureReader",
-    ];
-
-    var cgl3d_mods_from_c3d = ["Interface", "ShaderProgram"];
-
-    var cgl3d_mods_srcs = cgl3d_mods.map(function (name) {
-        return "plugins/cindygl3d/src/js/" + name + ".js";
-    });
-
-    var cgl3d_mods_from_c3d_srcs = cgl3d_mods_from_c3d.map(function (name) {
-        return "plugins/cindy3d/src/js/" + name + ".js";
-    });
-
-    task("cgl3dres", [], function () {
-        cgl3d_str_res.forEach(this.input, this);
-        this.node(
-            "tools/files2json.js",
-            "-varname=cgl3d_resources",
-            "-output=" + this.output("build/js/cgl3dres.js"),
-            cgl3d_str_res
-        );
-    });
-
-    task("cindygl3d", ["cgl3dres", "closure-jar"], function () {
-        this.setting("closure_version");
-        var opts = {
-            language_in: "ECMASCRIPT6_STRICT",
-            language_out: "ECMASCRIPT6_STRICT",
-            dependency_mode: "PRUNE_LEGACY",
-            create_source_map: "build/js/CindyGL3D.js.map",
-            compilation_level: this.setting("cgl3d_closure_level"),
-            warning_level: this.setting("cgl3d_closure_warnings"),
-            source_map_format: "V3",
-            source_map_location_mapping: ["build/js/|", "plugins/|../../plugins/"],
-            output_wrapper_file: "plugins/cindygl3d/src/js/CindyGL3D.js.wrapper",
-            js_output_file: "build/js/CindyGL3D.js",
-            externs: "plugins/cindyjs.externs",
-            js: ["build/js/cgl3dres.js"].concat(cgl3d_mods_srcs).concat(cgl3d_mods_from_c3d_srcs),
-        };
-        if (this.setting("cindygl3d-dbg") !== undefined) {
-            opts.compilation_level = "WHITESPACE_ONLY";
-            opts.formatting = "PRETTY_PRINT";
-        }
-        this.closureCompiler(closure_jar, opts);
-    });
-
-    task("cindygl3d-dbg", [], function () {
-        this.node(process.argv[1], "cindygl3d", "cindygl3d-dbg=true");
-    });
-
-    //////////////////////////////////////////////////////////////////////
     // Build ComplexCurves plugin
     //////////////////////////////////////////////////////////////////////
 
@@ -1006,7 +938,6 @@ module.exports = function build(settings, task) {
             "ifs",
             "cindy3d",
             "cindygl",
-            "cindygl3d",
             "cindyprint",
             "cindyprintworker",
             "cindyleap",

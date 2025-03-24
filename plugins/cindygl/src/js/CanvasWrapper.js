@@ -79,7 +79,6 @@ function CanvasWrapper(canvas, properties) {
     gl.enableVertexAttribArray(aPosLoc);
 
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
 
     var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
 
@@ -87,9 +86,12 @@ function CanvasWrapper(canvas, properties) {
 
     gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    if(aTexLoc != -1) {
+        gl.enableVertexAttribArray(aTexLoc);
+        gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+        gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
 
 };
 

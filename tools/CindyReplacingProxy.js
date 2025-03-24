@@ -19,7 +19,6 @@ var intercept = [
     { pattern: /Cindy\.js$/, path: "build/js/Cindy.js" },
     { pattern: /Cindy3D\.js$/, path: "build/js/Cindy3D.js" },
     { pattern: /CindyGL\.js$/, path: "build/js/CindyGL.js" },
-    { pattern: /CindyGL3D\.js$/, path: "build/js/CindyGL3D.js" },
     { pattern: /QuickHull3D\.js$/, path: "build/js/QuickHull3D.js" },
 ];
 

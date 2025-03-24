@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Cindy JS</title>
         <script type="text/javascript" src="../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../build/js/CindyGL3D.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
         <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
     <script id="csmousedown" type="text/x-cindyscript">
@@ -19,7 +19,7 @@
         <h1>CindyGL3D: N*N*N grid of spheres, with more complex sphere shader code</h1>
 
         <script id="csinit" type="text/x-cindyscript">
-            use("CindyGL3D");
+            use("CindyGL");
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
@@ -93,7 +93,7 @@
                     { name: "A", type: "Free", pos: [2, -1.0], color: [0, 0, 1], pinned: false,narrow: true, size: 4 },
                 ],
                 import: {
-                    "init": ["../../plugins/cindygl3d/scripts/cglInit.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
                 },
             });
         </script>
