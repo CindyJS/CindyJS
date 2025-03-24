@@ -16,17 +16,24 @@ The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `
 * `cglReset3d` reset 3D scene
 * `cglDraw3d` draw 3D scene
 * `cglEnd3d` end 3D mode
-* `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1
-* `colorPlot3d(<expr>,<center>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
-* `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
+* `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
+* `colorPlot3d(<expr>,<center>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
+* `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
 * `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of triangles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
      - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
      - [v1,v2,v3,v4,...]            list of vertices
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
-* `cglFindObject(<x>,<y>)` finds the id of object closest to the camera on the ray at position `(x,y)`
+* `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`
 * `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id
 * `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can be reconstructed in the compiled code using the `cglEval` built-in.
 `<args>` is a list of parameters that should be passed to the expression.
+* `cglAxes()` returns the current coordinate axes as a list of vec3
+* `cglDirection(x,y)` returns the view-direction for the screen pixel `(x,y)` seen from the viewPosition
+* `cglSpherePos(<objId>)` returns the center of the sphere with the given object id
+* `cglMoveSphere(<objId>,<newCenter: vec3>)` moves the center of the sphere with the given object-id
+* `cglMoveCylinder(<objId>,<newPointA: vec3>,<newPointB: vec3>)` moves the endpoints of the cylinder with the given object-id
+* `cglMoveTriangles(<objId>,<vertices: list<vec3>>)` moves the vertices of the triangle-mesh with the given object-id,
+  if the number of vertices changes the corresponding vertex attributes should be updated accordingly (currently this needs a seperate call to `cglUpdate()`)
 
 ## Built-in variables
 
@@ -79,6 +86,7 @@ The file `scripts/cglInit.cjs` contains definitions for gemometric primitive obj
 * `colorplotTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` the pixel colors will be determined using `pixelExpr` at the position `[a,b]` where `a` and `b` are the angles along the two circles, both mappped to the interval `[0,1]`
 * `background(color: vec3|vec4)` fill the back of the canvas with the given color (ignores ligthing information)
 * `polygon3d(vertices: list<vec3>,color: vec3|vec4)` plot a single colored polygon with the given vertex set (currently only works correctly for convex polygons)
+* `updatePolygon3d(<objId>,<vertices>,<color>)` similar to `polygon3d`, replaces the existing polygon with the given object id
 
 all main plotting functions take a modifier `Ulight: cglLazy` that can be used to modify the lighting calucation,
 the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order.

@@ -193,7 +193,15 @@ let CindyGL = function(api) {
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
-
+    function toCjsNumber(x) {
+        return {
+            ctype: 'number',
+            value: {
+                'real': x,
+                'imag': 0
+            }
+        };
+    }
 
     api.defineFunction("forcerecompile", 0, (args, modifs) => {
         requiredcompiletime++;
@@ -367,6 +375,7 @@ let CindyGL = function(api) {
             let valList = coerce.toList(api.evaluateAndVal(value),[]);
             if(valList.length != vCount){
                 console.error(`vertex modifier should be list with one element for each vertex: ${name}`);
+                console.error(`expected: ${vCount} got: ${valList.length}`);
                 return;
             }
             // compute common element type
@@ -447,26 +456,13 @@ let CindyGL = function(api) {
         let compiledProg=compile(prog,DepthType.Nearest,Renderer.noBounds(),plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
-        return nada;
+        return toCjsNumber(obj3d.id);
     });
-    /**
-     * plots colorplot on whole main canvas in CindyJS coordinates
-     * uses the z-coordinate for the nearest pixel as depth information
-     *
-     * renderes the given colorplot function on a triangual mesh given in the second parameter.
-     * the triangles can be given in one of the following three formats:
-     *   - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
-     *   - [v1,v2,v3,v4,...]            list of vertices
-     *   - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
-     */
-    api.defineFunction("colorplot3d", 2, (args, modifs) => {
-        initGLIfRequired();
-        let prog = args[0];
-        let plotModifiers = get3DPlotModifiers(modifs);
-        let vertices = coerce.toList(api.evaluateAndVal(args[1]));
+    function verticesFromCJS(vertices){
+        vertices = coerce.toList(vertices);
         if(!(vertices instanceof Array)||vertices.length == 0){
             // no array or no vertices
-            return nada;
+            return undefined;
         }
         let eltType = vertices[0]['ctype'];
         // flatten vertex list
@@ -508,6 +504,26 @@ let CindyGL = function(api) {
             }
         } else {
             console.error(`unexpected type for vertex-coordinate: ${eltType}`);
+            return undefined;
+        }
+        return vertices;
+    }
+    /**
+     * plots colorplot on whole main canvas in CindyJS coordinates
+     * uses the z-coordinate for the nearest pixel as depth information
+     *
+     * renderes the given colorplot function on a triangual mesh given in the second parameter.
+     * the triangles can be given in one of the following three formats:
+     *   - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
+     *   - [v1,v2,v3,v4,...]            list of vertices
+     *   - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
+     */
+    api.defineFunction("colorplot3d", 2, (args, modifs) => {
+        initGLIfRequired();
+        let prog = args[0];
+        let plotModifiers = get3DPlotModifiers(modifs);
+        let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
+        if(vertices === undefined) {
             return nada;
         }
         let vCount = vertices.length/3;
@@ -520,7 +536,7 @@ let CindyGL = function(api) {
         let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,vModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
-        return nada;
+        return toCjsNumber(obj3d.id);
     });
     /**
      * plots colorplot in region bounded by sphere in CindyJS coordinates
@@ -537,7 +553,7 @@ let CindyGL = function(api) {
         let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
-        return nada;
+        return toCjsNumber(obj3d.id);
     });
     /**
      * plots colorplot in region bounded by cylinder in CindyJS coordinates
@@ -555,7 +571,7 @@ let CindyGL = function(api) {
         let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
         setObject(obj3d.id,obj3d);
-        return nada;
+        return toCjsNumber(obj3d.id);
     });
     let recomputeProjMatrix = function(){
         let zoom = CindyGL.coordinateSystem.zoom;
@@ -618,12 +634,27 @@ let CindyGL = function(api) {
         let viewPos = CindyGL.coordinateSystem.transformedViewPos.slice(0,3);
         return { // convert to CindyJS list
             ctype: 'list',
-            value: viewPos.map(v => ({
-                ctype: 'number',
-                value: {
-                    'real': v,
-                    'imag': 0
-                }
+            value: viewPos.map(toCjsNumber)
+        };
+    });
+    api.defineFunction("cglAxes", 0, (args, modifs) => {
+        // TODO? initialize coordinate-system if not existent
+        let unitPoints = [
+            mvmult4(CindyGL.trafoMatrix,[1,0,0,1]),
+            mvmult4(CindyGL.trafoMatrix,[0,1,0,1]),
+            mvmult4(CindyGL.trafoMatrix,[0,0,1,1]),
+            mvmult4(CindyGL.trafoMatrix,[0,0,0,1]),
+        ].map(v=>[v[0]/v[3],v[1]/v[3],v[2]/v[3]]);
+        let coordVectors = [
+            subv3(unitPoints[0],unitPoints[3]),
+            subv3(unitPoints[1],unitPoints[3]),
+            subv3(unitPoints[2],unitPoints[3]),
+        ];
+        return { // convert to CindyJS list
+            ctype: 'list',
+            value: coordVectors.map(v=>({
+                ctype: 'list',
+                value: v.map(toCjsNumber)
             }))
         };
     });
@@ -750,6 +781,21 @@ let CindyGL = function(api) {
         return nada;
     });
     /**
+     * Returns the current viewDirection for the pixel (args[0],args[1])
+     */
+    api.defineFunction("cglDirection", 2, (args, modifs) => {
+        let x = api.evaluateAndVal(args[0])["value"]["real"];
+        let y = api.evaluateAndVal(args[1])["value"]["real"];
+        let screenPoint=[x,y,CindyGL.coordinateSystem.z1,1];
+        let spacePoint = mvmult4(CindyGL.invTrafoMatrix,screenPoint);
+        let viewPos = CindyGL.coordinateSystem.transformedViewPos;
+        let direction = subv3(spacePoint,viewPos);
+        return { // convert to CindyJS list
+            ctype: 'list',
+            value: direction.map(toCjsNumber)
+        };
+    });
+    /**
      * Finds the 3D object on the view-ray through the screen position (args[0],args[1]) that is closest to the camera.
      * If the `tags` modifier is set only objects that have at least one of the specified tags are considered
      */
@@ -833,13 +879,7 @@ let CindyGL = function(api) {
         CindyGL.objectBuffer.translucent.forEach(searchObject);
         // TODO? convert picked 3D-object to CindyJS object
         //   make name,position, readable, ? writable
-        return {
-            ctype: 'number',
-            value: {
-                'real': pickedId,
-                'imag': 0
-            }
-        };
+        return toCjsNumber(pickedId);
     });
     api.defineFunction("cglUpdate", 1, (args, modifs) => {
         let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
@@ -899,6 +939,105 @@ let CindyGL = function(api) {
             }
         }
         obj3d.plotModifiers = plotModifiers;
+        return nada;
+    });
+    // TODO? cglObjectInfo()
+    api.defineFunction("cglSpherePos", 1, (args, modifs) => {
+        let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
+        if(objId<0)
+            return nada;
+        let obj3d = CindyGL.objectBuffer.opaque.get(objId);
+        let wasOpaque = true;
+        if(obj3d === undefined){
+            obj3d = CindyGL.objectBuffer.translucent.get(objId);
+            wasOpaque = false;
+            if(obj3d === undefined){
+                console.warn(`could not find object with id ${objId}`);
+                return nada;
+            }
+        }
+        if(obj3d.boundingBox.type !== BoundingBoxType.sphere) {
+            console.log(`the object with id ${objId} is no sphere`);
+            return nada;
+        }
+        return { // convert to CindyJS list
+            ctype: 'list',
+            value: obj3d.boundingBox.center.map(toCjsNumber)
+        };
+    });
+    api.defineFunction("cglMoveSphere", 2, (args, modifs) => {
+        let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
+        if(objId<0)
+            return nada;
+        let obj3d = CindyGL.objectBuffer.opaque.get(objId);
+        let wasOpaque = true;
+        if(obj3d === undefined){
+            obj3d = CindyGL.objectBuffer.translucent.get(objId);
+            wasOpaque = false;
+            if(obj3d === undefined){
+                console.warn(`could not find object with id ${objId}`);
+                return nada;
+            }
+        }
+        if(obj3d.boundingBox.type !== BoundingBoxType.sphere) {
+            console.log(`the object with id ${objId} is no sphere`);
+            return nada;
+        }
+        var newCenter = coerce.toDirection(api.evaluateAndVal(args[1]));
+        obj3d.boundingBox.center = newCenter;
+        // TODO? update modifiers
+        return nada;
+    });
+    api.defineFunction("cglMoveCylinder", 3, (args, modifs) => {
+        let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
+        if(objId<0)
+            return nada;
+        let obj3d = CindyGL.objectBuffer.opaque.get(objId);
+        let wasOpaque = true;
+        if(obj3d === undefined){
+            obj3d = CindyGL.objectBuffer.translucent.get(objId);
+            wasOpaque = false;
+            if(obj3d === undefined){
+                console.warn(`could not find object with id ${objId}`);
+                return nada;
+            }
+        }
+        if(obj3d.boundingBox.type !== BoundingBoxType.cylinder) {
+            console.log(`the object with id ${objId} is no cylinder`);
+            return nada;
+        }
+        var newPointA = coerce.toDirection(api.evaluateAndVal(args[1]));
+        var newPointB = coerce.toDirection(api.evaluateAndVal(args[2]));
+        obj3d.boundingBox.pointA = newPointA;
+        obj3d.boundingBox.pointB = newPointB;
+        // TODO? update modifiers
+        return nada;
+    });
+    api.defineFunction("cglMoveTriangles", 2, (args, modifs) => {
+        let objId = coerce.toInt(api.evaluateAndVal(args[0]),-1);
+        if(objId<0)
+            return nada;
+        let obj3d = CindyGL.objectBuffer.opaque.get(objId);
+        let wasOpaque = true;
+        if(obj3d === undefined){
+            obj3d = CindyGL.objectBuffer.translucent.get(objId);
+            wasOpaque = false;
+            if(obj3d === undefined){
+                console.warn(`could not find object with id ${objId}`);
+                return nada;
+            }
+        }
+        if(obj3d.boundingBox.type !== BoundingBoxType.triangles) {
+            console.log(`the object with id ${objId} is no triangle-mesh`);
+            return nada;
+        }
+        var vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
+        if(vertices === undefined) {
+            return nada;
+        }
+        obj3d.boundingBox.vertices = vertices;
+        // TODO? update modifiers
+        // TODO ensure number of Vmodifers matches number of vertices
         return nada;
     });
     api.defineFunction("cglEnd3d", 0, (args, modifs) => {

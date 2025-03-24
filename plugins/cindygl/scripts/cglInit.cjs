@@ -69,6 +69,7 @@ cglSimpleLight = cglLazy((color,viewDirection,normal),
   brigthness*color;
 );
 cglDefaultLight = cglSimpleLight;
+// TODO is there a way to distinguish modifier and global variables
 // TODO multiple versions (transparency, color, shading)
 sphere(center,radius,color):=(
   regional(pixelExpr,projection,light);
@@ -76,7 +77,7 @@ sphere(center,radius,color):=(
   projection=cglLazy(normal,0); // position does not matter
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,Ucolor->color,Ulight->light,tags->["sphere"]);
+    UpixelExpr->pixelExpr,Uprojection->projection,Ucolor->color,Ulight->light,tags->["sphere"]++tags);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<pos>)-> <color>
@@ -85,7 +86,7 @@ colorplotSphere(center,radius,pixelExpr,projection):=(
   regional(light);
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,Ulight->light,tags->["sphere"]);
+    UpixelExpr->pixelExpr,Uprojection->projection,Ulight->light,tags->["sphere"]++tags);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<z>)-> <color>
@@ -176,7 +177,7 @@ cylinder(pointA,pointB,radius,colorA,colorB):=(
   pixelExpr = cglLazy(pos,(pos_2)*colorB + (1-pos_2)*colorA);
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-    UpixelExpr->pixelExpr,Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["cylinder"]);
+    UpixelExpr->pixelExpr,Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["cylinder"]++tags);
 );
 // creates a cylinder with the given endpoints and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
@@ -185,7 +186,7 @@ colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
   regional(light);
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-    UpixelExpr->pixelExpr,Ulight->light,tags->["cylinder"]);
+    UpixelExpr->pixelExpr,Ulight->light,tags->["cylinder"]++tags);
 );
 cgl3dRodShaderCode(direction):=(
   regional(l,v,BA,delta,center,normal);
@@ -204,7 +205,7 @@ rod(pointA,pointB,radius,colorA,colorB):=(
   regional(light);
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
-    Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["rod"]);
+    Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["rod"]++tags);
 );
 
 // helper for computing normal vector and radius-direction of a arc-rod
@@ -287,7 +288,7 @@ torus(center,orientation,radius1,radius2,color):=(
   forall(consecutive(points),arcEnds,
     colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
       UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->pixelExpr,Ulight->light,Ucolor->color,tags->["arc","torus"]);
+      UpixelExpr->pixelExpr,Ulight->light,Ucolor->color,tags->["arc","torus"]++tags);
   );
 );
 // creates a torus with the given center pointing in the given orientation, with outer radius radius1 and inner radius radius1
@@ -300,7 +301,7 @@ colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
   forall(consecutive(points),arcEnds,
     colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
       UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->pixelExpr,Ulight->light,tags->["arc","torus"]);
+      UpixelExpr->pixelExpr,Ulight->light,tags->["arc","torus"]++tags);
   );
 );
 
@@ -344,4 +345,13 @@ polygon3d(vertices,color):=(
   trianglesAndNormals = cglTriangulatePolygon(vertices);
   colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,Vnormal->trianglesAndNormals_2,
     UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
-)
+);
+// replace the polygon with the given id
+updatePolygon3d(objId,vertices,color):=(
+  regional(pixelExpr,light,triangles);
+  pixelExpr = cglLazy(dir,color);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  trianglesAndNormals = cglTriangulatePolygon(vertices);
+  cglMoveTriangles(objId,trianglesAndNormals_1);
+  cglUpdate(objId,Vnormal->trianglesAndNormals_2,UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+);

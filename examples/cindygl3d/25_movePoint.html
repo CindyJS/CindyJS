@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            if(target < 0,
+              rotating = sx < 2;
+            ,
+              dragging = sx < 2;
+            );
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            phi=(1+sqrt(5))/2;
+
+            light(material, lightcolor, lightdir, normal, gamma1,gamma2) := (
+              illumination = max(0,(lightdir/abs(lightdir))*normal);
+              res=(illumination^gamma1+illumination^gamma2)*lightcolor;
+              material=material+(1,1,1);
+              (res_1*material_1,res_2*material_2,res_3*material_3);
+            );
+            calcnextcolor(n,d,col):=(//Fancy lighting
+              lightCol=(1,1,1)*.1;
+              lightdir0 = .6*(-10, 10, 0.)-x;
+              lightdir3 = cglViewPos;
+              lightdir4 = cglViewPos;
+              //d runs from ~5/front to ~13/back.
+              ambient=.5;
+              darken=(13-d)/8;
+              //darken=darken*darken;
+              //darken=exp(darken*3)*.12;
+              colo= col*ambient;
+              colo= colo+light(col,lightCol, lightdir0, n, 3,20);
+              colo= colo+light(col,lightCol, lightdir0, n, 3,20);
+              colo= colo+light(col,lightCol, lightdir3, n, 3,20);
+              colo= colo+light(col,lightCol, lightdir4, n, 3,20);
+              (colo_1*darken,colo_2*darken,colo_3*darken);
+            );
+            // change default lighting engine
+            cglDefaultLight = cglLazy((color,direction,normal),
+              x=cglViewPos+direction*cglDepth;
+              calcnextcolor(normal,cglDepth,color*0.5);
+            );
+            light4 = cglLazy((color,direction,normal),
+              // TODO? compile-time evaluate if with constant condition
+              //   -> support length operator
+              x=cglViewPos+direction*cglDepth;
+              col3=calcnextcolor(normal,cglDepth,(color_1,color_2,color_3)*0.5);
+              (col3_1,col3_2,col3_3,color_4)
+            );
+
+            cglBegin3d();
+            s=1.4;
+            r0=.15;
+            r1=.1;
+            r2=.05;
+            r3=.04;
+            cubeCol=[0,0,0];
+            col=[1,0,0];
+            colSelected=[0,1,0];
+            coordColXY = [0,1,0,0.5];
+            coordColZ = [1,0,0,0.5];
+            coordColInactive = [0,0,0,0];
+            planeColor = [0,0.5,0.5,0.5];
+
+            forall([-1,1],x,
+              forall([-1,1],y,
+                cylinder([x,y,1],[x,y,-1],r2,cubeCol,cubeCol);
+                cylinder([x,1,y],[x,-1,y],r2,cubeCol,cubeCol);
+                cylinder([1,x,y],[-1,x,y],r2,cubeCol,cubeCol);
+                forall([-1,1],z,
+                  sphere([x,y,z],r1,cubeCol);
+                )
+              )
+            );
+            idA = sphere([0.5,0,0],r0,col,tags->["movable"]);
+            idB = sphere([0,0.5,0],r0,col,tags->["movable"]);
+            idC = sphere([0,0,0.5],r0,col,tags->["movable"]);
+            // TODO? return object id from color-plot call
+            xAxisId = cylinder([-1,0,0],[1,0,0],r3,coordColInactive,coordColInactive,Ulight->light4);
+            yAxisId = cylinder([0,-1,0],[0,1,0],r3,coordColInactive,coordColInactive,Ulight->light4);
+            zAxisId = cylinder([0,0,-1],[0,0,1],r3,coordColInactive,coordColInactive,Ulight->light4);
+            planeId = polygon3d([[0.5,0,0],[0,0.5,0],[0,0,0.5]],planeColor,Ulight->light4);
+            updatePlane():=(
+              A = cglSpherePos(idA);
+              B = cglSpherePos(idB);
+              C = cglSpherePos(idC);
+              N = cross(A-C,B-C);
+              o = N*A;
+              vertices=[];
+              forall([-1,1],x,
+                forall([-1,1],y,
+                  hx =(o-N_2*x-N_3*y)/N_1;
+                  hy =(o-N_1*x-N_3*y)/N_2;
+                  hz =(o-N_1*x-N_2*y)/N_3;
+                  if(hx >= -1 & hx <= 1, vertices = vertices ++ [[hx,x,y]]);
+                  if(hy >= -1 & hy <= 1, vertices = vertices ++ [[x,hy,y]]);
+                  if(hz >= -1 & hz <= 1, vertices = vertices ++ [[x,y,hz]]);
+                )
+              );
+              // sort vertices by angle seen from barycenter to ensure resulting polygon is convex 
+              center = sum(vertices)/length(vertices);
+              vertices=sort(vertices,v,arctan2((v-center)_1,(v-center)_2));
+              // replace previous polygon
+              updatePolygon3d(planeId,vertices,planeColor,Ulight->light4);
+            );
+            updatePlane();
+
+            prevTarget=-1;
+            target = -1;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            if (dragging,
+              viewPos = cglViewPos();
+              // view direction for given screen pixel
+              oldDirection = cglDirection(sx,sy);
+              newDirection = cglDirection(mouse().x,mouse().y);
+              // movePlaneNormal * (viewPos+ t*direction) = movePlaneOffset              
+              // t * movePlaneNormal * direction =  movePlaneOffset - movePlaneNormal* viewPos;
+              oldT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * oldDirection);
+              newT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * newDirection);
+              oldPos = viewPos + oldT*oldDirection;
+              newPos = viewPos + newT*newDirection;
+              truePos = cglSpherePos(target);
+              newPos = apply(newPos+(truePos-oldPos),p,max(-1,min(p,1)));
+              cglMoveSphere(target,newPos);
+              updatePlane();
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            tagList=[];
+            if(!dragging,
+              target = cglFindObject(sx,sy,tags->["movable"]);
+              if(target!=prevTarget,
+                if(prevTarget >= 0,
+                  cglUpdate(prevTarget,Ucolor->col);
+                  cglUpdate(xAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
+                  cglUpdate(yAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
+                  cglUpdate(zAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
+                );
+                if(target >= 0,
+                  cglUpdate(target,Ucolor->colSelected);
+                  axes=cglAxes();
+                  viewPos = cglViewPos();
+                  coordCols=[coordColXY,coordColXY,coordColXY];
+                  maxDot = abs(axes_1_3);
+                  maxIndex = 1;
+                  if(abs(axes_2_3) > maxDot,
+                    maxDot = abs(axes_2_3);
+                    maxIndex = 2;
+                  );
+                  if(abs(axes_3_3) > maxDot,
+                    maxDot = abs(axes_3_3);
+                    maxIndex = 3;
+                  );
+                  coordCols_maxIndex = coordColZ;
+                  targetPos = cglSpherePos(target);
+                  movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
+                  movePlaneOffset = movePlaneNormal*targetPos;
+                  cglUpdate(xAxisId,UcolorA->coordCols_1,UcolorB->coordCols_1);
+                  cglUpdate(yAxisId,UcolorA->coordCols_2,UcolorB->coordCols_2);
+                  cglUpdate(zAxisId,UcolorA->coordCols_3,UcolorB->coordCols_3);
+                );
+                prevTarget=target;
+              );
+            );
+            if(target != -1,
+              targetPos = cglSpherePos(target);
+              cglMoveCylinder(xAxisId,[-1,targetPos_2,targetPos_3],[1,targetPos_2,targetPos_3]);
+              cglMoveCylinder(yAxisId,[targetPos_1,-1,targetPos_3],[targetPos_1,1,targetPos_3]);
+              cglMoveCylinder(zAxisId,[targetPos_1,targetPos_2,-1],[targetPos_1,targetPos_2,1]);
+            );
+
+            cglDraw3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
