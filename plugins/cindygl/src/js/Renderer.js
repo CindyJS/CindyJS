@@ -217,28 +217,28 @@ Renderer.computeAttributeData = function (eltType,values){
     let attributeType = gl.FLOAT;
     switch (eltType) {
         case type.complex:
-            eltConverter = (elts,val) => elts.concat(val['value']['real'], val['value']['imag']);
+            eltConverter = (elts,val) => elts.push(val['value']['real'], val['value']['imag']);
             break;
         case type.bool:
-            eltConverter = (elts,val) => elts.concat((val['value']) ? 1 : 0);
+            eltConverter = (elts,val) => elts.push((val['value']) ? 1 : 0);
             attributeType = gl.BYTE;
             break;
         case type.int:
-            eltConverter = (elts,val) => elts.concat(val['value']['real']);
+            eltConverter = (elts,val) => elts.push(val['value']['real']);
             attributeType = gl.INT;
             break;
         case type.float:
-            eltConverter = (elts,val) => elts.concat(val['value']['real']);
+            eltConverter = (elts,val) => elts.push(val['value']['real']);
             break;
         case type.point:
         case type.line:
             eltConverter = (elts,val) => {
                 if (val.ctype === 'geo') {
-                    return elts.concat(val['value']['homog']['value'].map(x => x['value']['real']));
+                    val['value']['homog']['value'].forEach(x => elts.push(x['value']['real']));
                 } else if (val.ctype === 'list' && val['value'].length === 2) {
-                    return elts.concat(val['value'].map(x => x['value']['real'])).concat([1]);
+                    val['value'].forEach(x => elts.push(x['value']['real']));
                 } else if (val.ctype === 'list' && val['value'].length === 3) {
-                    return elts.concat(val['value'].map(x => x['value']['real']));
+                    val['value'].forEach(x => elts.push(x['value']['real']));
                 }
                 console.error("unexpected value for geometry object: ",val);
             }
@@ -251,7 +251,9 @@ Renderer.computeAttributeData = function (eltType,values){
             //  or is structure memory layout linear in memory
             if (eltType.type === 'list' && (eltType.parameters === type.float
                     || eltType.parameters === type.int)) { // float-list or int-list
-                eltConverter = (elts,val) => elts.concat(val['value'].map(x => x['value']['real']));
+                eltConverter = (elts,val) => {
+                    val['value'].forEach(x => elts.push(x['value']['real']));
+                };
                 break;
             } else if (eltType.type === 'list' && eltType.parameters.type === 'list'
                 && eltType.parameters.parameters === type.float) { //float matrix
@@ -260,7 +262,6 @@ Renderer.computeAttributeData = function (eltType,values){
                     for (let j = 0; j < eltType.length; j++)
                         for (let i = 0; i < eltType.parameters.length; i++)
                             elts.push(val['value'][j]['value'][i]['value']['real']);
-                    return elts;
                 }
             }
             break;
@@ -271,7 +272,7 @@ Renderer.computeAttributeData = function (eltType,values){
         return {aData: undefined, aSize: 0, aType: attributeType};
     }
     let data = [];
-    values.forEach(elt => {data = eltConverter(data,elt);});
+    values.forEach(elt => eltConverter(data,elt));
     let aData = attributeType == gl.FLOAT ?
         new Float32Array(data) :
         attributeType == gl.INT ?
@@ -298,7 +299,7 @@ Renderer.prototype.updateAttributes = function() {
             let baseCoords = [0, 0, 1, 0, 0, 1];
             texCoords = []; // ! no let here, this is the function-level variable
             for(let i=0;i<this.vertices.length;i+=9){ // 3floats / vertex * 3 vertex / triangle
-                texCoords = texCoords.concat(baseCoords);
+                texCoords.push.apply(baseCoords);
             }
             texCoords = new Float32Array(texCoords);
             this.boundingBox.texCoords =texCoords;
