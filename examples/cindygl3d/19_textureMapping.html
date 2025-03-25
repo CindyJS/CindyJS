@@ -28,6 +28,8 @@
             drawCylinder=false;
             drawTorus=false;
 
+            cglDefaultLight = cglSimpleLight;
+
             update():=(
               cglReset3D();
               if(drawSphere,colorplotSphere([0,0,0],1,cglLazy(pos,cglTextureRGB("equirect",pos))));

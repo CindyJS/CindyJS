@@ -40,7 +40,7 @@
               hue(im(z))*(.9+.1*re(sqrt(grey1*grey2)));
             );
             cglBegin3d();
-            colorplotSphereC([0,0,0],1,cglLazy(z,color(expr(z))));
+            colorplotSphereC([0,0,0],1,cglLazy(z,color(expr(z))),Ulight->cglSimpleLight);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,

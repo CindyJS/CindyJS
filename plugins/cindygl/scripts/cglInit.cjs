@@ -68,7 +68,41 @@ cglSimpleLight = cglLazy((color,viewDirection,normal),
   brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
   brigthness*color;
 );
-cglDefaultLight = cglSimpleLight;
+cglAddLight(material, lightcolor, lightdir, normal, gamma1,gamma2) := (
+  regional(illumination,res);
+  illumination = max(0,(lightdir/abs(lightdir))*normal);
+  res=(illumination^gamma1+illumination^gamma2)*lightcolor;
+  material=material+(1,1,1);
+  (res_1*material_1,res_2*material_2,res_3*material_3);
+);
+cglComputeLight(direction,normal,col,pos):=(
+  regional(lightCol,lightdir0,lightdir1);
+  lightCol=(1,1,1)*.1;
+  lightdir0 = (-10, 10, 0.)-pos;
+  lightdir1 = -direction;
+  ambient=.5;
+  colo= col*ambient;
+  colo= colo+cglAddLight(col,lightCol, lightdir0, normal, 3,20);
+  colo= colo+cglAddLight(col,lightCol, lightdir0, normal, 3,20);
+  colo= colo+cglAddLight(col,lightCol, lightdir1, normal, 3,20);
+  colo= colo+cglAddLight(col,lightCol, lightdir1, normal, 3,32);
+);
+// store ligth calculation in seperate variable to allow recovering value after setting cglDefaultLight
+cglDefaultLight0 = cglLazy((color,direction,normal),
+  // apply calcnextcolor only to first 3 components
+  // this code should work for both colors of size 3 and 4
+  col3=(color_1,color_2,color_3)*0.75;
+  lightCol = 0.5*color; // ensure that lightCol is a float array
+  lightCol = color; // local copy of color to ensure value is mutable
+  col3=cglComputeLight(direction,normal,col3,cglViewPos+direction*cglDepth);
+  lightCol_1=col3_1;
+  lightCol_2=col3_2;
+  lightCol_3=col3_3;
+  lightCol;
+);
+// default ligth computation
+cglDefaultLight=cglDefaultLight0;
+
 // TODO is there a way to distinguish modifier and global variables
 // TODO multiple versions (transparency, color, shading)
 sphere(center,radius,color):=(

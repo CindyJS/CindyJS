@@ -62,40 +62,6 @@
               )
             );
             k = 0;
-            setuplights():=(
-              lightdir0 = .6*(-10, 10, 0.)-x;
-              lightdir3 = cglViewPos;
-              lightdir4 = cglViewPos;
-              color0=(1,1,1)*.1;
-              color1=color0;
-              color2=color0;
-              color3=color0;
-              color4=color0;
-            );
-             light(material, lightcolor, lightdir, normal, gamma1,gamma2) := (  
-                illumination = max(0,(lightdir/abs(lightdir))*normal);
-                res=(illumination^gamma1+illumination^gamma2)*lightcolor;
-                material=material+(1,1,1);
-                (res_1*material_1,res_2*material_2,res_3*material_3);
-            );
-            calcnextcolor(n,d,col):=(//Fancy lighting
-                //d runs from ~5/front to ~13/back.
-                ambient=.5;
-                darken=(13-d)/8; 
-                //darken=darken*darken;
-                //darken=exp(darken*3)*.12;
-                colo= col*ambient;
-                colo= colo+light(col,color0, lightdir0, n, 3,20);
-                colo= colo+light(col,color2, lightdir0, n, 3,20);
-                colo= colo+light(col,color3, lightdir3, n, 3,20);
-                colo= colo+light(col,color4, lightdir4, n, 3,20);
-                (colo_1*darken;,colo_2*darken;,colo_3*darken;,1);
-            );
-            primitiveLight = cglLazy((color,direction,normal),
-              x=cglViewPos+direction*cglDepth;
-              setuplights();
-              calcnextcolor(normal,cglDepth,color*0.5);
-            );
         </script>
 
         <script id="csdraw" type="text/x-cindyscript">
@@ -114,8 +80,7 @@
             //plots to canvas using no interpolation
             cglBegin3d(p0->[-1.6,-1.6],p1->[1.6,1.6]);
             cglReset3d();
-            colorplotTorus([0,0,0],[0,1,0],1,0.5,cglLazy(pos,imagergb(L, R, "gol", 128*pos, interpolate->false)),
-              Ulight->primitiveLight);
+            colorplotTorus([0,0,0],[0,1,0],1,0.5,cglLazy(pos,imagergb(L, R, "gol", 128*pos, interpolate->false)));
             cglDraw3d();
             cglEnd3d();
         </script>
