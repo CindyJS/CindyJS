@@ -1,4 +1,6 @@
  // code inside main function of triangle vertex shader, will be combined during shader compilation
+   // remember viewSpace position
+   cgl_spacePos = aPos;
    // transform to screen space
    vec4 screenPos = projAndTrafoMatrix*vec4(aPos,1);
    // use same z-coordinate as cglInit shaders

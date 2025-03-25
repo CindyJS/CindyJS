@@ -5,10 +5,11 @@
 
 ## Function
 
-All CindyGL functions are preserved with their original behaviour.
+All CindyGL functions are preserved with their original behavior.
 
 * `cglBegin3d()` start 3D mode, and reset coordinate system, the modifier `z0` can be used to set the initial viewDepth (for rotations to work correctly z0 should be a negative real number).
 The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `y1` (or `p0`/`p1` for setting both coordinates of a corner at once), the z-coordinate of the view-plane can be set with `z1`.
+* `cglViewPos()` the current view-position in model space
 * `cglCoordSystem()` allows updating the coordinate system set with `cglBegin3d`
 * `rotate3d(<alpha>,<beta>)` rotate coordinate system
 * `zoom3d(<zoom>)` set coordinate system scaling factor to given value
@@ -16,7 +17,7 @@ The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `
 * `cglReset3d` reset 3D scene
 * `cglDraw3d` draw 3D scene
 * `cglEnd3d` end 3D mode
-* `colorPlot3d(<expr>)` prepares color-plot with depth the exression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
+* `colorPlot3d(<expr>)` prepares color-plot with depth the expression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
 * `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of triangles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
@@ -47,15 +48,19 @@ all built-in variables start with the prefix `cgl` to reduce the risk for name c
 * `cglPixel`: the 2D pixel coordinate on the texture, currently only supported in 2D-mode
 * `cglViewPos`: the current camera position
 * `cglViewDirection`: the direction of the view ray for the current pixel
-* `cglDepth` can be used to read and write the depth of the current pixel. before rendering the depth values will be truncated to the range [0,1], with 0 beein closest to the camera.
+* `cglDepth` can be used to read and write the depth of the current pixel. before rendering the depth values will be truncated to the range [0,1], with 0 begin closest to the camera.
 
 
-Depending on the bouding box type there may be additional variables
+Depending on the bounding box type there may be additional variables
 
-Sphere:
+Sphere/Cylinder:
 * `cglCenter`: the center of the bounding sphere
 * `cglRadius`: the radius of the bounding sphere/cylinder
 * `cglPointA` `cglPointB` the two endpoints of the bounding cylinder
+
+Triangle/Mesh:
+
+* `cglSpacePos`: position of current pixel in space
 
 ## Built-in functions
 
@@ -73,20 +78,23 @@ The values of the constants are directly associated with the drawn object and ca
 
 ## Primitive objects
 
-The file `scripts/cglInit.cjs` contains definitions for gemometric primitive objects including:
+The file `scripts/cglInit.cjs` contains definitions for geometric primitive objects including:
 
 * `sphere(center: vec3,radius: float,color: vec3|vec4)` a sphere with the given midpoint, radius and color
 * `colorplotSphere(center: vec3,radius: float,pixelExpr: cglLazy,projection: cglLazy)` a sphere with the given midpoint, radius the color is computed by applying the given `projection` to the normal vector and then evaluating `pixelExpr` at that position
 * `colorplotSphere(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection linearly maps the angles on the sphere to points in the unit square `[0,1]x[0,1]`
-* `colorplotSphereC(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection stereographically maps the sphere to the complex projective line CP1
-* `cylinder(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a (uncaped) cylinder with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
-* `colorplotCylinder(pointA: vec3,pointB: vec3,radius: float,pixelExpr: cglLazy)` draws a (uncaped) cylinder with the given endpoints and radius the color is computed by evaluating `pixelExpr` at `[a: float,h: float]`, where `a` is the angle around the cylinder and `h` is the higth of the current point starting at `pointA` going towards `pointB` both values are mapped to the interval `[0,1]`
-* `rod(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a cylinder with round endcaps, with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
+* `colorplotSphereC(center: vec3,radius: float,pixelExpr: cglLazy)` like the general `colorplotSphere` where projection stereographically maps the sphere to the complex protective line CP1
+* `cylinder(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a cylinder with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
+* `colorplotCylinder(pointA: vec3,pointB: vec3,radius: float,pixelExpr: cglLazy)` draws a cylinder with the given endpoints and radius the color is computed by evaluating `pixelExpr` at `[a: float,h: float]`, where `a` is the angle around the cylinder and `h` is the height of the current point starting at `pointA` going towards `pointB` both values are mapped to the interval `[0,1]`
+* `rod(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a cylinder with round end-caps, with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
 * `torus(center: vec3,orientation: vec3,radius1: float,radius2: float,color: vec3|vec4)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` with color `color`
-* `colorplotTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` the pixel colors will be determined using `pixelExpr` at the position `[a,b]` where `a` and `b` are the angles along the two circles, both mappped to the interval `[0,1]`
-* `background(color: vec3|vec4)` fill the back of the canvas with the given color (ignores ligthing information)
+* `colorplotTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` the pixel colors will be determined using `pixelExpr` at the position `[a,b]` where `a` and `b` are the angles along the two circles, both mapped to the interval `[0,1]`
+* `background(color: vec3|vec4)` fill the back of the canvas with the given color (ignores lighting information)
 * `polygon3d(vertices: list<vec3>,color: vec3|vec4)` plot a single colored polygon with the given vertex set (currently only works correctly for convex polygons)
 * `updatePolygon3d(<objId>,<vertices>,<color>)` similar to `polygon3d`, replaces the existing polygon with the given object id
+* `mesh3d(<samples>:list<list<vec3>>,<color>:vec3|vec4)` creates a mesh for the given samples and colors the faces in a constant color. The given `samples` should be a rectangular grid of points, the surface normals will be determined from the given points, the normal type can be set with the modifier `normalType` it has to be either `CGLuMESHuNORMALuFACE` (one normal per triangular face) or `CGLuMESHuNORMALuVERTEX` (one normal per vertex, computed as average face normal)
+* `mesh3d(<samples>:list<list<vec3>>,<normals>:list<list<vec3>>,<color>: vec3|vec4)` like `mesh3d` but will use the vectors in the list `normals` as face/vertex normals. Normals should be a rectangular grid containing a normal vector for each vertex, in face mode only the corner `(x,y)` of each quadrilateral `(x,y), (x+1,y), (x,y+1), (x+1,y+1)` will be used.
+* `colorplotMesh3d(<samples>,<pixelExpr>)`, `colorplotMesh3d(<samples>,<normals>,<pixelExpr>)` like `mesh3d` but with a cglLazy expression instead of a constant color (the parameter of the pixel-expression will be the view-direction at the current pixel)
 
-all main plotting functions take a modifier `Ulight: cglLazy` that can be used to modify the lighting calucation,
+all main plotting functions take a modifier `Ulight: cglLazy` that can be used to modify the lighting calculation,
 the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order.

@@ -360,8 +360,8 @@ cglTriangulatePolygon(vertices):=(
     v2=vertices_(i+1);
     n=normalize(cross(v1-root,v2-root));
     // TODO ensure normals point in rigth direction
-    triangles=triangles++[root,v1,v2];
-    normals=normals++[n,n,n]
+    triangles = triangles ++ [root,v1,v2];
+    normals = normals ++ [n,n,n];
   );
   [triangles,normals]
 );
@@ -388,4 +388,133 @@ updatePolygon3d(objId,vertices,color):=(
   trianglesAndNormals = cglTriangulatePolygon(vertices);
   cglMoveTriangles(objId,trianglesAndNormals_1);
   cglUpdate(objId,Vnormal->trianglesAndNormals_2,UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+);
+
+// square mesh
+CGLuMESHuNORMALuFACE = 0; // use u as seperation character for uppercase constants (underscore is reserved)
+CGLuMESHuNORMALuVERTEX = 1;
+cglResolveNormalType(input,default):=(
+  if(input == CGLuMESHuNORMALuFACE % input == CGLuMESHuNORMALuVERTEX,
+    input
+  ,
+    default
+  )
+);
+// TODO option to close mesh in x/y direction
+cglMeshFacesAndNormals(samples,Nx,Ny,normalType):=(
+  regional(vertices,normals,n,normals2,p00,p01,p10,p11,n1,n2,missing,neighbours,count);
+  vertices=[];
+  if(normalType == CGLuMESHuNORMALuFACE,
+    normals=[];
+  ,
+    // vertex normals -> average face normal of faces containing edges
+    //  -> initialize with 0,0,0, add all face normals, divide by count
+    // TODO? is there a better algorithm for guessing vertex normals
+    normals=apply(1..Ny,ny,apply(1..Nx,nx,[0,0,0,0]));
+  );
+  forall(1..(Ny-1),ny,
+    forall(1..(Nx-1),nx,
+      p00 = samples_ny_nx;
+      p01 = samples_ny_(nx+1);
+      p10 = samples_(ny+1)_nx;
+      p11 = samples_(ny+1)_(nx+1);
+      n1=normalize(cross(p01-p00,p10-p00));
+      n2=-normalize(cross(p01-p11,p10-p11));
+      vertices = vertices ++ [p00,p01,p10,p01,p10,p11];
+      if(normalType == CGLuMESHuNORMALuFACE,
+        normals = normals ++ [n1,n1,n1,n2,n2,n2];
+      , // CGLuMESHuNORMALuVERTEX
+        n1=[n1_1,n1_2,n1_3,1];
+        n2=[n2_1,n2_2,n2_3,1];
+        normals_ny_nx = normals_ny_nx+n1;
+        normals_ny_(nx+1) = normals_ny_(nx+1)+n1+n2;
+        normals_(ny+1)_nx = normals_(ny+1)_nx+n1+n2;
+        normals_(ny+1)_(nx+1) = normals_(ny+1)_(nx+1)+n2;
+      );
+    );
+  );
+  if(normalType==CGLuMESHuNORMALuVERTEX,
+    forall(1..Ny,ny,
+      forall(1..Nx,nx,
+        n=normals_ny_nx;
+        normals_ny_nx = [n_1/n_4,n_2/n_4,n_3/n_4];
+      )
+    );
+    // assign normals to corresponding vertices
+    normals2=[];
+    forall(1..(Ny-1),ny,
+      forall(1..(Nx-1),nx,
+        n00 = normals_ny_nx;
+        n01 = normals_ny_(nx+1);
+        n10 = normals_(ny+1)_nx;
+        n11 = normals_(ny+1)_(nx+1);
+        normals2 = normals2 ++ [n00,n01,n10,n01,n10,n11];
+      );
+    );
+    normals=normals2;
+  );
+  [vertices,normals]
+);
+cglMeshFacesAndNormals(samples,sNormals,Nx,Ny,normalType):=(
+  regional(vertices,p00,p01,p10,p11,n00,n01,n10,n11);
+  vertices=[];
+  normals=[];
+  forall(1..(Ny-1),ny,
+    forall(1..(Nx-1),nx,
+      p00 = samples_ny_nx;
+      p01 = samples_ny_(nx+1);
+      p10 = samples_(ny+1)_nx;
+      p11 = samples_(ny+1)_(nx+1);
+      n00 = sNormals_ny_nx;
+      vertices = vertices ++ [p00,p01,p10,p01,p10,p11];
+      if(normalType == CGLuMESHuNORMALuFACE,
+        normals = normals ++ [n00,n00,n00,n00,n00,n00];
+      , // CGLuMESHuNORMALuVERTEX
+        n01 = sNormals_ny_(nx+1);
+        n10 = sNormals_(ny+1)_nx;
+        n11 = sNormals_(ny+1)_(nx+1);
+        normals = normals ++ [n00,n01,n10,n01,n10,n11];
+      );
+    );
+  );
+  [vertices,normals]
+);
+
+mesh3d(samples,color):=(
+  regional(Nx,Ny,pixelExpr,meshData);
+  Ny = length(samples);
+  Nx = length(samples_1);
+  meshData = cglMeshFacesAndNormals(samples,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
+  pixelExpr = cglLazy(dir,color);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
+    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+);
+mesh3d(samples,normals,color):=(
+  regional(Nx,Ny,pixelExpr,meshData);
+  Ny = length(samples);
+  Nx = length(samples_1);
+  meshData = cglMeshFacesAndNormals(samples,normals,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
+  pixelExpr = cglLazy(dir,color);
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
+    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+);
+colorplotMesh3d(samples,pixelExpr):=(
+  regional(Nx,Ny,meshData);
+  Ny = length(samples);
+  Nx = length(samples_1);
+  meshData = cglMeshFacesAndNormals(samples,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
+    UpixelExpr->pixelExpr,Ulight->light);
+);
+colorplotMesh3d(samples,normals,pixelExpr):=(
+  regional(Nx,Ny,meshData);
+  Ny = length(samples);
+  Nx = length(samples_1);
+  meshData = cglMeshFacesAndNormals(samples,normals,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
+  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
+    UpixelExpr->pixelExpr,Ulight->light);
 );

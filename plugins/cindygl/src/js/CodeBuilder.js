@@ -103,11 +103,12 @@ CodeBuilder.builtIns=new Map([
     [BUILTIN_CGLDEPTH,{type:"pixelAttribute",code:"",expr:"cgl_depth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
     // TODO! make code/available constants dependent on bounding box type
-    // only for spherical bounding box
+    // only for some bounding box types
     ["cglCenter",{type:"uniform",code:"",expr:"uCenter",valueType:type.vec3,writable:false}],
     ["cglRadius",{type:"uniform",code:"",expr:"uRadius",valueType:type.float,writable:false}],
     ["cglPointA",{type:"uniform",code:"",expr:"uPointA",valueType:type.vec3,writable:false}],
-    ["cglPointB",{type:"uniform",code:"",expr:"uPointB",valueType:type.vec3,writable:false}]
+    ["cglPointB",{type:"uniform",code:"",expr:"uPointB",valueType:type.vec3,writable:false}],
+    ["cglSpacePos",{type:"pixelAttribute",code:"",expr:"cgl_spacePos",valueType:type.vec3,writable:false}],
 ]);
 CodeBuilder.cindygl3dPrefix="cgl";
 

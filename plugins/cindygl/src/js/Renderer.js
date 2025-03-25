@@ -313,8 +313,9 @@ Renderer.prototype.updateAttributes = function() {
             // compute name if it does not curently exist
             let aName = value.aName || Renderer.vModifierPrefixV+index;
             let aLoc = gl.getAttribLocation(this.shaderProgram.handle, aName);
-            if(aLoc != -1)
-                gl.enableVertexAttribArray(aLoc);
+            if(aLoc == -1)
+                return;// skip unused attributes
+            gl.enableVertexAttribArray(aLoc);
             value.aLoc = aLoc;
             value.aOffset = totalBufferSize;
             if(value.aData === undefined) {

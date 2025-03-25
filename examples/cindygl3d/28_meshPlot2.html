@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = sx < 4.5;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            autoUpdate = true;
+            showSamples = true;
+            phi=(1+sqrt(5))/2;
+
+            r0=0.05;
+            col0=[1,0,0];
+            meshCol = [0.5,1,0];
+            xyScale = pi;
+
+            cglBegin3d();
+            rotate3d(0,-3*pi/4);
+
+            updateMesh():=(
+              cglReset3d();
+              samples=apply(0..Ny,ny,
+                y=y0+(y1-y0)*ny/Ny;
+                apply(0..Nx,nx,
+                  x=x0+(x1-x0)*nx/Nx;
+                  pt=[x,y,posExpr(x,y)];
+                  if(showSamples,sphere(pt,r0,col0));
+                  pt
+                )
+              );
+              normals=apply(0..Ny,ny,
+                y=y0+(y1-y0)*ny/Ny;
+                apply(0..Nx,nx,
+                  x=x0+(x1-x0)*nx/Nx;
+                  fxy=posExpr(x,y);
+                  eps=min(0.05,1/max(Nx,Ny));
+                  fx=posExpr(x+eps,y);
+                  fy=posExpr(x,y+eps);
+                  pt=normalize([(fx-fxy)/eps,(fy-fxy)/eps,-1]);
+                )
+              );
+              colorplotMesh3d(samples,normals,
+                cglLazy(dir,(mod(cglSpacePos_1,1)>0.5,mod(cglSpacePos_2,1)>0.5,mod(cglSpacePos_3,1)>0.5)),
+                normalType->CGLuMESHuNORMALuVERTEX);
+            );
+
+            // set previous values to values outside range to force update in first draw cycle
+            Nx0=-1;
+            Ny0=-1;
+            x00=0;
+            x10=0;
+            y00=0;
+            y10=0;
+
+            getSlider(P0,P1,P,min,max):=(
+              regional(y);
+              y=P.y;
+              if(y<P0.y,y=P0.y);
+              if(y>P1.y,y=P1.y);
+              P.xy=(P0.x,y);
+              (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+
+            sx = mouse().x;
+            sy = mouse().y;
+
+            Nx=floor(2^(getSlider(R0,R1,R,0,6)+2));
+            Ny=floor(2^(getSlider(H0,H1,H,0,6)+2));
+            x0=getSlider(T00,T11,T0,-pi,pi);
+            x1=getSlider(T00,T11,T1,-pi,pi);
+            y0=getSlider(S00,S11,S0,-pi,pi);
+            y1=getSlider(S00,S11,S1,-pi,pi);
+
+            if(autoUpdate & or(Nx!=Nx0,Ny!=Ny0) % or(x0!=x00,x1!=x10) % or(y0!=y00,y1!=y10),
+              updateMesh();
+              Ny0=Ny;
+              Nx0=Nx;
+              x00=x0;
+              x10=x1;
+              y00=y0;
+              y10=y1;
+            );
+
+            cglDraw3d();
+
+            drawtext(R1+(-.05,.05),"Nx");
+            drawtext(R+(.03,.03),text(Nx));
+            drawtext(H1+(-.05,.05),"Ny");
+            drawtext(H+(.03,.03),text(Ny));
+            drawtext(T11+(-.05,.05),"x");
+            drawtext(T0+(.03,.03),format(x0,2));
+            drawtext(T1+(.03,.03),format(x1,2));
+            drawtext(S11+(-.05,.05),"y");
+            drawtext(S0+(.03,.03),format(y0,2));
+            drawtext(S1+(.03,.03),format(y1,2));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        <div>
+          f(x,y)=<input
+              type="text"
+              id="exprInput"
+              value="sin(x^2+y^2)"
+              onkeypress="if((event.which ? event.which : event.keyCode)==13) { inputChanged() }"
+              size="60"
+              style="font-size: 18px"
+          />
+          <input
+              id="showSamples"
+              onclick="cdy.evokeCS('showSamples = ' + this.checked+';updateMesh();');"
+              checked
+              type="checkbox"
+          /> showSamples
+          <input
+              id="autoUpdate"
+              onclick="cdy.evokeCS('autoUpdate = ' + this.checked+';');"
+              checked
+              type="checkbox"
+          /> autoUpdate
+        <div>
+
+        <script type="text/javascript">
+            // reset checkbox on reload
+            showSamples.checked=true;
+            autoUpdate.checked=true;
+            function inputChanged(){
+              cdy.evokeCS('posExpr(x,y) := (' + exprInput.value + ');updateMesh();');
+            }
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 1024,
+                        height: 768,
+                        transform: [{ visibleRect: [-4.5, -4.5, 7.5, 4.5] }],
+                    },
+                ],
+                geometry: [
+                    { name: "R0", type: "Free", pos: [5, -4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "R1", type: "Free", pos: [5, 4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R", type: "Free", pos: [5, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "H0", type: "Free", pos: [5.5, -4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "H1", type: "Free", pos: [5.5, 4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["H0", "H1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "H", type: "Free", pos: [5.5, 0], color: [0, 0, 1], narrow: true, pinned: false, size: 4 },
+                    { name: "T00", type: "Free", pos: [6, -4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "T11", type: "Free", pos: [6, 4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_2", type: "Segment", args: ["T00", "T11"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "T0", type: "Free", pos: [6,  -4.25], color: [1, 0, 0], narrow: true, pinned: false, size: 4 },
+                    { name: "T1", type: "Free", pos: [6, 4.25], color: [0, 1, 0], narrow: true, pinned: false, size: 4 },
+                    { name: "S00", type: "Free", pos: [6.5, -4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "S11", type: "Free", pos: [6.5, 4.25], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_3", type: "Segment", args: ["S00", "S11"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "S0", type: "Free", pos: [6.5,  -4.25], color: [1, 0, 0], narrow: true, pinned: false, size: 4 },
+                    { name: "S1", type: "Free", pos: [6.5, 4.25], color: [0, 1, 0], narrow: true, pinned: false, size: 4 },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+            inputChanged();
+        </script>
+    </body>
+</html>
