@@ -375,10 +375,11 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
         //was there something happening to the (return)variables?
         if (expr['oper'] === '=') { //assignment to variable
             let vname = expr['args'][0]['name'];
-            vname = bindings[vname] || vname;
-
-            self.initvariable(vname, true);
-            variables[vname].assigments.push(expr['args'][1]);
+            if (vname !== undefined) { // ignore undefined names (LHS is no variable)
+                vname = bindings[vname] || vname;
+                self.initvariable(vname, true);
+                variables[vname].assigments.push(expr['args'][1]);
+            }
         } else if (expr['oper'] && getPlainName(expr['oper']) === 'regional' && scope != 'global') {
             for (let i in expr['args']) {
                 let vname = expr['args'][i]['name'];
@@ -848,7 +849,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     } else if(expr['ismodifier']){
         if(expr['ctype'] === 'variable'){
             let vname = expr['name'];
-            this.modifierTypes.get(vname).used=true;
+            this.modifierTypes.get(vname).used = true;
             return generateTerm ? {
                 code: '',
                 term: this.modifierNames.get(vname),
@@ -1290,6 +1291,7 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
         }
     this.modifierTypes.forEach((value,name)=>{
         if(value.type.type == 'cglLazy') return;
+        if(!value.used) return;
         // TODO? should image modifiers be allowed
         if(value.isuniform) {
             ans.push(`uniform ${webgltype(value.type)} ${this.modifierNames.get(name)};`);

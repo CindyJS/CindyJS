@@ -25,6 +25,10 @@
             dragging = false;
             autoUpdate = true;
             showSamples = true;
+            normalsPerPixel = false;
+            normalsPerVertex = false;
+            normalsPrecompute = false;
+            zoom = 1.0;
             phi=(1+sqrt(5))/2;
 
             r0=0.05;
@@ -57,9 +61,24 @@
                   pt=normalize([(fx-fxy)/eps,(fy-fxy)/eps,-1]);
                 )
               );
-              mesh3d(samples,normals,meshCol,normalType->CGLuMESHuNORMALuVERTEX);
+              if(normalsPrecompute,
+                mesh3d(samples,
+                  if(normalsPerPixel,cglLazy(dir,
+                    regional(x,y,fxy,fx,fy,eps);
+                    x = cglSpacePos_1;
+                    y = cglSpacePos_2;
+                    fxy=posExpr(x,y);
+                    eps=0.005;
+                    fx=posExpr(x+eps,y);
+                    fy=posExpr(x,y+eps);
+                    pt=normalize([(fx-fxy)/eps,(fy-fxy)/eps,-1]);
+                  ),normals)
+                  ,meshCol,normalType->if(normalsPerVertex,CGLuMESHuNORMALuVERTEX,CGLuMESHuNORMALuFACE)
+                );
+              ,
+                mesh3d(samples,meshCol,normalType->if(normalsPerVertex,CGLuMESHuNORMALuVERTEX,CGLuMESHuNORMALuFACE));
+              );
             );
-
             // set previous values to values outside range to force update in first draw cycle
             Nx0=-1;
             Ny0=-1;
@@ -75,6 +94,11 @@
               if(y>P1.y,y=P1.y);
               P.xy=(P0.x,y);
               (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+            updateZoom():=(
+              if(zoom>2,zoom=2);
+              if(zoom<0.2,zoom=0.2);
+              zoom3d(zoom);
             );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
@@ -139,15 +163,37 @@
               checked
               type="checkbox"
           /> autoUpdate
+          <input
+              id="computeNormal"
+              onclick="cdy.evokeCS('normalsPrecompute = ' + this.checked+';if(autoUpdate,updateMesh());');"
+              type="checkbox"
+          /> normals
+          <input
+              id="vertexNormal"
+              onclick="cdy.evokeCS('normalsPerVertex = ' + this.checked+';if(autoUpdate,updateMesh());');"
+              type="checkbox"
+          /> per Vertex
+          <input
+              id="pixelNormal"
+              onclick="cdy.evokeCS('normalsPerPixel = ' + this.checked+';if(autoUpdate,updateMesh());');"
+              type="checkbox"
+          /> per Pixel
         <div>
 
         <script type="text/javascript">
             // reset checkbox on reload
             showSamples.checked=true;
             autoUpdate.checked=true;
+            computeNormal.checked=false;
+            vertexNormal.checked=false;
+            pixelNormal.checked=false;
             function inputChanged(){
               cdy.evokeCS('posExpr(x,y) := (' + exprInput.value + ');updateMesh();');
-            }
+            };
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
             let cdy = CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",

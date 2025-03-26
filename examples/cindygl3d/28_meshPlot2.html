@@ -25,6 +25,7 @@
             dragging = false;
             autoUpdate = true;
             showSamples = true;
+            zoom = 1.0;
             phi=(1+sqrt(5))/2;
 
             r0=0.05;
@@ -77,6 +78,11 @@
               if(y>P1.y,y=P1.y);
               P.xy=(P0.x,y);
               (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+            updateZoom():=(
+              if(zoom>2,zoom=2);
+              if(zoom<0.2,zoom=0.2);
+              zoom3d(zoom);
             );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
@@ -149,7 +155,11 @@
             autoUpdate.checked=true;
             function inputChanged(){
               cdy.evokeCS('posExpr(x,y) := (' + exprInput.value + ');updateMesh();');
-            }
+            };
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
             let cdy = CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",

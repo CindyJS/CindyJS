@@ -120,13 +120,13 @@
               target = cglFindObject(sx,sy,tags->["movable"]);
               if(target!=prevTarget,
                 if(prevTarget >= 0,
-                  cglUpdate(prevTarget,Ucolor->col);
-                  cglUpdate(xAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
-                  cglUpdate(yAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
-                  cglUpdate(zAxisId,UcolorA->coordColInactive,UcolorB->coordColInactive);
+                  cglUpdate(prevTarget,UcglDrawColor->col);
+                  cglUpdate(xAxisId,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive);
+                  cglUpdate(yAxisId,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive);
+                  cglUpdate(zAxisId,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive);
                 );
                 if(target >= 0,
-                  cglUpdate(target,Ucolor->colSelected);
+                  cglUpdate(target,UcglDrawColor->colSelected);
                   axes=cglAxes();
                   viewPos = cglViewPos();
                   coordCols=[coordColXY,coordColXY,coordColXY];
@@ -144,9 +144,9 @@
                   targetPos = cglSpherePos(target);
                   movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
                   movePlaneOffset = movePlaneNormal*targetPos;
-                  cglUpdate(xAxisId,UcolorA->coordCols_1,UcolorB->coordCols_1);
-                  cglUpdate(yAxisId,UcolorA->coordCols_2,UcolorB->coordCols_2);
-                  cglUpdate(zAxisId,UcolorA->coordCols_3,UcolorB->coordCols_3);
+                  cglUpdate(xAxisId,UcglDrawColorA->coordCols_1,UcglDrawColorB->coordCols_1);
+                  cglUpdate(yAxisId,UcglDrawColorA->coordCols_2,UcglDrawColorB->coordCols_2);
+                  cglUpdate(zAxisId,UcglDrawColorA->coordCols_3,UcglDrawColorB->coordCols_3);
                 );
                 prevTarget=target;
               );

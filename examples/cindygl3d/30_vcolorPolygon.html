@@ -19,32 +19,37 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL");
-            
-            f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
-            g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));
-            regionalInLazy = cglLazy(v,regional(c);c=v;c);
-            cglBegin3d();
-            shaderCode(direction):=(
-              cglEval(regionalInLazy,direction);
-              // |v+l*d -c|=r
-              vc=cglViewPos-cglCenter;
-              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-              b2=(vc*direction); // 1/2 * b
-              c=vc*vc-cglRadius*cglRadius;
-              if(b2*b2-c<0,cglDiscard()); // 1/4* ( b*b - 4 *a*c)              
-              cglEval(f,direction);
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            r1 = 0.1;
+
+            cglBegin3d(z0->-5);
+            vertices = apply(0..5,i,
+              [sin((i/6)*(2*pi)),cos((i/6)*(2*pi)),0]
             );
-            test(f,x,y):=(
-              colorplot3d(shaderCode(#),[x,y,0],1,Uf->f);
-            );
-            test(f,-1.5,-1.5);
-            test(g,-1.5,1.5);
-            test(cglLazy([a],[1,0,0]),1.5,-1.5);
-            test(cglLazy([a],[0,1,0]),1.5,1.5);
-            test(f,0,0);
+            colors = [
+              [1,0,0],
+              [0,1,0],
+              [0,0,1],
+              [0,1,1],
+              [1,0,1],
+              [1,1,0],
+            ];
+            background(gray(.7));
+            polygon3d(vertices,cglLazy(dir,vColor),vModifiers->[["vColor",colors]]);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
-            cglDraw3d();            
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            cglDraw3d();
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>
@@ -59,9 +64,12 @@
                         id: "CSCanvas",
                         width: 512,
                         height: 512,
-                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
                     },
-                ]
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
             });
         </script>
     </body>

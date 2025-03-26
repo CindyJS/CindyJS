@@ -10,59 +10,9 @@ cglSetDepth(rawDepth):=(
   cglDepth = 1-(v/(rawDepth+v));
 );
 
-cglSphereNormalAndDepth(direction,center):=(
-  regional(vc,b2,c,D4,dst,pos3d,normal);
-  // |v+l*d -c|=r
-  vc=cglViewPos-center;
-  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-  b2=(vc*direction); // 1/2 * b
-  c=vc*vc-cglRadius*cglRadius;
-  D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
-  dst=-b2-re(sqrt(D4));// sqrt should always be real
-  pos3d = cglViewPos+ dst*direction;
-  cglSetDepth(dst);
-  normal = normalize(pos3d - center);
-  [normal_1,normal_2,normal_3]
-);
-cglSphereDepths(direction,center,radius):=(
-  regional(vc,b2,c,D4,r);
-  // |v+l*d -c|=r
-  vc=cglViewPos-center;
-  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-  b2=(vc*direction); // 1/2 * b
-  c=vc*vc-radius*radius;
-  D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
-  r=re(sqrt(D4)); // sqrt should always be real
-  (-b2-r,-b2+r)
-);
-// stereographic projection from sphere onto C using normal verctor as input
-// assumes normal is normalized
-cglProjSphereToC(normal):=(
-  // A = l (x,y,z) + (1-l) (0,0,1)
-  // 0 = l z + (1-l) = 1 + l (z-1) -> l = 1 / (1-z)
-  (normal_1)/(1-normal_3) + i* (normal_2)/(1-normal_3)
-);
-// project sphere onto unit square using normal as input
-// 1. convert position into two angles
-// 2. map angles onto square
-// assumes that normal is normalized
-cglProjSphereToSquare(normal):=(
-  regional(phi,theta);
-  phi = arctan2(-normal_3,normal_1); // (-pi, pi]
-  theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
-  (1/(2*pi))*(phi+pi,2*theta+pi)
-);
-cgl3dSphereShaderCode(direction):=(
-  regional(normal,texturePos,color);
-  normal = cglSphereNormalAndDepth(direction,cglCenter);
-  texturePos = cglEval(projection,normal);
-  color = cglEval(pixelExpr,texturePos);
-  cglEval(light,color,direction,normal);
-);
 cglNoLight = cglLazy((color,viewDirection,normal),color);
 cglSimpleLight = cglLazy((color,viewDirection,normal),
+  regional(brigthness);
   // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
   brigthness = viewDirection*normal;
   brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
@@ -76,23 +26,24 @@ cglAddLight(material, lightcolor, lightdir, normal, gamma1,gamma2) := (
   (res_1*material_1,res_2*material_2,res_3*material_3);
 );
 cglComputeLight(direction,normal,col,pos):=(
-  regional(lightCol,lightdir0,lightdir1);
+  regional(colo,ambient,lightCol,lightdir0);
   lightCol=(1,1,1)*.1;
   lightdir0 = (-10, 10, 0.)-pos;
-  lightdir1 = -direction;
   ambient=.5;
   colo= col*ambient;
   colo= colo+cglAddLight(col,lightCol, lightdir0, normal, 3,20);
   colo= colo+cglAddLight(col,lightCol, lightdir0, normal, 3,20);
-  colo= colo+cglAddLight(col,lightCol, lightdir1, normal, 3,20);
-  colo= colo+cglAddLight(col,lightCol, lightdir1, normal, 3,32);
+  colo= colo+cglAddLight(col,lightCol, direction, normal, 3,32);
+  colo= colo+cglAddLight(col,lightCol, -direction, normal, 3,32);
+  colo= colo+cglAddLight(col,lightCol, -direction, normal, 3,32);
 );
-// store ligth calculation in seperate variable to allow recovering value after setting cglDefaultLight
+// store light calculation in seperate variable to allow recovering value after setting cglDefaultLight
 cglDefaultLight0 = cglLazy((color,direction,normal),
+  regional(col3,lightCol);
   // apply calcnextcolor only to first 3 components
   // this code should work for both colors of size 3 and 4
   col3=(color_1,color_2,color_3)*0.75;
-  lightCol = 0.5*color; // ensure that lightCol is a float array
+  lightCol = 0.75*color; // ensure that lightCol is a float array
   lightCol = color; // local copy of color to ensure value is mutable
   col3=cglComputeLight(direction,normal,col3,cglViewPos+direction*cglDepth);
   lightCol_1=col3_1;
@@ -100,39 +51,124 @@ cglDefaultLight0 = cglLazy((color,direction,normal),
   lightCol_3=col3_3;
   lightCol;
 );
-// default ligth computation
+// default light computation
 cglDefaultLight=cglDefaultLight0;
 
+// TODO? allow image as color-expression
+cglColorExpression(color,plotModifiers):=(
+  regional(colorExpr);
+  colorExpr = if(cglIsLazy(color),
+    color
+  ,
+    plotModifiers = plotModifiers++[["cglDrawColor",color]];
+    cglLazy(pos,cglDrawColor);
+  );
+  [colorExpr,plotModifiers];
+);
 // TODO is there a way to distinguish modifier and global variables
-// TODO multiple versions (transparency, color, shading)
-sphere(center,radius,color):=(
-  regional(pixelExpr,projection,light);
-  pixelExpr=cglLazy(pos,color);
-  projection=cglLazy(normal,0); // position does not matter
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+// TODO? parameter for transparency handling (single-layer/multi-layer ; render 1st/2nd layer)
+
+cglSphereNormalAndDepth(direction,center):=(
+  regional(vc,b2,c,D4,dst,pos3d,normal);
+  // |v+l*d -c|=r
+  vc=cglViewPos-center;
+  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+  b2=(vc*direction); // 1/2 * b
+  c=vc*vc-cglRadius*cglRadius;
+  D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
+  dst=-b2-re(sqrt(D4));// sqrt should always be real
+  pos3d = cglViewPos+ dst*direction;
+  cglSetDepth(dst);
+  normal = normalize(pos3d - center);
+  [normal_1,normal_2,normal_3];
+);
+cglSphereDepths(direction,center,radius):=(
+  regional(vc,b2,c,D4,r);
+  // |v+l*d -c|=r
+  vc=cglViewPos-center;
+  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+  b2=(vc*direction); // 1/2 * b
+  c=vc*vc-radius*radius;
+  D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+  if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
+  r=re(sqrt(D4)); // sqrt should always be real
+  (-b2-r,-b2+r);
+);
+// stereographic projection from sphere onto C using normal verctor as input
+// assumes normal is normalized
+cglProjSphereToC(normal):=(
+  // A = l (x,y,z) + (1-l) (0,0,1)
+  // 0 = l z + (1-l) = 1 + l (z-1) -> l = 1 / (1-z)
+  (normal_1)/(1-normal_3) + i* (normal_2)/(1-normal_3);
+);
+// project sphere onto unit square using normal as input
+// 1. convert position into two angles
+// 2. map angles onto square
+// assumes that normal is normalized
+cglProjSphereToSquare(normal):=(
+  regional(phi,theta);
+  phi = arctan2(-normal_3,normal_1); // (-pi, pi]
+  theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
+  (1/(2*pi))*(phi+pi,2*theta+pi);
+);
+cgl3dSphereShaderCode(direction):=(
+  regional(normal,texturePos,color);
+  normal = cglSphereNormalAndDepth(direction,cglCenter);
+  texturePos = cglEval(projection,normal);
+  color = cglEval(pixelExpr,texturePos);
+  cglEval(light,color,direction,normal);
+);
+
+// creates a sphere with the given center and radius
+// color can eigther be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
+// the color of the pixels is determined by applying the given cglLazy projection function to the normal vector
+// and using the result as input to the color function
+cglDrawSphere(center,radius,color,projection):=(
+  regional(light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
   colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,Ucolor->color,Ulight->light,tags->["sphere"]++tags);
+    UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,tags->["sphere"]++tags);
+);
+cglDrawSphere(center,radius,color):=(
+  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)));
+);
+
+// wrapper functions for cglDrawSphere
+sphere(center,radius,color):=(
+  regional(light,modifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  cglDrawSphere(center,radius,color,cglLazy(normal,0),plotModifiers->modifiers,Ulight->light); // explicitly ignore position
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<pos>)-> <color>
 // where the position is computed from the normal vector using the lazy function `projection`
 colorplotSphere(center,radius,pixelExpr,projection):=(
-  regional(light);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dSphereShaderCode(#),center,radius,
-    UpixelExpr->pixelExpr,Uprojection->projection,Ulight->light,tags->["sphere"]++tags);
-);
-// creates a sphere with the given center and radius
-// the colors on the surface are defined using the lazy function `pixelExpr` (<z>)-> <color>
-// where z is a complex number obtained using the stereographic projection from the sphere to CP1
-colorplotSphere(center,radius,pixelExpr):=(
-  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)));
+  regional(light,modifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  cglDrawSphere(center,radius,pixelExpr,projection,plotModifiers->modifiers,Ulight->light);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
+colorplotSphere(center,radius,pixelExpr):=(
+  regional(light,modifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)),plotModifiers->modifiers,Ulight->light);
+);
+// creates a sphere with the given center and radius
+// the colors on the surface are defined using the lazy function `pixelExpr` (<z>)-> <color>
+// where z is a complex number obtained using the stereographic projection from the sphere to CP1
 colorplotSphereC(center,radius,pixelExpr):=(
-  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToC(normal)));
+  regional(light,modifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToC(normal)),plotModifiers->modifiers,Ulight->light);
 );
 
 // the two distances where the viewRay in the given direction intersects the cylinder defined by cglPointA, cglPointB and cglRadius
@@ -182,7 +218,7 @@ cgl3dCylinderNormalAndHeigth(direction):=(
     if((delta2<0) % (delta2>1),cglDiscard());
     cglSetDepth(l_2);
     normal = normalize(v2-delta2*BA);
-    (normal_1,normal_2,normal_3,delta2)
+    (normal_1,normal_2,normal_3,delta2);
   );
 );
 // project cylinder onto unit square using normal and heigth as input
@@ -195,7 +231,43 @@ cglProjCylinderToSquare(normal,heigth,orientation):=(
     d1=normalize(cross(orientation,(0,1,0)));
   );
   d2 = -normalize(cross(orientation,d1));
-  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),heigth)
+  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),heigth);
+);
+cglCylinderBlendColors(colorA,colorB,plotModifiers):=(
+  regional(pixelExpr,colAndModifs,exprA,exprB);
+  pixelExpr = if(islist(colorA) & islist(colorB),
+    // ensure colors have same length
+    if(length(colorA)!=length(colorB),
+      if(length(colorA)<length(colorB),
+        colorA = colorA ++ [1];
+      ,
+        colorB = colorB ++ [1];
+      );
+    );
+    plotModifiers = plotModifiers++[["cglDrawColorA",colorA], ["cglDrawColorB",colorB]];
+    cglLazy(pos,(pos_2)*cglDrawColorB + (1-pos_2)*cglDrawColorA);
+  ,
+    exprA = if(islist(colorA),
+      plotModifiers = plotModifiers++[["cglDrawColorA",colorA]];
+      cglLazy(pos,cglDrawColorA);
+    ,
+      colAndModifs = cglColorExpression(colorA,plotModifiers);
+      plotModifiers = colAndModifs_2;
+      colAndModifs_1;
+    );
+    exprB = if(islist(colorB),
+      plotModifiers = plotModifiers++[["cglDrawColorB",colorB]];
+      cglLazy(pos,cglDrawColorB);
+    ,
+      colAndModifs = cglColorExpression(colorB,plotModifiers);
+      plotModifiers = colAndModifs_2;
+      colAndModifs_1;
+    );
+    // TODO? is there a way to ensure the pixel-expressions have the same shape?
+    // ? add a builtIn: cglAddColors(<color1>,<color2>) that automatically extends vec3 to vec4 if arguments have different lengths
+    cglLazy(pos,(pos_2)*exprB(pos) + (1-pos_2)*exprA(pos));
+  );
+  [pixelExpr,plotModifiers];
 );
 cgl3dCylinderShaderCode(direction):=(
   regional(normalAndHeigth,normal,texturePos,color);
@@ -205,25 +277,43 @@ cgl3dCylinderShaderCode(direction):=(
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
-// TODO multiple versions of cylinder (skip-back, end-cap style, transparency, color, shading)
-cylinder(pointA,pointB,radius,colorA,colorB):=(
-  regional(pixelExpr,light);
-  pixelExpr = cglLazy(pos,(pos_2)*colorB + (1-pos_2)*colorA);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-    UpixelExpr->pixelExpr,Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["cylinder"]++tags);
-);
+// TODO multiple versions of cylinder ( end-cap style, transparency, projection?, skip-back?)
+
 // creates a cylinder with the given endpoints and radius
-// the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
-// where x,y are given in the range [0,1]
-colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
-  regional(light);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+// color can eigther be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
+// where the position a,h is the angle along the cylinder together with the higth meaured from pointA both given in the range [0,1]
+cglDrawCylinder(pointA,pointB,radius,color):=(
+  regional(light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
-    UpixelExpr->pixelExpr,Ulight->light,tags->["cylinder"]++tags);
+    UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
 );
+// like cglDrawCylinder(pointA,pointB,radius,color)
+// the color of a pixel is determined by linearely blending between colorA and colorB dependent on the heigth of the current pixel
+cglDrawCylinder(pointA,pointB,radius,colorA,colorB):=(
+  regional(light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglCylinderBlendColors(colorA,colorB,modifiers);
+  cglDrawCylinder(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,Ulight->light);
+);
+cylinder(pointA,pointB,radius,colorA,colorB):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawCylinder(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light);
+);
+colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawCylinder(pointA,pointB,radius,pixelExpr,plotModifiers->modifiers,Ulight->light);
+);
+
 cgl3dRodShaderCode(direction):=(
-  regional(l,v,BA,delta,center,normal);
+  regional(l,v,BA,delta,center,normal,texturePos);
   // TODO? extract rodNormalAndDepth
   l = cglCylinderDepths(direction);
   v = (cglViewPos+l_1*direction)-cglPointA;
@@ -232,14 +322,36 @@ cgl3dRodShaderCode(direction):=(
   delta = max(0,min(delta,1));
   center = delta*cglPointB+(1-delta)*cglPointA;
   normal=cglSphereNormalAndDepth(direction,center);
-  cglEval(light,(colorB*delta+colorA*(1-delta)),direction,normal);
+  texturePos = cglProjCylinderToSquare(normal,delta,cglPointB-cglPointA);
+  cglEval(light,cglEval(pixelExpr,texturePos),direction,normal);
 );
 // cylinder with spherical end caps
-rod(pointA,pointB,radius,colorA,colorB):=(
-  regional(light);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
+cglDrawRod(pointA,pointB,radius,color):=(
+  regional(light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
-    Ulight->light,UcolorA->colorA,UcolorB->colorB,tags->["rod"]++tags);
+    UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+);
+cglDrawRod(pointA,pointB,radius,colorA,colorB):=(
+  regional(light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglCylinderBlendColors(colorA,colorB,modifiers);
+  cglDrawRod(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,Ulight->light);
+);
+rod(pointA,pointB,radius,color):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawRod(pointA,pointB,radius,color,plotModifiers->modifiers,Ulight->light);
+);
+rod(pointA,pointB,radius,colorA,colorB):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawRod(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light);
 );
 
 // helper for computing normal vector and radius-direction of a arc-rod
@@ -267,9 +379,8 @@ cgl3dArcRodNormalAndRadius(direction):=(
     arcCenter = tCenter+tRadius*radiusDirection;
     normal = normalize(pos3d - arcCenter);
   );
-  (normal,radiusDirection)
+  (normal,radiusDirection);
 );
-
 // the torus with the given orientation onto the unit square using normal vector and radius-direction as input
 // assumes that normal and radiusDirection are normalized
 cglProjTorusToSquare(normal,radiusDirection,orientation):=(
@@ -280,7 +391,6 @@ cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
   (phi1,phi2)/(2*pi);
 );
-
 cglTorusSegments(center,orientation,radius1,radius2):=(
   regional(alpha0glob,alpha1glob,v1,v2,N,alpha);
   // set alpha0, alpha1 to global value
@@ -298,13 +408,12 @@ cglTorusSegments(center,orientation,radius1,radius2):=(
     v1=normalize(cross(orientation,(0,1,0)));
   );
   v2 = normalize(cross(orientation,v1));
-  N = max(32,min(floor(abs(alpha1-alpha0)*(radius1/radius2)),128));
+  N = max(48,min(floor(abs(alpha1-alpha0)*(radius1/radius2)),128));
   apply(0..N,n,
     alpha = alpha0+(n/N)*(alpha1-alpha0);
     center + radius1 * (cos(alpha)*v1+sin(alpha)*v2);
   );
 );
-
 cgl3dArcRodShaderCode(direction):=(
   regional(normalAndDir,normal,texturePos,color);
   normalAndDir = cgl3dArcRodNormalAndRadius(direction);
@@ -313,82 +422,130 @@ cgl3dArcRodShaderCode(direction):=(
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
-torus(center,orientation,radius1,radius2,color):=(
-  regional(points,pixelExpr,light);
-  points = cglTorusSegments(center,orientation,radius1,radius2);
-  pixelExpr = cglLazy(pos,color);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  // TODO? add way to group multiple sub-objects into a composite object
-  forall(consecutive(points),arcEnds,
-    colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
-      UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->pixelExpr,Ulight->light,Ucolor->color,tags->["arc","torus"]++tags);
-  );
-);
 // creates a torus with the given center pointing in the given orientation, with outer radius radius1 and inner radius radius1
-// the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
-// where x,y are given in the range [0,1]
-colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
-  regional(points,light);
+// color can be a uniform color or a cglLazy expression, if color is an expression ((<x>,<y>)-> <color>)
+// the colors on the surface are defined by evaluating the expression at the current angles around the outer & inner cicles
+// given in the range [0,1]
+cglDrawTorus(center,orientation,radius1,radius2,color):=(
+  regional(points,light,colAndModifs,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
+  // TODO? add way to group multiple sub-objects into a composite object
   points = cglTorusSegments(center,orientation,radius1,radius2);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   forall(consecutive(points),arcEnds,
     colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
       UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->pixelExpr,Ulight->light,tags->["arc","torus"]++tags);
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["arc","torus"]++tags);
   );
 );
+// wrappers for cglDrawTorus
+torus(center,orientation,radius1,radius2,color):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawTorus(center,orientation,radius1,radius2,color,Ulight->light,plotModifiers->modifiers);
+);
+colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawTorus(center,orientation,radius1,radius2,pixelExpr,Ulight->light,plotModifiers->modifiers);
+);
 
-
-cgl3dColorShaderCode():=(
-  color
+cgl3dBackgroundShaderCode():=(
+  cglEval(colorExpr,cglPixel); // TODO? use plain pixel
+);
+// draw a single color (or exression) on the whole screen
+cglDraw(color):=(
+  regional(colAndModifs,light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglNoLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
+  colorplot3d(cgl3dBackgroundShaderCode(),UcolorExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2);
 );
 background(color):=(
-  colorplot3d(cgl3dColorShaderCode(),Ucolor->color);
+  regional(light,modifiers);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglNoLight,Ulight);
+  cglDraw(color,Ulight->light,plotModifiers->modifiers);
 );
 
-// triangualtes a convex polygon
-cglTriangulatePolygon(vertices):=(
-  regional(root,v1,v2,n,triangles,normals);
+// triangulates a convex polygon
+cglTriangulatePolygon(vertices,vMods):=(
+  regional(root,n,triangles,normals,vData,keyVal,rootVal,vals);
   // TODO make algorithm work for non-convex shapes
   // TODO? better triangualtion algorithm (? area maximizing instead of fan)
   root = vertices_1;
-  triangles=[];
-  normals=[];
-  // ? use flatten+apply (more efficent for large list)
-  forall(2..(length(vertices)-1),i,
-    v1=vertices_i;
-    v2=vertices_(i+1);
-    n=normalize(cross(v1-root,v2-root));
-    // TODO ensure normals point in rigth direction
-    triangles = triangles ++ [root,v1,v2];
-    normals = normals ++ [n,n,n];
+  triangles = flatten(apply(2..(length(vertices)-1),i,
+    [root,vertices_i,vertices_(i+1)];
+  ));
+  normals = flatten(apply(2..(length(vertices)-1),i,
+    n=normalize(cross((vertices_i)-root,(vertices_(i+1))-root));
+    [n,n,n];
+  ));
+  vData = apply(vMods,keyVal,
+    if(islist(keyVal) & length(keyVal) == 2 & isstring(keyVal_1),
+      rootVal = keyVal_2_1;
+      vals = keyVal_2;
+      [keyVal_1,flatten(apply(2..(length(vertices)-1),i,
+        [rootVal,vals_i,vals_(i+1)];
+      ))];
+    ,
+      keyVal
+    )
   );
-  [triangles,normals]
+  [triangles,normals,vData];
 );
 cgl3dTriangleShaderCode(direction):=(
-  regional(color);
+  regional(color,normal);
   color = cglEval(pixelExpr,direction);
+  normal = cglEval(normalExpr,direction);
   cglEval(light,color,direction,normal);
 );
 
-// single colored polygon
-polygon3d(vertices,color):=(
-  regional(pixelExpr,light,triangles);
-  pixelExpr = cglLazy(dir,color);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  trianglesAndNormals = cglTriangulatePolygon(vertices);
+// TODO? allow giving one color/vertex
+// TODO correctly map vModifiers to created vertex list
+
+// draw a (convex) polygon with the given set of vertices
+// the polygon is eigther colored with a constant color
+// or a color-expression mapping the view direction to a pixel-color
+cglDrawPolygon(vertices,color):=(
+  regional(light,colAndModifs,modifiers,vMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
+  trianglesAndNormals = cglTriangulatePolygon(vertices,vMods);
   colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,Vnormal->trianglesAndNormals_2,
-    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+    UpixelExpr->colAndModifs_1,UnormalExpr->cglLazy(dir,normal),Ulight->light,
+    plotModifiers->colAndModifs_2,vModifiers->trianglesAndNormals_3,tags->["polygon"]++tags);
+);
+polygon3d(vertices,color):=(
+  regional(light,modifiers,vMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawPolygon(vertices,color,Ulight->light,plotModifiers->modifiers,vModifiers->vMods);
 );
 // replace the polygon with the given id
-updatePolygon3d(objId,vertices,color):=(
-  regional(pixelExpr,light,triangles);
-  pixelExpr = cglLazy(dir,color);
+cglUpdatePolygon3d(objId,vertices,color):=(
+  regional(light,colAndModifs,modifiers,vMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  trianglesAndNormals = cglTriangulatePolygon(vertices);
+  colAndModifs = cglColorExpression(color,modifiers);
+  trianglesAndNormals = cglTriangulatePolygon(vertices,vMods);
   cglMoveTriangles(objId,trianglesAndNormals_1);
-  cglUpdate(objId,Vnormal->trianglesAndNormals_2,UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+  cglUpdate(objId,Vnormal->trianglesAndNormals_2,UpixelExpr->colAndModifs_1,Ulight->light,
+    plotModifiers->colAndModifs_2,vModifiers->trianglesAndNormals_3);
+);
+updatePolygon3d(objId,vertices,color):=(
+  regional(light,modifiers,vMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglUpdatePolygon3d(objId,vertices,color,Ulight->light,plotModifiers->modifiers,vModifiers->vMods);
 );
 
 // square mesh
@@ -399,22 +556,34 @@ cglResolveNormalType(input,default):=(
     input
   ,
     default
-  )
+  );
 );
 // TODO option to close mesh in x/y direction
-cglMeshFacesAndNormals(samples,Nx,Ny,normalType):=(
-  regional(vertices,normals,n,vNormals,p00,p01,p10,p11,n1,n2);
-  vertices=flatten(apply(1..(Ny-1),ny,
+cglMeshSamplesToTrianglesV(samples,Nx,Ny):=(
+  regional(p00,p01,p10,p11);
+  flatten(apply(1..(Ny-1),ny,
     apply(1..(Nx-1),nx,
       p00 = samples_ny_nx;
       p01 = samples_ny_(nx+1);
       p10 = samples_(ny+1)_nx;
       p11 = samples_(ny+1)_(nx+1);
-      [p00,p01,p10,p01,p10,p11]
-    )
+      [p00,p01,p10,p01,p10,p11];
+    );
   ),levels->2);
+);
+cglMeshSamplesToTrianglesF(samples,Nx,Ny):=(
+  regional(p00);
+  flatten(apply(1..(Ny-1),ny,
+    apply(1..(Nx-1),nx,
+      p00 = samples_ny_nx;
+      [p00,p00,p00,p00,p00,p00];
+    );
+  ),levels->2);
+);
+cglMeshGuessNormals(samples,Nx,Ny,normalType):=(
+  regional(n,vNormals,p00,p01,p10,p11,n1,n2);
   if(normalType == CGLuMESHuNORMALuFACE,
-    normals = flatten(apply(1..(Ny-1),ny,
+    flatten(apply(1..(Ny-1),ny,
       apply(1..(Nx-1),nx,
         p00 = samples_ny_nx;
         p01 = samples_ny_(nx+1);
@@ -422,8 +591,8 @@ cglMeshFacesAndNormals(samples,Nx,Ny,normalType):=(
         p11 = samples_(ny+1)_(nx+1);
         n1=normalize(cross(p01-p00,p10-p00));
         n2=-normalize(cross(p01-p11,p10-p11));
-        [n1,n1,n1,n2,n2,n2]
-      )
+        [n1,n1,n1,n2,n2,n2];
+      );
     ),levels->2);
   , // CGLuMESHuNORMALuVERTEX
     // vertex normals -> average face normal of faces containing edges
@@ -450,88 +619,95 @@ cglMeshFacesAndNormals(samples,Nx,Ny,normalType):=(
       forall(1..Nx,nx,
         n=vNormals_ny_nx;
         vNormals_ny_nx = [n_1/n_4,n_2/n_4,n_3/n_4];
-      )
+      );
     );
     // assign normals to corresponding vertices
-    normals=flatten(apply(1..(Ny-1),ny,
-      apply(1..(Nx-1),nx,
-        n00 = vNormals_ny_nx;
-        n01 = vNormals_ny_(nx+1);
-        n10 = vNormals_(ny+1)_nx;
-        n11 = vNormals_(ny+1)_(nx+1);
-        [n00,n01,n10,n01,n10,n11];
-      );
-    ),levels->2);
+    cglMeshSamplesToTrianglesV(vNormals,Nx,Ny);
   );
-  [vertices,normals]
 );
-cglMeshFacesAndNormals(samples,sNormals,Nx,Ny,normalType):=(
-  regional(vertices,p00,p01,p10,p11,n00,n01,n10,n11);
-  vertices=flatten(apply(1..(Ny-1),ny,
-    apply(1..(Nx-1),nx,
-      p00 = samples_ny_nx;
-      p01 = samples_ny_(nx+1);
-      p10 = samples_(ny+1)_nx;
-      p11 = samples_(ny+1)_(nx+1);
-      [p00,p01,p10,p01,p10,p11]
-    )
-  ),levels->2);
-  if(normalType == CGLuMESHuNORMALuFACE,
-    normals=flatten(apply(1..(Ny-1),ny,
-      apply(1..(Nx-1),nx,
-        n00 = sNormals_ny_nx;
-        [n00,n00,n00,n00,n00,n00]
-      )
-    ),levels->2);
-  ,
-    normals=flatten(apply(1..(Ny-1),ny,
-      apply(1..(Nx-1),nx,
-        n00 = sNormals_ny_nx;
-        n01 = sNormals_ny_(nx+1);
-        n10 = sNormals_(ny+1)_nx;
-        n11 = sNormals_(ny+1)_(nx+1);
-        [n00,n01,n10,n01,n10,n11]
-      )
-    ),levels->2);
+cglMeshVertexModifiers(vMods,fMods,Nx,Ny):=(
+  apply(fMods,keyVal,
+    if(!islist(keyVal) % length(keyVal) != 2 % !isstring(keyVal_1),keyVal,
+      [keyVal_1,cglMeshSamplesToTrianglesF(keyVal_2,Nx,Ny)];
+    );
+  )++apply(vMods,keyVal,
+    if(!islist(keyVal) % length(keyVal) != 2 % !isstring(keyVal_1),keyVal,
+      [keyVal_1,cglMeshSamplesToTrianglesV(keyVal_2,Nx,Ny)];
+    );
   );
-  [vertices,normals]
 );
 
-mesh3d(samples,color):=(
-  regional(Nx,Ny,pixelExpr,meshData);
+// TODO? support v-modifiers for meshes
+cglDrawMesh(samples,color):=(
+  regional(Nx,Ny,pixelExpr,vertices,normals,light,vMods,fMods,vertexMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  vertexMods = cglMeshVertexModifiers(vMods,fMods,Nx,Ny);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   Ny = length(samples);
   Nx = length(samples_1);
-  meshData = cglMeshFacesAndNormals(samples,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
-  pixelExpr = cglLazy(dir,color);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
-    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+  vertices = cglMeshSamplesToTrianglesV(samples,Nx,Ny);
+  normals = cglMeshGuessNormals(samples,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
+  colAndModifs = cglColorExpression(color,modifiers);
+  colorplot3d(cgl3dTriangleShaderCode(#),vertices,Vnormal->normals,
+    UpixelExpr->colAndModifs_1,UnormalExpr->cglLazy(dir,normal),Ulight->light,
+    plotModifiers->colAndModifs_2,vModifiers->vertexMods,tags->["mesh"]++tags);
+);
+cglDrawMesh(samples,normals,color):=(
+  regional(Nx,Ny,pixelExpr,vertices,normalExpr,light,vMods,fMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  vertexMods = cglMeshVertexModifiers(vMods,fMods,Nx,Ny);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  Ny = length(samples);
+  Nx = length(samples_1);
+  vertices = cglMeshSamplesToTrianglesV(samples,Nx,Ny);
+  if(cglIsLazy(normals),
+    normalExpr = normals;
+  ,
+    if(cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE) == CGLuMESHuNORMALuVERTEX,
+      vertexMods = vertexMods ++ [["normal",cglMeshSamplesToTrianglesV(normals,Nx,Ny)]];
+    ,
+      vertexMods = vertexMods ++ [["normal",cglMeshSamplesToTrianglesF(normals,Nx,Ny)]];
+    );
+    normalExpr = cglLazy(dir,normal);
+  );
+  colAndModifs = cglColorExpression(color,modifiers);
+  colorplot3d(cgl3dTriangleShaderCode(#),vertices,
+    UpixelExpr->colAndModifs_1,UnormalExpr->normalExpr,Ulight->light,
+    plotModifiers->colAndModifs_2,vModifiers->vertexMods,tags->["mesh"]++tags);
+);
+mesh3d(samples,color):=(
+  regional(light,modifiers,vMods,fMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawMesh(samples,color,plotModifiers->modifiers,Ulight->light,vModifiers->vMods,fModifiers->fMods);
 );
 mesh3d(samples,normals,color):=(
-  regional(Nx,Ny,pixelExpr,meshData);
-  Ny = length(samples);
-  Nx = length(samples_1);
-  meshData = cglMeshFacesAndNormals(samples,normals,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
-  pixelExpr = cglLazy(dir,color);
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
-    UpixelExpr->pixelExpr,Ulight->light,Ucolor->color);
+  regional(light,modifiers,vMods,fMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawMesh(samples,normals,color,plotModifiers->modifiers,Ulight->light,vModifiers->vMods,fModifiers->fMods);
 );
 colorplotMesh3d(samples,pixelExpr):=(
-  regional(Nx,Ny,meshData);
-  Ny = length(samples);
-  Nx = length(samples_1);
-  meshData = cglMeshFacesAndNormals(samples,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
-    UpixelExpr->pixelExpr,Ulight->light);
+  regional(light,modifiers,vMods,fMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawMesh(samples,pixelExpr,plotModifiers->modifiers,Ulight->light,vModifiers->vMods,fModifiers->fMods);
 );
 colorplotMesh3d(samples,normals,pixelExpr):=(
-  regional(Nx,Ny,meshData);
-  Ny = length(samples);
-  Nx = length(samples_1);
-  meshData = cglMeshFacesAndNormals(samples,normals,Nx,Ny,cglResolveNormalType(normalType,CGLuMESHuNORMALuFACE));
-  if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
-  colorplot3d(cgl3dTriangleShaderCode(#),meshData_1,Vnormal->meshData_2,
-    UpixelExpr->pixelExpr,Ulight->light);
+  regional(light,modifiers,vMods,fMods);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  vMods = if(isundefined(vModifiers),[],vModifiers);
+  fMods = if(isundefined(fModifiers),[],fModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawMesh(samples,normals,pixelExpr,plotModifiers->modifiers,Ulight->light,vModifiers->vMods,fModifiers->fMods);
 );

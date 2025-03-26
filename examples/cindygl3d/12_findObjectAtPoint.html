@@ -61,15 +61,15 @@
 
             tagList=[];
             target = cglFindObject(sx,sy,tags->["sphere"]);
-            cglUpdate(target,Ucolor->colSelectedS);
+            cglUpdate(target,UcglDrawColor->colSelectedS);
             if(target!=prevTargetS,
-              cglUpdate(prevTargetS,Ucolor->col);
+              cglUpdate(prevTargetS,UcglDrawColor->col);
               prevTargetS=target;
             );
             target = cglFindObject(sx,sy,tags->["cylinder"]);
-            cglUpdate(target,UcolorA->colSelectedC,UcolorB->colSelectedC);
+            cglUpdate(target,UcglDrawColorA->colSelectedC,UcglDrawColorB->colSelectedC);
             if(target!=prevTargetC,
-              cglUpdate(prevTargetC,UcolorA->col,UcolorB->col);
+              cglUpdate(prevTargetC,UcglDrawColorA->col,UcglDrawColorB->col);
               prevTargetC=target;
             );
 

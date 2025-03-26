@@ -331,6 +331,31 @@ let CindyGL = function(api) {
 
         return nada;
     });
+
+    function readModifierList(modValue,modName,modifiers,addModifier) {
+        let modList;
+        if(modValue["ctype"]!=="list") {
+            console.error(`unexpected value for '${modName}' expected list got: `,modList);
+            modList=[];
+        } else {
+            modList = modValue['value'];
+        }
+        modList.forEach(v=>{
+            if(v['ctype'] !== 'list' || v['value'].length != 2) {
+                console.error("unexpected entry in modifier list expected [key,value] got: ",v);
+                return;
+            }
+            let key = v['value'][0];
+            if(key['ctype'] !== "string") {
+                console.error("unexpected key for modifier list expected string got: ",key);
+                return;
+            }
+            key = key['value'];
+            let value = v['value'][1];
+            addModifier(modifiers,key,value);
+        });
+        return modifiers;
+    }
     /**
      * get plot modifers from object
      * @param {Object} callModifiers
@@ -338,16 +363,20 @@ let CindyGL = function(api) {
      */
     function get3DPlotModifiers(callModifiers){
         let modifiers = new Map();
+        // TODO? warn for duplicate elements
+        function addUmodifier(modifiers,modName,modValue) {
+            if(CodeBuilder.builtIns.has(modName)){
+                console.warn("modifier is shadowed by built-in: "+modName);
+            }
+            modifiers.set(modName,modValue);
+        }
+        if(callModifiers.hasOwnProperty("plotModifiers")){
+            modifiers=readModifierList(api.evaluateAndVal(callModifiers["plotModifiers"]),"plotModifiers",modifiers,addUmodifier);
+        }
         Object.entries(callModifiers).forEach(([name, value])=>{
             if(name.length < 2 || !name.startsWith("U"))
                 return;
-            let modName=name.substring(1);
-            if(CodeBuilder.builtIns.has(modName)){
-                console.warn("modifer is shadowed by built-in: "+modName);
-            }else if(modName.startsWith(CodeBuilder.cindygl3dPrefix)){
-                console.warn(`names starting with "${CodeBuilder.cindygl3dPrefix}" are reserved for internal use`);
-            }
-            modifiers.set(modName,api.evaluateAndVal(value));
+            addUmodifier(modifiers,name.substring(1),api.evaluateAndVal(value));
         });
         return modifiers;
     }
@@ -359,31 +388,33 @@ let CindyGL = function(api) {
      */
     function get3DPlotVertexModifiers(callModifiers,vCount,plotModifiers){
         let modifiers = new Map();
-        Object.entries(callModifiers).forEach(([name, value])=>{
-            if(name.length < 2 || !name.startsWith("V"))
-                return;
-            let modName=name.substring(1);
+        function addVmodifier(modifiers,modName,modValue) {
             if(plotModifiers.has(modName)){
-                console.warn("vertex modifer is shadowed by uniform moif-in: "+modName);
+                console.warn("vertex modifer is shadowed by uniform modifier: "+modName);
                 return;
             }
             if(CodeBuilder.builtIns.has(modName)){
                 console.warn("modifer is shadowed by built-in: "+modName);
-            }else if(modName.startsWith(CodeBuilder.cindygl3dPrefix)){
-                console.warn(`names starting with "${CodeBuilder.cindygl3dPrefix}" are reserved for internal use`);
             }
-            let valList = coerce.toList(api.evaluateAndVal(value),[]);
+            let valList = coerce.toList(modValue,[]);
             if(valList.length != vCount){
-                console.error(`vertex modifier should be list with one element for each vertex: ${name}`);
+                console.error(`vertex modifier should be list with one element for each vertex: ${modName}`);
                 console.error(`expected: ${vCount} got: ${valList.length}`);
                 return;
             }
             // compute common element type
             let eltType = valList.map(guessTypeOfValue).reduce(lca);
             // promote int to float to allow interpolation
-            // TODO? allow int-types if value is constant accross each triangle
             eltType = replaceIntbyFloat(eltType);
             modifiers.set(modName,{values: valList,eltType: eltType});
+        }
+        if(callModifiers.hasOwnProperty("vModifiers")){
+            modifiers=readModifierList(api.evaluateAndVal(callModifiers["vModifiers"]),"vModifiers",modifiers,addVmodifier);
+        }
+        Object.entries(callModifiers).forEach(([name, value])=>{
+            if(name.length < 2 || !name.startsWith("V"))
+                return;
+            addVmodifier(modifiers,name.substring(1),api.evaluateAndVal(value));
         });
         return modifiers;
     }
@@ -524,6 +555,7 @@ let CindyGL = function(api) {
         let plotModifiers = get3DPlotModifiers(modifs);
         let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
         if(vertices === undefined) {
+            console.warn("invalid vertex data",args[1]);
             return nada;
         }
         let vCount = vertices.length/3;
@@ -1072,7 +1104,18 @@ let CindyGL = function(api) {
             expr: cloneExpression(args[1])
         };
     });
+    api.defineFunction("cglIsLazy", 1, (args, modifs) => {
+        let val = api.evaluate(args[0]);
+        return {
+            ctype: "boolean",
+            value: val['ctype'] === 'cglLazy'
+        };
+    });
 
+    api.defineFunction("cglDebugPrint", 1, (args, modifs) => {
+        console.log(args[0],api.evaluate(args[0]),api.evaluateAndVal(args[0]));
+        return nada;
+    });
 
     api.defineFunction("setpixel", 4, (args, modifs) => {
 
