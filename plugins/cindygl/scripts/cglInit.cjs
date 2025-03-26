@@ -355,6 +355,7 @@ cglTriangulatePolygon(vertices):=(
   root = vertices_1;
   triangles=[];
   normals=[];
+  // ? use flatten+apply (more efficent for large list)
   forall(2..(length(vertices)-1),i,
     v1=vertices_i;
     v2=vertices_(i+1);
@@ -402,80 +403,96 @@ cglResolveNormalType(input,default):=(
 );
 // TODO option to close mesh in x/y direction
 cglMeshFacesAndNormals(samples,Nx,Ny,normalType):=(
-  regional(vertices,normals,n,normals2,p00,p01,p10,p11,n1,n2,missing,neighbours,count);
-  vertices=[];
-  if(normalType == CGLuMESHuNORMALuFACE,
-    normals=[];
-  ,
-    // vertex normals -> average face normal of faces containing edges
-    //  -> initialize with 0,0,0, add all face normals, divide by count
-    // TODO? is there a better algorithm for guessing vertex normals
-    normals=apply(1..Ny,ny,apply(1..Nx,nx,[0,0,0,0]));
-  );
-  forall(1..(Ny-1),ny,
-    forall(1..(Nx-1),nx,
+  regional(vertices,normals,n,vNormals,p00,p01,p10,p11,n1,n2);
+  vertices=flatten(apply(1..(Ny-1),ny,
+    apply(1..(Nx-1),nx,
       p00 = samples_ny_nx;
       p01 = samples_ny_(nx+1);
       p10 = samples_(ny+1)_nx;
       p11 = samples_(ny+1)_(nx+1);
-      n1=normalize(cross(p01-p00,p10-p00));
-      n2=-normalize(cross(p01-p11,p10-p11));
-      vertices = vertices ++ [p00,p01,p10,p01,p10,p11];
-      if(normalType == CGLuMESHuNORMALuFACE,
-        normals = normals ++ [n1,n1,n1,n2,n2,n2];
-      , // CGLuMESHuNORMALuVERTEX
+      [p00,p01,p10,p01,p10,p11]
+    )
+  ),levels->2);
+  if(normalType == CGLuMESHuNORMALuFACE,
+    normals = flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        p00 = samples_ny_nx;
+        p01 = samples_ny_(nx+1);
+        p10 = samples_(ny+1)_nx;
+        p11 = samples_(ny+1)_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        [n1,n1,n1,n2,n2,n2]
+      )
+    ),levels->2);
+  , // CGLuMESHuNORMALuVERTEX
+    // vertex normals -> average face normal of faces containing edges
+    //  -> initialize with 0,0,0, add all face normals, divide by count
+    // TODO? is there a better algorithm for guessing vertex normals
+    vNormals=apply(1..Ny,ny,apply(1..Nx,nx,[0,0,0,0]));
+    forall(1..(Ny-1),ny,
+      forall(1..(Nx-1),nx,
+        p00 = samples_ny_nx;
+        p01 = samples_ny_(nx+1);
+        p10 = samples_(ny+1)_nx;
+        p11 = samples_(ny+1)_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
         n1=[n1_1,n1_2,n1_3,1];
         n2=[n2_1,n2_2,n2_3,1];
-        normals_ny_nx = normals_ny_nx+n1;
-        normals_ny_(nx+1) = normals_ny_(nx+1)+n1+n2;
-        normals_(ny+1)_nx = normals_(ny+1)_nx+n1+n2;
-        normals_(ny+1)_(nx+1) = normals_(ny+1)_(nx+1)+n2;
+        vNormals_ny_nx = vNormals_ny_nx+n1;
+        vNormals_ny_(nx+1) = vNormals_ny_(nx+1)+n1+n2;
+        vNormals_(ny+1)_nx = vNormals_(ny+1)_nx+n1+n2;
+        vNormals_(ny+1)_(nx+1) = vNormals_(ny+1)_(nx+1)+n2;
       );
     );
-  );
-  if(normalType==CGLuMESHuNORMALuVERTEX,
     forall(1..Ny,ny,
       forall(1..Nx,nx,
-        n=normals_ny_nx;
-        normals_ny_nx = [n_1/n_4,n_2/n_4,n_3/n_4];
+        n=vNormals_ny_nx;
+        vNormals_ny_nx = [n_1/n_4,n_2/n_4,n_3/n_4];
       )
     );
     // assign normals to corresponding vertices
-    normals2=[];
-    forall(1..(Ny-1),ny,
-      forall(1..(Nx-1),nx,
-        n00 = normals_ny_nx;
-        n01 = normals_ny_(nx+1);
-        n10 = normals_(ny+1)_nx;
-        n11 = normals_(ny+1)_(nx+1);
-        normals2 = normals2 ++ [n00,n01,n10,n01,n10,n11];
+    normals=flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        n00 = vNormals_ny_nx;
+        n01 = vNormals_ny_(nx+1);
+        n10 = vNormals_(ny+1)_nx;
+        n11 = vNormals_(ny+1)_(nx+1);
+        [n00,n01,n10,n01,n10,n11];
       );
-    );
-    normals=normals2;
+    ),levels->2);
   );
   [vertices,normals]
 );
 cglMeshFacesAndNormals(samples,sNormals,Nx,Ny,normalType):=(
   regional(vertices,p00,p01,p10,p11,n00,n01,n10,n11);
-  vertices=[];
-  normals=[];
-  forall(1..(Ny-1),ny,
-    forall(1..(Nx-1),nx,
+  vertices=flatten(apply(1..(Ny-1),ny,
+    apply(1..(Nx-1),nx,
       p00 = samples_ny_nx;
       p01 = samples_ny_(nx+1);
       p10 = samples_(ny+1)_nx;
       p11 = samples_(ny+1)_(nx+1);
-      n00 = sNormals_ny_nx;
-      vertices = vertices ++ [p00,p01,p10,p01,p10,p11];
-      if(normalType == CGLuMESHuNORMALuFACE,
-        normals = normals ++ [n00,n00,n00,n00,n00,n00];
-      , // CGLuMESHuNORMALuVERTEX
+      [p00,p01,p10,p01,p10,p11]
+    )
+  ),levels->2);
+  if(normalType == CGLuMESHuNORMALuFACE,
+    normals=flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        n00 = sNormals_ny_nx;
+        [n00,n00,n00,n00,n00,n00]
+      )
+    ),levels->2);
+  ,
+    normals=flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        n00 = sNormals_ny_nx;
         n01 = sNormals_ny_(nx+1);
         n10 = sNormals_(ny+1)_nx;
         n11 = sNormals_(ny+1)_(nx+1);
-        normals = normals ++ [n00,n01,n10,n01,n10,n11];
-      );
-    );
+        [n00,n01,n10,n01,n10,n11]
+      )
+    ),levels->2);
   );
   [vertices,normals]
 );
