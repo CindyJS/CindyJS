@@ -28,6 +28,7 @@ void main(void) {
    vec3 pos3 = mPoint+uRadius*(dir*aPos.y+dir2*aPos.x-viewDir);
    // transform to viewSpace
    gl_Position = projAndTrafoMatrix*vec4(pos3,1);
+   gl_Position.z=0.0;
    cgl_viewDirection = pos3 - cgl_viewPos;
    // 2D coordinates
    plain_pixel = aTexCoord;
