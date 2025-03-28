@@ -51,7 +51,7 @@ function CanvasWrapper(canvas, properties) {
         this.textures[j] = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         if (properties.mipmap)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_LINEAR); //always interpolate between 2 mipmap levels NEAREST_MIPMAP_LINEAR
         else
@@ -224,7 +224,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
         for (let j = 0; j < 2; j++) {
             gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+            gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         }
     }
 

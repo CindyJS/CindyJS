@@ -337,9 +337,15 @@ function createPixelArray(size) {
 }
 
 
+function getPixelFormat() {
+    if (can_use_texture_float) return gl.RGBA32F;
+    if (can_use_texture_half_float) return gl.RGBA16F;
+    else return gl.RGBA;
+}
+
 function getPixelType() {
     if (can_use_texture_float) return gl.FLOAT;
-    if (can_use_texture_half_float) return halfFloat.HALF_FLOAT_OES
+    if (can_use_texture_half_float) return gl.HALF_FLOAT;
     else return gl.UNSIGNED_BYTE;
 }
 

@@ -22,7 +22,6 @@ var gl;
 var nada;
 
 var can_use_texture_half_float = false;
-var halfFloat;
 var can_use_texture_float = false;
 
 var use8bittextures = false;
@@ -99,6 +98,18 @@ function initGLIfRequired() {
     glcanvas.removeEventListener(
         "webglcontextcreationerror",
         onContextCreationError, false);
+    if(!use8bittextures) {
+        can_use_texture_float = !! gl.getExtension('EXT_color_buffer_float') && gl.getExtension('OES_texture_float_linear');
+        if(! can_use_texture_float) {
+            console.error("Your browser does not support EXT_color_buffer_float, trying EXT_color_buffer_half_float...");
+            // half-float textures are linear by default in WebGL2 -> no need to check extension
+            can_use_texture_half_float = !! gl.getExtension('EXT_color_buffer_half_float');
+            if(!can_use_texture_half_float) {
+                // TODO test support for this extension (it does not seem to automatically exist on machines that support EXT_color_buffer_float)
+                console.error("Your browser does not support EXT_color_buffer_half_float, will use 8-bit textures.");
+            }
+        }
+    }
     gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     isinitialized = true;
