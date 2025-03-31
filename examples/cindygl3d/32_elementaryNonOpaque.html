@@ -25,13 +25,11 @@
             dragging = false;
 
             cglBegin3d();
-            // TODO UI
-            //  * select which object should be drawn
-            //  * allow modifying parameters of object
-            sphere([0,0,0],.75,[0,1,0]);
-            cylinder([0,-1.5,0],[0,1.5,0],1,[0,1,0],[1,0,0]);
-            rod([0,-2,0],[0,2,0],.5,[0,0,1],[0,0,1]);
-            torus([0,0,0],[0,1,0],1.5,.25,[0,1,1],alpha1->1.5*pi);
+            sphere([0,0,0],.75,[0,1,0,0.5]);
+            cylinder([0,-1.5,0],[0,1.5,0],1,[0,1,0,0.5],[1,0,0,0.5]);
+            rod([-2,0,0],[2,0,0],0.5,[0,0,1,0.5]);
+            // TODO add support for efficient rendering of translucent torus
+            // torus([0,0,0],[0,1,0],1.5,.25,[0,1,1,0.5],alpha1->1.5*pi);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
@@ -40,7 +38,6 @@
             );
             sx = mouse().x;
             sy = mouse().y;
-
 
             cglRender3d();
         </script>

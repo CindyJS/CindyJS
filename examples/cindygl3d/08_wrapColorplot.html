@@ -51,27 +51,23 @@
                 b = S*T;
                 c = S*S -cglRadius*cglRadius;
                 D= b*b-a*c;
-                if(D<0,
-                  [0,0,0,0],
-                  l1 = -(b + re(sqrt(D)))/a;
-                  v1 = (W+l1*direction)-cglPointA;
-                  delta1 = (v1*U);
-                  if((delta1>0)& (delta1<1),
-                    brigthness = .25+.75*max(-direction*normalize(v1-delta1*BA),0);
-                    color = brigthness*((aColor*delta1+bColor*(1-delta1)));
-                    cglDepth = (w+l1)/16;
-                    [color_1,color_2,color_3,1],
-                    l2 = (-b + re(sqrt(D)))/a;
-                    v2 = (W+l2*direction)-cglPointA;
-                    delta2 = v2*U;
-                    if((delta2>0) & (delta2<1),
-                      brigthness = .25+.5*max(direction*normalize(v2-delta2*BA),0);
-                      color = brigthness*((aColor*delta2+bColor*(1-delta2)));
-                      cglDepth = (l2+w)/16;
-                      [color_1,color_2,color_3,1],
-                      [0,0,0,0]
-                    )
-                  )
+                if(D<0,cglDiscard());
+                l1 = -(b + re(sqrt(D)))/a;
+                v1 = (W+l1*direction)-cglPointA;
+                delta1 = (v1*U);
+                if((delta1>0)& (delta1<1),
+                  brigthness = .25+.75*max(-direction*normalize(v1-delta1*BA),0);
+                  color = brigthness*((aColor*delta1+bColor*(1-delta1)));
+                  cglDepth = (w+l1)/16;
+                  [color_1,color_2,color_3],
+                  l2 = (-b + re(sqrt(D)))/a;
+                  v2 = (W+l2*direction)-cglPointA;
+                  delta2 = v2*U;
+                  if((delta2<0) % (delta2>1),cglDiscard());
+                  brigthness = .25+.5*max(direction*normalize(v2-delta2*BA),0);
+                  color = brigthness*((aColor*delta2+bColor*(1-delta2)));
+                  cglDepth = (l2+w)/16;
+                  [color_1,color_2,color_3]
                 )
               );
               colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius);
@@ -84,16 +80,14 @@
                 b2=(vc*direction); // 1/2 * b
                 c=vc*vc-cglRadius*cglRadius;
                 D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
-                if(D4<0,
-                  [0,0,0,0],
-                  dst=-b2-re(sqrt(D4));// sqrt should always be real
-                  pos3d = cglViewPos+ dst*direction;
-                  normal = normalize(pos3d - cglCenter);
-                  brigthness = 0.25+0.75*max(-direction*normal,0); // 0.2 ... 1.0
-                  color = brigthness*cColor;
-                  cglDepth = dst/16;
-                  [color_1,color_2,color_3,1]
-                )
+                if(D4<0,cglDiscard());
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                pos3d = cglViewPos+ dst*direction;
+                normal = normalize(pos3d - cglCenter);
+                brigthness = 0.25+0.75*max(-direction*normal,0); // 0.2 ... 1.0
+                color = brigthness*cColor;
+                cglDepth = dst/16;
+                [color_1,color_2,color_3]
               );
               colorplot3d(cgl3dSphereShaderCode(#),center,radius);
             );
@@ -197,8 +191,7 @@
             sx = mouse().x;
             sy = mouse().y;
 
-
-            cglDraw3d();
+            cglRender3d();
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>

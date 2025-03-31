@@ -61,33 +61,29 @@
                 b = S*T;
                 c = S*S -cglRadius*cglRadius;
                 D= b*b-a*c;
-                if(D<0,
-                  [0,0,0,0],
-                  l1 = -(b + re(sqrt(D)))/a;
-                  v1 = (W+l1*direction)-cglPointA;
-                  delta = (v1*U);
-                  delta = max(0,min(delta,1));
-                  center = delta*cglPointB+(1-delta)*cglPointA;
-                  // |v+l*d -c|=r
-                  vc=cglViewPos-center;
-                  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
-                  b2=(vc*direction);
-                  c2=vc*vc-cglRadius*cglRadius;
-                  D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
-                  if(D4<0,
-                    [0,0,0,0],
-                    dst=-b2-re(sqrt(D4));// sqrt should always be real
-                    pos3d = cglViewPos+ dst*direction;
-                    pc=pos3d-tCenter;
-                    arcDirection = normalize(pc-(tOrientation*pc)*tOrientation);
-                    arcCenter = tCenter+tRadius*arcDirection;
-                    normal = normalize(pos3d - arcCenter);
-                    brigthness = 0.25 +0.75*max(-direction*normal,0);
-                    color = brigthness*[0,1,0];
-                    cglDepth = dst/64;
-                    [color_1,color_2,color_3,1]
-                  )
-                )
+                if(D<0,cglDiscard());
+                l1 = -(b + re(sqrt(D)))/a;
+                v1 = (W+l1*direction)-cglPointA;
+                delta = (v1*U);
+                delta = max(0,min(delta,1));
+                center = delta*cglPointB+(1-delta)*cglPointA;
+                // |v+l*d -c|=r
+                vc=cglViewPos-center;
+                // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+                b2=(vc*direction);
+                c2=vc*vc-cglRadius*cglRadius;
+                D4=b2*b2-c2; // b*b - 1*c  ( <d,d> == 1 )
+                if(D4<0,cglDiscard());
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                pos3d = cglViewPos+ dst*direction;
+                pc=pos3d-tCenter;
+                arcDirection = normalize(pc-(tOrientation*pc)*tOrientation);
+                arcCenter = tCenter+tRadius*arcDirection;
+                normal = normalize(pos3d - arcCenter);
+                brigthness = 0.25 +0.75*max(-direction*normal,0);
+                color = brigthness*[0,1,0];
+                cglDepth = dst/64;
+                [color_1,color_2,color_3]
               );
               repeat(N,n,
                 fromAngle=alpha0+((n-1)/N)*(alpha1-alpha0);
@@ -122,7 +118,7 @@
 
             cglReset3d();
             torus([0,0,0],[2,2,-1],r1,r2);
-            cglDraw3d();
+            cglRender3d();
 
             drawtext(R1+(-.05,.1),"r2");
             drawtext(R+(.03,.03),format(r2,2));

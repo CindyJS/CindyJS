@@ -12,11 +12,11 @@ cglSetDepth(rawDepth):=(
 
 cglNoLight = cglLazy((color,viewDirection,normal),color);
 cglSimpleLight = cglLazy((color,viewDirection,normal),
-  regional(brigthness);
-  // normal towards view -> .75*brigthness  ; normal away from view -> .45 * brigthness
-  brigthness = viewDirection*normal;
-  brigthness = 0.25+0.6*abs(brigthness)-0.15*brigthness;
-  brigthness*color;
+  regional(brightness);
+  // normal towards view -> .75*brightness  ; normal away from view -> .45 * brightness
+  brightness = viewDirection*normal;
+  brightness = 0.25+0.6*abs(brightness)-0.15*brightness;
+  brightness*color;
 );
 cglAddLight(material, lightcolor, lightdir, normal, gamma1,gamma2) := (
   regional(illumination,res);
@@ -37,7 +37,7 @@ cglComputeLight(direction,normal,col,pos):=(
   colo= colo+cglAddLight(col,lightCol, -direction, normal, 3,32);
   colo= colo+cglAddLight(col,lightCol, -direction, normal, 3,32);
 );
-// store light calculation in seperate variable to allow recovering value after setting cglDefaultLight
+// store light calculation in separate variable to allow recovering value after setting cglDefaultLight
 cglDefaultLight0 = cglLazy((color,direction,normal),
   regional(col3,lightCol);
   // apply calcnextcolor only to first 3 components
@@ -68,8 +68,8 @@ cglColorExpression(color,plotModifiers):=(
 // TODO is there a way to distinguish modifier and global variables
 // TODO? parameter for transparency handling (single-layer/multi-layer ; render 1st/2nd layer)
 
-cglSphereNormalAndDepth(direction,center):=(
-  regional(vc,b2,c,D4,dst,pos3d,normal);
+cglSphereNormalAndDepth(direction,center,isBack):=(
+  regional(vc,b2,c,D4,r,dst,dst2,pos3d,normal);
   // |v+l*d -c|=r
   vc=cglViewPos-center;
   // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
@@ -77,7 +77,15 @@ cglSphereNormalAndDepth(direction,center):=(
   c=vc*vc-cglRadius*cglRadius;
   D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
   if(D4<0,cglDiscard()); // discard rays that do not intersect the sphere
-  dst=-b2-re(sqrt(D4));// sqrt should always be real
+  r=re(sqrt(D4));
+  dst=-b2-r;// sqrt should always be real
+  dst2 = -b2+r;
+  if(dst<0,
+    if(isBack,cglDiscard());
+    dst=dst2;
+    if(dst<0,cglDiscard());
+  );
+  if(isBack,dst=dst2);
   pos3d = cglViewPos+ dst*direction;
   cglSetDepth(dst);
   normal = normalize(pos3d - center);
@@ -112,63 +120,85 @@ cglProjSphereToSquare(normal):=(
   theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
   (1/(2*pi))*(phi+pi,2*theta+pi);
 );
-cgl3dSphereShaderCode(direction):=(
+cgl3dSphereShaderCode(direction,isBack):=(
   regional(normal,texturePos,color);
-  normal = cglSphereNormalAndDepth(direction,cglCenter);
+  normal = cglSphereNormalAndDepth(direction,cglCenter,isBack);
   texturePos = cglEval(projection,normal);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
 
+// TODO add support for drawing back faces to all shapes
+
 // creates a sphere with the given center and radius
-// color can eigther be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
+// color can either be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
 // the color of the pixels is determined by applying the given cglLazy projection function to the normal vector
 // and using the result as input to the color function
 cglDrawSphere(center,radius,color,projection):=(
-  regional(light,colAndModifs,modifiers);
+  regional(light,colAndModifs,modifiers,drawBack);
+  // TODO better way to detect transparent sphere
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   colAndModifs = cglColorExpression(color,modifiers);
-  colorplot3d(cgl3dSphereShaderCode(#),center,radius,
+  if(drawBack,
+    colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
+      UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,
+      tags->["sphere"]++tags);
+  );
+  colorplot3d(cgl3dSphereShaderCode(#,false),center,radius,
     UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,tags->["sphere"]++tags);
 );
 cglDrawSphere(center,radius,color):=(
-  colorplotSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)));
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)),
+    plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
 );
 
 // wrapper functions for cglDrawSphere
 sphere(center,radius,color):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  cglDrawSphere(center,radius,color,cglLazy(normal,0),plotModifiers->modifiers,Ulight->light); // explicitly ignore position
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawSphere(center,radius,color,cglLazy(normal,0),plotModifiers->modifiers,
+    Ulight->light,cglDrawBack->drawBack);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<pos>)-> <color>
 // where the position is computed from the normal vector using the lazy function `projection`
 colorplotSphere(center,radius,pixelExpr,projection):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  cglDrawSphere(center,radius,pixelExpr,projection,plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(pixelExpr)==4,cglDrawBack);
+  cglDrawSphere(center,radius,pixelExpr,projection,plotModifiers->modifiers,
+    Ulight->light,cglDrawBack->drawBack);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<x>,<y>)-> <color>
 // where x,y are given in the range [0,1]
 colorplotSphere(center,radius,pixelExpr):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)),plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(pixelExpr)==4,cglDrawBack);
+  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToSquare(normal)),plotModifiers->modifiers,
+    Ulight->light,cglDrawBack->drawBack);
 );
 // creates a sphere with the given center and radius
 // the colors on the surface are defined using the lazy function `pixelExpr` (<z>)-> <color>
 // where z is a complex number obtained using the stereographic projection from the sphere to CP1
 colorplotSphereC(center,radius,pixelExpr):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToC(normal)),plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(pixelExpr)==4,cglDrawBack);
+  cglDrawSphere(center,radius,pixelExpr,cglLazy(normal,cglProjSphereToC(normal)),plotModifiers->modifiers,
+    Ulight->light,cglDrawBack->drawBack);
 );
 
 // the two distances where the viewRay in the given direction intersects the cylinder defined by cglPointA, cglPointB and cglRadius
@@ -201,8 +231,8 @@ cglCylinderDepths(direction):=(
 );
 // helper for computing normal and position along cylinder
 // sets cglDepth to the first intersection with the cylinder
-// returns (...normal, heigth)
-cgl3dCylinderNormalAndHeigth(direction):=(
+// returns (...normal, height)
+cgl3dCylinderNormalAndHeight(direction):=(
   regional(l,BA,U,v1,delta1,v2,delta2,normal);
   l = cglCylinderDepths(direction);
   BA = cglPointB-cglPointA;
@@ -221,9 +251,25 @@ cgl3dCylinderNormalAndHeigth(direction):=(
     (normal_1,normal_2,normal_3,delta2);
   );
 );
-// project cylinder onto unit square using normal and heigth as input
-// assumes that normal is normalized, and heigth is between 0 and 1
-cglProjCylinderToSquare(normal,heigth,orientation):=(
+cgl3dCylinderNormalAndHeightBack(direction):=(
+  regional(l,BA,U,v1,delta1,v2,delta2,normal);
+  l = cglCylinderDepths(direction);
+  BA = cglPointB-cglPointA;
+  U = BA/(BA*BA);
+  v1 = (cglViewPos+l_1*direction)-cglPointA;
+  delta1 = (v1*U);
+  if((delta1<0) % (delta1>1),cglDiscard()); // no second intersection
+  cglSetDepth(l_1);
+  v2 = (cglViewPos+l_2*direction)-cglPointA;
+  delta2 = v2*U;
+  if((delta2<0) % (delta2>1),cglDiscard());
+  cglSetDepth(l_2);
+  normal = normalize(v2-delta2*BA);
+  (normal_1,normal_2,normal_3,delta2);
+);
+// project cylinder onto unit square using normal and height as input
+// assumes that normal is normalized, and height is between 0 and 1
+cglProjCylinderToSquare(normal,height,orientation):=(
   regional(d1,d2);
   if(orientation_1<orientation_2,
     d1=normalize(cross(orientation,(1,0,0)));
@@ -231,7 +277,7 @@ cglProjCylinderToSquare(normal,heigth,orientation):=(
     d1=normalize(cross(orientation,(0,1,0)));
   );
   d2 = -normalize(cross(orientation,d1));
-  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),heigth);
+  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),height);
 );
 cglCylinderBlendColors(colorA,colorB,plotModifiers):=(
   regional(pixelExpr,colAndModifs,exprA,exprB);
@@ -270,46 +316,63 @@ cglCylinderBlendColors(colorA,colorB,plotModifiers):=(
   [pixelExpr,plotModifiers];
 );
 cgl3dCylinderShaderCode(direction):=(
-  regional(normalAndHeigth,normal,texturePos,color);
-  normalAndHeigth=cgl3dCylinderNormalAndHeigth(direction);
-  normal = (normalAndHeigth_1,normalAndHeigth_2,normalAndHeigth_3);
-  texturePos = cglProjCylinderToSquare(normal,normalAndHeigth_4,cglPointB-cglPointA);
+  regional(normalAndHeight,normal,texturePos,color);
+  normalAndHeight = cgl3dCylinderNormalAndHeight(direction);
+  normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
+  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglPointB-cglPointA);
+  color = cglEval(pixelExpr,texturePos);
+  cglEval(light,color,direction,normal);
+);
+cgl3dCylinderShaderCodeBack(direction):=(
+  regional(normalAndHeight,normal,texturePos,color);
+  normalAndHeight = cgl3dCylinderNormalAndHeightBack(direction);
+  normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
+  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglPointB-cglPointA);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
 // TODO multiple versions of cylinder ( end-cap style, transparency, projection?, skip-back?)
 
 // creates a cylinder with the given endpoints and radius
-// color can eigther be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
-// where the position a,h is the angle along the cylinder together with the higth meaured from pointA both given in the range [0,1]
+// color can either be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
+// where the position a,h is the angle along the cylinder together with the hight measured from pointA both given in the range [0,1]
 cglDrawCylinder(pointA,pointB,radius,color):=(
-  regional(light,colAndModifs,modifiers);
+  regional(light,colAndModifs,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    colorplot3d(cgl3dCylinderShaderCodeBack(#),pointA,pointB,radius,
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+  );
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
 );
 // like cglDrawCylinder(pointA,pointB,radius,color)
-// the color of a pixel is determined by linearely blending between colorA and colorB dependent on the heigth of the current pixel
+// the color of a pixel is determined by linearly blending between colorA and colorB dependent on the height of the current pixel
 cglDrawCylinder(pointA,pointB,radius,colorA,colorB):=(
-  regional(light,colAndModifs,modifiers);
+  regional(light,colAndModifs,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  drawBack = if(isundefined(cglDrawBack),length(colorA)==4 % length(colorA)==4,cglDrawBack);
   colAndModifs = cglCylinderBlendColors(colorA,colorB,modifiers);
-  cglDrawCylinder(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,Ulight->light);
+  cglDrawCylinder(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,
+    Ulight->light,cglDrawBack->drawBack);
 );
 cylinder(pointA,pointB,radius,colorA,colorB):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawCylinder(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(colorA)==4 % length(colorA)==4,cglDrawBack);
+  cglDrawCylinder(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
 );
 colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawCylinder(pointA,pointB,radius,pixelExpr,plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(pixelExpr)==4,cglDrawBack);
+  cglDrawCylinder(pointA,pointB,radius,pixelExpr,plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
 );
 
 cgl3dRodShaderCode(direction):=(
@@ -321,38 +384,63 @@ cgl3dRodShaderCode(direction):=(
   delta = (v*BA)/(BA*BA);
   delta = max(0,min(delta,1));
   center = delta*cglPointB+(1-delta)*cglPointA;
-  normal=cglSphereNormalAndDepth(direction,center);
+  normal=cglSphereNormalAndDepth(direction,center,false);
+  texturePos = cglProjCylinderToSquare(normal,delta,cglPointB-cglPointA);
+  cglEval(light,cglEval(pixelExpr,texturePos),direction,normal);
+);
+cgl3dRodShaderCodeBack(direction):=(
+  regional(l,v,BA,delta,center,normal,texturePos);
+  l = cglCylinderDepths(direction);
+  v = (cglViewPos+l_1*direction)-cglPointA;
+  BA = cglPointB-cglPointA;
+  delta = (v*BA)/(BA*BA);
+  delta = max(0,min(delta,1));
+  center = delta*cglPointB+(1-delta)*cglPointA;
+  normal=cglSphereNormalAndDepth(direction,center,true);
   texturePos = cglProjCylinderToSquare(normal,delta,cglPointB-cglPointA);
   cglEval(light,cglEval(pixelExpr,texturePos),direction,normal);
 );
 // cylinder with spherical end caps
 cglDrawRod(pointA,pointB,radius,color):=(
-  regional(light,colAndModifs,modifiers);
+  regional(light,colAndModifs,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    colorplot3d(cgl3dRodShaderCodeBack(#),pointA,pointB,radius,
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+  );
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
 );
 cglDrawRod(pointA,pointB,radius,colorA,colorB):=(
-  regional(light,colAndModifs,modifiers);
+  regional(light,colAndModifs,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  drawBack = if(isundefined(cglDrawBack),length(colorA)==4 % length(colorA)==4,cglDrawBack);
   colAndModifs = cglCylinderBlendColors(colorA,colorB,modifiers);
-  cglDrawRod(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,Ulight->light);
+  cglDrawRod(pointA,pointB,radius,colAndModifs_1,plotModifiers->colAndModifs_2,Ulight->light,cglDrawBack->drawBack);
 );
 rod(pointA,pointB,radius,color):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawRod(pointA,pointB,radius,color,plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawRod(pointA,pointB,radius,color,plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
 );
 rod(pointA,pointB,radius,colorA,colorB):=(
-  regional(light,modifiers);
+  regional(light,modifiers,drawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawRod(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light);
+  drawBack = if(isundefined(cglDrawBack),length(colorA)==4 % length(colorA)==4,cglDrawBack);
+  cglDrawRod(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
 );
+
+// TODO use surface for rendering torus
+//  will reduce the number of rendered objects when transparency is enabled, can be correctly split into layers
+// -> own bounding box for torus, (trianglate larger torus s.t. rendered surface within that torus)
+// ? is it faster for opaque to use triangles/arc-rods
 
 // helper for computing normal vector and radius-direction of a arc-rod
 cgl3dArcRodNormalAndRadius(direction):=(
@@ -508,7 +596,7 @@ cgl3dTriangleShaderCode(direction):=(
 // TODO correctly map vModifiers to created vertex list
 
 // draw a (convex) polygon with the given set of vertices
-// the polygon is eigther colored with a constant color
+// the polygon is either colored with a constant color
 // or a color-expression mapping the view direction to a pixel-color
 cglDrawPolygon(vertices,color):=(
   regional(light,colAndModifs,modifiers,vMods);

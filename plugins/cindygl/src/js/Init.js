@@ -16,7 +16,7 @@ var dummycanvas;
 
 var dummyimage;
 
-/** @type {WebGLRenderingContext} */
+/** @type {WebGL2RenderingContext} */
 var gl;
 
 var nada;
@@ -89,8 +89,7 @@ function initGLIfRequired() {
     if (useWebXR) {
         contextAttributes['xrCompatible'] = true;
     }
-    gl = /** @type {WebGL2RenderingContext} */ (
-        glcanvas.getContext("webgl2", contextAttributes));
+    gl = glcanvas.getContext("webgl2", contextAttributes);
     if (!gl)
         throw new GlError(`Could not obtain a WebGL2 context.\nReason: ${errorInfo}`);
     console.log("Loaded WebGL 2.0.");

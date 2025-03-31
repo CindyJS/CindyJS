@@ -37,9 +37,16 @@ Renderer.boundingTriangles = function(vertices,vModifiers){
     };
 }
 
+const TransparencyType = {
+    Simple: 0, // render everything in draw order (default)
+    SingleLayer: 1, // merge transparent objects into a single layer
+    MultiLayer: 2, // use multiple layers for rendering transparent objects
+}
+
 Renderer.uModifierPrefix = "uModifier_";
 Renderer.vModifierPrefix = "vModifier_";
 Renderer.vModifierPrefixV = "aModifier_";
+Renderer.transparencyType = TransparencyType.Simple;
 
 // remember previous values to detect changes
 Renderer.prevBoundingBoxType = undefined;
@@ -57,18 +64,17 @@ Renderer.resetCachedState = function(){
 
 /**
  * @param {CindyJS.anyval} expression for the Code that will be used for rendering
- * @param {DepthType} depthType
  * @param {{type: BoundingBoxType}} boundingBox
  * @param {Map<string,{type:type, isuniform: boolean, used: boolean}>} modifierTypes
  * @constructor
  */
-function Renderer(api, expression,depthType,boundingBox,modifierTypes) {
+function Renderer(api, expression,boundingBox,modifierTypes) {
     this.api = api;
     this.expression = expression;
     this.modifierTypes = modifierTypes;
     this.activeModifierTypes = modifierTypes;
-    this.depthType = depthType;
     this.boundingBox = boundingBox;
+    this.transparencyType = Renderer.transparencyType;
     this.rebuild(false);
 }
 
@@ -120,6 +126,10 @@ Renderer.prototype.modifierTypes
 /** @type {Map<string,{type:type, used: boolean}>} */
 Renderer.prototype.activeModifierTypes
 
+/** the TransparencyType used for the previous rendering call
+ *  @type {TransparencyType} */
+Renderer.prototype.transparencyType;
+
 /**
  * @param {Map<string,{type:type, isuniform: boolean, used: boolean}>} newModifierTypes
  * */
@@ -148,10 +158,23 @@ Renderer.prototype.rebuild = function(forceRecompile) {
     }
     if(this.cpg===undefined){
         console.error("cpg is undefined");
+        return;
     }
     // TODO? use different header for fshader depending on box type
-    this.fragmentShaderCode =
-        cgl_resources["standardFragmentHeader"] + this.cb.generateShader(this.cpg,this.depthType);
+    this.transparencyType = Renderer.transparencyType;
+    if (this.transparencyType === TransparencyType.Simple) {
+        this.fragmentShaderCode = cgl_resources["standardFragmentHeader"];
+    } else if ( this.transparencyType === TransparencyType.SingleLayer) {
+        const typeSuffix = can_use_texture_float ? "" : "2I8";
+        this.fragmentShaderCode = this.opaque ? cgl_resources["fragHeaderOpaqueLayer"+typeSuffix] : cgl_resources["fragHeaderSingleLayer"+typeSuffix];
+    } else if ( this.transparencyType === TransparencyType.MultiLayer) {
+        const typeSuffix = can_use_texture_float ? "" : "2I8";
+        this.fragmentShaderCode = cgl_resources["fragHeaderOpaqueLayer"+typeSuffix]; // TODO better name for fShader? ('writeHeader')
+    } else {
+        console.error("unexpected transparencyType ",this.transparencyType);
+        return;
+    }
+    this.fragmentShaderCode += this.cb.generateShader(this.cpg,this.transparencyType === TransparencyType.Simple);
     if(CindyGL.mode3D){
         if(this.boundingBox.type == BoundingBoxType.none) {
             this.vertexShaderCode = cgl_resources["vshader3d"];
@@ -591,9 +614,10 @@ Renderer.prototype.setUniforms = function() {
 
 /**
  * Activates, loads textures and sets corresponding sampler uniforms
+ * @param {number} initCount number of textures bound before calling loadTextures
  */
-Renderer.prototype.loadTextures = function() {
-    let cnt = 0;
+Renderer.prototype.loadTextures = function(initCount) {
+    let cnt = initCount;
     for (let t in this.cpg.texturereaders) {
         gl.activeTexture(gl.TEXTURE0 + cnt);
 
@@ -629,23 +653,97 @@ Renderer.prototype.functionGenerationsOk = function() {
     return true;
 }
 
-Renderer.prototype.prepareUniforms = function() {
+/**@param {CglSceneLayer | undefined} targetLayer */
+Renderer.prototype.prepareUniforms = function(targetLayer) {
     this.setUniforms();
     this.updateCoordinateUniforms();
-    this.loadTextures();
+    let texCount=0;
+    if(targetLayer != null) {
+        // set uniforms for rendering to targetLayer
+        if(this.shaderProgram.uniform.hasOwnProperty('screenSize'))
+            this.shaderProgram.uniform['screenSize']([targetLayer.iw,targetLayer.ih]);
+        if(this.shaderProgram.uniform.hasOwnProperty('oldColorTex')) {
+            gl.activeTexture(gl.TEXTURE0+texCount);
+            gl.bindTexture(gl.TEXTURE_2D, targetLayer.colorTexture);
+            this.shaderProgram.uniform['oldColorTex']([texCount]);//bind variable to texture 0
+            texCount++;
+        }
+        if(this.shaderProgram.uniform.hasOwnProperty('oldDepthTex')) {
+            gl.activeTexture(gl.TEXTURE0+texCount);
+            gl.bindTexture(gl.TEXTURE_2D, targetLayer.depthTexture);
+            this.shaderProgram.uniform['oldDepthTex']([texCount]);//bind variable to texture 1
+            texCount++;
+        }
+    }
+    this.loadTextures(texCount);
 }
 Renderer.prototype.updateCoordinateUniforms = function() {
     this.setCoordinateUniforms3D();
 }
 
-// TODO? split 2d and 3d rendering functions
 /**
  * runs shaderProgram on gl. Will render to texture in canvaswrapper
  * or if argument canvaswrapper is not given, then to glcanvas
  */
-Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
+Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
+    Renderer.resetCachedState();
+    Renderer.transparencyType = TransparencyType.Simple;
+    this.boundingBox = boundingBox;
+    if (!this.functionGenerationsOk()) { // only check functions once per shader program per drawCycle
+        this.rebuild(true);
+    } else {
+        this.updateVertices();
+    }
+
+    enlargeCanvasIfRequired(sizeX, sizeY);
+    if (canvaswrapper)
+        gl.viewport(0, 0, sizeX, sizeY);
+    else
+        gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
+
+    this.shaderProgram.use(gl);
+    Renderer.prevShader = this.shaderProgram;
+    this.prepareUniforms(null);
+    // ? -> make part of initial renderer setup
+    if (canvaswrapper) {
+        canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
+        canvaswrapper.generation = ++canvaswrapper.canvas.generation;
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
+    }
+    let alpha = sizeY / sizeX;
+    let n = {
+        x: -(b.y - a.y) * alpha,
+        y: (b.x - a.x) * alpha
+    };
+    let c = {
+        x: a.x + n.x,
+        y: a.y + n.y
+    };
+    //let d = {x: b.x + n.x, y: b.y + n.y};
+    this.setTransformMatrix(a, b, c);
+    this.setBoundingBoxUniforms();
+    this.setModifierUniforms(plotModifiers);
+
+    if(this.boundingBox.type != BoundingBoxType.triangles){
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    } else {
+        // TODO? seperate render-call for drawing triangles
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length/3);
+    }
+    gl.flush();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+/**
+ * runs shaderProgram on gl. Will render to targetBuffer
+ * or if argument targetBuffer is not given, then to glcanvas
+ * @param {CglSceneLayer | null} targetLayer current rendering layer of null for simple rendering
+ * @param {WebGLFramebuffer | null} targetBuffer current target frame buffer
+ */
+Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers, targetLayer,targetBuffer) {
     let shaderChanged = Renderer.prevShader !== this.shaderProgram;
-    let needsRebuild = this.boundingBox.type !== boundingBox.type;
+    let needsRebuild = this.boundingBox.type !== boundingBox.type || (this.transparencyType !== Renderer.transparencyType);
     this.boundingBox = boundingBox;
     if (shaderChanged && (!this.functionGenerationsOk())) { // only check functions once per shader program per drawCycle
         this.rebuild(true);
@@ -665,58 +763,33 @@ Renderer.prototype.render = function(a, b, sizeX, sizeY, boundingBox, plotModifi
     if(Renderer.prevSize[0]!==sizeX||Renderer.prevSize[1]!==sizeY){
         Renderer.prevSize=[sizeX,sizeY];
         enlargeCanvasIfRequired(sizeX, sizeY);
-        if (canvaswrapper)
+        if (targetBuffer)
             gl.viewport(0, 0, sizeX, sizeY);
         else
             gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
     }
 
-    if(shaderChanged){
+    if(shaderChanged) {
         this.shaderProgram.use(gl);
         Renderer.prevShader = this.shaderProgram;
-        this.prepareUniforms();
-        // ? -> make part of initial renderer setup
-        if (canvaswrapper) {
-            canvaswrapper.bindFramebuffer(); //render to texture stored in canvaswrapper
-            canvaswrapper.generation = ++canvaswrapper.canvas.generation;
-        } else {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, null); //render to glcanvas
-        }
+        this.prepareUniforms(targetLayer);
     // TODO is there a better way to detect change of coordinate system
-    }else if(Renderer.prevTrafo!==CindyGL.trafoMatrix){
+    } else if(Renderer.prevTrafo!==CindyGL.trafoMatrix) {
         Renderer.prevTrafo = CindyGL.trafoMatrix;
         this.updateCoordinateUniforms();
-    }
-    if(!CindyGL.mode3D){ // TODO? split render2d and render3d
-        let alpha = sizeY / sizeX;
-        let n = {
-            x: -(b.y - a.y) * alpha,
-            y: (b.x - a.x) * alpha
-        };
-        let c = {
-            x: a.x + n.x,
-            y: a.y + n.y
-        };
-        //let d = {x: b.x + n.x, y: b.y + n.y};
-        this.setTransformMatrix(a, b, c);
     }
     this.setBoundingBoxUniforms();
     this.setModifierUniforms(plotModifiers);
 
-    if(this.boundingBox.type != BoundingBoxType.triangles){
+    if(this.boundingBox.type != BoundingBoxType.triangles) {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     } else {
         // TODO? seperate render-call for drawing triangles
         gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length/3);
     }
-    if(!CindyGL.mode3D) {
-        gl.flush(); //renders stuff to canvaswrapper
+    if(targetBuffer) {
+        gl.flush(); //renders stuff to targetBuffer
     }
-    /* render on glcanvas
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-	gl.flush();
-  */
 }
 
 // TODO? make 3D mode compatible with CindyXR
@@ -747,7 +820,7 @@ Renderer.prototype.renderXR = function(viewIndex) {
         x: -1,
         y: 1
     });
-    this.loadTextures();
+    this.loadTextures(0);
 
     // Binds the necessary framebuffer object.
     CindyJS._pluginRegistry.CindyXR.xrUpdateCindyGLView(gl, viewIndex);
@@ -769,4 +842,396 @@ Renderer.prototype.resetAttribLocations = function() {
         gl.enableVertexAttribArray(aTexLoc);
         gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
     }
+}
+
+////////////////////////////////////////////
+// Scene renderers
+// TODO? move to seperate file
+////////////////////////////////////////////
+// interface Cgl3dSceneRenderer:
+// functions:
+//   constructor(iw: float, ih: float, ...) -> Cgl3dSceneRenderer
+//   renderOpaque(objects: Map<number,CindyGL3DObject>)
+//   renderTranslucent(objects: Map<number,CindyGL3DObject>)
+// fields:
+//  wrongOpacity: Set<CindyGL3DObject>
+
+/**
+ * @param {number} iw screen width
+ * @param {number} ih screen height
+ * @constructor
+ */
+function Cgl3dSimpleSceneRenderer(iw,ih) {
+    Renderer.transparencyType = TransparencyType.Simple;
+    this.iw = iw;
+    this.ih = ih;
+    /** @type {Set<CindyGL3DObject>} */
+    this.wrongOpacity = new Set();
+};
+
+/**@param {Map<number,CindyGL3DObject>} objects */
+Cgl3dSimpleSceneRenderer.prototype.renderOpaque = function(objects) {
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.BLEND); // no need to blend opaque objects
+    objects.forEach((obj3d)=>{
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null);
+        if(!obj3d.renderer.opaque){
+            this.wrongOpacity.add(obj3d);
+        }
+    });
+};
+/**@param {Map<number,CindyGL3DObject>} objects */
+Cgl3dSimpleSceneRenderer.prototype.renderTranslucent = function(objects) {
+    // reenable blending
+    gl.enable(gl.BLEND);
+    objects.forEach((obj3d)=>{
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null);
+    });
+};
+
+/**
+ * @param {number} iw screen width
+ * @param {number} ih screen height
+ * @param {boolean} isDepth
+ * @returns {WebGLTexture}
+*/
+function createRenderTexture(iw,ih,isDepth) {
+    const texturePool = isDepth ?
+        CglSceneLayer.depthTexturePool : CglSceneLayer.colorTexturePool;
+    let texture;
+    if(iw == CglSceneLayer.iw && ih == CglSceneLayer.ih && texturePool.length > 0) {
+        return texturePool.pop();
+    }
+    texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    if(isDepth) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, getDepthPixelFormat(), iw, ih, 0, getDepthPixelBaseFormat(),
+             getPixelType(), createPixelArray(iw*ih*getDepthPixelSize()));
+    } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), iw, ih, 0, gl.RGBA, getPixelType(), createPixelArray(4*iw*ih));
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return texture;
+}
+/**
+ * @param {number} iw screen width
+ * @param {number} ih screen height
+ * @returns {WebGLTexture}
+*/
+function createDepthBuffer(iw,ih){
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    if(can_use_texture_float) {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT32F, iw, ih, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
+    } else {
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, iw, ih, 0, gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    return texture;
+}
+/**
+ * @param {number} iw screen width
+ * @param {number} ih screen height
+ * @constructor
+ */
+function CglSceneLayer(iw,ih) {
+    this.iw = iw;
+    this.ih = ih;
+    this.colorTexture = createRenderTexture(iw,ih,false);
+    this.depthTexture = createRenderTexture(iw,ih,true);
+    // clear textures
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.colorTexture, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.depthTexture, 0);
+    gl.clearBufferfv(gl.COLOR, 0, [0.0, 0.0, 0.0, 0.0]);
+    gl.clearBufferfv(gl.COLOR, 1, [1.0, 0.0, 0.0, 0.0]); // clear depth to 1
+    gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]); // mark both textures as output
+}
+CglSceneLayer.iw = 0;
+CglSceneLayer.ih = 0;
+CglSceneLayer.colorTexturePool = [];
+CglSceneLayer.depthTexturePool = [];
+/**
+ * @param {number} iw
+ * @param {number} ih
+ *  */
+CglSceneLayer.updateScreenSize = function(iw,ih) {
+    if(iw == CglSceneLayer.iw && ih == CglSceneLayer.ih)
+        return;
+    // size changed -> clear texture pool
+    // TODO? allow multiple texture sizes
+    CglSceneLayer.colorTexturePool.forEach(t=>gl.deleteTexture(t));
+    CglSceneLayer.colorTexturePool=[];
+    CglSceneLayer.depthTexturePool.forEach(t=>gl.deleteTexture(t));
+    CglSceneLayer.depthTexturePool=[];
+    CglSceneLayer.iw = iw;
+    CglSceneLayer.ih = ih;
+}
+/**@param {WebGLTexture} texture */
+CglSceneLayer.freeColorTexture = function(texture) {
+    CglSceneLayer.colorTexturePool.push(texture);
+}
+/**@param {WebGLTexture} texture */
+CglSceneLayer.freeDepthTexture = function(texture) {
+    CglSceneLayer.depthTexturePool.push(texture);
+}
+/**
+ * @param {number} iw screen width
+ * @param {number} ih screen height
+ * @param {number} layerCount
+ * @constructor
+ */
+function Cgl3dLayeredSceneRenderer(iw,ih,layerCount) {
+    if(!(layerCount >= 1)){ // negated condition to correctly handle NaN values
+        console.warn("invalid layerCount should be >= 1 got:",layerCount);
+        layerCount = 1;
+    }
+    CglSceneLayer.updateScreenSize(iw,ih);
+    layerCount = Math.floor(layerCount);
+    Renderer.transparencyType = layerCount == 1 ? TransparencyType.SingleLayer : TransparencyType.MultiLayer;
+    this.iw = iw;
+    this.ih = ih;
+    /** @type {Set<CindyGL3DObject>} */
+    this.wrongOpacity = new Set();
+    this.mergeBuffer = gl.createFramebuffer();
+    this.renderBuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer);
+    gl.disable(gl.BLEND); // disable automatic blending
+    this.renderDepthBuffer =  createDepthBuffer(iw,ih);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.renderDepthBuffer, 0);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
+    this.layers=[];
+    for(let layer=0;layer<layerCount;layer++){
+        this.layers.push(new CglSceneLayer(iw,ih));
+    }
+    if (layerCount > 1) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.mergeBuffer);
+        // temporary memory for texture sorting
+        this.tmpLayers = [new CglSceneLayer(iw,ih),new CglSceneLayer(iw,ih)];
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.tmpLayers[0].colorTexture, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.tmpLayers[0].depthTexture, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, this.tmpLayers[1].colorTexture, 0);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, this.tmpLayers[1].depthTexture, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer);
+        // TODO check if framebuffer is complere
+    } else {
+        this.tmpLayers = [];
+    }
+    this.renderLayer = new CglSceneLayer(iw,ih);
+    // TODO check if framebuffer is complere
+};
+
+/** @param {CglSceneLayer} newRenderLayer */
+Cgl3dLayeredSceneRenderer.prototype.swapRenderLayer = function(newRenderLayer) {
+    const oldRenderLayer = this.renderLayer;
+    this.renderLayer = newRenderLayer;
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, newRenderLayer.colorTexture, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, newRenderLayer.depthTexture, 0);
+    // copy data from old layer into new layer
+    copyLayer(oldRenderLayer);
+    return oldRenderLayer;
+}
+/**
+ * @param {number} tmpSlot
+ * @param {CglSceneLayer} newTmpLayer */
+Cgl3dLayeredSceneRenderer.prototype.swapTmpLayer = function(tmpSlot,newTmpLayer) {
+    const oldTmpLayer = this.tmpLayers[tmpSlot];
+    this.tmpLayers[tmpSlot] = newTmpLayer;
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0+2*tmpSlot, gl.TEXTURE_2D, newTmpLayer.colorTexture, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1+2*tmpSlot, gl.TEXTURE_2D, newTmpLayer.depthTexture, 0);
+    return oldTmpLayer;
+}
+
+/**@param {Map<number,CindyGL3DObject>} objects */
+Cgl3dLayeredSceneRenderer.prototype.renderOpaque = function(objects) {
+    objects.forEach((obj3d)=>{
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers, null, this.renderBuffer);
+        if(!obj3d.renderer.opaque){
+            this.wrongOpacity.add(obj3d);
+        }
+    });
+    gl.depthMask(false); // keep depth-buffer unchanged (holds depth of clostest opaque pixel)
+    // move rendered data to opaque,layer and layers[0]
+    this.layers[0] = this.swapRenderLayer(this.layers[0]);
+};
+/**@param {Map<number,CindyGL3DObject>} objects */
+Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
+    const layerCount = this.layers.length;
+    // TODO? seperate out opaque objects (objects between opaque object and top pixel in lowest transparent layer will get lost)
+    //  is this worth using an extra layer
+    if (layerCount == 1) {
+        // directly render objects to canvas
+        objects.forEach((obj3d)=>{
+            if(obj3d.renderer.opaque) {
+                this.wrongOpacity.add(obj3d);
+            }
+            // cannot read and write to same texture in one shader call
+            // 1. render to renderLayer with layers[0] as input
+            Renderer.prevShader = undefined; // clear cached shader data
+            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,this.layers[0], this.renderBuffer);
+            // 2. swap rendered layer with layer[0]
+            this.layers[0] = this.swapRenderLayer(this.layers[0]);
+        });
+    } else {
+        objects.forEach((obj3d)=>{
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer);
+            gl.enable(gl.DEPTH_TEST); // ignore pixels behind opaque objects
+            // reset and clear render layer
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.renderLayer.colorTexture, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, this.renderLayer.depthTexture, 0);
+            gl.clearBufferfv(gl.COLOR, 0, [0, 0, 0, 0]);
+            gl.clearBufferfv(gl.COLOR, 1, [1, 0, 0, 0]); // clear depth-texture to 1
+            Renderer.prevShader = undefined; // clear cached shader data
+            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, this.renderBuffer);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.mergeBuffer);
+            gl.disable(gl.DEPTH_TEST); // no depth-testing during texture sorting
+            // ensure all four drawBuffers are linked to framebuffer
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1,gl.COLOR_ATTACHMENT2,gl.COLOR_ATTACHMENT3]);
+            /* TODO? sort/merge multiple layers in a single call
+                limits:
+                output: 4: guaranteed ; 6: 96.74%  8: 95.19%
+                    (source: https://web3dsurvey.com/webgl2/parameters/MAX_DRAW_BUFFERS)
+                input: 8: ~100% ; 16: 99.96%
+                    (source: https://web3dsurvey.com/webgl2/parameters/MAX_TEXTURE_IMAGE_UNITS)
+                -> 2layers input/output should work, very likely that 3 and 4 also work
+                more than layers 4 at once unlikely (unless depth textures are merged)
+            */
+            for(let i=0;i<layerCount-1;i++){
+                sortLayers(this.layers[i],this.renderLayer,false); // move closer pixel to left texture
+                this.layers[i]=this.swapTmpLayer(0,this.layers[i]);
+                this.renderLayer=this.swapTmpLayer(1,this.renderLayer);
+            }
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1]);// removed unused drawBuffers
+            sortLayers(this.layers[layerCount-1],this.renderLayer,true); // merge textures depending on relative depth
+            this.layers[layerCount-1]=this.swapTmpLayer(0,this.layers[layerCount-1]);
+            if(obj3d.renderer.opaque){
+                this.wrongOpacity.add(obj3d);
+            }
+        });
+    }
+    // TODO? render multiple layers in a single call
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    gl.depthMask(true); // reset depth masking
+    gl.enable(gl.BLEND);
+    for(let layerId = layerCount-1;layerId>=0;layerId--) {
+        renderLayer(this.layers[layerId]); // TODO? ability to select which layers should be rendered
+        // cleaup textures
+        CglSceneLayer.freeColorTexture(this.layers[layerId].colorTexture);
+        CglSceneLayer.freeDepthTexture(this.layers[layerId].depthTexture);
+    }
+    if(this.renderLayer !== this.layers[0]) {
+        CglSceneLayer.freeColorTexture(this.renderLayer.colorTexture);
+        CglSceneLayer.freeDepthTexture(this.renderLayer.depthTexture);
+    }
+    this.tmpLayers.forEach(layer=>{
+        CglSceneLayer.freeColorTexture(layer.colorTexture);
+        CglSceneLayer.freeDepthTexture(layer.depthTexture);
+    });
+    // TODO? reuse depth buffer texture
+    gl.deleteTexture(this.renderDepthBuffer);
+};
+/**
+ *  @param {CglSceneLayer} layer1
+ *  @param {CglSceneLayer} layer2
+ *  @param {boolean} merge   */
+function sortLayers(layer1,layer2,merge){
+    const typeSuffix = can_use_texture_float ? "" : "2I8";
+    let renderShader = new ShaderProgram(gl, cgl_resources["copytexture_v"],cgl_resources[ (merge ? "fragMergeLayers" : "fragSortLayers")+typeSuffix]);
+    renderShader.use(gl);
+    const aPosLoc = gl.getAttribLocation(renderShader.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    const aTexLoc = gl.getAttribLocation(renderShader.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+    // create vertex data
+    const vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    const texCoordOffset = vertices.byteLength;
+    const totalBufferSize = texCoordOffset + texCoords.byteLength;
+    gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    // attach texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,layer1.colorTexture);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,layer1.depthTexture);
+    renderShader.uniform['src1Color']([0]);
+    renderShader.uniform['src1Depth']([1]);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D,layer2.colorTexture);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D,layer2.depthTexture);
+    renderShader.uniform['src2Color']([2]);
+    renderShader.uniform['src2Depth']([3]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.flush();
+    // TODO swap source and target textures
+}
+/** @param {CglSceneLayer} layerData  */
+function copyLayer(layerData){
+    const typeSuffix = can_use_texture_float ? "" : "2I8";
+    let renderShader = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["fragCopyLayer"+typeSuffix]);
+    renderShader.use(gl);
+    const aPosLoc = gl.getAttribLocation(renderShader.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    const aTexLoc = gl.getAttribLocation(renderShader.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+    // create vertex data
+    const vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    const texCoordOffset = vertices.byteLength;
+    const totalBufferSize = texCoordOffset + texCoords.byteLength;
+    gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    // attach texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,layerData.colorTexture);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D,layerData.depthTexture);
+    renderShader.uniform['srcColor']([0]);
+    renderShader.uniform['srcDepth']([1]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.flush();
+}
+/** @param {CglSceneLayer} layerData  */
+function renderLayer(layerData) {
+    let renderShader = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["copytexture_f"]);
+    renderShader.use(gl);
+    const aPosLoc = gl.getAttribLocation(renderShader.handle, "aPos");
+    gl.enableVertexAttribArray(aPosLoc);
+
+    const aTexLoc = gl.getAttribLocation(renderShader.handle, "aTexCoord");
+    gl.enableVertexAttribArray(aTexLoc);
+    // create vertex data
+    const vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
+    const texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
+    const texCoordOffset = vertices.byteLength;
+    const totalBufferSize = texCoordOffset + texCoords.byteLength;
+    gl.bufferData(gl.ARRAY_BUFFER, totalBufferSize, gl.STATIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
+    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    // attach texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D,layerData.colorTexture);
+    // depth information is not needed for final rendering (pixels are already sorted)
+    renderShader.uniform['sampler']([0]);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.flush();
 }

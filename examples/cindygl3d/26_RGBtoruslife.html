@@ -83,7 +83,7 @@
             cglBegin3d(p0->[-1.6,-1.6],p1->[1.6,1.6]);
             cglReset3d();
             colorplotTorus([0,0,0],[0,1,0],1,0.5,cglLazy(pos,imagergb(L, R, "gol", 128*pos, interpolate->false)));
-            cglDraw3d();
+            cglRender3d();
             cglEnd3d();
         </script>
 

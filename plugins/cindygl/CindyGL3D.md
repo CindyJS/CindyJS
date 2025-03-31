@@ -2,6 +2,19 @@
 
 !!! CindyGL3D is currently experimental !!!
 
+## Common reasons why a Script can be slower than expected
+
+* Geometric objects are re-initialized each draw step:
+    The intended way to draw scenes with a large number of objects it to draw the objects once (every time the rendered objects change) and only render the scene in the draw script.
+    - For convenient switching between 2D and 3D mode `cglBegin3d`/`cglEnd3d` do **not** reset the currently drawn objects, redrawing a scene without calling `cglReset3d` will create new objects while keeping the original objects.
+    - Not redrawing the (complete) internal geometry every rendering step can significantly speed up the script if there is a large number of simple objects.
+    - If necessary it is possible to update individual objects using `cglUpdate` or `cglMove...` (using the object id returned by `colorplot3d` to `cglFindObject`)
+
+* Large number of transparent objects:
+    The algorithm for rendering transparent objects ensures that the depth information for all pixels is sorted correctly, this will normally need 2 shader calls per translucent object per render-layer.
+    - **Only use 3-component colors for opaque objects**, use `cglDiscard()` to discard individual pixels in a rendered objects.
+    - If the depth-order of all transparent objects is known in advance it is possible set the `layers` modifier in `cglRender3d` to `0` to render transparent objects in the order they have been declared.
+
 
 ## Function
 
@@ -15,7 +28,8 @@ The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `
 * `zoom3d(<zoom>)` set coordinate system scaling factor to given value
 * `cglResetRotation` reset rotation
 * `cglReset3d` reset 3D scene
-* `cglDraw3d` draw 3D scene
+* `cglRender3d` render 3D scene, the `layers` modifier can be used to change how translucent objects are rendered, setting `layers` to `0` will render all objects in the order they are declared, if layers is `N` larger that `0` the renderer will try to sort the non-opaque objects at each pixel by their depth value using textures to store the top `N-1` objects at each pixel as well as the remaining objects merged by depth.
+By default `layers` is `0` is there is at most one non-opaque object and `2` otherwise, where an object is considered opaque if its pixel-color has (at most) 3 components
 * `cglEnd3d` end 3D mode
 * `colorPlot3d(<expr>)` prepares color-plot with depth the expression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
@@ -108,6 +122,7 @@ All drawing functions accept the following modifiers:
  * `Ulight: cglLazy` can be used to modify the lighting calculation, the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order and is expected to return a color
  * `tags` a list of strings that can be attached to different objects.
  * `plotModifiers` a list of key-value pairs mapping variable-names (string) to plot modifiers
+ * `cglDrawBack`  (currently not supported for torus) draw all intersections of the current object with the view ray, by default this flag is only enabled for plain colors with four components
 
 Triangle based functions additionally have the modifier
  * `vModifiers` a list of key-value pairs mapping variable-names (string) to vertex modifiers should have same shape as vertex input

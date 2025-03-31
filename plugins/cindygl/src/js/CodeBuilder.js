@@ -1,8 +1,3 @@
-const DepthType={
-    Flat: 0, // no depth information
-    Nearest: 1, // use depth of nearest point (lowest z)
-    // XXX? multi-layered depth information
-}
 /**
  * @constructor
  */
@@ -1366,7 +1361,11 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { 
         generations: generations //all used functions with their generation
     };
 };
-CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
+/**
+ * @param {*} plotProgram color-plot program used to generate pixel values
+ * @param {boolean} isSimple if true color+depth can be written directly to shader otherwise cgl_setDepth / cgl_setColor will be used
+ */
+CodeBuilder.prototype.generateShader = function(plotProgram, isSimple){
     let code=plotProgram.code;
     let colorCode=plotProgram.colorCode;
     let colorTerm=plotProgram.colorTerm;
@@ -1381,21 +1380,26 @@ CodeBuilder.prototype.generateShader = function(plotProgram, depthType){
     //////////////////////
 
 
+    let setColor;
+    if (isSimple) {
+        setColor = `fragColor = ${colorTerm};\n`;
+    } else {
+        setColor = `cgl_setColor(${colorTerm});\n`;
+    }
     let initDepth = "";
     let setDepth = "";
-    if(this.readsDepth||this.writesDepth){
+    if(this.readsDepth||this.writesDepth||!isSimple) {
         initDepth="cgl_depth=gl_FragCoord.z;\n";
     }
-    if(this.writesDepth){
-        setDepth="gl_FragDepth = cgl_depth;\n";
+    if(this.writesDepth) {
+        if(isSimple) {
+            setDepth="gl_FragDepth = cgl_depth;\n";
+        } else {
+            setDepth = `cgl_setDepth(cgl_depth);\n`;
+        }
     }
 
-    if(depthType==DepthType.Flat||depthType==DepthType.Nearest){
-        // set depth at start of procedure to ensure value is updated on every path
-        // TODO! do not write to depth if code does not use cglDepth
-        code += `void main(void) {\n ${randompatch} ${initDepth} ${colorCode} fragColor = ${colorTerm};\n${setDepth}}\n`;
-    }else{
-        console.error("unsupported depth type");
-    }
+    code += `void main(void) {\n ${randompatch} ${initDepth} ${colorCode} ${setColor} ${setDepth}}\n`;
+
     return code
 }

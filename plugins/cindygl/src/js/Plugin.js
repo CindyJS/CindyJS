@@ -56,17 +56,15 @@ function dot3(u,v){
  * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
  * @param {Map<string,*>} plotModifiers
  * @param { Set<string> } tags tags assigned to this Object
- * @param {CanvasWrapper} canvaswrapper
  * @constructor
  */
-function CindyGL3DObject(renderer,boundingBox,plotModifiers,tags,canvaswrapper) {
+function CindyGL3DObject(renderer,boundingBox,plotModifiers,tags) {
     /**@type {number} */
     this.id = CindyGL3DObject.NEXT_ID++;
     this.renderer = renderer;
     this.boundingBox = boundingBox;
     this.plotModifiers = plotModifiers;
     this.tags = tags;
-    this.canvaswrapper = canvaswrapper;
 }
 CindyGL3DObject.NEXT_ID=0;
 
@@ -101,20 +99,20 @@ let CindyGL = function(api) {
     /**
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
-    function compileAndRender(prog,depthType, a, b, width, height,boundingBox, canvaswrapper) {
-        let renderer=compile(prog,depthType,boundingBox,new Map(),new Map());
-        Renderer.resetCachedState();
-        render(renderer, a, b, width, height,boundingBox, new Map(), canvaswrapper);
+    function compileAndRender(prog,a, b, width, height,boundingBox, canvaswrapper) {
+        let renderer=compile(prog,boundingBox,new Map(),new Map());
+        renderer.render2d(a, b, width, height, boundingBox, new Map(), canvaswrapper);
+        if (canvaswrapper)
+            canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
     /**
      * @param {CindyJS.anyval} prog
-     * @param {DepthType} depthType
      * @param {boundingBox} boundingBox
      * @param {Map<string,*>} plotModifiers values of plot-modifier arguments
      * @param {Map<string,{values:Array<*>,eltType:type}>} vModifiers vertex modifiers
      * @returns {Renderer}
      */
-    function compile(prog,depthType,boundingBox,plotModifiers,vModifiers) {
+    function compile(prog,boundingBox,plotModifiers,vModifiers) {
         /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
         const modifierTypes = new Map();
         /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
@@ -174,7 +172,7 @@ let CindyGL = function(api) {
         }
         if(!foundMatch){
             console.log("create new Renderer for modifiers: ",modifierTypes);
-            renderer = new Renderer(api, prog, depthType,boundingBox, modifierTypes);
+            renderer = new Renderer(api, prog, boundingBox, modifierTypes);
             prog.renderers.push(renderer);
             // TODO? sort renderes by number of instances
             modifierTypes.forEach((value,key)=>{
@@ -184,14 +182,6 @@ let CindyGL = function(api) {
             });
         }
         return renderer;
-    }
-    /**
-     * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
-     */
-    function render(renderer, a, b, width, height, boundingBox, plotModifiers, canvaswrapper){
-        renderer.render(a, b, width, height, boundingBox, plotModifiers, canvaswrapper);
-        if (canvaswrapper)
-            canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
     }
     function toCjsNumber(x) {
         return {
@@ -219,7 +209,7 @@ let CindyGL = function(api) {
         let iw = api.instance['canvas']['width']; //internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let ih = api.instance['canvas']['height'];
 
-        compileAndRender(prog,DepthType.Flat, computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih,Renderer.noBounds(),null);
+        compileAndRender(prog,computeLowerLeftCorner(api), computeLowerRightCorner(api), iw, ih,Renderer.noBounds(),null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         csctx.save();
@@ -263,7 +253,7 @@ let CindyGL = function(api) {
         let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
         let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
 
-        compileAndRender(prog,DepthType.Flat, ll, lr, iw * fx, ih * fy,Renderer.noBounds(), null);
+        compileAndRender(prog,ll, lr, iw * fx, ih * fy,Renderer.noBounds(), null);
         let csctx = api.instance['canvas'].getContext('2d');
 
         let pt = {
@@ -301,7 +291,7 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch,Renderer.noBounds(), canvaswrapper);
+        compileAndRender(prog, a, b, cw, ch,Renderer.noBounds(), canvaswrapper);
 
         return nada;
     });
@@ -326,7 +316,7 @@ let CindyGL = function(api) {
         let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
         var cw = imageobject.width;
         var ch = imageobject.height;
-        compileAndRender(prog,DepthType.Flat, a, b, cw, ch, Renderer.noBounds() ,canvaswrapper);
+        compileAndRender(prog, a, b, cw, ch, Renderer.noBounds() ,canvaswrapper);
 
 
         return nada;
@@ -484,8 +474,8 @@ let CindyGL = function(api) {
         initGLIfRequired();
         var prog = args[0];
         let plotModifiers=get3DPlotModifiers(modifs);
-        let compiledProg=compile(prog,DepthType.Nearest,Renderer.noBounds(),plotModifiers,new Map());
-        let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs),null);
+        let compiledProg=compile(prog,Renderer.noBounds(),plotModifiers,new Map());
+        let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -565,8 +555,8 @@ let CindyGL = function(api) {
         }
         let vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
         let boundingBox=Renderer.boundingTriangles(vertices,vModifiers);
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,vModifiers);
-        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        let compiledProg=compile(prog,boundingBox,plotModifiers,vModifiers);
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -582,8 +572,8 @@ let CindyGL = function(api) {
         var center = coerce.toDirection(api.evaluateAndVal(args[1]));
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
-        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -600,8 +590,8 @@ let CindyGL = function(api) {
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
         let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
-        let compiledProg=compile(prog,DepthType.Nearest,boundingBox,plotModifiers,new Map());
-        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs),null);
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -738,59 +728,23 @@ let CindyGL = function(api) {
         CindyGL.objectBuffer={opaque:new Map(),translucent:new Map()};
         return nada;
     });
-    api.defineFunction("cglDraw3d", 0, (args, modifs) => {
+    api.defineFunction("cglRender3d", 0, (args, modifs) => {
         initGLIfRequired();
-        // render order for translucent obejcts copied from cindy3d:
-        // 1. render translucent objects to get correct background for transparent pixels
-        // 2. render all opaque objects
-        // 3. render translucent objects above opaque objects where neccessary
-        // TODO find better way for rendering multiple translucent objects
-
         // internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
-        let ll=computeLowerLeftCorner(api);
-        let lr=computeLowerRightCorner(api);
         let iw = api.instance['canvas']['width'];
         let ih = api.instance['canvas']['height'];
+        let layerCount = getRealModifier(modifs,"layers",CindyGL.objectBuffer.translucent.size<2 ? 0 : 2);
         Renderer.resetCachedState();
-        /*
-            changing global variables can change internal code of rendered objects
-             -> check for each object if it is in the correct category
-        */
-        /** @type{Set<CindyGL3DObject>} */
-        const wrongOpacity = new Set();
-        // TODO? put this line at end of render loops using frame-buffer
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null); // ensure frame-buffers are detached before clearing canvas
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
+        const sceneRenderer = (layerCount == 0) ?
+            new Cgl3dSimpleSceneRenderer(iw,ih) :
+            new Cgl3dLayeredSceneRenderer(iw,ih,layerCount);
+        sceneRenderer.renderOpaque(CindyGL.objectBuffer.opaque);
         if(CindyGL.objectBuffer.translucent.size>0){
-            // draw translucent objects without depth testing
-            //  needed to correctly display translucent objects behind other transparent objects
-            gl.enable(gl.BLEND);
-            gl.disable(gl.DEPTH_TEST);
-            CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
-                render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-                if(obj3d.renderer.opaque){
-                    wrongOpacity.add(obj3d);
-                }
-            });
+            sceneRenderer.renderTranslucent(CindyGL.objectBuffer.translucent);
         }
-        gl.disable(gl.BLEND); // no need to blend opaque objects
-        gl.enable(gl.DEPTH_TEST);
-        CindyGL.objectBuffer.opaque.forEach((obj3d)=>{
-            render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-            if(!obj3d.renderer.opaque){
-                wrongOpacity.add(obj3d);
-            }
-        });
-        if(CindyGL.objectBuffer.translucent.size>0){
-            // reenable blending
-            gl.enable(gl.BLEND);
-            CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
-                render(obj3d.renderer,ll,lr, iw, ih,obj3d.boundingBox,obj3d.plotModifiers, obj3d.canvaswrapper);
-                if(obj3d.renderer.opaque){
-                    wrongOpacity.add(obj3d);
-                }
-            });
-        }
+        // TODO? extract to function on sceneRenderer
+        let wrongOpacity = sceneRenderer.wrongOpacity;
         if(wrongOpacity.size>0){
             console.log(`changing opacity of ${wrongOpacity.size} objects`);
             // update objects that had the wrong opacity
@@ -803,8 +757,10 @@ let CindyGL = function(api) {
                 setObject(obj3d.id,obj3d);
             });
         }
-        //  gl.flush(); //renders stuff to canvaswrapper  TODO? support for canvasWrapper in 3d mode
-        // TODO? directly render to main canvas
+        //  gl.flush(); //renders stuff to canvaswrapper
+        // TODO? support for canvasWrapper in 3d mode
+        //    ? seperate object structure for each canvas-wrapper
+        //  finish rendering
         let csctx = api.instance['canvas'].getContext('2d');
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -958,7 +914,7 @@ let CindyGL = function(api) {
                 obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
             }
             // update modifers types in renderer
-            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.renderer.depthType,obj3d.boundingBox,plotModifiers,vModifiers);
+            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
         }
         if(obj3d.renderer.opaque !== wasOpaque){
             // opacity changed
@@ -1148,7 +1104,7 @@ let CindyGL = function(api) {
         var prog = args[1];
 
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog,DepthType.Flat,Renderer.noBounds(),new Map());
+            prog.renderer = new Renderer(api, prog,Renderer.noBounds(),new Map());
         }
         prog.renderer.renderXR(viewIndex);
 

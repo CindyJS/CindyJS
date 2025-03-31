@@ -343,6 +343,24 @@ function getPixelFormat() {
     else return gl.RGBA;
 }
 
+/** storage color format for depth-textures:
+    store depth as colors
+    if 32bit-textures are not available use two color-chanels to represet depth information */
+function getDepthPixelFormat() {
+    if (can_use_texture_float) return gl.R32F;
+    else return gl.RG8; // int16 stored as two int8
+}
+/** the underlying base-type used to encide a depth-pixel (RED/RG depending on precission of individual components)*/
+function getDepthPixelBaseFormat() {
+    if (can_use_texture_float) return gl.RED;
+    else return gl.RG; // int16 stored as two int8
+}
+/** number of components used to encode a depth-pixel */
+function getDepthPixelSize() {
+    if (can_use_texture_float) return 1;
+    else return 2; // int16 stored as two int8
+}
+
 function getPixelType() {
     if (can_use_texture_float) return gl.FLOAT;
     if (can_use_texture_half_float) return gl.HALF_FLOAT;

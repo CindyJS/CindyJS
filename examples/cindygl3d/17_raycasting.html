@@ -127,7 +127,7 @@
               );
             );
 
-            cglDraw3d();
+            cglRender3d();
 
             drawtext((-.65, -.45), "degree: $" + if(newN<100,newN,"\infty") +"$");
 
@@ -260,7 +260,7 @@
             //update the color color for the pixel at in direction direction assuming that the surface has been intersected at ray(direction, dst)
             //because of the alpha-transparency updatecolor should be called for the intersections with large dst first
             updatecolor(direction, dst, color) := (
-              cglDepth = dst / (2*|cglViewPos|);
+              cglSetDepth(dst);
               regional(x, normal);
               color = (1 - alpha) * color;
               x = ray(direction, dst); //the intersection point in R^3
