@@ -760,7 +760,7 @@ Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers,
         this.updateAttributes();
     }
 
-    if(Renderer.prevSize[0]!==sizeX||Renderer.prevSize[1]!==sizeY){
+    if( Renderer.prevSize[0] !== sizeX || Renderer.prevSize[1] !== sizeY ) {
         Renderer.prevSize=[sizeX,sizeY];
         enlargeCanvasIfRequired(sizeX, sizeY);
         if (targetBuffer)
@@ -867,6 +867,7 @@ function Cgl3dSimpleSceneRenderer(iw,ih) {
     this.ih = ih;
     /** @type {Set<CindyGL3DObject>} */
     this.wrongOpacity = new Set();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind previous frame-buffer
 };
 
 /**@param {Map<number,CindyGL3DObject>} objects */
