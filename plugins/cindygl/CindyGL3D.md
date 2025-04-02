@@ -111,7 +111,7 @@ The main drawing functions are.
 * `cglDrawRod(pointA: vec3,pointB: vec3,radius: float,color)` a cylinder with round end-caps
 * `cglDrawRod(pointA: vec3,pointB: vec3,radius: float,colorA,colorB)` a cylinder with round end-caps
 * `cglDrawTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,color)` draws a torus with the given center and orientation with major radius `radius1` and minor radius `radius2`, the color-expression uses the angles around the major and minor circle (mapped to `[0,1]x[0,1]`) as coordinates.
-The modifiers `angle0` and `angle1` can be used to set the starting/ending angle of a torus arc (by default the full torus is drawn).
+* `cglDrawTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,color,angle1range: vec2|vec0,angle2range: vec2|vec0)` additionally allows to draw only a sub-segment bounded by passing angles (in the form `[from,to]`) to `angle1range` (for angles around major circle) or `angle2range` (for angles around minor circle), if the whole range should be drawn the angle range can be set to `[]`.
 * `cglDraw(color)` draws a color/expression on the whole screen, uses the CindyJS coordinate system as pixel coordinates
 * `cglDrawPolygon(vertices: vec3[],color)` draws a (convex) polygon, with the given vertices, the color-expression for polygons and meshes takes the view-direction at the current pixel as input, it is possible to use modifiers and global variables to get more specific information about the pixel position.
 * `cglDrawMesh(samples: vec3[][],color)` draws a rectangular mesh with the given sample points, the type of normal-vectors can be specified by setting the `normalType` modifier to one either `CGLuMESHuNORMALuFACE` or `CGLuMESHuNORMALuVERTEX`
@@ -140,6 +140,8 @@ For simplicity the library also defined the following wrapper functions:
 * `rod(pointA: vec3,pointB: vec3,radius: float,colorA: vec3|vec4,colorB: vec3|vec4)` draws a cylinder with round end-caps, with the given endpoints and radius the the color is linearly interpolated between the colors given for the endpoints
 * `torus(center: vec3,orientation: vec3,radius1: float,radius2: float,color: vec3|vec4)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` with color `color`
 * `colorplotTorus(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy)` draws a torus with the given center, orientation, major radius `radius1` and minor radius `radius2` the pixel colors will be determined using `pixelExpr` at the position `[a,b]` where `a` and `b` are the angles along the two circles, both mapped to the interval `[0,1]`
+* `torusArc(center: vec3,orientation: vec3,radius1: float,radius2: float,color: vec3|vec4, from: float,  to: float)` like `torus` but only draws the arc between the given angles `from` and `to` (in `[0,2pi]`)
+* `colorplotTorusArc(center: vec3,orientation: vec3,radius1: float,radius2: float,pixelExpr: cglLazy, from: float,  to: float)` like `colorplotTorus` but only draws the arc between the given angles `from` and `to` (in `[0,2pi]`)
 * `background(color: vec3|vec4)` fill the back of the canvas with the given color (ignores lighting information)
 * `polygon3d(vertices: list<vec3>,color: vec3|vec4)` plot a single colored polygon with the given vertex set (currently only works correctly for convex polygons)
 * `updatePolygon3d(<objId>,<vertices>,<color>)` similar to `polygon3d`, replaces the existing polygon with the given object id

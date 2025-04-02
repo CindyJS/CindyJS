@@ -136,7 +136,7 @@ cgl3dSphereShaderCode(direction,isBack):=(
 // and using the result as input to the color function
 cglDrawSphere(center,radius,color,projection):=(
   regional(light,colAndModifs,modifiers,drawBack);
-  // TODO better way to detect transparent sphere
+  // TODO better way to detect transparency
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
@@ -144,7 +144,7 @@ cglDrawSphere(center,radius,color,projection):=(
   if(drawBack,
     colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
       UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,
-      tags->["sphere"]++tags);
+      tags->["sphere","backside"]++tags);
   );
   colorplot3d(cgl3dSphereShaderCode(#,false),center,radius,
     UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,tags->["sphere"]++tags);
@@ -344,7 +344,7 @@ cglDrawCylinder(pointA,pointB,radius,color):=(
   colAndModifs = cglColorExpression(color,modifiers);
   if(drawBack,
     colorplot3d(cgl3dCylinderShaderCodeBack(#),pointA,pointB,radius,
-      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags);
   );
   colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
@@ -409,7 +409,7 @@ cglDrawRod(pointA,pointB,radius,color):=(
   colAndModifs = cglColorExpression(color,modifiers);
   if(drawBack,
     colorplot3d(cgl3dRodShaderCodeBack(#),pointA,pointB,radius,
-      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags);
   );
   colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
@@ -435,110 +435,6 @@ rod(pointA,pointB,radius,colorA,colorB):=(
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   drawBack = if(isundefined(cglDrawBack),length(colorA)==4 % length(colorA)==4,cglDrawBack);
   cglDrawRod(pointA,pointB,radius,colorA,colorB,plotModifiers->modifiers,Ulight->light,cglDrawBack->drawBack);
-);
-
-// TODO use surface for rendering torus
-//  will reduce the number of rendered objects when transparency is enabled, can be correctly split into layers
-// -> own bounding box for torus, (trianglate larger torus s.t. rendered surface within that torus)
-// ? is it faster for opaque to use triangles/arc-rods
-
-// helper for computing normal vector and radius-direction of a arc-rod
-cgl3dArcRodNormalAndRadius(direction):=(
-  regional(l,pos3d,pc,radiusDirection,arcDirection,planeOffset,arcCenter,normal);
-  l = cglCylinderDepths(direction);
-  pos3d = (cglViewPos+l_1*direction);
-  pc=pos3d-tCenter;
-  radiusDirection = normalize(pc-(tOrientation*pc)*tOrientation);
-  arcDirection = normalize(cross(radiusDirection,tOrientation));
-  planeOffset = pos3d*arcDirection;
-  // check if A and B are on same side of normal plane to torus through pos3d, add small tolerance to balance out numerical errors
-  if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))<1e-5,
-    cglSetDepth(l_1);
-    arcCenter = tCenter+tRadius*radiusDirection;
-    normal = normalize(pos3d - arcCenter),
-    // TODO add option to ignore inner side (e.g. for drawing closed torus)
-    pos3d = (cglViewPos+l_2*direction);
-    pc=pos3d-tCenter;
-    radiusDirection = normalize(pc-(tOrientation*pc)*tOrientation);
-    arcDirection = normalize(cross(radiusDirection,tOrientation));
-    planeOffset = pos3d*arcDirection;
-    if(((cglPointA*arcDirection-planeOffset)*(cglPointB*arcDirection-planeOffset))>1e-5,cglDiscard());
-    cglSetDepth(l_2);
-    arcCenter = tCenter+tRadius*radiusDirection;
-    normal = normalize(pos3d - arcCenter);
-  );
-  (normal,radiusDirection);
-);
-// the torus with the given orientation onto the unit square using normal vector and radius-direction as input
-// assumes that normal and radiusDirection are normalized
-cglProjTorusToSquare(normal,radiusDirection,orientation):=(
-  regional(v1,v2,phi1,phi2);
-  v1 = normalize(cross(orientation,if(orientation_1<orientation_2,(1,0,0),(0,1,0))));
-  v2 = -normalize(cross(orientation,v1));
-  phi1 = arctan2(radiusDirection*v1,radiusDirection*v2)+pi;
-  phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
-  (phi1,phi2)/(2*pi);
-);
-cglTorusSegments(center,orientation,radius1,radius2):=(
-  regional(alpha0glob,alpha1glob,v1,v2,N,alpha);
-  // set alpha0, alpha1 to global value
-  // if no value is given set them to 0 and 2pi
-  if(isundefined(alpha0),alpha0glob=0,alpha0glob=alpha0);
-  if(isundefined(alpha1),alpha1glob=2*pi,alpha1glob=alpha1);
-  regional(alpha0,alpha1);
-  alpha0=alpha0glob;
-  alpha1=alpha1glob;
-  // create local coordinate system of torus
-  // TODO? make v1 a parameter
-  if(orientation_1<orientation_2,
-    v1=normalize(cross(orientation,(1,0,0)));
-  ,
-    v1=normalize(cross(orientation,(0,1,0)));
-  );
-  v2 = normalize(cross(orientation,v1));
-  N = max(48,min(floor(abs(alpha1-alpha0)*(radius1/radius2)),128));
-  apply(0..N,n,
-    alpha = alpha0+(n/N)*(alpha1-alpha0);
-    center + radius1 * (cos(alpha)*v1+sin(alpha)*v2);
-  );
-);
-cgl3dArcRodShaderCode(direction):=(
-  regional(normalAndDir,normal,texturePos,color);
-  normalAndDir = cgl3dArcRodNormalAndRadius(direction);
-  normal = normalAndDir_1;
-  texturePos = cglProjTorusToSquare(normal,normalAndDir_2,tOrientation);
-  color = cglEval(pixelExpr,texturePos);
-  cglEval(light,color,direction,normal);
-);
-// creates a torus with the given center pointing in the given orientation, with outer radius radius1 and inner radius radius1
-// color can be a uniform color or a cglLazy expression, if color is an expression ((<x>,<y>)-> <color>)
-// the colors on the surface are defined by evaluating the expression at the current angles around the outer & inner cicles
-// given in the range [0,1]
-cglDrawTorus(center,orientation,radius1,radius2,color):=(
-  regional(points,light,colAndModifs,modifiers);
-  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  colAndModifs = cglColorExpression(color,modifiers);
-  // TODO? add way to group multiple sub-objects into a composite object
-  points = cglTorusSegments(center,orientation,radius1,radius2);
-  forall(consecutive(points),arcEnds,
-    colorplot3d(cgl3dArcRodShaderCode(#),arcEnds_1,arcEnds_2,radius2,
-      UtCenter->center,UtRadius->radius1,UtOrientation->orientation,
-      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["arc","torus"]++tags);
-  );
-);
-// wrappers for cglDrawTorus
-torus(center,orientation,radius1,radius2,color):=(
-  regional(light,modifiers);
-  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawTorus(center,orientation,radius1,radius2,color,Ulight->light,plotModifiers->modifiers);
-);
-colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
-  regional(light,modifiers);
-  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
-  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cglDrawTorus(center,orientation,radius1,radius2,pixelExpr,Ulight->light,plotModifiers->modifiers);
 );
 
 cgl3dBackgroundShaderCode():=(
@@ -798,4 +694,246 @@ colorplotMesh3d(samples,normals,pixelExpr):=(
   fMods = if(isundefined(fModifiers),[],fModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   cglDrawMesh(samples,normals,pixelExpr,plotModifiers->modifiers,Ulight->light,vModifiers->vMods,fModifiers->fMods);
+);
+
+// algebraic surfaces
+
+// simple algrithm for small degree surfaces:
+// bisection using rolles theorem
+// between any two roots of p there has to be a root of p'
+//     l   u
+//      \ /
+//   l   a0  u   <-roots of p1
+//    \ / \ /
+// l   b0  b1  u <-roots of p2
+//  \ / \ / \ /
+//l  c0  c1  c2  <-roots of p3
+// \ / \ / \ / \ /
+// d0  d1  d2  d3 <-roots of p4
+cglEvalP4(coeffs,t) := coeffs*(1,t,t*t,t*t*t,t*t*t*t);
+cglEvalP3(coeffs,t) := coeffs*(1,t,t*t,t*t*t);
+cglEvalP2(coeffs,t) := coeffs*(1,t,t*t);
+cglEvalP1(coeffs,t) := coeffs*(1,t);
+dP4(coeffs) := (coeffs_2, 2*coeffs_3, 3*coeffs_4, 4*coeffs_5, 0);
+cglBinSearchP4(poly, x0, x1, def) := (
+  regional(v0, v1, m, vm);
+  v0 = cglEvalP4(poly, x0);
+  v1 = cglEvalP4(poly, x1);
+  if(v0*v1<=0,
+    repeat(16,
+      m = (x0+x1)/2;
+      vm = cglEvalP4(poly, m);
+      if(v0*vm<=0,
+        (x1 = m; v1 = vm;),
+        (x0 = m; v0 = vm;)
+      );
+    );
+    m,
+    def
+  )
+);
+ //finds the k-th root of poly in interval (l, u). returns def if there is none
+cglKthrootP4(k, poly, l, u, def) := (
+  regional(p1, p2, p3, p4, a0, b0, b1,
+    c0, c1, c2, d0, d1, d2, d3,count);
+  p4 = poly;  //quartic
+  p3 = dP4(p4); //cubic
+  p2 = dP4(p3); //quadratic
+  p1 = dP4(p2); //linear
+
+  a0 = cglBinSearchP4(p1, l, u, u);
+  b0 = cglBinSearchP4(p2, l, a0, l);
+  c0 = cglBinSearchP4(p3, l, b0, l);
+  d0 = cglBinSearchP4(p4, l, c0, l);
+  count = (l < d0 & d0 < u);
+  if(count >= k, d0,
+    b1 = cglBinSearchP4(p2, a0, u, u);
+    c1 = cglBinSearchP4(p3, b0, b1, c0);
+    d1 = cglBinSearchP4(p4, c0, c1, d0);
+    count = count + (d0 < d1 & d1 < u);
+    if(count >= k, d1,
+      c2 = cglBinSearchP4(p3, b1, u, u);
+      d2 = cglBinSearchP4(p4, c1, c2, d1);
+      count = count + (d1 < d2 & d2 < u);
+      if(count >= k, d2,
+        d3 = cglBinSearchP4(p4, c2, u, u);
+        count = count + (d2 < d3 & d3 < u);
+        if(count >= k, d3, def);
+      );
+    );
+  );
+);
+
+// the torus with the given orientation onto the unit square using normal vector and radius-direction as input
+// assumes that normal and radiusDirection are normalized
+cglProjTorusToSquare(normal,radiusDirection,orientation):=(
+  regional(v1,v2,phi1,phi2);
+  v1 = normalize(cross(orientation,if(orientation_1<orientation_2,(1,0,0),(0,1,0))));
+  v2 = -normalize(cross(orientation,v1));
+  phi1 = arctan2(radiusDirection*v1,radiusDirection*v2)+pi;
+  phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
+  (phi1,phi2)/(2*pi);
+);
+// TODO is there a way to find torus points without solving general degree 4 equation
+// TODO? separate bounding box-type for torus
+cgl3dTorusShaderCode(direction,layer):=(
+  regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
+    orientation,b1,c1,E,W,a2,b2,c2,p3,p2,p1,p0,dst,pos3d,pc,
+    arcDirection,arcCenter,normal,color,pixelPos);
+  // compute torus coordinates from cylinder bounding box arguments
+  //   reduces number of needed uniforms
+  center = (cglPointA+cglPointB)/2;
+  radius1 = radii_1;
+  radius2 = radii_2;
+  v=|center-cglViewPos|;
+  V=cglViewPos+v*direction;
+  // 1. find intersections of view-ray with sphere around center with given radius r1+r2
+  // |v+l*d -c|=r
+  vc=V-center;
+  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+  b0=(vc*direction);
+  c0=vc*vc-cglRadius*cglRadius;//cglRadius = r1+r2
+  // add small buffer distance to balance out numeric instability in bounding sphere
+  D0=b0*b0-c0+0.001;
+  if(D0<0,cglDiscard());
+  x0=-b0-re(sqrt(D0));
+  x1=-b0+re(sqrt(D0));
+  orientation = normalize(cglPointA-cglPointB);
+  // Equation for torus in orthogonal coord-system with unit vectors v1,v2,o
+  // (sqrt(<P,v1>²+<P,v2>²)-r1)² + <P,o>² = r2²  =>
+  // (<P,P> + r1²-r2²)² = 4 r1 ² (<P-<P,o>o,P-<P,o>o>)
+  // P = V + l*D
+  // (<V+l*D,V+l*D> + r1²-r2²)² = 4 r1 ² (<V+l*D-<V+l*D,o>o,V+l*D-<V+l*D,o>o>)
+  // A² = B with  W := V-<V,o>o  E := D-<D,o>o
+  // A := (<V+l*D,V+l*D> + r1²-r2²)
+  //    = (<V,V>+l*2<V,D>+l²<D,D> + r1²-r2²)
+  // B := 4 R² (<W+l*E,W+l*E>) = 4 r1 ² (<W,W>+l*2<W,E>+l²<E,E>)
+  //  a1 := <D,D> = 1 b1 := <V,D> c1 := r1²-r2²+<V,V>
+  //  a2 := <E,E> b2 := <W,E> c2 := <W,W>
+  // (l² + l 2*b1 + c1)² = 4 r1² (l² a2 + l 2b2 + c2)
+  // l⁴
+  // l³  4 b1
+  // l²  (2 c1 + 4 b1^2) -4 r1² a2
+  // l   4 b1 c1 - 4 r1² 2 b2
+  //     c1² - 4 r1² c2
+  b1 = V * direction;
+  c1 = radius1*radius1-radius2*radius2 + V*V;
+  E = direction - (direction*orientation)*orientation;
+  W = V - (V*orientation)*orientation;
+  a2 = E*E;
+  b2 = W*E;
+  c2 = W*W;
+  p3 = 4*b1;
+  p2 = 2*c1 + 4*b1*b1 - 4*radius1*radius1*a2;
+  p1 =  4*b1*c1 - 8*radius1*radius1*b2;
+  p0 =  c1*c1 - 4*radius1*radius1*c2;
+  dst=cglKthrootP4(layer,[p0,p1,p2,p3,1],x0,x1,x0-1);
+  if(dst<x0,cglDiscard());
+  pos3d = cglViewPos+ (v+dst)*direction;
+  pc=pos3d-center;
+  arcDirection = normalize(pc-(orientation*pc)*orientation);
+  arcCenter = center+radius1*arcDirection;
+  normal = normalize(pos3d - arcCenter);
+  cglSetDepth(v+dst);
+  pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
+  color = cglEval(pixelExpr,pixelPos);
+  cglEval(light,color,direction,normal);
+);
+
+cglDrawTorus(center,orientation,radius1,radius2,color,angle1range,angle2range):=(
+  regional(light,colAndModifs,modifiers,drawBack,colorExpr);
+  orientation=normalize(orientation);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  colAndModifs = cglColorExpression(color,modifiers);
+  colorExpr = colAndModifs_1;
+  modifiers = colAndModifs_2;
+  if(length(angle1range)>0,
+    modifiers = modifiers ++ [
+      ["baseColor",colorExpr],
+      ["cglTorusAngles1",[angle1range_1,angle1range_2]/(2*pi)]
+    ];
+    if(length(angle2range)>0,
+    modifiers = modifiers ++ [["cglTorusAngles2",[angle2range_1,angle2range_2]/(2*pi)]];
+      colorExpr = cglLazy(texPos,
+        if(texPos_1 < cglTorusAngles1_1 % texPos_1 > cglTorusAngles1_2,cglDiscard());
+        if(texPos_2 < cglTorusAngles2_1 % texPos_2 > cglTorusAngles2_2,cglDiscard());
+        cglEval(baseColor,texPos);
+      );
+    ,
+      colorExpr = cglLazy(texPos,
+        if(texPos_1 < cglTorusAngles1_1 % texPos_1 > cglTorusAngles1_2,cglDiscard());
+        cglEval(baseColor,texPos);
+      );
+    );
+  ,if(length(angle2range)>0,
+    modifiers = modifiers ++ [
+      ["baseColor",colorExpr],
+      ["cglTorusAngles2",[angle2range_1,angle2range_2]/(2*pi)]
+    ];
+    colorExpr = cglLazy(texPos,
+      if(texPos_2 < cglTorusAngles2_1 % texPos_2 > cglTorusAngles2_2,cglDiscard());
+      cglEval(baseColor,texPos);
+    );
+  ));
+  if(drawBack,
+    // TODO? is it possible to use loop while keeping layerId parameter constant
+    colorplot3d(cgl3dTorusShaderCode(#,4),
+      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+      Uradii->[radius1,radius2], UpixelExpr->colorExpr,
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+    colorplot3d(cgl3dTorusShaderCode(#,3),
+      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+      Uradii->[radius1,radius2], UpixelExpr->colorExpr,
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+    colorplot3d(cgl3dTorusShaderCode(#,2),
+      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+      Uradii->[radius1,radius2], UpixelExpr->colorExpr,
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+  );
+  colorplot3d(cgl3dTorusShaderCode(#,1),
+    center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+    Uradii->[radius1,radius2], UpixelExpr->colorExpr,
+    Ulight->light,plotModifiers->modifiers,tags->["torus"]++tags);
+);
+cglDrawTorus(center,orientation,radius1,radius2,color):=(
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawTorus(center,orientation,radius1,radius2,color,[],[],
+    Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+torus(center,orientation,radius1,radius2,color):=(
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawTorus(center,orientation,radius1,radius2,color,[],[],
+    Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+colorplotTorus(center,orientation,radius1,radius2,pixelExpr):=(
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  cglDrawTorus(center,orientation,radius1,radius2,pixelExpr,[],[],
+    Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+torusArc(center,orientation,radius1,radius2,color,from,to):=(
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),true,cglDrawBack);
+  cglDrawTorus(center,orientation,radius1,radius2,color,[from,to],[],
+    Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+colorplotArc(center,orientation,radius1,radius2,pixelExpr,from,to):=(
+  regional(light,modifiers,drawBack);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  drawBack = if(isundefined(cglDrawBack),true,cglDrawBack);
+  cglDrawTorus(center,orientation,radius1,radius2,pixelExpr,[from,to],[],
+    Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
 );

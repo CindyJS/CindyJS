@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: torus</h1>
+
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            normalize(v):=(v/|v|);
+            cglBegin3d();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+
+            sx = mouse().x;
+            sy = mouse().y;
+
+            y=R.y;
+            if(y<R0.y,y=R0.y);
+            if(y>R1.y,y=R1.y);
+            r2=((y-R0.y)/(R1.y-R0.y));// 0 .. 1
+            R.xy=(R0.x,y);
+            y=H.y;
+            if(y<H0.y,y=H0.y);
+            if(y>H1.y,y=H1.y);
+            r1=(2*(y-H0.y)/(H1.y-H0.y));// 0 .. 2
+            H.xy=(H0.x,y);
+
+            cglReset3d();
+            torus([0,0,0],[2,2,-1],r1,r2,[0,1,0,0.75]);
+            cglRender3d(layers->0); // layers of torus are sorted -> can use simple rendering algorithm
+
+            drawtext(R1+(-.05,.1),"r2");
+            drawtext(R+(.03,.03),format(r2,2));
+            drawtext(H1+(-.05,.1),"r1");
+            drawtext(H+(.03,.03),format(r1,2));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 608,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2.75, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "R0", type: "Free", pos: [2, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "R1", type: "Free", pos: [2, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R", type: "Free", pos: [2, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "H0", type: "Free", pos: [2.4, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "H1", type: "Free", pos: [2.4, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["H0", "H1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "H", type: "Free", pos: [2.4, .1], color: [0, 0, 1], narrow: true, pinned: false, size: 4 },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
