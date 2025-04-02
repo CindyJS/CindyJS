@@ -1035,6 +1035,72 @@ let CindyGL = function(api) {
         CindyGL.mode3D=false;
         return nada;
     });
+    var cglEvalSizes=new Set();
+    /**
+     * @param {CindyJS.anyval} csexpr
+     * @param {Array<CindyJS.anyval>} args
+     * @param {object} modifs
+     */
+    function cglEvalImpl(csexpr,args,modifs) {
+        // replace lazy-parameters with arguments passed into eval
+        function replaceVariables(expr,argValues){
+            if(expr['ctype'] === 'variable') {
+                const name = expr['name'];
+                // TODO detect if parameters get shaddowed by local declaration/regional/loop
+                if(argValues.has(name))
+                    return argValues.get(name);
+                // name not matched
+                return expr;
+            } else if(expr['ctype'] === 'field') {
+                // create copy of expression
+                let newExpr = Object.assign({}, expr);
+                // do not replace key for field
+                newExpr['obj'] = replaceVariables(expr['obj'],argValues);
+                return newExpr;
+            } else if(expr['ctype'] === 'userdata') {
+                // create copy of expression
+                let newExpr = Object.assign({}, expr);
+                newExpr['key'] = replaceVariables(expr['key'],argValues);
+                newExpr['obj'] = replaceVariables(expr['obj'],argValues);
+                return newExpr;
+            } else if(expr.hasOwnProperty('args')) {
+                let newArgs = expr['args'].map((oldArg)=>replaceVariables(oldArg,argValues));
+                // create copy of expression
+                let newExpr = Object.assign({}, expr);
+                newExpr['args'] = newArgs;
+                return newExpr;
+            }
+            // TODO is this enough to replace all lazy params
+            return expr;
+        }
+        const val = api.evaluate(csexpr);
+        if(val['ctype'] !== 'cglLazy') {
+            console.log("this first argument of cglEval has to be a cglLazy expression");
+            return nada;
+        }
+        if(val.params.length != args.length) {
+            console.log(`wrong number of arguments for lazy expression expected ${val.params.length} got ${args.length}`);
+            return nada;
+        }
+        let argValues = new Map();
+        val.modifs.forEach(([key,value])=>{
+            argValues.set(key,value);
+        });
+        for(let index=0;index<val.params.length;index++) {
+            argValues.set(val.params[index]['name'],args[index]);
+        }
+        const expr = replaceVariables(val.expr,argValues);
+        // console.log(val.expr,expr);
+        return api.evaluate(expr);
+    }
+    /** @param {number} k  */
+    function createCglEval(k){
+        if(cglEvalSizes.has(k)) return; // function already exists
+        cglEvalSizes.add(k);
+        api.defineFunction("cglEval", k+1, (args, modifs) => {
+            return cglEvalImpl(args[0],args.slice(1),modifs);
+        });
+    }
     // wrapper for unevaluated expression that can be passed to colorplot program
     api.defineFunction("cglLazy", 2, (args, modifs) => {
         let params;
@@ -1054,10 +1120,13 @@ let CindyGL = function(api) {
         });
         if(!paramsOk)
             return nada;
+        // ensure matching evaluator exists
+        createCglEval(params.length);
         return {
             ctype: "cglLazy",
             params: params,
-            expr: cloneExpression(args[1])
+            expr: cloneExpression(args[1]),
+            modifs: Object.entries(modifs).map(([key,value])=>[key,api.evaluate(value)]) // TODO? convert to map
         };
     });
     api.defineFunction("cglIsLazy", 1, (args, modifs) => {

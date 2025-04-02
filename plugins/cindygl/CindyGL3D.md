@@ -40,7 +40,8 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
 * `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`
 * `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id
-* `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can be reconstructed in the compiled code using the `cglEval` built-in.
+* `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can later be evaluated by calling `cglEval()`. All modifiers passed to `cglLazy` can be used as named constants within the expression.
+* `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy()`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression
 * `cglIsLazy(<val>)` checks if val is a cglLazy expression
 `<args>` is a list of parameters that should be passed to the expression.
 * `cglAxes()` returns the current coordinate axes as a list of vec3
@@ -81,7 +82,6 @@ Triangle/Mesh:
 
 * `cglDiscard()` when this function is called the current pixel will not be drawn to the screen.
 Due to compiler limitations the source code still has to be valid if all `cglDiscrad` calls are ignored.
-* `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression
 * `cglTexture(<image>,<pos>)` and `cglTextureRGB(<image>,<pos>)` can be used to obtain the pixel of a texture without the transformations applied by `imagergba` / `imagergb`
 
 ## Plot Modifiers

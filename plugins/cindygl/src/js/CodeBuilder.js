@@ -198,6 +198,8 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
+    } else if (expr['ctype'] === 'cglLazy') {
+        return type.cglLazy(expr);
     } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
         var argtypes = new Array(expr['args'].length);
         let allconstant = true;
@@ -296,6 +298,8 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 }
                 modifierData.used = true;
                 exprData = exprType.value;
+            } else if (variables[exprName] && variables[exprName].T && variables[exprName].T.type === 'cglLazy') {
+                exprData = variables[exprName].T.value;
             } else {
                 let val = self.api.evaluate(exprExpr);
                 if(val['ctype'] !== 'cglLazy'){
@@ -315,6 +319,16 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             }
             // create independent set of bindings for body of expression
             let nbindings = {};
+            exprData.modifs.forEach(([key,value])=>{
+                // TODO? are non-lazy modifiers handled correctly
+                let iname = generateUniqueHelperString();
+                nbindings[key] = iname;
+                if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
+                myfunctions[scope].variables.push(iname);
+                self.initvariable(iname, false);
+                variables[iname].assigments.push(value);
+                variables[iname].T = guessTypeOfValue(value);
+            });
             exprData.params.forEach((param,index) => {
                 let vname = param['name'];
                 let iname = generateUniqueHelperString();
@@ -334,6 +348,9 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 let newParam = Object.assign({}, param);
                 newParam.bindings = nbindings;
                 return newParam;
+            });
+            expr.modifs = exprData.modifs.map(([name,value])=>{
+                return [name,value,nbindings];
             });
         }
         for (let i in expr['args']) {
@@ -836,6 +853,12 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         expr.params.forEach((param,index)=>{
             code+=this.compile(opAssign(param,expr['args'][index+1]),false).code;
         });
+        // assign values to modifiers
+        // TODO? will this create a seperate uniform for each call of the function
+        expr.modifs.forEach(([key,value,bindings])=>{
+            if(value['ctype']==='cglLazy') return; // skip lazy values
+            code+=this.compile(opAssign({ctype:'variable',name:key,bindings:bindings},value),false).code;
+        });
         // evaluate "lazy" expression
         let result = this.compile(expr['args'][0],generateTerm);
         // insert assignemnt code before expression code
@@ -1263,7 +1286,10 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
     let code = `${webgltype(this.variables[pname].T)} ${pname}(${vars.map(varname => webgltype(self.variables[bindings[varname]].T) + ' ' + bindings[varname]).join(', ')}){\n`;
     for (let i in m.variables) {
         let iname = m.variables[i];
-        code += `${webgltype(this.variables[iname].T)} ${iname};\n`;
+        const varType = this.variables[iname].T;
+        if(varType == type.voidt || varType.type == 'cglLazy')
+            continue;// skip void and lazy variables
+        code += `${webgltype(varType)} ${iname};\n`;
     }
     let r = self.compile(m.body, !isvoid);
     let rtype = self.getType(m.body);

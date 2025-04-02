@@ -68,6 +68,7 @@ function typeToString(t) {
     } else {
         if (t.type === 'list') return `${typeToString(t.parameters)}[${t.length}]`;
         if (t.type === 'constant') return `const[${JSON.stringify(t.value['value'])}]`;
+        if (t.type === 'cglLazy') return `cglLazy((${t.value.params.map(v=>v['name']).join(',')}),...)`;
         return JSON.stringify(t); //TODO
     }
 }
@@ -127,7 +128,10 @@ let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a
 let typesareequal = (a, b) => (a === b) ||
     (a.type === 'constant' && b.type === 'constant' && expressionsAreEqual(a.value, b.value)) ||
     (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters)) ||
-    (a.type === 'cglLazy' && b.type === 'cglLazy' && arraysAreEqual(a.value.params,b.value.params)&& expressionsAreEqual(a.value.expr,b.value.expr));
+    (a.type === 'cglLazy' && b.type === 'cglLazy' && arraysAreEqual(a.value.params,b.value.params)
+        && expressionsAreEqual(a.value.expr,b.value.expr) && arraysAreEqual(a.value.modifs, b.value.modifs,([a,b])=>(
+            a[0] === b[0] && expressionsAreEqual(a[1], b[1]) // same name and value
+    )));
 
 function issubtypeof(a, b) {
     if (typesareequal(a, b)) return true;

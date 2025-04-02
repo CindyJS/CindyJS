@@ -19,10 +19,11 @@
         </script>
         <script id="csinit" type="text/x-cindyscript">
             use("CindyGL");
-            
             f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
             g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));
             regionalInLazy = cglLazy(v,regional(c);c=v;c);
+            f3 = cglLazy((x,y,z),x^2+y^2-z^2);
+            g3 = cglLazy((x,y,z),x^2+y^2+z^2);
             cglBegin3d();
             shaderCode(direction):=(
               cglEval(regionalInLazy,direction);
@@ -35,6 +36,7 @@
               cglEval(f,direction);
             );
             test(f,x,y):=(
+              print(((x,y),cglEval(f,(x,y))));
               colorplot3d(shaderCode(#),[x,y,0],1,Uf->f);
             );
             test(f,-1.5,-1.5);
@@ -42,6 +44,27 @@
             test(cglLazy([a],[1,0,0]),1.5,-1.5);
             test(cglLazy([a],[0,1,0]),1.5,1.5);
             test(f,0,0);
+            test2(f,x,y,z):=(
+              print(((x,y,z),cglEval(f,x,y,z)));
+            );
+            modifInExpr = cglLazy((localX,localY,z),localX:"x"*localX:localY);
+            modifVal = [];
+            modifVal:"test"=f3;
+            modifVal:"x"=6;
+            modifVal:"localKey"=7;
+            test2(f3,1,2,3);
+            test2(g3,1,2,3);
+            test2(modifVal:"test",0,0,-1);
+            test2(g3,0,0,-1);
+            test2(modifInExpr,modifVal,"localKey",0);
+            
+            f1 = cglLazy((x,y),x+y);
+            testLazyModifiers = cglLazy((y),cglEval(f,x,y),f->f1,x->3);
+            testLazyModifiers2 = cglLazy((p),(r,cglEval(f,p_1,p_2),b),f->f1,r->0.25,b->0.75);
+            f1 = cglLazy((x,y),x*y);
+            print((2,cglEval(testLazyModifiers,2)));
+            print((5,cglEval(testLazyModifiers,5)));
+            test(testLazyModifiers2,2.5,0);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             cglRender3d();            
