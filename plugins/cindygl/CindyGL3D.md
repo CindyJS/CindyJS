@@ -38,8 +38,9 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
      - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
      - [v1,v2,v3,v4,...]            list of vertices
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
+* `cglUpdateBounds(<objId>)` `cglUpdateBounds(<objId>,<center>,<radius>)` `cglUpdateBounds(<objId>,<pointA>,<pointB>,<radius>)` `cglUpdateBounds(<objId>,<triangles>)` updates the bounding box of the object with the given id, the parameters after the object id behave the same way as those in the corresponding version of `colorplot3d`
+* `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id all modifiers passed to this function will be replace the cooresponding modifier on the existing object.
 * `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`
-* `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id
 * `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can later be evaluated by calling `cglEval()`. All modifiers passed to `cglLazy` can be used as named constants within the expression.
 * `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy()`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression
 * `cglIsLazy(<val>)` checks if val is a cglLazy expression
@@ -47,10 +48,6 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
 * `cglAxes()` returns the current coordinate axes as a list of vec3
 * `cglDirection(x,y)` returns the view-direction for the screen pixel `(x,y)` seen from the viewPosition
 * `cglSpherePos(<objId>)` returns the center of the sphere with the given object id
-* `cglMoveSphere(<objId>,<newCenter: vec3>)` moves the center of the sphere with the given object-id
-* `cglMoveCylinder(<objId>,<newPointA: vec3>,<newPointB: vec3>)` moves the endpoints of the cylinder with the given object-id
-* `cglMoveTriangles(<objId>,<vertices: list<vec3>>)` moves the vertices of the triangle-mesh with the given object-id,
-  if the number of vertices changes the corresponding vertex attributes should be updated accordingly (currently this needs a seperate call to `cglUpdate()`)
 
 ## Built-in variables
 
@@ -117,12 +114,18 @@ The main drawing functions are.
 * `cglDrawMesh(samples: vec3[][],color)` draws a rectangular mesh with the given sample points, the type of normal-vectors can be specified by setting the `normalType` modifier to one either `CGLuMESHuNORMALuFACE` or `CGLuMESHuNORMALuVERTEX`
 * `cglDrawMesh(samples: vec3[][],normals: vec3[][],color)` draws a rectangular mesh with the given sample points and normal vectors. `normals` is expected be a nested list with the same shape as the sample-point array, if `normalType` is set to `CGLuMESHuNORMALuFACE` only the top left corner for each quadrilateral `(x,y), (x+1,y), (x,y+1), (x+1,y+1)` will be used.
 Alternatively `normals` can be set to a `cglLazy` expression taking the current viewDirection as input and returning the normal vector at the current pixel, like for the color-expression it is possible to use modifiers and global variables to get further information about the current pixel.
+* `cglDrawQuadricInSphere(matrix: max4,center: vec3,radius: float,color)` draws a quadric surface, `matrix` is a symmetric 4x4 matrix containing the homogeneous coefficients of the drawn curve, `center` and `radius` define a sphere used as cutoff region for the rendered surface. `color` can either be a solid color or a cglLazy expression taking the pixel-position as input.
+* `cglDrawQuadricInCylinder(matrix: max4,pointA: vec3,pointB: vec3,radius: float,color)` draws the quadric curve defined by the given matrix the cylinder defined by `pointA`, `pointB` and `radius`
+* `cglDrawQuadricInCube(matrix: max4,center: vec3,sideLength: float,color)` draws the quadric curve defined by the given matrix the axis-aligned cube with the given `center` and `sideLength`
 
 All drawing functions accept the following modifiers:
  * `Ulight: cglLazy` can be used to modify the lighting calculation, the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order and is expected to return a color
  * `tags` a list of strings that can be attached to different objects.
  * `plotModifiers` a list of key-value pairs mapping variable-names (string) to plot modifiers
  * `cglDrawBack`  (currently not supported for torus) draw all intersections of the current object with the view ray, by default this flag is only enabled for plain colors with four components
+
+Additionally the draw functions return as a list containing the ids of all sub-objects composing the drawn object.
+For `cglDraw`, `cglDrawPolygon` and `cglDrawMesh` the id is returned directly.
 
 Triangle based functions additionally have the modifier
  * `vModifiers` a list of key-value pairs mapping variable-names (string) to vertex modifiers should have same shape as vertex input
@@ -148,3 +151,5 @@ For simplicity the library also defined the following wrapper functions:
 * `mesh3d(<samples>:list<list<vec3>>,<color>:vec3|vec4)` creates a mesh for the given samples and colors the faces in a constant color. The given `samples` should be a rectangular grid of points, the surface normals will be determined from the given points, the normal type can be set with the modifier `normalType` it has to be either `CGLuMESHuNORMALuFACE` (one normal per triangular face) or `CGLuMESHuNORMALuVERTEX` (one normal per vertex, computed as average face normal)
 * `mesh3d(<samples>:list<list<vec3>>,<normals>:list<list<vec3>>,<color>: vec3|vec4)` like `mesh3d` but will use the vectors in the list `normals` as face/vertex normals. Normals should be a rectangular grid containing a normal vector for each vertex, in face mode only the corner `(x,y)` of each quadrilateral `(x,y), (x+1,y), (x,y+1), (x+1,y+1)` will be used.
 * `colorplotMesh3d(<samples>,<pixelExpr>)`, `colorplotMesh3d(<samples>,<normals>,<pixelExpr>)` like `mesh3d` but with a cglLazy expression instead of a constant color (the parameter of the pixel-expression will be the view-direction at the current pixel)
+* `quadric(matrix,center,radius,color)` direct wrapper for `cglDrawQuadricInSphere(matrix,center,radius,color)`
+* `quadric(matrix,pointA,pointB,radius,color)` direct wrapper for `cglDrawQuadricInCylinder(matrix,pointA,pointB,radius,color)`

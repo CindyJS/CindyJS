@@ -65,9 +65,23 @@ cglColorExpression(color,plotModifiers):=(
   );
   [colorExpr,plotModifiers];
 );
-// TODO is there a way to distinguish modifier and global variables
-// TODO? parameter for transparency handling (single-layer/multi-layer ; render 1st/2nd layer)
+// empty ist to hold mapping from top layer to list of layers in userdata
+cglLayerInfo = [];
+cglRememberLayers(layers):=(
+  cglLayerInfo:(layers_(length(layers))) = layers;
+  layers;
+);
+cglLayers(topLayer):=(
+  regional(layers);
+  layers =  cglLayerInfo:topLayer;
+  if(isundefined(layers),
+    [topLayer]
+  ,
+    layers;
+  );
+);
 
+// TODO is there a way to distinguish modifier and global variables
 cglSphereNormalAndDepth(direction,center,isBack):=(
   regional(vc,b2,c,D4,r,dst,dst2,pos3d,normal);
   // |v+l*d -c|=r
@@ -128,26 +142,25 @@ cgl3dSphereShaderCode(direction,isBack):=(
   cglEval(light,color,direction,normal);
 );
 
-// TODO add support for drawing back faces to all shapes
-
 // creates a sphere with the given center and radius
 // color can either be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
 // the color of the pixels is determined by applying the given cglLazy projection function to the normal vector
 // and using the result as input to the color function
 cglDrawSphere(center,radius,color,projection):=(
-  regional(light,colAndModifs,modifiers,drawBack);
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer);
   // TODO better way to detect transparency
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   colAndModifs = cglColorExpression(color,modifiers);
   if(drawBack,
-    colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
+    ids = [colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
       UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,
-      tags->["sphere","backside"]++tags);
+      tags->["sphere","backside"]++tags)];
   );
-  colorplot3d(cgl3dSphereShaderCode(#,false),center,radius,
+  topLayer = colorplot3d(cgl3dSphereShaderCode(#,false),center,radius,
     UpixelExpr->colAndModifs_1,Uprojection->projection,Ulight->light,plotModifiers->colAndModifs_2,tags->["sphere"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 cglDrawSphere(center,radius,color):=(
   regional(light,modifiers,drawBack);
@@ -227,7 +240,44 @@ cglCylinderDepths(direction):=(
     D= b*b-a*c;
     if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
     r = re(sqrt(D));
+    // TODO? discard negative distances form view
     (w - (b + r)/a, w - (b - r)/a);
+);
+// intersections of ray in given direction with cylinder with circular end-caps
+cglCappedCylinderDepths(direction):=( // TODO? make idenpendent of render-bounding box
+  regional(w,W,BA,U,VA,S,T,a,b,c,D,r,l,v,d,m0t,m1t,m0,m1,low,hi);
+  w = |cglViewPos-(cglPointA+cglPointB)/2|;
+  W = cglViewPos + w*direction;
+  BA = cglPointB-cglPointA;
+  U = BA/(BA*BA);
+  VA = (W-cglPointA);
+  S = VA - (VA*BA)*U;
+  T = direction - (direction*BA)*U;
+  a = T*T;
+  b = S*T;
+  c = S*S -cglRadius*cglRadius;
+  D= b*b-a*c;
+  if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
+  r = re(sqrt(D));
+  l = (- (b + r)/a, - (b - r)/a);
+  // intersections with cutof planes
+  // normal: U, values at ends: <A,B-A>, <B,B-A>
+  // <view + m * dir,(B-A)> = <view,B-A> + m * <dir,B-A>
+  d = direction * U;
+  v = W * U;
+  a = cglPointA * U;
+  b = cglPointB * U;
+  // b >= v + m*d >= a -> (b-a)/d >= m >= (a-v)/d
+  m0t = (a-v)/d;
+  m1t = (b-v)/d;
+  m0 = min(m0t,m1t);
+  m1 = max(m0t,m1t);
+  // lowBound: -w, m0, l_1
+  // hi Bound: m1, l_2
+  low = max(-w,max(m0,l_1));
+  hi = min(m1,l_2);
+  if(hi<=low,cglDiscard());
+  [low+w,hi+w];
 );
 // helper for computing normal and position along cylinder
 // sets cglDepth to the first intersection with the cylinder
@@ -337,17 +387,18 @@ cgl3dCylinderShaderCodeBack(direction):=(
 // color can either be a constant color or a cglLazy (<pos>-> <color>) expression, if color is an expression
 // where the position a,h is the angle along the cylinder together with the hight measured from pointA both given in the range [0,1]
 cglDrawCylinder(pointA,pointB,radius,color):=(
-  regional(light,colAndModifs,modifiers,drawBack);
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   colAndModifs = cglColorExpression(color,modifiers);
   if(drawBack,
-    colorplot3d(cgl3dCylinderShaderCodeBack(#),pointA,pointB,radius,
-      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags);
+    ids = [colorplot3d(cgl3dCylinderShaderCodeBack(#),pointA,pointB,radius,
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags)];
   );
-  colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
+  topLayer = colorplot3d(cgl3dCylinderShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 // like cglDrawCylinder(pointA,pointB,radius,color)
 // the color of a pixel is determined by linearly blending between colorA and colorB dependent on the height of the current pixel
@@ -402,17 +453,18 @@ cgl3dRodShaderCodeBack(direction):=(
 );
 // cylinder with spherical end caps
 cglDrawRod(pointA,pointB,radius,color):=(
-  regional(light,colAndModifs,modifiers,drawBack);
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   colAndModifs = cglColorExpression(color,modifiers);
   if(drawBack,
-    colorplot3d(cgl3dRodShaderCodeBack(#),pointA,pointB,radius,
-      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags);
+    ids = [colorplot3d(cgl3dRodShaderCodeBack(#),pointA,pointB,radius,
+      UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags)];
   );
-  colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
+  topLayer = colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 cglDrawRod(pointA,pointB,radius,colorA,colorB):=(
   regional(light,colAndModifs,modifiers,drawBack);
@@ -520,9 +572,8 @@ cglUpdatePolygon3d(objId,vertices,color):=(
   if(isundefined(Ulight),light = cglDefaultLight,light = Ulight);
   colAndModifs = cglColorExpression(color,modifiers);
   trianglesAndNormals = cglTriangulatePolygon(vertices,vMods);
-  cglMoveTriangles(objId,trianglesAndNormals_1);
-  cglUpdate(objId,Vnormal->trianglesAndNormals_2,UpixelExpr->colAndModifs_1,Ulight->light,
-    plotModifiers->colAndModifs_2,vModifiers->trianglesAndNormals_3);
+  cglUpdate(objId,UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2);
+  cglUpdateBounds(objId,trianglesAndNormals_1,Vnormal->trianglesAndNormals_2,vModifiers->trianglesAndNormals_3);
 );
 updatePolygon3d(objId,vertices,color):=(
   regional(light,modifiers,vMods);
@@ -710,11 +761,30 @@ colorplotMesh3d(samples,normals,pixelExpr):=(
 //l  c0  c1  c2  <-roots of p3
 // \ / \ / \ / \ /
 // d0  d1  d2  d3 <-roots of p4
+// TODO make eval/derivative generic in degree
 cglEvalP4(coeffs,t) := coeffs*(1,t,t*t,t*t*t,t*t*t*t);
 cglEvalP3(coeffs,t) := coeffs*(1,t,t*t,t*t*t);
 cglEvalP2(coeffs,t) := coeffs*(1,t,t*t);
 cglEvalP1(coeffs,t) := coeffs*(1,t);
 dP4(coeffs) := (coeffs_2, 2*coeffs_3, 3*coeffs_4, 4*coeffs_5, 0);
+dP3(coeffs) := (coeffs_2, 2*coeffs_3, 3*coeffs_4, 0);
+cglBinSearchP3(poly, x0, x1, def) := (
+  regional(v0, v1, m, vm);
+  v0 = cglEvalP3(poly, x0);
+  v1 = cglEvalP3(poly, x1);
+  if(v0*v1<=0,
+    repeat(16,
+      m = (x0+x1)/2;
+      vm = cglEvalP3(poly, m);
+      if(v0*vm<=0,
+        (x1 = m; v1 = vm;),
+        (x0 = m; v0 = vm;)
+      );
+    );
+    m,
+    def
+  )
+);
 cglBinSearchP4(poly, x0, x1, def) := (
   regional(v0, v1, m, vm);
   v0 = cglEvalP4(poly, x0);
@@ -733,6 +803,27 @@ cglBinSearchP4(poly, x0, x1, def) := (
   )
 );
  //finds the k-th root of poly in interval (l, u). returns def if there is none
+cglKthrootP3(k, poly, l, u, def) := (
+  regional(p1, p2, p3, p4, a0, b0, b1, c0, c1, c2, count);
+  p4 = poly;  //cubic
+  p3 = dP3(p4); //quadratic
+  p2 = dP3(p3); //linear
+
+  a0 = cglBinSearchP4(p1, l, u, u);
+  b0 = cglBinSearchP4(p2, l, a0, l);
+  c0 = cglBinSearchP4(p3, l, b0, l);
+  count = (l < c0 & c0 < u);
+  if(count >= k, c0,
+    b1 = cglBinSearchP4(p2, a0, u, u);
+    c1 = cglBinSearchP4(p3, b0, b1, c0);
+    count = count + (c0 < c1 & c1 < u);
+    if(count >= k, c1,
+      c2 = cglBinSearchP4(p3, b1, u, u);
+      count = count + (c1 < d2 & c2 < u);
+      if(count >= k, c2, def);
+    );
+  );
+);
 cglKthrootP4(k, poly, l, u, def) := (
   regional(p1, p2, p3, p4, a0, b0, b1,
     c0, c1, c2, d0, d1, d2, d3,count);
@@ -841,7 +932,7 @@ cgl3dTorusShaderCode(direction,layer):=(
 );
 
 cglDrawTorus(center,orientation,radius1,radius2,color,angle1range,angle2range):=(
-  regional(light,colAndModifs,modifiers,drawBack,colorExpr);
+  regional(light,colAndModifs,modifiers,drawBack,colorExpr,ids,topLayer);
   orientation=normalize(orientation);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
@@ -879,23 +970,24 @@ cglDrawTorus(center,orientation,radius1,radius2,color,angle1range,angle2range):=
   ));
   if(drawBack,
     // TODO? is it possible to use loop while keeping layerId parameter constant
-    colorplot3d(cgl3dTorusShaderCode(#,4),
+    [colorplot3d(cgl3dTorusShaderCode(#,4),
       center+radius2*orientation, center-radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
-      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags),
     colorplot3d(cgl3dTorusShaderCode(#,3),
       center+radius2*orientation, center-radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
-      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags),
     colorplot3d(cgl3dTorusShaderCode(#,2),
       center+radius2*orientation, center-radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
-      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags);
+      Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags)];
   );
-  colorplot3d(cgl3dTorusShaderCode(#,1),
+  topLayer = colorplot3d(cgl3dTorusShaderCode(#,1),
     center+radius2*orientation, center-radius2*orientation, radius1+radius2,
     Uradii->[radius1,radius2], UpixelExpr->colorExpr,
     Ulight->light,plotModifiers->modifiers,tags->["torus"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 cglDrawTorus(center,orientation,radius1,radius2,color):=(
   regional(light,modifiers,drawBack);
@@ -937,3 +1029,147 @@ colorplotArc(center,orientation,radius1,radius2,pixelExpr,from,to):=(
   cglDrawTorus(center,orientation,radius1,radius2,pixelExpr,[from,to],[],
     Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
 );
+
+// get intersections of view-ray with cobius given by center point and (scaled) directions of the three axes
+cglCuboidDepths(direction,center,up,left,front):=(
+  regional(relCenter,l1,l2,l1t,l2t,d1,d2,d);
+  relCenter = center-cglViewPos;
+  // + up, - up
+  d1 = up*(relCenter-up);
+  d2 = up*(relCenter+up);
+  d = up*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = min(l1t,l2t);
+  l2 = max(l1t,l2t);
+  l1 = max(l1,0);
+ // + left, - left
+  d1 = left*(relCenter-left);
+  d2 = left*(relCenter+left);
+  d = left*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = max(l1,min(l1t,l2t));
+  l2 = min(l2,max(l1t,l2t));
+   // + front, - front
+  d1 = front*(relCenter-front);
+  d2 = front*(relCenter+front);
+  d = front*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = max(l1,min(l1t,l2t));
+  l2 = min(l2,max(l1t,l2t));
+  if(l1>=l2,cglDiscard());
+  [l1,l2];
+);
+
+// general degree 1 surfaces
+// TODO render planes within a given bounding box
+
+// general degree 2 surfaces
+cgl3dQuadricShaderCode(direction,isBack):=(
+  regional(depths,v4,d4,a,b,c,b2,D,r,dst,pos4,n4,normal,color);
+  // discard points outside bounding sphere
+  depths = cglEval(cglCutoffRegion,direction);
+  v4 = [cglViewPos_1,cglViewPos_2,cglViewPos_3,1];
+  d4 = [direction_1,direction_2,direction_3,0];
+  a = d4*(cglCoeffMat*d4);
+  b = v4*(cglCoeffMat*d4);
+  c = v4*(cglCoeffMat*v4);
+  D = b*b - a*c;
+  if(D<0,cglDiscard());
+  b2 = -b/a;
+  r = re(sqrt(D))/abs(a);
+  dst = b2-r;
+  if(dst > depths_2,cglDiscard());
+  if(dst < depths_1,
+    if(isBack,cglDiscard());
+    dst = b2+r;
+    if(dst < depths_1 % dst > depths_2,cglDiscard());
+  ,if(isBack,
+    dst = b2+r;
+    if(dst < depths_1 % dst > depths_2,cglDiscard());
+  ));
+  pos4 = v4 + dst*d4;
+  // compute normal vector
+  n4 = cglCoeffMat * pos4;
+  normal = normalize((n4_1,n4_2,n4_3));
+  // TODO? map surface to 2D space
+  color = cglEval(pixelExpr,(pos4_1,pos4_2,pos4_3));
+  cglSetDepth(dst);
+  cglEval(light,color,direction,normal);
+);
+cglDrawQuadricInSphere(matrix,center,radius,color):=(
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer,cutoff);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cutoff = cglLazy(direction,cglSphereDepths(direction,cglCenter,cglRadius));
+  colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    ids = [colorplot3d(cgl3dQuadricShaderCode(#,true),center,radius,
+      UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+      plotModifiers->colAndModifs_2,tags->["quadric","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dQuadricShaderCode(#,false),center,radius,
+    UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+    plotModifiers->colAndModifs_2,tags->["quadric"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
+);
+cglDrawQuadricInCylinder(matrix,pointA,pointB,radius,color):=(
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer,cutoff);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cutoff = cglLazy(direction,cglCappedCylinderDepths(direction));
+  colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    ids = [colorplot3d(cgl3dQuadricShaderCode(#,true),pointA,pointB,radius,
+      UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+      plotModifiers->colAndModifs_2,tags->["quadric","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dQuadricShaderCode(#,false),pointA,pointB,radius,
+    UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+    plotModifiers->colAndModifs_2,tags->["quadric"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
+);
+cglDrawQuadricInCube(matrix,center,sideLength,color):=(
+  regional(radius,light,colAndModifs,modifiers,drawBack,ids,topLayer,cutoff);
+  radius = sqrt(3)*sideLength;
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cutoff = cglLazy(direction,s=cglRadius/sqrt(3);cglCuboidDepths(direction,cglCenter,[s,0,0],[0,s,0],[0,0,s]));
+  colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    ids = [colorplot3d(cgl3dQuadricShaderCode(#,true),center,radius,
+      UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+      plotModifiers->colAndModifs_2,tags->["quadric","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dQuadricShaderCode(#,false),center,radius,
+    UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+    plotModifiers->colAndModifs_2,tags->["quadric"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
+);
+// TODO? use more general cuboi as bounding box
+
+quadric(matrix,center,radius,color):=(
+  regional(light,modifiers,drawBack);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawQuadricInSphere(matrix,center,radius,color,Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+quadric(matrix,pointA,pointB,radius,color):=(
+  regional(light,modifiers,drawBack);
+  drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
+  modifiers = if(isundefined(plotModifiers),[],plotModifiers);
+  light = if(isundefined(Ulight),cglDefaultLight,Ulight);
+  cglDrawQuadricInCylinder(matrix,pointA,pointB,radius,color,Ulight->light,plotModifiers->modifiers,cglDrawBack->drawBack);
+);
+
+// cubic surfaces
+
+// TODO general degree 3,4 surfaces
+// general surfaces
+
