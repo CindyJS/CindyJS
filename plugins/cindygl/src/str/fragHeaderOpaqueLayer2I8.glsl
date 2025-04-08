@@ -27,6 +27,7 @@ vec2 cgl_splitDepth(float z) {
   return vec2(hi,low);
 }
 void cgl_setColor(vec4 color) {
+    if(color.a==0.0)discard;
     fragColor = color;
     fragDepth = cgl_splitDepth(cgl_depth);
 }

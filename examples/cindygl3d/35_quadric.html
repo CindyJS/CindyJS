@@ -85,6 +85,7 @@
                   surfaceIds = quadric(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
                 ,if(cutoff == CUTcYLINDER,
                   surfaceIds = quadric(M,[0,-s,0],[0,s,0],s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
+                  //surfaceIds = surfaceIds ++ cylinder([0,0,-s],[0,0,s],s,[1,0,0,0.5],[1,0,0,0.5]);
                 ,
                   surfaceIds = cglDrawQuadricInCube(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
                 ));

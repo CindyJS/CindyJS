@@ -23,6 +23,7 @@ uniform float uRadius;
 float cgl_depth;
 
 void cgl_setColor(vec4 color) {
+    if(color.a==0.0)discard;
     vec4 oldColor = texture(oldColorTex,gl_FragCoord.xy/screenSize);
     float oldDepth = texture(oldDepthTex,gl_FragCoord.xy/screenSize).r;
     float newAlpha = oldColor.a + color.a - oldColor.a * color.a;

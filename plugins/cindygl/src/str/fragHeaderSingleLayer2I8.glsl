@@ -33,10 +33,11 @@ float cgl_getDepth(vec2 parts) {
   return parts.r+parts.g/256.0;
 }
 void cgl_setColor(vec4 color) {
+    if(color.a==0.0)discard;
     vec4 oldColor = texture(oldColorTex,gl_FragCoord.xy/screenSize);
     float oldDepth = cgl_getDepth(texture(oldDepthTex,gl_FragCoord.xy/screenSize).rg);
     float newAlpha = oldColor.a + color.a - oldColor.a * color.a;
-    if(cgl_depth <= oldDepth) {
+    if(cgl_depth <= oldDepth || color.a == 0.0) {
         fragColor = vec4(((1.0-color.a)*oldColor.rgb + color.a*color.rgb),newAlpha);
     } else {
         fragColor = vec4(((1.0-oldColor.a)*color.rgb + oldColor.a*oldColor.rgb),newAlpha);

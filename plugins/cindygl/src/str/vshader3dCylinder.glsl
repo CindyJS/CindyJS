@@ -20,10 +20,14 @@ void main(void) {
    vec3 dB = uPointB-cgl_viewPos;
    vec3 mPoint = cgl_viewPos+min(length(dA),length(dB))*normalize(aPos.y<0.?dA:dB);
    // create local coordinate system with x-axis parallel to AB and Z axis parallel to viewDirection
-   // TODO handle case where dir close to viewDir
    vec3 viewDir = normalize(mPoint-cgl_viewPos);
-   vec3 dir= uPointB-uPointA;
-   dir=normalize(dir-dot(dir,viewDir)*viewDir);
+   vec3 dir= normalize(uPointB-uPointA);
+   float a = dot(dir,viewDir);
+   if(abs(a)>0.9999) { // dir close to viewDir -> fall back to unit vector as second coordiante
+      dir=viewDir.x<viewDir.y?vec3(1,0,0):vec3(0,1,0);
+   } else {
+      dir=normalize(dir-a*viewDir);
+   }
    vec3 dir2 = normalize(cross(dir,viewDir));
    vec3 pos3 = mPoint+uRadius*(dir*aPos.y+dir2*aPos.x-viewDir);
    // transform to viewSpace

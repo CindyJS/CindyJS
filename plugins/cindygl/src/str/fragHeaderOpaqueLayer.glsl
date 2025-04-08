@@ -21,6 +21,7 @@ uniform float uRadius;
 float cgl_depth;
 
 void cgl_setColor(vec4 color) {
+    if(color.a==0.0)discard;
     // TODO? are textures updated if depth-test fails
     fragColor = color;
     fragDepth = cgl_depth;

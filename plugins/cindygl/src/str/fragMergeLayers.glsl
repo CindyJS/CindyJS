@@ -16,7 +16,7 @@ void main(void) {
 	float depth2 = texture(src2Depth, cgl_pixel).r;
 
     float newAlpha = color1.a + color2.a - color1.a * color2.a;
-    if(depth2 <= depth1) {
+    if(depth2 <= depth1 || color2.a == 0.0) {
         targetColor = vec4(((1.0-color2.a)*color1.rgb + color2.a*color2.rgb),newAlpha);
     } else {
         targetColor = vec4(((1.0-color1.a)*color2.rgb + color1.a*color1.rgb),newAlpha);
