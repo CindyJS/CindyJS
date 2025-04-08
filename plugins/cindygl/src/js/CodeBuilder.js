@@ -353,6 +353,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 return [name,value,nbindings];
             });
         }
+        // TODO? add support for: sum$2, sum$3, product$2, product$3
         for (let i in expr['args']) {
             let needtobeconstant = forceconstant || (expr['oper'] === "repeat$2" && i == 0) || (expr['oper'] === "repeat$3" && i == 0) || (expr['oper'] === "_" && i == 1);
             let nbindings = bindings;

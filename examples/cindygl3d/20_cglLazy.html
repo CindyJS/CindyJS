@@ -36,7 +36,9 @@
               cglEval(f,direction);
             );
             test(f,x,y):=(
+              cglDebugPrint(f);
               print(((x,y),cglEval(f,(x,y))));
+              cglDebugPrint(f);
               colorplot3d(shaderCode(#),[x,y,0],1,Uf->f);
             );
             test(f,-1.5,-1.5);
@@ -65,6 +67,32 @@
             print((2,cglEval(testLazyModifiers,2)));
             print((5,cglEval(testLazyModifiers,5)));
             test(testLazyModifiers2,2.5,0);
+            regionalInLazy = cglLazy(p,
+              regional(f);
+              f=[0,0.25,0.35];
+              cglEval(nestedLazy,0);
+              f
+            ,nestedLazy->cglLazy(x,regional(f);f=x));
+            test(regionalInLazy,-2.5,0);
+            scopeTest=cglLazy((x,y),
+              regional(y);
+              y = x + 1;
+              repeat(3,x,print(x));
+              y = y + forall([1,2,3],x,x);
+              z = product([4,5,6],x,x^2);
+              print([x,y,z]);
+              f(x,y):=(
+                regional(x);
+                x = 5;
+                x+y;
+              );
+              a=cglLazy(t,regional(x);x=t*t+1;);
+              print(x);
+              print([f(3,x)==8,cglEval(a,x),x]);
+            );
+            cglEval(scopeTest,1,2);
+            curry = cglLazy(x,cglLazy(y,x+y));
+            print(cglEval(cglEval(curry,2),3));
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             cglRender3d();            

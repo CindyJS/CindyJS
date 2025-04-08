@@ -193,6 +193,104 @@ let CindyGL = function(api) {
         };
     }
 
+    /**
+     * @param {CindyJS.anyval} paramArg
+     * @returns {Array<CindyJS.anyval>}
+     *  */
+    function cglLazyParams(paramArg){
+        if(paramArg['ctype'] === "list") {
+            return paramArg['value'];
+        } else if(paramArg['ctype'] === "function" && paramArg['oper'] === "genList"){
+            return paramArg['args'];
+        } else {
+            return [paramArg];
+        }
+    }
+    let cglEvalCallCount=0;
+    /** replace all occurences of names in argValues in the given expression with their corresponding value
+        @param {Map<string,CindyJS.anyval>} argValues
+    */
+    function replaceVariables(expr,argValues){
+        if(expr['ctype'] === 'variable') {
+            const name = expr['name'];
+            // TODO detect if parameters get shaddowed by local declaration/regional/loop
+            if(argValues.has(name))
+                return argValues.get(name);
+            // name not matched
+            return expr;
+        } else if(expr['ctype'] === 'field') {
+            // create copy of expression
+            let newExpr = Object.assign({}, expr);
+            // do not replace key for field
+            newExpr['obj'] = replaceVariables(expr['obj'],argValues);
+            return newExpr;
+        } else if(expr['ctype'] === 'userdata') {
+            // create copy of expression
+            let newExpr = Object.assign({}, expr);
+            newExpr['key'] = replaceVariables(expr['key'],argValues);
+            newExpr['obj'] = replaceVariables(expr['obj'],argValues);
+            return newExpr;
+        } else if(expr.hasOwnProperty('args')) {
+            let newArgs;
+            if(expr['ctype'] === 'function' && ["repeat$2", "forall$2", "apply$2", "sum$2", "product$2"].includes(expr['oper'])) {
+                // treat loop-body as seperate scope
+                let argValues2 = new Map(argValues);
+                argValues2.delete("#");
+                newArgs = [replaceVariables(expr['args'][0],argValues),replaceVariables(expr['args'][1],argValues2)];
+            } else if(expr['ctype'] === 'function' && ["repeat$3", "forall$3", "apply$3", "sum$3", "product$3"].includes(expr['oper'])) {
+                const itrName = expr['args'][1]['name'];
+                // treat loop-body as seperate scope
+                let argValues2 = new Map(argValues);
+                argValues2.delete(itrName);
+                newArgs = [replaceVariables(expr['args'][0],argValues),expr['args'][1],replaceVariables(expr['args'][2],argValues2)];
+            } else if(expr['ctype'] === 'function' && expr['oper'] === "cgllazy$2") {
+                const params = cglLazyParams(expr['args'][0]);
+                // seperate scope within body -> create copy of argValues
+                let argValues2 = new Map(argValues);
+                params.forEach(v=>{
+                    argValues2.delete(v['name']);
+                });
+                newArgs = [replaceVariables(expr['args'][0],argValues),replaceVariables(expr['args'][1],argValues2)];
+            } else if(expr['oper'] === "=" && argValues.has(expr['args'][0]['name'])) {
+                let argVal = argValues.get(expr['args'][0]['name']);
+                if(argVal['name'] && argVal['name'].includes("_")) {
+                    // regional variable
+                    newArgs = expr['args'].map((oldArg)=>replaceVariables(oldArg,argValues));
+                } else {
+                    // TODO? how to handle (conditional) assignment to cgl-lazy parameter
+                    console.error(`assignemnt to cglLazy parameter "${expr['args'][0]['name']}" is not supported`);
+                }
+            } else if(expr['oper'] === ":=") {
+                const lhs = expr['args'][0];
+                const rhs = expr['args'][1];
+                const params = lhs['args'] === undefined ? [] : lhs['args'];
+                // seperate scope for function body
+                let argValues2 = new Map(argValues);
+                params.forEach(v=>{
+                    argValues2.delete(v['name']);
+                });
+                newArgs = [lhs,replaceVariables(rhs,argValues2)];
+            } else if(expr['ctype'] === 'function' && getPlainName(expr['oper']) === "regional") {
+                newArgs = expr['args'].map(v=>{
+                    let renamed = Object.assign({}, v);
+                    // regional variables in api.evaluate leak into enclosing scope
+                    // -> set name to invalid identifier to ensure variable stays within eval-block
+                    renamed['name']=`${cglEvalCallCount}_${v['name']}`;
+                    argValues.set(v['name'],renamed); // regional shaddows argument
+                    return renamed;
+                });
+            } else {
+                newArgs = expr['args'].map((oldArg)=>replaceVariables(oldArg,argValues));
+            }
+            // create copy of expression
+            let newExpr = Object.assign({}, expr);
+            newExpr['args'] = newArgs;
+            return newExpr;
+        }
+        // TODO is this enough to replace all lazy params
+        return expr;
+    }
+
     api.defineFunction("forcerecompile", 0, (args, modifs) => {
         requiredcompiletime++;
         return nada;
@@ -1004,37 +1102,6 @@ let CindyGL = function(api) {
      * @param {object} modifs
      */
     function cglEvalImpl(csexpr,args,modifs) {
-        // replace lazy-parameters with arguments passed into eval
-        function replaceVariables(expr,argValues){
-            if(expr['ctype'] === 'variable') {
-                const name = expr['name'];
-                // TODO detect if parameters get shaddowed by local declaration/regional/loop
-                if(argValues.has(name))
-                    return argValues.get(name);
-                // name not matched
-                return expr;
-            } else if(expr['ctype'] === 'field') {
-                // create copy of expression
-                let newExpr = Object.assign({}, expr);
-                // do not replace key for field
-                newExpr['obj'] = replaceVariables(expr['obj'],argValues);
-                return newExpr;
-            } else if(expr['ctype'] === 'userdata') {
-                // create copy of expression
-                let newExpr = Object.assign({}, expr);
-                newExpr['key'] = replaceVariables(expr['key'],argValues);
-                newExpr['obj'] = replaceVariables(expr['obj'],argValues);
-                return newExpr;
-            } else if(expr.hasOwnProperty('args')) {
-                let newArgs = expr['args'].map((oldArg)=>replaceVariables(oldArg,argValues));
-                // create copy of expression
-                let newExpr = Object.assign({}, expr);
-                newExpr['args'] = newArgs;
-                return newExpr;
-            }
-            // TODO is this enough to replace all lazy params
-            return expr;
-        }
         const val = api.evaluate(csexpr);
         if(val['ctype'] !== 'cglLazy') {
             console.log("this first argument of cglEval has to be a cglLazy expression");
@@ -1051,8 +1118,9 @@ let CindyGL = function(api) {
         for(let index=0;index<val.params.length;index++) {
             argValues.set(val.params[index]['name'],args[index]);
         }
+        cglEvalCallCount++;// increase eval-call count to get distinct names for regional variables
         const expr = replaceVariables(val.expr,argValues);
-        // console.log(val.expr,expr);
+        console.log(val.expr,expr);
         return api.evaluate(expr);
     }
     /** @param {number} k  */
@@ -1065,14 +1133,7 @@ let CindyGL = function(api) {
     }
     // wrapper for unevaluated expression that can be passed to colorplot program
     api.defineFunction("cglLazy", 2, (args, modifs) => {
-        let params;
-        if(args[0]['ctype'] === "list") {
-            params = args[0]['value'];
-        } else if(args[0]['ctype'] === "function" && args[0]['oper'] === "genList"){
-            params = args[0]['args'];
-        } else {
-            params = [args[0]];
-        }
+        let params = cglLazyParams(args[0]);
         let paramsOk = true;
         params.forEach(val=>{
             if(val['ctype'] !== 'variable'){
