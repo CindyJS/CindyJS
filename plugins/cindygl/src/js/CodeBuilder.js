@@ -150,7 +150,7 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
     let bindings = expr.bindings;
     if (expr['isuniform']) {
         return this.uniforms[expr['uvariable']].type;
-    } else if(expr['isbuiltin']){
+    } else if(expr['isbuiltin']) {
         if (expr['ctype'] === 'variable') {
             let name = expr['name'];
             return CodeBuilder.builtIns.get(name).valueType;
@@ -164,7 +164,7 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         }
         console.error(`unsupported built-in ${JSON.stringify(expr)}`);
         return false;
-    } else if(expr['ismodifier']){
+    } else if(expr['ismodifier']) {
         if (expr['ctype'] === 'variable') {
             let name = expr['name'];
             if(this.modifierTypes.has(name)){
@@ -220,6 +220,10 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             return constant(val);
         } else { //if there is something non-constant, we will the functions specified in WebGL.js
             let f = getPlainName(expr['oper']);
+            // compute length of list at compile time
+            if(f === "length" && argtypes.length === 1 && argtypes[0].type === "list") {
+                return constant({ctype: 'number',value: {'real': argtypes[0].length,'imag': 0}});
+            }
             let implementation = webgl[f] ? webgl[f](argtypes) : false;
             if (!implementation && argtypes.every(a => finalparameter(a))) { //no implementation found and all args are set
                 console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
@@ -329,7 +333,11 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 myfunctions[scope].variables.push(iname);
                 self.initvariable(iname, false);
                 variables[iname].assigments.push(value);
-                variables[iname].T = constant(value);
+                if(value['ctype'] === 'cglLazy') {
+                    variables[iname].T = guessTypeOfValue(value);
+                } else {
+                    variables[iname].T = constant(value);
+                }
             });
             exprData.params.forEach((param,index) => {
                 let vname = param['name'];
