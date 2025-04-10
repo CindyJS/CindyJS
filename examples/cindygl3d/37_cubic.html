@@ -39,7 +39,7 @@
             CUTsPHERE = 0;
             CUTcYLINDER = 1;
             CUTcUBE = 2;
-            cutoff = CUTcYLINDER; // TODO? allow chainging base parameters of cutoff (center, ptA,ptB,radius)
+            cutoff = CUTcUBE; // TODO? allow chainging base parameters of cutoff (center, ptA,ptB,radius)
             // TODO? use 3 points to controll bounds
             // sphere: center, _ , point on sphere
             // cylinder: center, pointA, point on cylinder
@@ -52,45 +52,51 @@
             coordColInactive = [0,0,0,0];
             surfaceColor = [0,0.5,0.5,0.5];
 
-            pointIds = [
-              sphere([1,1,1],r0,col,tags->["movable"])_1,
-              sphere([1,1,-1],r0,col,tags->["movable"])_1,
-              sphere([1,-1,1],r0,col,tags->["movable"])_1,
-              sphere([1,-1,-1],r0,col,tags->["movable"])_1,
-              sphere([-1,1,1],r0,col,tags->["movable"])_1,
-              sphere([-1,1,-1],r0,col,tags->["movable"])_1,
-              sphere([-1,-1,1],r0,col,tags->["movable"])_1,
-              sphere([-1,-1,-1],r0,col,tags->["movable"])_1,
-              sphere([0,0,sqrt(3)],r0,col,tags->["movable"])_1
+            pointCoords=[
+              [1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],[-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],
+              [0,phi,1/phi],[0,phi,-1/phi],[0,-phi,1/phi],[0,-phi,-1/phi],
+              [1/phi,0,phi],[1/phi,0,-phi],[-1/phi,0,phi],[-1/phi,0,-phi],
+              [phi,1/phi,0],[phi,-1/phi,0],[-phi,1/phi,0]
             ];
+            pointIds = apply(pointCoords,p,sphere(p,r0,col,tags->["movable"])_1);
             xAxisIds = cylinder([-s,0,0],[s,0,0],r1,coordColInactive,coordColInactive);
             yAxisIds = cylinder([0,-s,0],[0,s,0],r1,coordColInactive,coordColInactive);
             zAxisIds = cylinder([0,0,-s],[0,0,s],r1,coordColInactive,coordColInactive);
             surfaceIds = [];
-            // draw quadric curve through 9 points
+            cubeCoords(p):=(p_1*p_1*p_1,p_1*p_1*p_2,p_1*p_1*p_3,p_1*p_1*p_4,
+              p_1*p_2*p_2,p_1*p_2*p_3,p_1*p_2*p_4,p_1*p_3*p_3,p_1*p_3*p_4,p_1*p_4*p_4,
+              p_2*p_2*p_2,p_2*p_2*p_3,p_2*p_2*p_4,p_2*p_3*p_3,p_2*p_3*p_4,p_2*p_4*p_4,
+              p_3*p_3*p_3,p_3*p_3*p_4,p_3*p_4*p_4,p_4*p_4*p_4);
+            squareCoords(p):=(p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4);
+            // draw cubic curve through 19 points
             updateSurface():=(
               regional(pts,pos3,pts2,args,M);
               // homogeneous coordinates
               pts = apply(pointIds,pId,pos3=cglSpherePos(pId);[pos3_1,pos3_2,pos3_3,1]);
               // squared coordinates
-              pts2 = apply(pts,p,[p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4]);
+              pts2 = apply(pts,p,cubeCoords(p));
               // pad to square matrix
-              args = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
-              M = [[2*args_1,args_2,args_3,args_4],
-                   [args_2,2*args_5,args_6,args_7],
-                   [args_3,args_6,2*args_8,args_9],
-                   [args_4,args_7,args_9,2*args_10]];
+              args = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
+              // TODO is there a more-stable way to represent general cubic surfaces
+              f = cglLazy(p,cubeCoords([p_1,p_2,p_3,1])*coeffs,coeffs->args);
+              normalCoeffs= [
+                [3*args_1, 2*args_2, 2*args_3, 2*args_4, args_5, args_6, args_7, args_8, args_9, args_10],
+                [args_2, 2*args_5, args_6, args_7, 3*args_11, 2*args_12, 2*args_13, args_14, args_15, args_16],
+                [args_3, args_6, 2*args_8, args_9, args_12, 2*args_14, args_15, 3*args_17, 2*args_18, args_19]
+              ];
+              df = cglLazy(p,normalCoeffs*squareCoords([p_1,p_2,p_3,1]),normalCoeffs->normalCoeffs);
               if(length(surfaceIds) == 0,
                 if(cutoff == CUTsPHERE,
-                  surfaceIds = quadric(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
+                  surfaceIds = cglDrawCubicInSphere(f,df,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
+                  // surfaceIds = surfaceIds ++ sphere([0,0,0],s,[1,0,0,0.5]);
                 ,if(cutoff == CUTcYLINDER,
-                  surfaceIds = quadric(M,[0,-s,0],[0,s,0],s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
-                  //surfaceIds = surfaceIds ++ cylinder([0,-s,0],[0,s,0],s,[1,0,0,0.5],[1,0,0,0.5]);
+                  surfaceIds = cglDrawCubicInCylinder(f,df,[0,-s,0],[0,s,0],s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
+                  // surfaceIds = surfaceIds ++ cylinder([0,-s,0],[0,s,0],s,[1,0,0,0.5],[1,0,0,0.5]);
                 ,
-                  surfaceIds = cglDrawQuadricInCube(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
+                  surfaceIds = cglDrawCubicInCube(f,df,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
                 ));
               ,
-                apply(surfaceIds,id,cglUpdate(id,UcglCoeffMat->M));
+                apply(surfaceIds,id,cglUpdate(id,UcglSurfaceEq->f,UcglNormalExpr->df));
               );
             );
             updateSurface();
@@ -98,7 +104,7 @@
             target = -1;
             zoom=1.0;
             updateZoom():=(
-              if(zoom>5,zoom=5);
+              if(zoom>3,zoom=3);
               if(zoom<0.5,zoom=0.5);
               zoom3d(zoom);
               // rescale cutoff region

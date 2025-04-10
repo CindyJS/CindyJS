@@ -55,13 +55,7 @@
             pointIds = [
               sphere([1,1,1],r0,col,tags->["movable"])_1,
               sphere([1,1,-1],r0,col,tags->["movable"])_1,
-              sphere([1,-1,1],r0,col,tags->["movable"])_1,
-              sphere([1,-1,-1],r0,col,tags->["movable"])_1,
-              sphere([-1,1,1],r0,col,tags->["movable"])_1,
-              sphere([-1,1,-1],r0,col,tags->["movable"])_1,
-              sphere([-1,-1,1],r0,col,tags->["movable"])_1,
-              sphere([-1,-1,-1],r0,col,tags->["movable"])_1,
-              sphere([0,0,sqrt(3)],r0,col,tags->["movable"])_1
+              sphere([1,-1,1],r0,col,tags->["movable"])_1
             ];
             xAxisIds = cylinder([-s,0,0],[s,0,0],r1,coordColInactive,coordColInactive);
             yAxisIds = cylinder([0,-s,0],[0,s,0],r1,coordColInactive,coordColInactive);
@@ -69,28 +63,23 @@
             surfaceIds = [];
             // draw quadric curve through 9 points
             updateSurface():=(
-              regional(pts,pos3,pts2,args,M);
+              regional(pts,pos3,V);
               // homogeneous coordinates
               pts = apply(pointIds,pId,pos3=cglSpherePos(pId);[pos3_1,pos3_2,pos3_3,1]);
-              // squared coordinates
-              pts2 = apply(pts,p,[p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4]);
               // pad to square matrix
-              args = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
-              M = [[2*args_1,args_2,args_3,args_4],
-                   [args_2,2*args_5,args_6,args_7],
-                   [args_3,args_6,2*args_8,args_9],
-                   [args_4,args_7,args_9,2*args_10]];
+              V = transpose(kernel(pts++[[0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
               if(length(surfaceIds) == 0,
                 if(cutoff == CUTsPHERE,
-                  surfaceIds = quadric(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
+                  surfaceIds = [cglDrawPlaneInSphere(V,[0,0,0],s,surfaceColor)]; // (matrix, boundCenter, boundRadius, color)
+                  // surfaceIds = surfaceIds ++ sphere([0,0,0],s,[1,0,0,0.5]);
                 ,if(cutoff == CUTcYLINDER,
-                  surfaceIds = quadric(M,[0,-s,0],[0,s,0],s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
-                  //surfaceIds = surfaceIds ++ cylinder([0,-s,0],[0,s,0],s,[1,0,0,0.5],[1,0,0,0.5]);
+                  surfaceIds = [cglDrawPlaneInCylinder(V,[0,-s,0],[0,s,0],s,surfaceColor)]; // (matrix, boundPtA, boundsPtB, boundRadius, color
+                  surfaceIds = surfaceIds ++ cylinder([0,-s,0],[0,s,0],s,[1,0,0,0.5],[1,0,0,0.5]);
                 ,
-                  surfaceIds = cglDrawQuadricInCube(M,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
+                  surfaceIds = [cglDrawPlaneInCube(V,[0,0,0],s,surfaceColor)]; // (matrix, boundCenter, boundSideLen, color
                 ));
               ,
-                apply(surfaceIds,id,cglUpdate(id,UcglCoeffMat->M));
+                apply(surfaceIds,id,cglUpdate(id,UcglCoeffVector->V));
               );
             );
             updateSurface();

@@ -117,6 +117,12 @@ Alternatively `normals` can be set to a `cglLazy` expression taking the current 
 * `cglDrawQuadricInSphere(matrix: max4,center: vec3,radius: float,color)` draws a quadric surface, `matrix` is a symmetric 4x4 matrix containing the homogeneous coefficients of the drawn curve, `center` and `radius` define a sphere used as cutoff region for the rendered surface. `color` can either be a solid color or a cglLazy expression taking the pixel-position as input.
 * `cglDrawQuadricInCylinder(matrix: max4,pointA: vec3,pointB: vec3,radius: float,color)` draws the quadric curve defined by the given matrix the cylinder defined by `pointA`, `pointB` and `radius`
 * `cglDrawQuadricInCube(matrix: max4,center: vec3,sideLength: float,color)` draws the quadric curve defined by the given matrix the axis-aligned cube with the given `center` and `sideLength`
+* `cglDrawPlaneInSphere(coeffs: vec4,center: vec3,radius: float,color)` draws the region of the plane with homogeneous coordinates `coeffs` within the given sphere
+* `cglDrawPlaneInCylinder(coeffs: vec4,pointA: vec3,pointB: vec3,radius: float,color)`
+* `cglDrawPlaneInCube(coeffs: vec4,center: vec3,sideLength: float,color)`
+* `cglDrawCubicInSphere(surfaceEq: (vec3->float),normalEq: (vec3->vec3),center: vec3,radius: float,color)` draws the cubic surface defined by the zero-set of `surfaceEq`, uses `normalEq` to determine the surface normals at each point, `center` and `radius` define a sphere used as cutoff region for the rendered surface. `color` can either be a solid color or a cglLazy expression taking the pixel-position as input.
+* `cglDrawCubicInCylinder(surfaceEq: (vec3->float),normalEq: (vec3->vec3),pointA: vec3,pointB: vec3,radius: float,color)`
+* `cglDrawCubicInCube(surfaceEq: (vec3->float),normalEq: (vec3->vec3),center: vec3,sideLength: float,color)`
 
 All drawing functions accept the following modifiers:
  * `Ulight: cglLazy` can be used to modify the lighting calculation, the lighting function expects the parameters `(color:vec3|vec4,viewDirection:vec3,surfaceNormal:vec3)` in that order and is expected to return a color
