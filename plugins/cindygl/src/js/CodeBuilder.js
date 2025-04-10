@@ -119,7 +119,7 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
         console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
         return term;
     } else if (fromType.type === "constant") {
-        return pastevalue(fromType.value, toType);
+        return pastevalue(fromType.value, toType, this);
     } else {
         let implementation = inclusionfunction(toType)([fromType]);
         if (!implementation) {
@@ -198,7 +198,9 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
-    } else if (expr['ctype'] === 'cglLazy') {
+    } else if (expr['ctype'] === 'list') {
+        return constant(expr);
+    }else if (expr['ctype'] === 'cglLazy') {
         return type.cglLazy(expr);
     } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
         var argtypes = new Array(expr['args'].length);
@@ -327,7 +329,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 myfunctions[scope].variables.push(iname);
                 self.initvariable(iname, false);
                 variables[iname].assigments.push(value);
-                variables[iname].T = guessTypeOfValue(value);
+                variables[iname].T = constant(value);
             });
             exprData.params.forEach((param,index) => {
                 let vname = param['name'];
@@ -823,7 +825,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let uniforms = this.uniforms;
         return generateTerm ? {
             code: '',
-            term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype)) : uname,
+            term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype), self) : uname,
         } : {
             code: ''
         };
@@ -855,7 +857,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             code+=this.compile(opAssign(param,expr['args'][index+1]),false).code;
         });
         // assign values to modifiers
-        // TODO? will this create a seperate uniform for each call of the function
         expr.modifs.forEach(([key,value,bindings])=>{
             if(value['ctype']==='cglLazy') return; // skip lazy values
             code+=this.compile(opAssign({ctype:'variable',name:key,bindings:bindings},value),false).code;
@@ -904,7 +905,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     }
     if (ctype.type === 'constant') {
         return generateTerm ? {
-            term: pastevalue(ctype.value, generalize(ctype)),
+            term: pastevalue(ctype.value, generalize(ctype), self),
             code: ''
         } : {
             code: ''

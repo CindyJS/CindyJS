@@ -345,7 +345,7 @@ function webgltype(ctype) {
     console.error(`No WebGL implementation for type ${typeToString(ctype)} found`);
 }
 
-function pastevalue(val, toType) {
+function pastevalue(val, toType, codebuilder) {
     switch (toType) {
         case type.bool:
             return `${webgltype(toType)}(${val['value']})`;
@@ -359,6 +359,9 @@ function pastevalue(val, toType) {
             let f = val['value']['real'];
             return `vec4(${f},${f},${f},1.)`;
         default:
+            if(toType.type === 'list' && toType.parameters) {
+                return uselist(toType)(val['value'].map(elt=>pastevalue(elt,toType.parameters,codebuilder)),{},codebuilder);
+            }
             console.error(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
     }
 };
