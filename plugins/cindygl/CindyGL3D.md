@@ -39,7 +39,8 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
      - [v1,v2,v3,v4,...]            list of vertices
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
 * `cglUpdateBounds(<objId>)` `cglUpdateBounds(<objId>,<center>,<radius>)` `cglUpdateBounds(<objId>,<pointA>,<pointB>,<radius>)` `cglUpdateBounds(<objId>,<triangles>)` updates the bounding box of the object with the given id, the parameters after the object id behave the same way as those in the corresponding version of `colorplot3d`
-* `cglUpdate(<objectId>)` can be used to update the modifiers of the object with the given id all modifiers passed to this function will be replace the cooresponding modifier on the existing object.
+* `cglUpdate(<objId>)` can be used to update the modifiers of the object with the given id all modifiers passed to this function will be replace the cooresponding modifier on the existing object.
+* `cglDelete(<objId>)` deletes the object with the given id
 * `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`
 * `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can later be evaluated by calling `cglEval()`. All modifiers passed to `cglLazy` can be used as named constants within the expression.
 * `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy()`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression

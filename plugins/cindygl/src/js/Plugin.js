@@ -1075,6 +1075,14 @@ let CindyGL = function(api) {
         obj3d.plotModifiers = plotModifiers;
         return toCjsNumber(objId);
     });
+    api.defineFunction("cglDelete", 1, (args, modifs) => {
+        let [_,objId,wasOpaque] = objectById(args[0]);
+        if(wasOpaque) {
+            CindyGL.objectBuffer.opaque.delete(objId);
+        } else {
+            CindyGL.objectBuffer.translucent.delete(objId);
+        }
+    });
     // TODO? cglObjectInfo()
     api.defineFunction("cglSpherePos", 1, (args, modifs) => {
         let [obj3d,objId,_] = objectById(args[0]);
