@@ -222,7 +222,9 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             let f = getPlainName(expr['oper']);
             // compute length of list at compile time
             if(f === "length" && argtypes.length === 1 && argtypes[0].type === "list") {
-                return constant({ctype: 'number',value: {'real': argtypes[0].length,'imag': 0}});
+                expr['ctype'] = 'number';
+                expr['value'] = {'real': argtypes[0].length,'imag': 0};
+                return constant(expr);
             }
             let implementation = webgl[f] ? webgl[f](argtypes) : false;
             if (!implementation && argtypes.every(a => finalparameter(a))) { //no implementation found and all args are set

@@ -761,21 +761,26 @@ colorplotMesh3d(samples,normals,pixelExpr):=(
 //l  c0  c1  c2  <-roots of p3
 // \ / \ / \ / \ /
 // d0  d1  d2  d3 <-roots of p4
-// TODO make eval/derivative generic in degree
-cglEvalP4(coeffs,t) := coeffs*(1,t,t*t,t*t*t,t*t*t*t);
-cglEvalP3(coeffs,t) := coeffs*(1,t,t*t,t*t*t);
-cglEvalP2(coeffs,t) := coeffs*(1,t,t*t);
-cglEvalP1(coeffs,t) := coeffs*(1,t);
-dP4(coeffs) := (coeffs_2, 2*coeffs_3, 3*coeffs_4, 4*coeffs_5, 0);
-dP3(coeffs) := (coeffs_2, 2*coeffs_3, 3*coeffs_4, 0);
-cglBinSearchP3(poly, x0, x1, def) := (
+// TODO? add a way use call same procedure with multiple signatures
+// use lazy-procedures to allow multiple signatures for same code
+cglEvalP = cglLazy((coeffs,t),
+  regional(s);
+  s = 0;
+  forall(reverse(coeffs),c,s = t*s + c);
+  s;
+);
+// TODO? is it faster to use same vector size for all derivatives
+cglD = cglLazy(coeffs,
+  apply(1..(length(coeffs)-1),k,k*coeffs_(k+1));
+);
+cglBinSearchP = cglLazy((poly, x0, x1, def),
   regional(v0, v1, m, vm);
-  v0 = cglEvalP3(poly, x0);
-  v1 = cglEvalP3(poly, x1);
+  v0 = cglEval(cglEvalP,poly, x0);
+  v1 = cglEval(cglEvalP,poly, x1);
   if(v0*v1<=0,
     repeat(16,
       m = (x0+x1)/2;
-      vm = cglEvalP3(poly, m);
+      vm = cglEval(cglEvalP,poly, m);
       if(v0*vm<=0,
         (x1 = m; v1 = vm;),
         (x0 = m; v0 = vm;)
@@ -785,36 +790,24 @@ cglBinSearchP3(poly, x0, x1, def) := (
     def
   )
 );
-cglBinSearchP4(poly, x0, x1, def) := (
-  regional(v0, v1, m, vm);
-  v0 = cglEvalP4(poly, x0);
-  v1 = cglEvalP4(poly, x1);
-  if(v0*v1<=0,
-    repeat(16,
-      m = (x0+x1)/2;
-      vm = cglEvalP4(poly, m);
-      if(v0*vm<=0,
-        (x1 = m; v1 = vm;),
-        (x0 = m; v0 = vm;)
-      );
-    );
-    m,
-    def
-  )
-);
+// wrapper for cglBinSearchP instanciated for each commonly used degree
+cglBinSearchP4(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP3(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP2(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP1(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
  //finds the k-th root of poly in interval (l, u). returns def if there is none
 cglKthrootP3(k, poly, l, u, def) := (
   regional(p1, p2, p3, a0, b0, b1, c0, c1, c2, count);
   p3 = poly;  //cubic
-  p2 = dP3(p3); //quadratic
-  p1 = dP3(p2); //linear
+  p2 = cglEval(cglD,p3); //quadratic
+  p1 = cglEval(cglD,p2); //linear
 
-  a0 = cglBinSearchP3(p1, l, u, u);
-  b0 = cglBinSearchP3(p2, l, a0, l);
+  a0 = cglBinSearchP1(p1, l, u, u);
+  b0 = cglBinSearchP2(p2, l, a0, l);
   c0 = cglBinSearchP3(p3, l, b0, l);
   count = (l < c0 & c0 < u);
   if(count >= k, c0,
-    b1 = cglBinSearchP3(p2, a0, u, u);
+    b1 = cglBinSearchP2(p2, a0, u, u);
     c1 = cglBinSearchP3(p3, b0, b1, c0);
     count = count + (c0 < c1 & c1 < u);
     if(count >= k, c1,
@@ -828,22 +821,22 @@ cglKthrootP4(k, poly, l, u, def) := (
   regional(p1, p2, p3, p4, a0, b0, b1,
     c0, c1, c2, d0, d1, d2, d3,count);
   p4 = poly;  //quartic
-  p3 = dP4(p4); //cubic
-  p2 = dP4(p3); //quadratic
-  p1 = dP4(p2); //linear
+  p3 = cglEval(cglD,p4); //cubic
+  p2 = cglEval(cglD,p3); //quadratic
+  p1 = cglEval(cglD,p2); //linear
 
-  a0 = cglBinSearchP4(p1, l, u, u);
-  b0 = cglBinSearchP4(p2, l, a0, l);
-  c0 = cglBinSearchP4(p3, l, b0, l);
+  a0 = cglBinSearchP1(p1, l, u, u);
+  b0 = cglBinSearchP2(p2, l, a0, l);
+  c0 = cglBinSearchP3(p3, l, b0, l);
   d0 = cglBinSearchP4(p4, l, c0, l);
   count = (l < d0 & d0 < u);
   if(count >= k, d0,
-    b1 = cglBinSearchP4(p2, a0, u, u);
-    c1 = cglBinSearchP4(p3, b0, b1, c0);
+    b1 = cglBinSearchP2(p2, a0, u, u);
+    c1 = cglBinSearchP3(p3, b0, b1, c0);
     d1 = cglBinSearchP4(p4, c0, c1, d0);
     count = count + (d0 < d1 & d1 < u);
     if(count >= k, d1,
-      c2 = cglBinSearchP4(p3, b1, u, u);
+      c2 = cglBinSearchP3(p3, b1, u, u);
       d2 = cglBinSearchP4(p4, c1, c2, d1);
       count = count + (d1 < d2 & d2 < u);
       if(count >= k, d2,
@@ -1109,7 +1102,7 @@ cglDrawPlaneInCylinder(coords4,pointA,pointB,radius,color):=(
 );
 cglDrawPlaneInCube(coords4,center,sideLength,color):=(
   regional(radius,light,colAndModifs,modifiers,ids,topLayer,cutoff);
-  radius = sqrt(3)*sideLength;
+  radius = sqrt(3)/2*sideLength;
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   cutoff = cglLazy(direction,s=cglRadius/sqrt(3);cglCuboidDepths(direction,cglCenter,[s,0,0],[0,s,0],[0,0,s]));
@@ -1188,7 +1181,7 @@ cglDrawQuadricInCylinder(matrix,pointA,pointB,radius,color):=(
 );
 cglDrawQuadricInCube(matrix,center,sideLength,color):=(
   regional(radius,light,colAndModifs,modifiers,drawBack,ids,topLayer,cutoff);
-  radius = sqrt(3)*sideLength;
+  radius = sqrt(3)/2*sideLength;
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
@@ -1285,7 +1278,7 @@ cglDrawCubicInCylinder(surfaceExpr,normalExpr,pointA,pointB,radius,color):=(
 );
 cglDrawCubicInCube(surfaceExpr,normalExpr,center,sideLength,color):=(
   regional(radius,ight,colAndModifs,modifiers,drawBack,ids,topLayer,cutoff);
-  radius = sqrt(3)*sideLength;
+  radius = sqrt(3)/2*sideLength;
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
