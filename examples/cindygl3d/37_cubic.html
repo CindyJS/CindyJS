@@ -9,6 +9,7 @@
     </head>
 
     <body style="font-family: Arial">
+        Cubic through 19 free points
         <script id="csmousedown" type="text/x-cindyscript">
             sx = mouse().x;
             sy = mouse().y;
@@ -30,6 +31,8 @@
             dragging = false;
             rotating = false;
             phi=(1+sqrt(5))/2;
+            drawCutoff = true;
+            zoom = 1.0;
 
             cglBegin3d();
             s=2.5;
@@ -40,10 +43,7 @@
             CUTcYLINDER = 1;
             CUTcUBE = 2;
             cutoff = CUTcUBE; // TODO? allow chainging base parameters of cutoff (center, ptA,ptB,radius)
-            // TODO? use 3 points to controll bounds
-            // sphere: center, _ , point on sphere
-            // cylinder: center, pointA, point on cylinder
-            // cuboid: center, midpoint top.face, point on face2
+            prevCutoff = cutoff;
 
             col=[1,0,0];
             colSelected=[0,1,0];
@@ -51,6 +51,7 @@
             coordColZ = [1,0,0,0.5];
             coordColInactive = [0,0,0,0];
             surfaceColor = [0,0.5,0.5,0.5];
+            cutoffColor = [1,0,0,0.5];
 
             pointCoords=[
               [1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],[-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],
@@ -63,6 +64,21 @@
             yAxisIds = cylinder([0,-s,0],[0,s,0],r1,coordColInactive,coordColInactive);
             zAxisIds = cylinder([0,0,-s],[0,0,s],r1,coordColInactive,coordColInactive);
             surfaceIds = [];
+            cutoffIds = [];
+            drawBoundingCube():=(
+              regional(s2,col);
+              s2 = 0.75*s;
+              col = (cutoffColor_1,cutoffColor_2,cutoffColor_3);
+              cutoffIds = flatten(
+                apply([-s2,s2],x,
+                  apply([-s2,s2],y,
+                    [rod(zoom*[x,y,-s2],zoom*[x,y,s2],zoom*r1,col),
+                    rod(zoom*[x,-s2,y],zoom*[x,s2,y],zoom*r1,col),
+                    rod(zoom*[-s2,x,y],zoom*[s2,x,y],zoom*r1,col)]
+                  );
+                );
+              ,levels->4);
+            );
             cubeCoords(p):=(p_1*p_1*p_1,p_1*p_1*p_2,p_1*p_1*p_3,p_1*p_1*p_4,
               p_1*p_2*p_2,p_1*p_2*p_3,p_1*p_2*p_4,p_1*p_3*p_3,p_1*p_3*p_4,p_1*p_4*p_4,
               p_2*p_2*p_2,p_2*p_2*p_3,p_2*p_2*p_4,p_2*p_3*p_3,p_2*p_3*p_4,p_2*p_4*p_4,
@@ -85,18 +101,39 @@
                 [args_3, args_6, 2*args_8, args_9, args_12, 2*args_14, args_15, 3*args_17, 2*args_18, args_19]
               ];
               df = cglLazy(p,normalCoeffs*squareCoords([p_1,p_2,p_3,1]),normalCoeffs->normalCoeffs);
+              if(cutoff != prevCutoff,
+                forall(surfaceIds,id,cglDelete(id));
+                forall(cutoffIds,id,cglDelete(id));
+                surfaceIds = [];
+                cutoffIds = [];
+                prevCutoff = cutoff;
+              );
               if(length(surfaceIds) == 0,
                 if(cutoff == CUTsPHERE,
-                  surfaceIds = cglDrawCubicInSphere(f,df,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
+                  surfaceIds = cglDrawCubicInSphere(f,df,[0,0,0],zoom*s,surfaceColor); // (matrix, boundCenter, boundRadius, color)
                   // surfaceIds = surfaceIds ++ sphere([0,0,0],s,[1,0,0,0.5]);
                 ,if(cutoff == CUTcYLINDER,
-                  surfaceIds = cglDrawCubicInCylinder(f,df,[0,-s,0],[0,s,0],s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
+                  surfaceIds = cglDrawCubicInCylinder(f,df,zoom*[0,-s,0],zoom*[0,s,0],zoom*s,surfaceColor); // (matrix, boundPtA, boundsPtB, boundRadius, color
                   // surfaceIds = surfaceIds ++ cylinder([0,-s,0],[0,s,0],s,[1,0,0,0.5],[1,0,0,0.5]);
                 ,
-                  surfaceIds = cglDrawCubicInCube(f,df,[0,0,0],s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
+                  surfaceIds = cglDrawCubicInCube(f,df,[0,0,0],1.5*zoom*s,surfaceColor); // (matrix, boundCenter, boundSideLen, color
                 ));
               ,
                 apply(surfaceIds,id,cglUpdate(id,UcglSurfaceEq->f,UcglNormalExpr->df));
+              );
+              if(length(cutoffIds)>0 != drawCutoff, // cutoff state changed
+                if(drawCutoff,
+                  if(cutoff == CUTsPHERE,
+                    cutoffIds = sphere([0,0,0],zoom*s,cutoffColor);
+                  ,if(cutoff == CUTcYLINDER,
+                    cutoffIds = cylinder([0,-zoom*s,0],[0,zoom*s,0],zoom*s,cutoffColor,cutoffColor);
+                  ,
+                    drawBoundingCube();
+                  ));
+                ,
+                  forall(cutoffIds,id,cglDelete(id));
+                  cutoffIds = [];
+                );
               );
             );
             updateSurface();
@@ -110,10 +147,16 @@
               // rescale cutoff region
               if(cutoff == CUTsPHERE,
                 apply(surfaceIds,id,cglUpdateBounds(id,[0,0,0],zoom*s));
+                apply(cutoffIds,id,cglUpdateBounds(id,[0,0,0],zoom*s));
               ,if(cutoff == CUTcYLINDER,
                 apply(surfaceIds,id,cglUpdateBounds(id,zoom*[0,-s,0],zoom*[0,s,0],zoom*s));
+                apply(cutoffIds,id,cglUpdateBounds(id,zoom*[0,-s,0],zoom*[0,s,0],zoom*s));
               ,
-                apply(surfaceIds,id,cglUpdateBounds(id,[0,0,0],sqrt(3)*zoom*s));              
+                apply(surfaceIds,id,cglUpdateBounds(id,[0,0,0],0.75*sqrt(3)*zoom*s));
+                if(drawCutoff,
+                  forall(cutoffIds,id,cglDelete(id));
+                  drawBoundingCube();
+                );
               ));
             );
         </script>
@@ -192,7 +235,27 @@
 
         <div id="CSCanvas" style="border: 0px"></div>
 
+        <div>
+          Cutoff:
+          <input id="cutoffSphere" type="radio" name="cutoffType" value="sphere" onchange="cutOffChanged()"> Sphere
+          <input id="cutoffCylinder" type="radio" name="cutoffType" value="cylinder" onchange="cutOffChanged()"> Cylinder
+          <input id="cutoffCube" type="radio" name="cutoffType" value="cube" checked onchange="cutOffChanged()"> Cube
+          <input
+                id="drawCutoff"
+                onclick="cdy.evokeCS('drawCutoff = ' + this.checked+';updateSurface();');"
+                checked
+                type="checkbox"
+            /> drawCutoff
+        </div>
+
         <script type="text/javascript">
+            function cutOffChanged() {
+              switch(document.querySelector('input[name=cutoffType]:checked').value){
+                case "sphere":cdy.evokeCS("cutoff=CUTsPHERE;updateSurface();");break;
+                case "cylinder":cdy.evokeCS("cutoff=CUTcYLINDER;updateSurface();");break;
+                case "cube":cdy.evokeCS("cutoff=CUTcUBE;updateSurface();");break;
+              }
+            }
             // zoom using mouse wheel
             window.addEventListener("wheel", // use only sign as value range may differ depending on browser
               event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
