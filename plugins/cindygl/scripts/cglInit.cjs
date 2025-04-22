@@ -1105,15 +1105,14 @@ cglDrawPlaneInCylinder(coords4,pointA,pointB,radius,color):=(
     UpixelExpr->colAndModifs_1,UcglCoeffVector->coords4,Ulight->light,UcglCutoffRegion->cutoff,
     plotModifiers->colAndModifs_2,tags->["plane"]++tags);
 );
-// TODO? use cuboid bounding box
 cglDrawPlaneInCube(coords4,center,sideLength,color):=(
-  regional(radius,light,colAndModifs,modifiers,ids,topLayer,cutoff);
-  radius = sqrt(3)/2*sideLength;
+  regional(s,light,colAndModifs,modifiers,ids,topLayer,cutoff);
+  s = sideLength/2;
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cutoff = cglLazy(direction,s=cglRadius/sqrt(3);cglCuboidDepths(direction,cglCenter,[s,0,0],[0,s,0],[0,0,s]));
+  cutoff = cglLazy(direction,cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3));
   colAndModifs = cglColorExpression(color,modifiers);
-  topLayer = colorplot3d(cgl3dPlaneShaderCode(#),center,radius,
+  topLayer = colorplot3d(cgl3dPlaneShaderCode(#),center,[s,0,0],[0,s,0],[0,0,s],
     UpixelExpr->colAndModifs_1,UcglCoeffVector->coords4,Ulight->light,UcglCutoffRegion->cutoff,
     plotModifiers->colAndModifs_2,tags->["plane"]++tags);
 );
@@ -1194,13 +1193,22 @@ cglDrawQuadricInCylinder(matrix,pointA,pointB,radius,color):=(
   if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 cglDrawQuadricInCube(matrix,center,sideLength,color):=(
-  regional(light,modifiers,drawBack,topLayer,cutoff);
+  regional(light,modifiers,drawBack,colAndModifs,topLayer,cutoff,s);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cutoff = cglLazy(direction,s=cglRadius/sqrt(3);cglCuboidDepths(direction,cglCenter,[s,0,0],[0,s,0],[0,0,s]));
-  cglDrawQuadricInSphere(matrix,center,sqrt(3)/2*sideLength,color,cutoff,
-    cglDrawBack->drawBack,Ulight->light,plotModifier->modifiers);
+  cutoff = cglLazy(direction,cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3));
+  s = sideLength/2;
+  colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    ids = [colorplot3d(cgl3dQuadricShaderCode(#,true),center,[s,0,0],[0,s,0],[0,0,s],
+      UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+      plotModifiers->colAndModifs_2,tags->["quadric","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dQuadricShaderCode(#,false),center,[s,0,0],[0,s,0],[0,0,s],
+    UpixelExpr->colAndModifs_1,UcglCoeffMat->matrix,Ulight->light,UcglCutoffRegion->cutoff,
+    plotModifiers->colAndModifs_2,tags->["quadric"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 // TODO? use more general cuboid as bounding box
 
@@ -1290,13 +1298,28 @@ cglDrawCubicInCylinder(surfaceExpr,normalExpr,pointA,pointB,radius,color):=(
   if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 cglDrawCubicInCube(surfaceExpr,normalExpr,center,sideLength,color):=(
-  regional(light,modifiers,drawBack,topLayer,cutoff);
+  regional(light,modifiers,drawBack,topLayer,colAndModifs,cutoff,s);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
-  cutoff = cglLazy(direction,s=cglRadius/sqrt(3);cglCuboidDepths(direction,cglCenter,[s,0,0],[0,s,0],[0,0,s]));
-  cglDrawCubicInSphere(surfaceExpr,normalExpr,center,sqrt(3)/2*sideLength,color,cutoff,
-    cglDrawBack->drawBack,Ulight->light,plotModifier->modifiers);
+  cutoff = cglLazy(direction,cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3));
+  s = sideLength/2;
+  colAndModifs = cglColorExpression(color,modifiers);
+  if(drawBack,
+    ids = [colorplot3d(cgl3dCubicShaderCode(#,3),center,[s,0,0],[0,s,0],[0,0,s],
+        UpixelExpr->colAndModifs_1,UcglSurfaceEq->surfaceExpr,UcglNormalExpr->normalExpr,
+        Ulight->light,UcglCutoffRegion->cutoff,
+        plotModifiers->colAndModifs_2,tags->["cubic","backside"]++tags),
+      colorplot3d(cgl3dCubicShaderCode(#,2),center,[s,0,0],[0,s,0],[0,0,s],
+        UpixelExpr->colAndModifs_1,UcglSurfaceEq->surfaceExpr,UcglNormalExpr->normalExpr,
+        Ulight->light,UcglCutoffRegion->cutoff,
+        plotModifiers->colAndModifs_2,tags->["cubic","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dCubicShaderCode(#,1),center,[s,0,0],[0,s,0],[0,0,s],
+    UpixelExpr->colAndModifs_1,UcglSurfaceEq->surfaceExpr,UcglNormalExpr->normalExpr,
+    Ulight->light,UcglCutoffRegion->cutoff,
+    plotModifiers->colAndModifs_2,tags->["cubic"]++tags);
+  if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
 // TODO general degree 4 surfaces
 // general surfaces

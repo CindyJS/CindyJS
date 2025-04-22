@@ -39,7 +39,7 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
      - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
      - [v1,v2,v3,v4,...]            list of vertices
      - [[v1,v2,v3],[u1,u2,u3],...]  list of triangles
-* `cglUpdateBounds(<objId>)` `cglUpdateBounds(<objId>,<center>,<radius>)` `cglUpdateBounds(<objId>,<pointA>,<pointB>,<radius>)` `cglUpdateBounds(<objId>,<triangles>)` updates the bounding box of the object with the given id, the parameters after the object id behave the same way as those in the corresponding version of `colorplot3d`
+* `cglUpdateBounds(<objId>)` `cglUpdateBounds(<objId>,<center>,<radius>)` `cglUpdateBounds(<objId>,<pointA>,<pointB>,<radius>)` `cglUpdateBounds(<objId>,<triangles>)` `cglUpdateBounds(<objId>,<center>,<v1>,<v2>,<v3>)` updates the bounding box of the object with the given id, the parameters after the object id behave the same way as those in the corresponding version of `colorplot3d`
 * `cglUpdate(<objId>)` can be used to update the modifiers of the object with the given id all modifiers passed to this function will be replace the cooresponding modifier on the existing object.
 * `cglDelete(<objId>)` deletes the object with the given id
 * `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`

@@ -992,6 +992,7 @@ let CindyGL = function(api) {
         //   make name,position, readable, ? writable
         return toCjsNumber(pickedId);
     });
+    // TODO? allow taking multiple ids as input
     function objectById(idVal) {
         let objId = coerce.toInt(api.evaluateAndVal(idVal),-1);
         if(objId<0)
@@ -1047,6 +1048,16 @@ let CindyGL = function(api) {
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
         obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius);
+        return toCjsNumber(objId);
+    });
+    api.defineFunction("cglUpdateBounds",5, (args, modifs) => {
+        let [obj3d,objId,_] = objectById(args[0]);
+        if(objId<0)return nada;
+        var center = coerce.toDirection(api.evaluateAndVal(args[1]));
+        var v1 = coerce.toDirection(api.evaluateAndVal(args[2]));
+        var v2 = coerce.toDirection(api.evaluateAndVal(args[3]));
+        var v3 = coerce.toDirection(api.evaluateAndVal(args[4]));
+        obj3d.boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
         return toCjsNumber(objId);
     });
     api.defineFunction("cglUpdate", 1, (args, modifs) => {

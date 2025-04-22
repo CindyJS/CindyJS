@@ -143,7 +143,7 @@
                 apply(surfaceIds,id,cglUpdateBounds(id,zoom*[0,-s,0],zoom*[0,s,0],zoom*s));
                 apply(cutoffIds,id,cglUpdateBounds(id,zoom*[0,-s,0],zoom*[0,s,0],zoom*s));
               ,
-                apply(surfaceIds,id,cglUpdateBounds(id,[0,0,0],0.75*sqrt(3)*zoom*s));
+                apply(surfaceIds,id,cglUpdateBounds(id,[0,0,0],[0.75*zoom*s,0,0],[0,0.75*zoom*s,0],[0,0,0.75*zoom*s]));
                 if(drawCutoff,
                   forall(cutoffIds,id,cglDelete(id));
                   drawBoundingCube();
