@@ -131,7 +131,7 @@
                 //   reduces number of needed uniforms
                 // TODO? seperate bounding box-type for torus
                 // XXX? more viewPos closer to torus
-                center = (cglPointA+cglPointB)/2;
+                center = cglCenter;
                 radius1 = radii_1;
                 radius2 = radii_2;
                 v=|center-cglViewPos|;
@@ -147,7 +147,7 @@
                   eps=0.05;// small buffer distance to balance out numeric instability
                   x0=-b0-re(sqrt(D0))-eps;
                   x1=-b0+re(sqrt(D0))+eps;
-                  orientation = normalize(cglPointA-cglPointB);
+                  orientation = normalize(cglOrientation);
                   // Equation for torus in orth. coord-system with vectors v1,v2,o
                   // (sqrt(<P,v1>²+<P,v2>²)-r1)² + <P,o>² = r2²  =>
                   // (<P,P> + r1²-r2²)² = 4 r1 ² (<P-<P,o>o,P-<P,o>o>)

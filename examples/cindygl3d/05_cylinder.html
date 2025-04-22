@@ -36,9 +36,9 @@
               // S := (V-A)-<V-A,C>*C,  T := <D,C>*C+D
               // |S - l*T| = r
               // <S-l*T,S-l*T>-r²=0 -> l² <T,T> - l 2<S,T> + <S,S> - r^2 =0
-              lAB=|cglPointB-cglPointA|;
-              C=normalize(cglPointB-cglPointA);
-              VA = (cglViewPos-cglPointA);
+              lAB=|cglOrientation|;
+              C=normalize(cglOrientation);
+              VA = (cglViewPos-cglCenter);
               S = VA - (VA*C)*C;
               T = direction - (direction*C)*C;
               a = T*T;
@@ -48,15 +48,15 @@
               if(D<0,
                 [0,0,0,0],
                 l1 = (-b - re(sqrt(D)))/(2*a);
-                v1 = (cglViewPos+l1*direction)-cglPointA;
+                v1 = (cglViewPos+l1*direction)-cglCenter;
                 delta1 = (v1*C);
-                if((delta1>0) & (delta1<lAB),
+                if((delta1>-lAB) & (delta1<lAB),
                   cglDepth = l1/16;
                   [0,.25+.75*abs(direction*normalize(v1-delta1*C)),0,1],
                   l2 = (-b + re(sqrt(D)))/(2*a);
-                  v2 = (cglViewPos+l2*direction)-cglPointA;
+                  v2 = (cglViewPos+l2*direction)-cglCenter;
                   delta2 = v2*C;
-                  if((delta2>0) & (delta2<lAB),
+                  if((delta2>-lAB) & (delta2<lAB),
                     cglDepth = l2/16;
                     [.25+.75*abs(direction*normalize(v2-delta2*C)),0,0,1],
                   [0,0,0,0])

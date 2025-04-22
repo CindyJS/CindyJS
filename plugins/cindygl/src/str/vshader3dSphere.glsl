@@ -17,7 +17,7 @@ void main(void) {
    vec3 n4= uCenter-cgl_viewPos;
    // create local coordinate system
    vec3 dir=normalize(n4);
-   vec3 up = normalize(cross(dir,dir.x<dir.y?vec3(1.,0.,0.):vec3(0.,1.,0.)));
+   vec3 up = normalize(cross(dir,abs(dir.x)<abs(dir.y)?vec3(1.,0.,0.):vec3(0.,1.,0.)));
    vec3 right = normalize(cross(dir,up));
    vec3 pos3 = uCenter+uRadius*(aPos.x*right+aPos.y*up-dir);
    // transform to viewSpace

@@ -50,11 +50,11 @@
                 // <S-l*T,S-l*T>-r²=0 -> l² <T,T> + l 2<S,T> + <S,S> - r^2 =0
 
                 // pick point on viewRay closer to cylinder to increase numeric stability
-                w = |cglViewPos-(cglPointA+cglPointB)/2|;
+                w = |cglViewPos-cglCenter|;
                 W = cglViewPos + w*direction;
-                BA=cglPointB-cglPointA; // TODO handle case where B ≈ A
+                BA=cglOrientation;
                 U=BA/(BA*BA);
-                VA = (W-cglPointA);
+                VA = (W-cglCenter);
                 S = VA - (VA*BA)*U;
                 T = direction - (direction*BA)*U;
                 a = T*T;
@@ -63,10 +63,12 @@
                 D= b*b-a*c;
                 if(D<0,cglDiscard());
                 l1 = -(b + re(sqrt(D)))/a;
-                v1 = (W+l1*direction)-cglPointA;
+                v1 = (W+l1*direction)-cglCenter;
                 delta = (v1*U);
-                delta = max(0,min(delta,1));
-                center = delta*cglPointB+(1-delta)*cglPointA;
+                a = |cglOrientation|;
+                a = (a-cglRadius)/a;
+                delta = max(-a,min(delta,a));
+                center = cglCenter + delta*cglOrientation;
                 // |v+l*d -c|=r
                 vc=cglViewPos-center;
                 // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
@@ -90,7 +92,12 @@
                 toAngle=alpha0+(n/N)*(alpha1-alpha0);
                 p0 = center + radius1 * (cos(fromAngle)*v1+sin(fromAngle)*v2);
                 p1 = center + radius1 * (cos(toAngle)*v1+sin(toAngle)*v2);
-                colorplot3d(cgl3dArcRodShaderCode(#),p0,p1,radius2,
+                AB = normalize(p1-p0);
+                print("---");
+                print(|p1-p0|);
+                print(radius2);
+                print(|(p0-radius2*AB)-(p1+radius2*AB)|);
+                colorplot3d(cgl3dArcRodShaderCode(#),p0-radius2*AB,p1+radius2*AB,radius2,
                   UtCenter->center,UtRadius->radius1,UtOrientation->orientation);
               );
             );

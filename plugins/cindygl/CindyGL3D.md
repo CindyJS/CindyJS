@@ -34,6 +34,7 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
 * `colorPlot3d(<expr>)` prepares color-plot with depth the expression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
+* `colorPlot3d(<expr>,<center>,<v1>,<v2>,<v3>)` like colorplot3d, but restricts the drawing area to a cuboid around the given center point with axes in the directions `v1`,`v2`,`v3`. (vertices $$center\pm v1 \pm v2 \pm v3$$)
 * `colorPlot3d(<expr>,<triangles>)` colorplot the expression on a set of triangles given in the second parameter, the coordinates of the triangles can be given in each for the following 3 formats:
      - [x1,y1,z1,x2,y2,z2,...]      list of vertex coordinates
      - [v1,v2,v3,v4,...]            list of vertices
@@ -67,14 +68,11 @@ all built-in variables start with the prefix `cgl` to reduce the risk for name c
 
 Depending on the bounding box type there may be additional variables
 
-Sphere/Cylinder:
-* `cglCenter`: the center of the bounding sphere
+* `cglCenter`: the center of the bounding sphere/cylinder/cube
 * `cglRadius`: the radius of the bounding sphere/cylinder
-* `cglPointA` `cglPointB` the two endpoints of the bounding cylinder
-
-Triangle/Mesh:
-
-* `cglSpacePos`: position of current pixel in space
+* `cglOrientation` the orientation of the bounding cylinder (vector from first endpoint to center / center to second endpoint)
+* `cglCubeAxes` the axes vectors of the bounding cubioid as 3x3 matrix
+* `cglSpacePos`: position of current pixel in space (for triangles/mesh)
 
 ## Built-in functions
 

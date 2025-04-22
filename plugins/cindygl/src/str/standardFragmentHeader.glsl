@@ -12,7 +12,7 @@ out vec4 fragColor;
 
 uniform vec3 cgl_viewPos;
 uniform vec3 uCenter;
-uniform vec3 uPointA;
-uniform vec3 uPointB;
+uniform vec3 uOrientation;
+uniform mat3 uCubeAxes;
 uniform float uRadius;
 float cgl_depth;

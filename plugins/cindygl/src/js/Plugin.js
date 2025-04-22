@@ -659,7 +659,7 @@ let CindyGL = function(api) {
         return toCjsNumber(obj3d.id);
     });
     /**
-     * plots colorplot in region bounded by sphere in CindyJS coordinates
+     * plots colorplot in region bounded by sphere
      * uses the z-coordinate for the nearest pixel as depth information
      * args:  <expr> <center> <radius>
      */
@@ -676,10 +676,11 @@ let CindyGL = function(api) {
         return toCjsNumber(obj3d.id);
     });
     /**
-     * plots colorplot in region bounded by cylinder in CindyJS coordinates
+     * plots colorplot in region bounded by cylinder
      * uses the z-coordinate for the nearest pixel as depth information
      * args:  <expr> <pointA> <pointB> <radius>
      */
+    // TODO? change cylinder parameters to center+direction?
     api.defineFunction("colorplot3d", 4, (args, modifs) => {
         initGLIfRequired();
         var prog = args[0];
@@ -687,7 +688,26 @@ let CindyGL = function(api) {
         var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
-        let boundingBox=Renderer.boundingCylinder(pointA,pointB,radius);
+        let boundingBox=Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius);
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
+        setObject(obj3d.id,obj3d);
+        return toCjsNumber(obj3d.id);
+    });
+    /**
+     * plots colorplot in region bounded by cuboid
+     * uses the z-coordinate for the nearest pixel as depth information
+     * args:  <expr> <center> <v1> <v2> <v3>
+     */
+    api.defineFunction("colorplot3d", 5, (args, modifs) => {
+        initGLIfRequired();
+        var prog = args[0];
+        let plotModifiers=get3DPlotModifiers(modifs);
+        var center = coerce.toDirection(api.evaluateAndVal(args[1]));
+        var v1 = coerce.toDirection(api.evaluateAndVal(args[2]));
+        var v2 = coerce.toDirection(api.evaluateAndVal(args[3]));
+        var v3 = coerce.toDirection(api.evaluateAndVal(args[4]));
+        let boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
         let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
@@ -910,7 +930,7 @@ let CindyGL = function(api) {
             if(!sharesTag)
                 return;
             // TODO? execute colorplot code to get correct z-coordinate
-            if(obj3d.boundingBox.type == BoundingBoxType.sphere){
+            if(obj3d.boundingBox.type == BoundingBoxType.sphere) {
                 let center = obj3d.boundingBox.center;
                 // TODO? also detect positions sligthly outside sphere
                 let radius = obj3d.boundingBox.radius;
@@ -922,21 +942,21 @@ let CindyGL = function(api) {
                 let D = b*b-a*c;
                 if(D<0){ return; } // ray does not hit sphere
                 let dst = (-b - Math.sqrt(D))/a;
-                if(dst>=0 && dst<=minDst){
+                if (dst>=0 && dst<=minDst) {
                     minDst = dst;
                     pickedId = obj3d.id;
                 }
-            }else if(obj3d.boundingBox.type == BoundingBoxType.cylinder){
-                let radius = obj3d.boundingBox.radius;
-                let pointA = obj3d.boundingBox.pointA;
-                let pointB = obj3d.boundingBox.pointB;
+            } else if(obj3d.boundingBox.type == BoundingBoxType.cylinder) {
+                let radius = obj3d.boundingBox.radius; // TODO update
+                let center = obj3d.boundingBox.center;
+                let orientation = obj3d.boundingBox.direction;
                 let direction0 = scalev3(1/Math.sqrt(dot3(direction,direction)),direction);
-                let p1 = subv3(viewPos,scalev3(0.5,addv3(pointA,pointB)));
+                let p1 = subv3(viewPos,center);
                 let w = Math.sqrt(dot3(p1,p1));
                 let W = addv3(viewPos,scalev3(w,direction0));
-                let BA= subv3(pointB,pointA);
-                let U=scalev3(1/dot3(BA,BA),BA);
-                let VA = subv3(W,pointA);
+                let BA = orientation; // scaled by 2
+                let U = scalev3(1/dot3(BA,BA),BA);
+                let VA = subv3(W,center);
                 let S = subv3(VA,scalev3(dot3(VA,BA),U));
                 let T = subv3(direction0,scalev3(dot3(direction0,BA),U));
                 let a = dot3(T,T);
@@ -945,22 +965,25 @@ let CindyGL = function(api) {
                 let D= b*b-a*c;
                 if(D<0){ return; } // ray does not hit cylinder
                 let l1 = -(b + Math.sqrt(D))/a;
-                let v1 = subv3(addv3(W,scalev3(l1,direction0)),pointA);
-                let delta = Math.max(0,Math.min(dot3(v1,U),1));
-                let center = addv3(scalev3(delta,pointB),scalev3(1-delta,pointA));
-                let vc = subv3(viewPos,center);
-                // a = dot3(direction0,direction0) // == 1
-                b = dot3(vc,direction0);
-                c = dot3(vc,vc) - radius*radius;
-                D = b*b-c;
-                if(D<0){ return; } // ray does not hit sphere
-                let dst = -b - Math.sqrt(D);
-                if(dst>=0 && dst<=minDst){
+                let dst = w+l1;
+                let v1 = subv3(addv3(W,scalev3(l1,direction0)),center);
+                let delta = dot3(v1,U);
+                if ( delta < -1 || delta > 1 ) {
+                    let l2 = -(b - Math.sqrt(D))/a;
+                    dst = w+l2;
+                    let v2 = subv3(addv3(W,scalev3(l2,direction0)),center);
+                    delta = dot3(v2,U);
+                    if ( delta < -1 || delta > 1 ) {
+                        return;
+                    }
+                }
+                if (dst>=0 && dst<=minDst) {
                     minDst = dst;
                     pickedId = obj3d.id;
                 }
             }
             // TODO? checks different bouning box types
+            // TODO? make pixel depth dependent on actual shader code
         };
         CindyGL.objectBuffer.opaque.forEach(searchObject);
         // TODO? parameter to select if translucent objects should be checked
@@ -1023,7 +1046,7 @@ let CindyGL = function(api) {
         var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
-        obj3d.boundingBox =Renderer.boundingCylinder(pointA,pointB,radius);
+        obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius);
         return toCjsNumber(objId);
     });
     api.defineFunction("cglUpdate", 1, (args, modifs) => {

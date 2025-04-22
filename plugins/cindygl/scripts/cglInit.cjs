@@ -214,7 +214,7 @@ colorplotSphereC(center,radius,pixelExpr):=(
     Ulight->light,cglDrawBack->drawBack);
 );
 
-// the two distances where the viewRay in the given direction intersects the cylinder defined by cglPointA, cglPointB and cglRadius
+// the two distances where the viewRay in the given direction intersects the cylinder defined by cglCenter, cglOrientation and cglRadius
 cglCylinderDepths(direction):=(
   regional(w,W,BA,U,VA,S,T,a,b,c,D,r);
     // P lies on infinite cylinder around axis AB with radius r iff
@@ -227,11 +227,11 @@ cglCylinderDepths(direction):=(
     // <S-l*T,S-l*T>-r²=0 -> l² <T,T> + l 2<S,T> + <S,S> - r^2 =0
 
     // pick point on viewRay closer to cylinder to increase numeric stability
-    w = |cglViewPos-(cglPointA+cglPointB)/2|;
+    w = |cglViewPos-cglCenter|;
     W = cglViewPos + w*direction;
-    BA = cglPointB-cglPointA;
+    BA = cglOrientation;
     U = BA/(BA*BA);
-    VA = (W-cglPointA);
+    VA = (W-cglCenter);
     S = VA - (VA*BA)*U;
     T = direction - (direction*BA)*U;
     a = T*T;
@@ -245,12 +245,12 @@ cglCylinderDepths(direction):=(
 );
 // intersections of ray in given direction with cylinder with circular end-caps
 cglCappedCylinderDepths(direction):=( // TODO? make idenpendent of render-bounding box
-  regional(w,W,BA,U,VA,S,T,a,b,c,D,r,l,v,d,m0t,m1t,m0,m1,low,hi);
-  w = |cglViewPos-(cglPointA+cglPointB)/2|;
+  regional(w,W,BA,U,VA,S,T,a,b,c,o,D,r,l,v,d,m0t,m1t,m0,m1,low,hi);
+  w = |cglViewPos-cglCenter|;
   W = cglViewPos + w*direction;
-  BA = cglPointB-cglPointA;
+  BA = cglOrientation;
   U = BA/(BA*BA);
-  VA = (W-cglPointA);
+  VA = (W-cglCenter);
   S = VA - (VA*BA)*U;
   T = direction - (direction*BA)*U;
   a = T*T;
@@ -265,11 +265,11 @@ cglCappedCylinderDepths(direction):=( // TODO? make idenpendent of render-boundi
   // <view + m * dir,(B-A)> = <view,B-A> + m * <dir,B-A>
   d = direction * U;
   v = W * U;
-  a = cglPointA * U;
-  b = cglPointB * U;
+  c = cglCenter * U;
+  o = cglOrientation * U;
   // b >= v + m*d >= a -> (b-a)/d >= m >= (a-v)/d
-  m0t = (a-v)/d;
-  m1t = (b-v)/d;
+  m0t = ((c-o)-v)/d;
+  m1t = ((c+o)-v)/d;
   m0 = min(m0t,m1t);
   m1 = max(m0t,m1t);
   // lowBound: -w, m0, l_1
@@ -281,21 +281,21 @@ cglCappedCylinderDepths(direction):=( // TODO? make idenpendent of render-boundi
 );
 // helper for computing normal and position along cylinder
 // sets cglDepth to the first intersection with the cylinder
-// returns (...normal, height)
+// returns (...normal, height: (-1,1))
 cgl3dCylinderNormalAndHeight(direction):=(
   regional(l,BA,U,v1,delta1,v2,delta2,normal);
   l = cglCylinderDepths(direction);
-  BA = cglPointB-cglPointA;
+  BA = cglOrientation;
   U = BA/(BA*BA);
-  v1 = (cglViewPos+l_1*direction)-cglPointA;
+  v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta1 = (v1*U);
-  if((delta1>0)& (delta1<1),
+  if((delta1>-1)& (delta1<1),
     cglSetDepth(l_1);
     normal = normalize(v1-delta1*BA);
     (normal_1,normal_2,normal_3,delta1),
-    v2 = (cglViewPos+l_2*direction)-cglPointA;
+    v2 = (cglViewPos+l_2*direction)-cglCenter;
     delta2 = v2*U;
-    if((delta2<0) % (delta2>1),cglDiscard());
+    if((delta2<-1) % (delta2>1),cglDiscard());
     cglSetDepth(l_2);
     normal = normalize(v2-delta2*BA);
     (normal_1,normal_2,normal_3,delta2);
@@ -304,15 +304,15 @@ cgl3dCylinderNormalAndHeight(direction):=(
 cgl3dCylinderNormalAndHeightBack(direction):=(
   regional(l,BA,U,v1,delta1,v2,delta2,normal);
   l = cglCylinderDepths(direction);
-  BA = cglPointB-cglPointA;
+  BA = cglOrientation;
   U = BA/(BA*BA);
-  v1 = (cglViewPos+l_1*direction)-cglPointA;
+  v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta1 = (v1*U);
-  if((delta1<0) % (delta1>1),cglDiscard()); // no second intersection
+  if((delta1<-1) % (delta1>1),cglDiscard()); // no second intersection
   cglSetDepth(l_1);
-  v2 = (cglViewPos+l_2*direction)-cglPointA;
+  v2 = (cglViewPos+l_2*direction)-cglCenter;
   delta2 = v2*U;
-  if((delta2<0) % (delta2>1),cglDiscard());
+  if((delta2<-1) % (delta2>1),cglDiscard());
   cglSetDepth(l_2);
   normal = normalize(v2-delta2*BA);
   (normal_1,normal_2,normal_3,delta2);
@@ -327,7 +327,7 @@ cglProjCylinderToSquare(normal,height,orientation):=(
     d1=normalize(cross(orientation,(0,1,0)));
   );
   d2 = -normalize(cross(orientation,d1));
-  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),height);
+  ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),0.5*(height+1));
 );
 cglCylinderBlendColors(colorA,colorB,plotModifiers):=(
   regional(pixelExpr,colAndModifs,exprA,exprB);
@@ -369,7 +369,7 @@ cgl3dCylinderShaderCode(direction):=(
   regional(normalAndHeight,normal,texturePos,color);
   normalAndHeight = cgl3dCylinderNormalAndHeight(direction);
   normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
-  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglPointB-cglPointA);
+  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglOrientation);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
@@ -377,7 +377,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
   regional(normalAndHeight,normal,texturePos,color);
   normalAndHeight = cgl3dCylinderNormalAndHeightBack(direction);
   normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
-  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglPointB-cglPointA);
+  texturePos = cglProjCylinderToSquare(normal,normalAndHeight_4,cglOrientation);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
@@ -427,42 +427,47 @@ colorplotCylinder(pointA,pointB,radius,pixelExpr):=(
 );
 
 cgl3dRodShaderCode(direction):=(
-  regional(l,v,BA,delta,center,normal,texturePos);
+  regional(l,v,BA,delta,center,normal,texturePos, a);
   // TODO? extract rodNormalAndDepth
   l = cglCylinderDepths(direction);
-  v = (cglViewPos+l_1*direction)-cglPointA;
-  BA = cglPointB-cglPointA;
+  v = (cglViewPos+l_1*direction)-cglCenter;
+  BA = cglOrientation;
   delta = (v*BA)/(BA*BA);
-  delta = max(0,min(delta,1));
-  center = delta*cglPointB+(1-delta)*cglPointA;
+  a = |cglOrientation|;
+  a = (a-cglRadius)/a;
+  delta = max(-a,min(delta,a));
+  center = cglCenter + delta*cglOrientation;
   normal=cglSphereNormalAndDepth(direction,center,false);
-  texturePos = cglProjCylinderToSquare(normal,delta,cglPointB-cglPointA);
+  texturePos = cglProjCylinderToSquare(normal,delta/a,cglOrientation);
   cglEval(light,cglEval(pixelExpr,texturePos),direction,normal);
 );
 cgl3dRodShaderCodeBack(direction):=(
-  regional(l,v,BA,delta,center,normal,texturePos);
+  regional(l,v,BA,delta,center,normal,texturePos, a);
   l = cglCylinderDepths(direction);
-  v = (cglViewPos+l_1*direction)-cglPointA;
-  BA = cglPointB-cglPointA;
+  v = (cglViewPos+l_1*direction)-cglCenter;
+  BA = cglOrientation;
   delta = (v*BA)/(BA*BA);
-  delta = max(0,min(delta,1));
-  center = delta*cglPointB+(1-delta)*cglPointA;
+  a = |cglOrientation|;
+  a = (a-cglRadius)/a;
+  delta = max(-a,min(delta,a));
+  center = cglCenter + delta*cglOrientation;
   normal=cglSphereNormalAndDepth(direction,center,true);
-  texturePos = cglProjCylinderToSquare(normal,delta,cglPointB-cglPointA);
+  texturePos = cglProjCylinderToSquare(normal,delta/a,cglOrientation);
   cglEval(light,cglEval(pixelExpr,texturePos),direction,normal);
 );
 // cylinder with spherical end caps
 cglDrawRod(pointA,pointB,radius,color):=(
-  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer);
+  regional(light,colAndModifs,modifiers,drawBack,ids,topLayer,dir);
   modifiers = if(isundefined(plotModifiers),[],plotModifiers);
   light = if(isundefined(Ulight),cglDefaultLight,Ulight);
   drawBack = if(isundefined(cglDrawBack),length(color)==4,cglDrawBack);
   colAndModifs = cglColorExpression(color,modifiers);
+  dir = normalize(pointB-pointA);
   if(drawBack,
-    ids = [colorplot3d(cgl3dRodShaderCodeBack(#),pointA,pointB,radius,
+    ids = [colorplot3d(cgl3dRodShaderCodeBack(#),pointA-dir*radius,pointB+dir*radius,radius,
       UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder","backside"]++tags)];
   );
-  topLayer = colorplot3d(cgl3dRodShaderCode(#),pointA,pointB,radius,
+  topLayer = colorplot3d(cgl3dRodShaderCode(#),pointA-dir*radius,pointB+dir*radius,radius,
     UpixelExpr->colAndModifs_1,Ulight->light,plotModifiers->colAndModifs_2,tags->["cylinder"]++tags);
   if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
 );
@@ -852,7 +857,7 @@ cglKthrootP4(k, poly, l, u, def) := (
 // assumes that normal and radiusDirection are normalized
 cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   regional(v1,v2,phi1,phi2);
-  v1 = normalize(cross(orientation,if(orientation_1<orientation_2,(1,0,0),(0,1,0))));
+  v1 = normalize(cross(orientation,if(abs(orientation_1)<abs(orientation_2),(1,0,0),(0,1,0))));
   v2 = -normalize(cross(orientation,v1));
   phi1 = arctan2(radiusDirection*v1,radiusDirection*v2)+pi;
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
@@ -866,7 +871,7 @@ cgl3dTorusShaderCode(direction,layer):=(
     arcDirection,arcCenter,normal,color,pixelPos);
   // compute torus coordinates from cylinder bounding box arguments
   //   reduces number of needed uniforms
-  center = (cglPointA+cglPointB)/2;
+  center = cglCenter;
   radius1 = radii_1;
   radius2 = radii_2;
   v=|center-cglViewPos|;
@@ -882,7 +887,7 @@ cgl3dTorusShaderCode(direction,layer):=(
   if(D0<0,cglDiscard());
   x0=-b0-re(sqrt(D0));
   x1=-b0+re(sqrt(D0));
-  orientation = normalize(cglPointA-cglPointB);
+  orientation = normalize(cglOrientation);
   // Equation for torus in orthogonal coord-system with unit vectors v1,v2,o
   // (sqrt(<P,v1>²+<P,v2>²)-r1)² + <P,o>² = r2²  =>
   // (<P,P> + r1²-r2²)² = 4 r1 ² (<P-<P,o>o,P-<P,o>o>)
@@ -963,21 +968,21 @@ cglDrawTorus(center,orientation,radius1,radius2,color,angle1range,angle2range):=
   ));
   if(drawBack,
     // TODO? is it possible to use loop while keeping layerId parameter constant
-    [colorplot3d(cgl3dTorusShaderCode(#,4),
-      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+    ids = [colorplot3d(cgl3dTorusShaderCode(#,4),
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
       Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags),
     colorplot3d(cgl3dTorusShaderCode(#,3),
-      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
       Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags),
     colorplot3d(cgl3dTorusShaderCode(#,2),
-      center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
       Uradii->[radius1,radius2], UpixelExpr->colorExpr,
       Ulight->light,plotModifiers->modifiers,tags->["torus","backside"]++tags)];
   );
   topLayer = colorplot3d(cgl3dTorusShaderCode(#,1),
-    center+radius2*orientation, center-radius2*orientation, radius1+radius2,
+    center-radius2*orientation, center+radius2*orientation, radius1+radius2,
     Uradii->[radius1,radius2], UpixelExpr->colorExpr,
     Ulight->light,plotModifiers->modifiers,tags->["torus"]++tags);
   if(drawBack,cglRememberLayers(append(ids,topLayer)),[topLayer]);
@@ -1100,6 +1105,7 @@ cglDrawPlaneInCylinder(coords4,pointA,pointB,radius,color):=(
     UpixelExpr->colAndModifs_1,UcglCoeffVector->coords4,Ulight->light,UcglCutoffRegion->cutoff,
     plotModifiers->colAndModifs_2,tags->["plane"]++tags);
 );
+// TODO? use cuboid bounding box
 cglDrawPlaneInCube(coords4,center,sideLength,color):=(
   regional(radius,light,colAndModifs,modifiers,ids,topLayer,cutoff);
   radius = sqrt(3)/2*sideLength;
@@ -1109,7 +1115,7 @@ cglDrawPlaneInCube(coords4,center,sideLength,color):=(
   colAndModifs = cglColorExpression(color,modifiers);
   topLayer = colorplot3d(cgl3dPlaneShaderCode(#),center,radius,
     UpixelExpr->colAndModifs_1,UcglCoeffVector->coords4,Ulight->light,UcglCutoffRegion->cutoff,
-    plotModifiers->colAndModifs_2,tags->["quadric"]++tags);
+    plotModifiers->colAndModifs_2,tags->["plane"]++tags);
 );
 
 // general degree 2 surfaces

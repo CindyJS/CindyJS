@@ -40,11 +40,11 @@
                 // <S-l*T,S-l*T>-r²=0 -> l² <T,T> + l 2<S,T> + <S,S> - r^2 =0
 
                 // pick point on viewRay closer to cylinder to increase numeric stability
-                w = |cglViewPos-(cglPointA+cglPointB)/2|;
+                w = |cglViewPos-cglCenter|;
                 W = cglViewPos + w*direction;
-                BA=cglPointB-cglPointA;
+                BA=cglOrientation;
                 U=BA/(BA*BA);
-                VA = (W-cglPointA);
+                VA = (W-cglCenter);
                 S = VA - (VA*BA)*U;
                 T = direction - (direction*BA)*U;
                 a = T*T;
@@ -53,18 +53,20 @@
                 D= b*b-a*c;
                 if(D<0,cglDiscard());
                 l1 = -(b + re(sqrt(D)))/a;
-                v1 = (W+l1*direction)-cglPointA;
+                v1 = (W+l1*direction)-cglCenter;
                 delta1 = (v1*U);
-                if((delta1>0)& (delta1<1),
+                if((delta1>-1)& (delta1<1),
                   brigthness = .25+.75*max(-direction*normalize(v1-delta1*BA),0);
+                  delta1 = (delta1+1)/2;
                   color = brigthness*((aColor*delta1+bColor*(1-delta1)));
                   cglDepth = (w+l1)/16;
                   [color_1,color_2,color_3],
                   l2 = (-b + re(sqrt(D)))/a;
-                  v2 = (W+l2*direction)-cglPointA;
+                  v2 = (W+l2*direction)-cglCenter;
                   delta2 = v2*U;
-                  if((delta2<0) % (delta2>1),cglDiscard());
+                  if((delta2<-1) % (delta2>1),cglDiscard());
                   brigthness = .25+.5*max(direction*normalize(v2-delta2*BA),0);
+                  delta2 = (delta2+1)/2;
                   color = brigthness*((aColor*delta2+bColor*(1-delta2)));
                   cglDepth = (l2+w)/16;
                   [color_1,color_2,color_3]
