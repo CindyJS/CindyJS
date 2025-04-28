@@ -1201,6 +1201,97 @@ let CindyGL = function(api) {
             value: val['ctype'] === 'cglLazy'
         };
     });
+    function asName(csVal) {
+        if(csVal['ctype'] === 'variable') {
+            return csVal['name'];
+        } else if(csVal['ctype'] === 'string') {
+            return csVal['value'];
+        } else {
+            console.error("unexpected value for name:",csVal);
+        }
+    }
+    function parseInterfaceArgs(csVal) {
+        let argList = cglLazyParams(csVal);
+        // use :<param-list> to mark parameter as function
+        return argList.map(val => (
+            val['ctype'] === 'userdata' ?{
+                name: asName(val['obj']),
+                args: cglLazyParams(val['key']),
+            } :{
+                name: asName(val),
+                args: null
+            }
+        ));
+    }
+    /* cglInterface(<name>,<implName>,<args>,<modifs>)
+         function wrapper to simplify user interaction with Cindygl3d implementation in CindyScript
+    */
+    api.defineFunction("cglInterface",4,(args,modifs) => {
+        // name of wrapper function
+        let fn_name = asName(args[0]);
+        // name of implementation function
+        let fn_impl = asName(args[1]).toLowerCase(); // cs expects lowercase name
+        // list of function arguments
+        let fn_args = parseInterfaceArgs(args[2]);
+        // list of expected modifiers
+        let fn_modifs = parseInterfaceArgs(args[3]);
+        // create wrapper-function with given signature
+        api.defineFunction(fn_name,fn_args.length,(args,modifs) => {
+            let callArgs = new Array(args.length);
+            // convert function-arguments (marked with parameter-list as user-data) to cglLazy
+            for(let i=0;i<fn_args.length;i++) {
+                if (fn_args[i].args != null) {
+                    // TODO? allow directly passing lazy function to argument
+                    // TODO? create function for building cglLazy
+                    callArgs[i] = {
+                        ctype: "cglLazy",
+                        params: fn_args[i].args,
+                        expr: cloneExpression(args[i]),
+                        modifs: new Map()
+                    }
+                    createCglEval(fn_args[i].args.length);
+                } else {
+                    callArgs[i] = args[i];
+                }
+            }
+            let callMods = {};
+            for(let i=0;i<fn_modifs.length;i++) {
+                const modName = fn_modifs[i].name;
+                let mod = modifs[modName];
+                if(mod === undefined) {
+                    // set missing modifiers to nada to avoid collision with global
+                    callMods[modName]=nada;
+                } else if (fn_modifs[i].args != null) {
+                    // convert function-arguments (marked with parameter-list as user-data) to cglLazy
+                    // TODO? create function for building cglLazy
+                    callMods[modName]={
+                        ctype: "cglLazy",
+                        params: fn_modifs[i].args,
+                        expr: cloneExpression(mod),
+                        modifs: new Map()
+                    };
+                    createCglEval(fn_modifs[i].args.length);
+                } else {
+                    callMods[modName]=mod;
+                }
+            }
+            // TODO? pass modifiers as seperate JSON object
+            Object.entries(modifs).forEach(([name, value])=>{
+                if(callMods.hasOwnProperty(name))
+                    return;
+                callMods[name] = value;
+            });
+            // create fake ir for cindy-script call to implementation function
+            // the given object entries should be enough to trick the interpreter into calling the implemntation with the given arguments and modifiers
+            let call = {
+                "ctype": 'function',
+                "oper": `${fn_impl}$${callArgs.length}`, // add parameter count to procedure name
+                "args": callArgs,
+                "modifs": callMods
+            };
+            return api.evaluate(call);
+        });
+    });
 
     api.defineFunction("cglDebugPrint", 1, (args, modifs) => {
         console.log(args[0],api.evaluate(args[0]),api.evaluateAndVal(args[0]));
