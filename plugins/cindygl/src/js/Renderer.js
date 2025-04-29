@@ -17,9 +17,11 @@ Renderer.boundingSphere = function(center,radius){
         type: BoundingBoxType.sphere,center: center, radius: radius
     };
 }
-Renderer.boundingCylinder = function(center,direction,radius){
+Renderer.boundingCylinder = function(center,direction,radius,overhang){
+    let length=Math.sqrt(dot3(direction,direction));
     return {
-        type: BoundingBoxType.cylinder,center: center,direction: direction, radius: radius
+        type: BoundingBoxType.cylinder,center: center,direction: direction, radius: radius, 
+        boxLengthScale: (length+overhang)/length
     };
 }
 /**
@@ -470,6 +472,14 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
                 ([this.boundingBox.radius]);
         }else{
             console.error("uRadius is not supported for current bounding box type");
+        }
+    }
+    if (this.shaderProgram.uniform.hasOwnProperty('uBoxLengthScale')){
+        if(this.boundingBox.boxLengthScale !== undefined) {
+            this.shaderProgram.uniform["uBoxLengthScale"]
+                ([this.boundingBox.boxLengthScale]);
+        }else{
+            console.error("uBoxLengthScale is not supported for current bounding box type");
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uOrientation')){

@@ -9,6 +9,7 @@ out   vec2 plain_pixel;
 uniform   vec3 uCenter;
 uniform   vec3 uOrientation;
 uniform   float uRadius;
+uniform   float uBoxLengthScale;
 uniform   vec3 cgl_viewPos;
 uniform   mat4 projAndTrafoMatrix;
 uniform   mat3 transformMatrix;
@@ -19,7 +20,7 @@ void main(void) {
    vec3 v0 = abs(uOrientation.x)<abs(uOrientation.y)?vec3(1,0,0):vec3(0,1,0);
    vec3 dir1 = normalize(cross(v0,uOrientation));
    vec3 dir2 = normalize(cross(dir1,uOrientation));
-   vec3 pos3 = uCenter+uOrientation*aPos.x+uRadius*(dir1*aPos.y+dir2*aPos.z);
+   vec3 pos3 = uCenter+uBoxLengthScale*uOrientation*aPos.x+uRadius*(dir1*aPos.y+dir2*aPos.z);
    // transform to viewSpace
    gl_Position = projAndTrafoMatrix*vec4(pos3,1);
    gl_Position.z=0.0;

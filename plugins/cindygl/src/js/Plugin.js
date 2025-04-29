@@ -422,24 +422,28 @@ let CindyGL = function(api) {
 
     function readModifierList(modValue,modName,modifiers,addModifier) {
         let modList;
-        if(modValue["ctype"]!=="list") {
-            console.error(`unexpected value for '${modName}' expected list got: `,modList);
-            modList=[];
-        } else {
+        if(modValue["ctype"] === "list") {
             modList = modValue['value'];
+            modList = modList.map(v => {
+                if(v['ctype'] !== 'list' || v['value'].length != 2) {
+                    console.error("unexpected entry in modifier list expected [key,value] got: ",v);
+                    return [undefined,undefined];
+                }
+                let key = v["value"][0];
+                if(key['ctype'] !== "string") {
+                    console.error("unexpected key for modifier list expected string got: ",key);
+                    return;
+                }
+                key = key['value'];
+                return [key,v["value"][1]];
+            });
+        } else if(modValue["ctype"] === "JSON") {
+            modList = Object.entries(modValue['value']);
+        } else {
+            console.error(`unexpected value for '${modName}' expected list or dict got: `,modValue);
+            modList=[];
         }
-        modList.forEach(v=>{
-            if(v['ctype'] !== 'list' || v['value'].length != 2) {
-                console.error("unexpected entry in modifier list expected [key,value] got: ",v);
-                return;
-            }
-            let key = v['value'][0];
-            if(key['ctype'] !== "string") {
-                console.error("unexpected key for modifier list expected string got: ",key);
-                return;
-            }
-            key = key['value'];
-            let value = v['value'][1];
+        modList.forEach(([key,value])=>{
             addModifier(modifiers,key,value);
         });
         return modifiers;
@@ -459,7 +463,7 @@ let CindyGL = function(api) {
             modifiers.set(modName,modValue);
         }
         if(callModifiers.hasOwnProperty("plotModifiers")){
-            modifiers=readModifierList(api.evaluateAndVal(callModifiers["plotModifiers"]),"plotModifiers",modifiers,addUmodifier);
+            modifiers=readModifierList(api.evaluate(callModifiers["plotModifiers"]),"plotModifiers",modifiers,addUmodifier);
         }
         Object.entries(callModifiers).forEach(([name, value])=>{
             if(name.length < 2 || !name.startsWith("U"))
@@ -497,7 +501,7 @@ let CindyGL = function(api) {
             modifiers.set(modName,{values: valList,eltType: eltType});
         }
         if(callModifiers.hasOwnProperty("vModifiers")){
-            modifiers=readModifierList(api.evaluateAndVal(callModifiers["vModifiers"]),"vModifiers",modifiers,addVmodifier);
+            modifiers=readModifierList(api.evaluate(callModifiers["vModifiers"]),"vModifiers",modifiers,addVmodifier);
         }
         Object.entries(callModifiers).forEach(([name, value])=>{
             if(name.length < 2 || !name.startsWith("V"))
@@ -688,7 +692,11 @@ let CindyGL = function(api) {
         var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
-        let boundingBox=Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius);
+        var overhang = 0;
+        if (modifs.hasOwnProperty("overhang")) {
+            overhang = api.evaluateAndVal(modifs["overhang"])["value"]["real"];
+        }
+        let boundingBox=Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
         let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         setObject(obj3d.id,obj3d);
@@ -1047,7 +1055,11 @@ let CindyGL = function(api) {
         var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
         var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
         var radius = api.evaluateAndVal(args[3])["value"]["real"];
-        obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius);
+        var overhang = 0;
+        if (modifs.hasOwnProperty("overhang")) {
+            overhang = modifs["overhang"]["value"]["real"];
+        }
+        obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
         return toCjsNumber(objId);
     });
     api.defineFunction("cglUpdateBounds",5, (args, modifs) => {
