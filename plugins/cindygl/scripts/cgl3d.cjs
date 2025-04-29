@@ -237,9 +237,9 @@ cglProjCylinderToSquare(normal,height,orientation):=(
 cglCapOpenShaderFront = cglLazy((direction,cylinderDepths,delta,U),
     v2 = (cglViewPos+cylinderDepths_2*direction)-cglCenter;
     delta2 = v2*U;
-    if(delta2<-1,
+    if(cglEval(cglCut1,delta2,v2)<-1,
       cglEval(cglCap1back,direction,cylinderDepths,-1,U);
-    ,if(delta2>1,
+    ,if(cglEval(cglCut2,delta2,v2)>1,
       cglEval(cglCap2back,direction,cylinderDepths,1,U);
     ,
       cglSetDepth(cylinderDepths_2);
@@ -278,23 +278,22 @@ cglCapFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U),
     normal = -normalize(cglOrientation*delta);
     (normal_1,normal_2,normal_3,delta)
 );
-// TODO cut-caps
-cglCapCutOpenShaderFront = cglLazy((direction,cylinderDepths,delta,U),
-);
-cglCapCutOpenShaderBack = cglLazy((direction,cylinderDepths,delta,U),
-);
+// TODO flat face for cut plane
 cglCapCutFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U),
 );
 cglCapCutFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U),
 );
+cglCutOrthogonal = cglLazy((delta,v),delta);
+cglCutVector1 = cglLazy((delta,v),v*cglCutDir1);
+cglCutVector2 = cglLazy((delta,v),v*cglCutDir2);
 
 // TODO? give constants a second name in cgl-namespace
 CylinderCapOpen = {"name":"Open","shaderFront":cglCapOpenShaderFront,"shaderBack":cglCapOpenShaderBack};
 CylinderCapFlat = {"name":"Flat","shaderFront":cglCapFlatShaderFront,"shaderBack":cglCapFlatShaderBack};
 CylinderCapRound = {"name":"Round","shaderFront":cglCapRoundShaderFront,"shaderBack":cglCapRoundShaderBack};
-CylinderCapCutOpen(normal) := {"name":"Cut-Open","normal":normal,
-  "shaderFront":cglCapCutOpenShaderFront,"shaderBack":cglCapCutOpenShaderBack};
-CylinderCapCutFlat(normal) := {"name":"Cut-Flat","normal":normal,
+CylinderCapCutOpen(normal) := {"name":"Cut-Open","cutDirection":normal,
+  "shaderFront":cglCapOpenShaderFront,"shaderBack":cglCapOpenShaderBack};
+CylinderCapCutFlat(normal) := {"name":"Cut-Flat","cutDirection":normal,
   "shaderFront":cglCapCutFlatShaderFront,"shaderBack":cglCapCutFlatShaderBack};
 cglDefaultCapsCylinder = CylinderCapOpen;
 
@@ -304,11 +303,11 @@ cgl3dCylinderShaderCode(direction):=(
   U = BA/(BA*BA);
   v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta = (v1*U);
-  if(delta<-1, // cap 1
+  if(cglEval(cglCut1,delta,v1)<-1, // cap 1
     normalAndHeight = cglEval(cglCap1front,direction,l,-1,U);
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
-  ,if(delta>1, // cap2
+  ,if(cglEval(cglCut2,delta,v1)>1, // cap2
     normalAndHeight = cglEval(cglCap2front,direction,l,1,U);
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
@@ -316,14 +315,12 @@ cgl3dCylinderShaderCode(direction):=(
     cglSetDepth(l_1);
     normal = normalize(v1-delta*BA);
   ));
-  texturePos = cglProjCylinderToSquare(normal,delta,cglOrientation);
+  // TODO? include caps in mapping
+  texturePos = cglProjCylinderToSquare(normal,max(-1,min(delta,1)),cglOrientation);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
 // TODO back-face of cylinder
-
-// TODO renderer for cylinder that is cut in specific directions at ends
-
 
 // back:
 // 1. compute intersections of view-ray with cylinder
@@ -392,7 +389,20 @@ cglCylinder3d(point1,point2,radius):=(
   // TODO support dict as modifiers
   modifiers = {"pixelExpr":pixelExpr,"light": light,"cglColor":color,
     "cglCap1front":cap1_"shaderFront","cglCap1back":cap1_"shaderBack",
-    "cglCap2front":cap2_"shaderFront","cglCap2back":cap2_"shaderBack"};
+    "cglCap2front":cap2_"shaderFront","cglCap2back":cap2_"shaderBack",
+    "cglCut1":cglCutOrthogonal,"cglCut2":cglCutOrthogonal};
+  if(!isundefined(cap1_"cutDirection"),
+    modifiers_"cglCut1" = cglCutVector1;
+    n = cap1_"cutDirection";
+    modifiers_"cglCutDir1" = -n/(point1*n);
+    overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
+  );
+  if(!isundefined(cap2_"cutDirection"), 
+    modifiers_"cglCut2" = cglCutVector2;
+    n = cap2_"cutDirection";
+    modifiers_"cglCutDir2" = n/(point2*n);
+    overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
+  );
   tags = []; // TODO allow passing tags as modifier
   if(needBackFace,
     ids = [colorplot3d(cgl3dCylinderShaderCodeBack(#),point1,point2,radius,overhang->overhang,
@@ -403,6 +413,10 @@ cglCylinder3d(point1,point2,radius):=(
     plotModifiers->modifiers,tags->["cylinder"]++tags);
   if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
 );
+// FIXME overhang should be computed from end not from center
+// -> ? allow seperate overhang for both ends
+// -> ? how much does co-sy for V-shader need to be changed
+// TODO handle cutof plane intersecting with end-cap
 
 cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,size,samples,alpha,light:(color,direction,normal),caps,joints));
 cglCurve3d(expr,from,to/*...*/):=(
