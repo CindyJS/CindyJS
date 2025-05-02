@@ -82,7 +82,7 @@ cglDefaultColorCylinder = (0,0,0);
 cglDefaultColorTorus = (0,0,1);
 cglDefaultSizeSphere = 0.5;
 cglDefaultSizeCylinder = 0.4;
-cglDefaultSizeTorus = 0.4;
+cglDefaultSizeTorus = 0.25;
 cglDefaultCurveSamples = 32;
 
 /////////////////////
@@ -456,6 +456,190 @@ cgl3dCylinderShaderCodeBack(direction):=(
 );
 
 /////////////////////
+// surface-renderer: common
+/////////////////////
+
+// simple algrithm for small degree surfaces:
+// bisection using rolles theorem
+// between any two roots of p there has to be a root of p'
+//     l   u
+//      \ /
+//   l   a0  u   <-roots of p1
+//    \ / \ /
+// l   b0  b1  u <-roots of p2
+//  \ / \ / \ /
+//l  c0  c1  c2  <-roots of p3
+// \ / \ / \ / \ /
+// d0  d1  d2  d3 <-roots of p4
+// TODO? add a way use call same procedure with multiple signatures
+// use lazy-procedures to allow multiple signatures for same code
+cglEvalP = cglLazy((coeffs,t),
+  regional(s);
+  s = 0;
+  forall(reverse(coeffs),c,s = t*s + c);
+  s;
+);
+// TODO? is it faster to use same vector size for all derivatives
+cglD = cglLazy(coeffs,
+  apply(1..(length(coeffs)-1),k,k*coeffs_(k+1));
+);
+cglBinSearchP = cglLazy((poly, x0, x1, def),
+  regional(v0, v1, m, vm);
+  v0 = cglEval(cglEvalP,poly, x0);
+  v1 = cglEval(cglEvalP,poly, x1);
+  if(v0*v1<=0,
+    repeat(16,
+      m = (x0+x1)/2;
+      vm = cglEval(cglEvalP,poly, m);
+      if(v0*vm<=0,
+        (x1 = m; v1 = vm;),
+        (x0 = m; v0 = vm;)
+      );
+    );
+    m,
+    def
+  )
+);
+// wrapper for cglBinSearchP instanciated for each commonly used degree
+cglBinSearchP4(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP3(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP2(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+cglBinSearchP1(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
+ //finds the k-th root of poly in interval (l, u). returns def if there is none
+cglKthrootP3(k, poly, l, u, def) := (
+  regional(p1, p2, p3, a0, b0, b1, c0, c1, c2, count);
+  p3 = poly;  //cubic
+  p2 = cglEval(cglD,p3); //quadratic
+  p1 = cglEval(cglD,p2); //linear
+
+  a0 = cglBinSearchP1(p1, l, u, u);
+  b0 = cglBinSearchP2(p2, l, a0, l);
+  c0 = cglBinSearchP3(p3, l, b0, l);
+  count = (l < c0 & c0 < u);
+  if(count >= k, c0,
+    b1 = cglBinSearchP2(p2, a0, u, u);
+    c1 = cglBinSearchP3(p3, b0, b1, c0);
+    count = count + (c0 < c1 & c1 < u);
+    if(count >= k, c1,
+      c2 = cglBinSearchP3(p3, b1, u, u);
+      count = count + (c1 < c2 & c2 < u);
+      if(count >= k, c2, def);
+    );
+  );
+);
+cglKthrootP4(k, poly, l, u, def) := (
+  regional(p1, p2, p3, p4, a0, b0, b1,
+    c0, c1, c2, d0, d1, d2, d3,count);
+  p4 = poly;  //quartic
+  p3 = cglEval(cglD,p4); //cubic
+  p2 = cglEval(cglD,p3); //quadratic
+  p1 = cglEval(cglD,p2); //linear
+
+  a0 = cglBinSearchP1(p1, l, u, u);
+  b0 = cglBinSearchP2(p2, l, a0, l);
+  c0 = cglBinSearchP3(p3, l, b0, l);
+  d0 = cglBinSearchP4(p4, l, c0, l);
+  count = (l < d0 & d0 < u);
+  if(count >= k, d0,
+    b1 = cglBinSearchP2(p2, a0, u, u);
+    c1 = cglBinSearchP3(p3, b0, b1, c0);
+    d1 = cglBinSearchP4(p4, c0, c1, d0);
+    count = count + (d0 < d1 & d1 < u);
+    if(count >= k, d1,
+      c2 = cglBinSearchP3(p3, b1, u, u);
+      d2 = cglBinSearchP4(p4, c1, c2, d1);
+      count = count + (d1 < d2 & d2 < u);
+      if(count >= k, d2,
+        d3 = cglBinSearchP4(p4, c2, u, u);
+        count = count + (d2 < d3 & d3 < u);
+        if(count >= k, d3, def);
+      );
+    );
+  );
+);
+
+/////////////////////
+// torus
+/////////////////////
+
+// the torus with the given orientation onto the unit square using normal vector and radius-direction as input
+// assumes that normal and radiusDirection are normalized
+cglProjTorusToSquare(normal,radiusDirection,orientation):=(
+  regional(v1,v2,phi1,phi2);
+  v1 = normalize(cross(orientation,if(abs(orientation_1)<abs(orientation_2),(1,0,0),(0,1,0))));
+  v2 = -normalize(cross(orientation,v1));
+  phi1 = arctan2(radiusDirection*v1,radiusDirection*v2)+pi;
+  phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
+  (phi1,phi2)/(2*pi);
+);
+// TODO is there a way to find torus points without solving general degree 4 equation
+// TODO? separate bounding box-type for torus
+cgl3dTorusShaderCode(direction,layer):=(
+  regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
+    orientation,b1,c1,E,W,a2,b2,c2,p3,p2,p1,p0,dst,pos3d,pc,
+    arcDirection,arcCenter,normal,color,pixelPos);
+  // compute torus coordinates from cylinder bounding box arguments
+  //   reduces number of needed uniforms
+  center = cglCenter;
+  radius1 = radii_1;
+  radius2 = radii_2;
+  v=|center-cglViewPos|;
+  V=cglViewPos+v*direction;
+  // 1. find intersections of view-ray with sphere around center with given radius r1+r2
+  // |v+l*d -c|=r
+  vc=V-center;
+  // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+  b0=(vc*direction);
+  c0=vc*vc-cglRadius*cglRadius;//cglRadius = r1+r2
+  // add small buffer distance to balance out numeric instability in bounding sphere
+  D0=b0*b0-c0+0.001;
+  if(D0<0,cglDiscard());
+  x0=-b0-re(sqrt(D0));
+  x1=-b0+re(sqrt(D0));
+  orientation = normalize(cglOrientation);
+  V = V - cglCenter; // update coordinate system such that center is at (0,0,0)
+  // Equation for torus in orthogonal coord-system with unit vectors v1,v2,o
+  // (sqrt(<P,v1>²+<P,v2>²)-r1)² + <P,o>² = r2²  =>
+  // (<P,P> + r1²-r2²)² = 4 r1 ² (<P-<P,o>o,P-<P,o>o>)
+  // P = V + l*D
+  // (<V+l*D,V+l*D> + r1²-r2²)² = 4 r1 ² (<V+l*D-<V+l*D,o>o,V+l*D-<V+l*D,o>o>)
+  // A² = B with  W := V-<V,o>o  E := D-<D,o>o
+  // A := (<V+l*D,V+l*D> + r1²-r2²)
+  //    = (<V,V>+l*2<V,D>+l²<D,D> + r1²-r2²)
+  // B := 4 R² (<W+l*E,W+l*E>) = 4 r1 ² (<W,W>+l*2<W,E>+l²<E,E>)
+  //  a1 := <D,D> = 1 b1 := <V,D> c1 := r1²-r2²+<V,V>
+  //  a2 := <E,E> b2 := <W,E> c2 := <W,W>
+  // (l² + l 2*b1 + c1)² = 4 r1² (l² a2 + l 2b2 + c2)
+  // l⁴
+  // l³  4 b1
+  // l²  (2 c1 + 4 b1^2) -4 r1² a2
+  // l   4 b1 c1 - 4 r1² 2 b2
+  //     c1² - 4 r1² c2
+  b1 = V * direction;
+  c1 = radius1*radius1-radius2*radius2 + V*V;
+  E = direction - (direction*orientation)*orientation;
+  W = V - (V*orientation)*orientation;
+  a2 = E*E;
+  b2 = W*E;
+  c2 = W*W;
+  p3 = 4*b1;
+  p2 = 2*c1 + 4*b1*b1 - 4*radius1*radius1*a2;
+  p1 =  4*b1*c1 - 8*radius1*radius1*b2;
+  p0 =  c1*c1 - 4*radius1*radius1*c2;
+  dst=cglKthrootP4(layer,[p0,p1,p2,p3,1],x0,x1,x0-1);
+  if(dst<x0,cglDiscard());
+  pos3d = cglViewPos+ (v+dst)*direction;
+  pc=pos3d-center;
+  arcDirection = normalize(pc-(orientation*pc)*orientation);
+  arcCenter = center+radius1*arcDirection;
+  normal = normalize(pos3d - arcCenter);
+  cglSetDepth(v+dst);
+  pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
+  color = cglEval(pixelExpr,pixelPos);
+  cglEval(light,color,direction,normal);
+);
+
+/////////////////////
 // user-interface
 /////////////////////
 
@@ -613,7 +797,32 @@ cglCurve3d(expr,from,to):=(
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,alpha,light:(color,direction,normal)));
 cglTorus3d(center,orientation,radius1,radius2):=(
-
+  orientation=normalize(orientation);
+  color = cglValOrDefault(color,cglDefaultColorCylinder);
+  light = cglValOrDefault(light,cglDefaultLight);
+  needBackFace = if(isundefined(alpha),length(color)==4,true);
+  pixelExpr = cglLazy(pos,cglColor);
+  modifiers = {
+    "pixelExpr":pixelExpr, "light": light, "cglColor": color,
+    "radii": [radius1,radius2]
+  };
+  tags = [];
+  // TODO handle arcs (discard pixels depending on angle)
+  if(needBackFace,
+    ids = [colorplot3d(cgl3dTorusShaderCode(#,4),
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
+      plotModifiers->modifiers,tags->["torus","backside"]++tags),
+    colorplot3d(cgl3dTorusShaderCode(#,3),
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
+      plotModifiers->modifiers,tags->["torus","backside"]++tags),
+    colorplot3d(cgl3dTorusShaderCode(#,2),
+      center-radius2*orientation, center+radius2*orientation, radius1+radius2,
+      plotModifiers->modifiers,tags->["torus","backside"]++tags)];
+  );
+  topLayer = colorplot3d(cgl3dTorusShaderCode(#,1),
+    center-radius2*orientation, center+radius2*orientation, radius1+radius2,
+    plotModifiers->modifiers,tags->["torus"]++tags);
+  if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
 );
 // TODO? option to use aspect ratio instead of second radius
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,size,alpha,light:(color,direction,normal)));
@@ -642,6 +851,7 @@ cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,thickness,alpha,light:(color,di
 cglPlot3d(f/*f(x,y)*/):=(
 
 );
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z)));
 cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z)));
 cglCPlot3d(f/*f(z)*/):=(
 
