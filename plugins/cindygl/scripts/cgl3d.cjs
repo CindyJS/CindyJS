@@ -9,6 +9,9 @@ cglSetDepth(rawDepth):=(
   cglDepth = 1-(v/(rawDepth+v));
   cglRawDepth = rawDepth;
 );
+cglMod1plus(n,k):=(
+  mod(n-1,k)+1;
+);
 
 /////////////////////
 // light functions
@@ -77,9 +80,20 @@ cglLayers(topLayer):=(
   );
 );
 
-cglDefaultColorSphere = (1,0,0);
-cglDefaultColorCylinder = (0,0,0);
-cglDefaultColorTorus = (0,0,1);
+// color constants
+cglBlack = (0,0,0);
+cglWhite = (1,1,1);
+cglReg = (1,0,0);
+cglGreen = (0,1,0);
+cglBlue = (0,0,1);
+cglYellow = (1,1,0);
+cglCyan = (0,1,1);
+cglMagenta = (1,0,1);
+
+cglDefaultColorSphere = cglReg;
+cglDefaultColorCylinder = cglBlack;
+cglDefaultColorTorus = cglBlue;
+cglDefaultColorTriangle = cglGreen;
 cglDefaultSizeSphere = 0.5;
 cglDefaultSizeCylinder = 0.4;
 cglDefaultSizeTorus = 0.25;
@@ -423,6 +437,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
   BA = cglOrientation;
   U = BA/(BA*BA);
   // TODO check if second intersection with cylinder already used by front face (open cap)
+  // ? use different shader for open caps depending on if back-face is rendered (discard front pixel if there is back shader)
   v2 = (cglViewPos+l_2*direction)-cglCenter;
   delta = (v2*U);
   if(cglEval(cglCut1,delta,v2)<-1, // cap 1
@@ -640,6 +655,97 @@ cgl3dTorusShaderCode(direction,layer):=(
 );
 
 /////////////////////
+// polygons & meshes
+/////////////////////
+
+cgl3dTriangleShaderCode(direction):=(
+  regional(color,normal);
+  // TODO? pass raw-depth from vshader to fshader (? cglVertexDepth)
+  cglRawDepth = |cglViewPos|*cglDepth/(1-cglDepth);
+  color = cglEval(pixelExpr,direction);
+  normal = cglEval(normalExpr,direction);
+  cglEval(light,color,direction,normal);
+);
+
+// TODO? better triangulation of non-convex polygons
+// TODO tweak orientation of default normal vectors
+cglTriangulateCorner(elts):=(
+  root = elts_1;
+  flatten(apply(2..(length(elts)-1),i,
+    [root,elts_i,elts_(i+1)];
+  ));
+);
+cglTriangulatePolygonCorner(vertices,vNormals,vModifiers):=(
+  triangles = cglTriangulateCorner(vertices);
+  if(isundefined(vNormals),
+    // TODO option to compute normals per vertex/ single normal for complete polygon
+    vNormals = flatten(apply(1..(length(triangles)/3),i,
+      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      [n,n,n];
+    ));
+  ,
+    vNormals = cglTriangulateCorner(vNormals);
+  );
+  vModifiers=apply(vModifiers,e,cglTriangulateCorner(e));
+  (triangles,vNormals,vModifiers)
+);
+cglTriangulateSpiralRec(elts):=(
+  regional(eltCount,even,odd);
+  eltCount = length(elts);
+  if(eltCount<=3,
+    if(eltCount<3,[],elts)
+  ,
+    // TODO split of last element to avoid check for overflow in remaining elements
+    even = flatten(apply(1..(eltCount/2),i,(elts_(2*i-1),elts_(2*i),elts_(cglMod1plus(2*i+1,eltCount)))));
+    odd = apply(1..(eltCount/2),i,elts_(2*i-1));
+    if(mod(eltCount,2)==1,
+      odd = prepend(elts_eltCount,odd);
+    );
+    even++cglTriangulateSpiralRec(odd);
+  );
+);
+cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers):=(
+  triangles = cglTriangulateSpiralRec(vertices);
+  if(isundefined(vNormals),
+    // TODO option to compute normals per vertex/ single normal for complete polygon
+    vNormals = flatten(apply(1..(length(triangles)/3),i,
+      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      [n,n,n];
+    ));
+  ,
+    vNormals = cglTriangulateSpiralRec(vNormals);
+  );
+  vModifiers=apply(vModifiers,e,cglTriangulateSpiralRec(e));
+  (triangles,vNormals,vModifiers)
+);
+cglTriangulateCenter(elts):=(
+  // TODO? how should center be calculated for non-numeric vertex modifiers (? are non-numeric v-modifiers allowed)
+  center = sum(elts)/length(elts);
+  flatten(apply(1..(length(elts)-1),i,
+    [elts_i,center,elts_(i+1)];
+  ))++[elts_(length(elts)),center,elts_1];
+);
+cglTriangulatePolygonCenter(vertices,vNormals,vModifiers):=(
+  triangles = cglTriangulateCenter(vertices);
+  if(isundefined(vNormals),
+    // TODO option to compute normals per vertex/ single normal for complete polygon
+    vNormals = flatten(apply(1..(length(triangles)/3),i,
+      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      [n,n,n];
+    ));
+  ,
+    vNormals = cglTriangulateCenter(vNormals);
+  );
+  vModifiers=apply(vModifiers,e,cglTriangulateCenter(e));
+  (triangles,vNormals,vModifiers)
+);
+
+TriangulateCorner = 0; // connect all vertices to first vertex
+TriangulateCenter = 1; // connect all vertices to additional vertex in center of polygon (mean of vertcies)
+TriangulateSpiral = 2; // cut of all vertices with even index, repest recursively on remaining vertices
+TriangulateDefault = TriangulateSpiral;
+
+/////////////////////
 // user-interface
 /////////////////////
 
@@ -831,14 +937,81 @@ cglCircle3d(center,orientation,radius):=(
   cglTorus3d(center,orientation,radius,size);
 );
 
-cglInterface("polygon3d",cglPolygon3d,(vertices),(color,thickness,alpha,light:(color,direction,normal),texture,uv,normals));
-cglPolygon3d(vertices):=(
-
+cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,thickness,alpha,light:(color,direction,normal),texture,uv,normal,normals));
+cglTriangle3d(p1,p2,p3):=(
+  color = cglValOrDefault(color,cglDefaultColorTriangle);
+  light = cglValOrDefault(light,cglDefaultLight);
+  normal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
+  normals = cglValOrDefault(normals,[normal,normal,normal]);
+  if(length(normals)!=3, // TODO! create function for size-check of vertex data
+    print("unexpected value for normals, expected list of length 3 got:");
+    print(normals);
+    normals=[normal,normal,normal]
+  );
+  pixelExpr = cglLazy(pos,cglColor);
+  normalExpr = cglLazy(dir,cglNormal);
+  modifiers = {
+    "pixelExpr":pixelExpr,  "light": light,
+    "normalExpr":normalExpr
+  };
+  vModifiers = {
+    "cglNormal":normals
+  };
+  if(isundefined(colors),
+    modifiers_"cglColor"=color;
+  ,
+    if(length(colors)!=3, // TODO! create function for size-check of vertex data
+      print("unexpected value for colors, expected list of length 3 got:");
+      print(colors);
+      colors=[color,color,color]
+    );
+    vModifiers_"cglColor"=colors;
+  );
+  tags = [];
+  colorplot3d(cgl3dTriangleShaderCode(#),[p1,p2,p3],
+    plotModifiers->modifiers,vModifiers->vModifiers,tags->["triangle"]++tags);
 );
 
-cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,thickness,alpha,light:(color,direction,normal),texture,uv,normals,normal));
-cglTriangle3d(p1,p2,p3):=(
+// TODO? triangles3d
 
+cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,thickness,alpha,light:(color,direction,normal),texture,uv,normal,normals));
+cglPolygon3d(vertices):=(
+  color = cglValOrDefault(color,cglDefaultColorTriangle);
+  light = cglValOrDefault(light,cglDefaultLight);
+  triangulationMode = cglValOrDefault(triangulationMode,TriangulateDefault);
+  if(isundefined(normals) & ! isundefined(normal),
+    normals = apply(vertices,normal);
+  );
+  pixelExpr = cglLazy(pos,cglColor);
+  normalExpr = cglLazy(dir,cglNormal);
+  modifiers = {
+    "pixelExpr":pixelExpr,  "light": light,
+    "normalExpr":normalExpr
+  };
+  vModifiers = {};
+  if(isundefined(colors),
+    modifiers_"cglColor"=color;
+  ,
+    if(length(colors)!=length(vertices), // TODO! create function for size-check of vertex data
+      print("unexpected value for colors, expected list of length "+text(length(vertices))+" got:");
+      print(colors);
+      colors=apply(vertices,color);
+    );
+    vModifiers_"cglColor"=colors;
+  );
+  // TODO different normal-modes: "flat","perFace","perVertex"
+  if(triangulationMode==TriangulateSpiral,
+    trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers);
+  ,if(triangulationMode==TriangulateCorner,
+    trianglesAndNormals = cglTriangulatePolygonCorner(vertices,normals,vModifiers);
+  ,
+    trianglesAndNormals = cglTriangulatePolygonCenter(vertices,normals,vModifiers);
+  ));
+  vModifiers = trianglesAndNormals_3;
+  vModifiers_"cglNormal" =trianglesAndNormals_2;
+  tags = [];
+  colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,
+    plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
 cglInterface("mesh3d",cglMesh3d,(grid),(color,thickness,alpha,light:(color,direction,normal),texture,uv,vertexNormals,faceNormals,normalExpr));
