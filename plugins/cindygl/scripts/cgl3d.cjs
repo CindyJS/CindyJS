@@ -657,28 +657,47 @@ cgl3dTorusShaderCode(direction,layer):=(
 
 cgl3dTriangleShaderCode(direction):=(
   regional(color,normal);
-  // TODO? pass raw-depth from vshader to fshader (? cglVertexDepth)
-  cglRawDepth = |cglViewPos|*cglDepth/(1-cglDepth);
+  cglRawDepth = cglSpacePos_3;
   color = cglEval(pixelExpr,direction);
   normal = cglEval(normalExpr,direction);
   cglEval(light,color,direction,normal);
 );
 
+// TODO add version of constants in CGL namespace
+NormalFlat=0;
+NormalPerTriangle=1;
+NormalPerVertex=2;
+
 // TODO? better triangulation of non-convex polygons
-// TODO tweak orientation of default normal vectors
+// TODO reduce duplicate code
 cglTriangulateCorner(elts):=(
   root = elts_1;
   flatten(apply(2..(length(elts)-1),i,
     [root,elts_i,elts_(i+1)];
   ));
 );
-cglTriangulatePolygonCorner(vertices,vNormals,vModifiers):=(
+cglTriangulatePolygonCorner(vertices,vNormals,vModifiers,normalType):=(
   triangles = cglTriangulateCorner(vertices);
   if(isundefined(vNormals),
     // TODO option to compute normals per vertex/ single normal for complete polygon
     vNormals = flatten(apply(1..(length(triangles)/3),i,
-      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
       [n,n,n];
+    ));
+    if(normalType==NormalFlat,
+      // compute average normal
+      n = normalize(sum(vNormals));
+      vNormals = apply(vNormals,n);
+    ,if(normalType==NormalPerVertex,
+      vMap = cglTriangulateCorner(1..length(vertices));
+      vData = apply(vertices,(0,0,0));
+      // cumpute average normal for each vertex
+      forall(1..length(vNormals),i,
+        vData_(vMap_i) = vData_(vMap_i) + vNormals_i
+      );
+      forall(1..length(vNormals),i,
+        vNormals_i = normalize(vData_(vMap_i));
+      );
     ));
   ,
     vNormals = cglTriangulateCorner(vNormals);
@@ -701,13 +720,27 @@ cglTriangulateSpiralRec(elts):=(
     even++cglTriangulateSpiralRec(odd);
   );
 );
-cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers):=(
+cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers,normalType):=(
   triangles = cglTriangulateSpiralRec(vertices);
   if(isundefined(vNormals),
-    // TODO option to compute normals per vertex/ single normal for complete polygon
     vNormals = flatten(apply(1..(length(triangles)/3),i,
-      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
       [n,n,n];
+    ));
+    if(normalType==NormalFlat,
+      // compute average normal
+      n = normalize(sum(vNormals));
+      vNormals = apply(vNormals,n);
+    ,if(normalType==NormalPerVertex,
+      vMap = cglTriangulateSpiralRec(1..length(vertices));
+      vData = apply(vertices,(0,0,0));
+      // cumpute average normal for each vertex
+      forall(1..length(vNormals),i,
+        vData_(vMap_i) = vData_(vMap_i) + vNormals_i
+      );
+      forall(1..length(vNormals),i,
+        vNormals_i = normalize(vData_(vMap_i));
+      );
     ));
   ,
     vNormals = cglTriangulateSpiralRec(vNormals);
@@ -719,16 +752,30 @@ cglTriangulateCenter(elts):=(
   // TODO? how should center be calculated for non-numeric vertex modifiers (? are non-numeric v-modifiers allowed)
   center = sum(elts)/length(elts);
   flatten(apply(1..(length(elts)-1),i,
-    [elts_i,center,elts_(i+1)];
-  ))++[elts_(length(elts)),center,elts_1];
+    [center,elts_i,elts_(i+1)];
+  ))++[center,elts_(length(elts)),elts_1];
 );
-cglTriangulatePolygonCenter(vertices,vNormals,vModifiers):=(
+cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
   triangles = cglTriangulateCenter(vertices);
   if(isundefined(vNormals),
-    // TODO option to compute normals per vertex/ single normal for complete polygon
     vNormals = flatten(apply(1..(length(triangles)/3),i,
-      n=normalize(cross(triangles_(3*i-2)-triangles_(3*i-1),triangles_(3*i)-triangles_(3*i-1)));
+      n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
       [n,n,n];
+    ));
+    if(normalType==NormalFlat,
+      // compute average normal
+      n = normalize(sum(vNormals));
+      vNormals = apply(vNormals,n);
+    ,if(normalType==NormalPerVertex,
+      vMap = cglTriangulateCenter(1..length(vertices));
+      vData = apply(vertices,(0,0,0));
+      // cumpute average normal for each vertex
+      forall(1..length(vNormals),i,
+        vData_(vMap_i) = vData_(vMap_i) + vNormals_i
+      );
+      forall(1..length(vNormals),i,
+        vNormals_i = normalize(vData_(vMap_i));
+      );
     ));
   ,
     vNormals = cglTriangulateCenter(vNormals);
@@ -986,13 +1033,20 @@ cglTriangle3d(p1,p2,p3):=(
 
 // TODO? triangles3d
 
-cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,thickness,alpha,light:(color,direction,normal),texture,uv,normal,normals));
+cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,thickness,alpha,light:(color,direction,normal),texture,uv,normal,normals,normalType));
 cglPolygon3d(vertices):=(
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   triangulationMode = cglValOrDefault(triangulationMode,TriangulateDefault);
-  if(isundefined(normals) & ! isundefined(normal),
-    normals = apply(vertices,normal);
+  // TODO? warn for mismatched normal-type
+  if(isundefined(normals),
+    if(! isundefined(normal),
+      normals = apply(vertices,normal);
+      normalType = NormalFlat;
+    ,
+      normalType = cglValOrDefault(normalType,NormalPerTriangle);
+    ),
+    normalType = NormalPerVertex;
   );
   pixelExpr = cglLazy(pos,cglColor);
   normalExpr = cglLazy(dir,cglNormal);
@@ -1013,11 +1067,11 @@ cglPolygon3d(vertices):=(
   );
   // TODO different normal-modes: "flat","perFace","perVertex"
   if(triangulationMode==TriangulateSpiral,
-    trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers);
+    trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers,normalType);
   ,if(triangulationMode==TriangulateCorner,
-    trianglesAndNormals = cglTriangulatePolygonCorner(vertices,normals,vModifiers);
+    trianglesAndNormals = cglTriangulatePolygonCorner(vertices,normals,vModifiers,normalType);
   ,
-    trianglesAndNormals = cglTriangulatePolygonCenter(vertices,normals,vModifiers);
+    trianglesAndNormals = cglTriangulatePolygonCenter(vertices,normals,vModifiers,normalType);
   ));
   vModifiers = trianglesAndNormals_3;
   vModifiers_"cglNormal" =trianglesAndNormals_2;
