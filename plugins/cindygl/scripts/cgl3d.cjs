@@ -1,7 +1,11 @@
 // intialization containing implementation for CindyGL3D functions
 
 use("CindyGL");
-normalize(v):=(v/|v|); // TODO? make built-in
+// normalize if non-zero, map (0,0,0) to inself
+normalize(v):=( // TODO? make built-in
+  l = |v|;
+  if(l>0,v/l,v);
+);
 /** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */
 cglSetDepth(rawDepth):=(
   regional(v);
@@ -665,6 +669,7 @@ cgl3dTriangleShaderCode(direction):=(
 
 // TODO add version of constants in CGL namespace
 NormalFlat=0;
+NormalPerFace=0; // faces are triangles
 NormalPerTriangle=1;
 NormalPerVertex=2;
 
@@ -789,6 +794,148 @@ TriangulateCenter = 1; // connect all vertices to additional vertex in center of
 TriangulateSpiral = 2; // cut of all vertices with even index, repest recursively on remaining vertices
 TriangulateDefault = TriangulateSpiral;
 
+CglTopologyYFactor = 16;
+CglTopologyOpen = 0;
+CglTopologyClose = 1;
+
+TopologyOpen = CglTopologyOpen;
+TopologyCloseX = CglTopologyClose;
+TopologyCloseY = CglTopologyYFactor*CglTopologyClose;
+TopologyCloseXY = TopologyCloseX+TopologyCloseY;
+// TODO? allow mirrored closing
+
+cglMeshSamplesToTriangles(samples,Nx,Ny,topology):=(
+  regional(p00,p01,p10,p11);
+  // TODO? is handling closure by adding missing elements in loop more efficent
+  if(topology_1 == CglTopologyClose,//close X
+    samples = apply(samples,row,append(row,row_1));
+    Nx=Nx+1;
+  );
+  if(topology_2 == CglTopologyClose,//close Y
+    samples = append(samples,samples_1);
+    Ny=Ny+1;
+  );
+  flatten(apply(1..(Ny-1),ny,
+    apply(1..(Nx-1),nx,
+      p00 = samples_ny_nx;
+      p01 = samples_ny_(nx+1);
+      p10 = samples_(ny+1)_nx;
+      p11 = samples_(ny+1)_(nx+1);
+      [p00,p01,p10,p01,p10,p11];
+    );
+  ),levels->2);
+);
+cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
+  regional(n,vNormals,p00,p01,p10,p11,n1,n2);
+  if(normalType == NormalPerTriangle,
+    // TODO? pass triangles as input, to avoid recomputing triangulation
+    if(topology_1 == CglTopologyClose,//close X
+      samples = apply(samples,row,append(row,row_1));
+      Nx=Nx+1;
+    );
+    if(topology_2 == CglTopologyClose,//close Y
+      samples = append(samples,samples_1);
+      Ny=Ny+1;
+    );
+    flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        p00 = samples_ny_nx;
+        p01 = samples_ny_(nx+1);
+        p10 = samples_(ny+1)_nx;
+        p11 = samples_(ny+1)_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        [n1,n1,n1,n2,n2,n2];
+      );
+    ),levels->2);
+  ,if(normalType == NormalPerFace,
+    if(topology_1 == CglTopologyClose,//close X
+      samples = apply(samples,row,append(row,row_1));
+      Nx=Nx+1;
+    );
+    if(topology_2 == CglTopologyClose,//close Y
+      samples = append(samples,samples_1);
+      Ny=Ny+1;
+    );
+    flatten(apply(1..(Ny-1),ny,
+      apply(1..(Nx-1),nx,
+        p00 = samples_ny_nx;
+        p01 = samples_ny_(nx+1);
+        p10 = samples_(ny+1)_nx;
+        p11 = samples_(ny+1)_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        n = normalize(n1+n2);
+        [n,n,n,n,n,n];
+      );
+    ),levels->2);
+  ,
+    // vertex normals -> average face normal of faces containing edges
+    //  -> sum up face normals, normalize
+    // TODO? is there a better algorithm for guessing vertex normals
+    vNormals=apply(1..Ny,ny,apply(1..Nx,nx,[0,0,0]));
+    forall(1..(Ny-1),ny,
+      forall(1..(Nx-1),nx,
+        p00 = samples_ny_nx;
+        p01 = samples_ny_(nx+1);
+        p10 = samples_(ny+1)_nx;
+        p11 = samples_(ny+1)_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        vNormals_ny_nx = vNormals_ny_nx+n1;
+        vNormals_ny_(nx+1) = vNormals_ny_(nx+1)+n1+n2;
+        vNormals_(ny+1)_nx = vNormals_(ny+1)_nx+n1+n2;
+        vNormals_(ny+1)_(nx+1) = vNormals_(ny+1)_(nx+1)+n2;
+      );
+      if(topology_1==CglTopologyClose,//closeX
+        p00 = samples_ny_Nx;
+        p01 = samples_ny_1;
+        p10 = samples_(ny+1)_Nx;
+        p11 = samples_(ny+1)_1;
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        vNormals_ny_Nx = vNormals_ny_Nx+n1;
+        vNormals_ny_1 = vNormals_ny_1+n1+n2;
+        vNormals_(ny+1)_Nx = vNormals_(ny+1)_Nx+n1+n2;
+        vNormals_(ny+1)_1 = vNormals_(ny+1)_1+n2;
+      );
+    );
+    if(topology_2==CglTopologyClose,//closeY
+      forall(1..(Nx-1),nx,
+        p00 = samples_Ny_nx;
+        p01 = samples_Ny_(nx+1);
+        p10 = samples_1_nx;
+        p11 = samples_1_(nx+1);
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        vNormals_Ny_nx = vNormals_Ny_nx+n1;
+        vNormals_Ny_(nx+1) = vNormals_Ny_(nx+1)+n1+n2;
+        vNormals_1_nx = vNormals_1_nx+n1+n2;
+        vNormals_1_(nx+1) = vNormals_1_(nx+1)+n2;
+      );
+      if(topology_1==CglTopologyClose,//closeX
+        p00 = samples_Ny_Nx;
+        p01 = samples_Ny_1;
+        p10 = samples_1_Nx;
+        p11 = samples_1_1;
+        n1=normalize(cross(p01-p00,p10-p00));
+        n2=-normalize(cross(p01-p11,p10-p11));
+        vNormals_Ny_Nx = vNormals_Ny_Nx+n1;
+        vNormals_Ny_1 = vNormals_Ny_1+n1+n2;
+        vNormals_1_Nx = vNormals_1_Nx+n1+n2;
+        vNormals_1_1 = vNormals_1_1+n2;
+      );
+    );
+    forall(1..Ny,ny,
+      forall(1..Nx,nx,
+        vNormals_ny_nx = normalize(vNormals_ny_nx);
+      );
+    );
+    // assign normals to corresponding vertices
+    cglMeshSamplesToTriangles(vNormals,Nx,Ny,topology);
+  ));
+);
+
 /////////////////////
 // user-interface
 /////////////////////
@@ -904,7 +1051,6 @@ cglJoint(prev,current,next,jointType):=(
 );
 cglInterface("connect3d",cglConnect3d,(points),(color,size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
 cglConnect3d(points):=(
-  print(points);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1049,7 +1195,12 @@ cglPolygon3d(vertices):=(
     normalType = NormalPerVertex;
   );
   pixelExpr = cglLazy(pos,cglColor);
-  normalExpr = cglLazy(dir,cglNormal);
+  if(normalType == NormalPerVertex,
+    //interpolated vector may not be normalized
+    normalExpr = cglLazy(dir,normalize(cglNormal));
+  ,
+    normalExpr = cglLazy(dir,cglNormal);
+  );
   modifiers = {
     "pixelExpr":pixelExpr,  "light": light,
     "normalExpr":normalExpr
@@ -1080,9 +1231,43 @@ cglPolygon3d(vertices):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
-cglInterface("mesh3d",cglMesh3d,(grid),(color,thickness,alpha,light:(color,direction,normal),texture,uv,vertexNormals,faceNormals,normalExpr));
+// TODO? use different modifiers for vertex and face normals
+// TODO should grid be indexed as grid_x_y or grid_y_x
+cglInterface("mesh3d",cglMesh3d,(grid),(color,thickness,alpha,light:(color,direction,normal),texture,uv,normals,normalType,normalExpr,topology));
 cglMesh3d(grid):=(
-
+  color = cglValOrDefault(color,cglDefaultColorTriangle);
+  light = cglValOrDefault(light,cglDefaultLight);
+  topology = cglValOrDefault(topology,TopologyOpen);
+  topology = (mod(topology,CglTopologyYFactor),floor(topology/CglTopologyYFactor));
+  Ny = length(grid);
+  Nx = length(grid_1);
+  triangles = cglMeshSamplesToTriangles(grid,Nx,Ny,topology);
+  if(isundefined(normals),
+    normalType = cglValOrDefault(normalType,NormalPerTriangle);
+    normals = cglMeshGuessNormals(grid,Nx,Ny,normalType,topology);
+  ,
+    // TODO if normal-type is per face, copy normal to all vertices of face
+    normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology);
+    normalType = NormalPerVertex;
+  );
+  pixelExpr = cglLazy(pos,cglColor);
+  if(normalType == NormalPerVertex,
+    //interpolated vector may not be normalized
+    normalExpr = cglLazy(dir,normalize(cglNormal));
+  ,
+    normalExpr = cglLazy(dir,cglNormal);
+  );
+  modifiers = {
+    "pixelExpr":pixelExpr,  "light": light,
+    "normalExpr":normalExpr, "cglColor": color
+  };
+  // TODO allow attaching user-data to vertices
+  vModifiers = {
+    "cglNormal":normals
+  };
+  tags = [];
+  colorplot3d(cgl3dTriangleShaderCode(#),triangles,
+    plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
 // TODO? merge plot and cplot?

@@ -26,11 +26,13 @@
             zoom = 1.0;
 
             cglBegin3d();
-            //triangle3d([1,0,0],[0,1,0],[0,0,1],colors->[cglReg,cglGreen,cglBlue]);
-            N=12;
-            polygon3d(apply(0..(N-1),i,(sin(2*pi*(i/N)),cos(2*pi*(i/N)),0.1*sin(6*pi*((i-0.5)/N)))),
-                colors->apply(0..(N-1),i,hue(i/N)),triangulationMode->TriangulateSpiral/*,normalType->NormalPerVertex*/);
-
+            N=16;
+            mesh3d(
+                apply(0..(N-1),y,apply(0..(N-1),x,
+                    a=2*pi*x/N;b=2*pi*y/N;
+                    ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
+                ))
+            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY);
             updateZoom():=(
               if(zoom>1.5,zoom=1.5);
               if(zoom<0.25,zoom=0.25);
