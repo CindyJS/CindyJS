@@ -345,7 +345,7 @@ Renderer.prototype.updateAttributes = function() {
             let baseCoords = [0, 0, 1, 0, 0, 1];
             texCoords = []; // ! no let here, this is the function-level variable
             for(let i=0;i<this.vertices.length;i+=9){ // 3floats / vertex * 3 vertex / triangle
-                texCoords.push.apply(baseCoords);
+                texCoords.push.apply(texCoords,baseCoords);
             }
             texCoords = new Float32Array(texCoords);
             this.boundingBox.texCoords =texCoords;
