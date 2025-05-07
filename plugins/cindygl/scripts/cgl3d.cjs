@@ -1234,7 +1234,7 @@ cglPolygon3d(vertices):=(
 
 // TODO? use different modifiers for vertex and face normals
 // TODO should grid be indexed as grid_x_y or grid_y_x
-cglInterface("mesh3d",cglMesh3d,(grid),(color,thickness,alpha,light:(color,direction,normal),texture,uv,normals,normalType,normalExpr,topology));
+cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,thickness,alpha,light:(color,direction,normal),texture,uv,normals,normalType,normalExpr,topology));
 cglMesh3d(grid):=(
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
@@ -1260,12 +1260,17 @@ cglMesh3d(grid):=(
   );
   modifiers = {
     "pixelExpr":pixelExpr,  "light": light,
-    "normalExpr":normalExpr, "cglColor": color
+    "normalExpr":normalExpr
   };
   // TODO allow attaching user-data to vertices
-  vModifiers = {
-    "cglNormal":normals
-  };
+  vModifiers = {};
+  if(isundefined(colors),
+    modifiers_"cglColor"=color;
+  ,
+    vModifiers_"cglColor"=colors;
+  );
+  vModifiers=apply(vModifiers,samples,cglMeshSamplesToTriangles(samples,Nx,Ny,topology));
+  vModifiers_"cglNormal" = normals;
   tags = [];
   colorplot3d(cgl3dTriangleShaderCode(#),triangles,
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
@@ -1286,13 +1291,12 @@ cglPlot3d(f/*f(x,y)*/):=(
   x1 = cglValOrDefault(x1,-x0);
   y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
   y1 = cglValOrDefault(y1,-y0);
-  maxScale = max(max(abs(x0),abs(x1)),max(abs(y0),abs(y1)));
   samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
     a = ix/samplesX;b = iy/samplesY;
     x=x0*a+x1*(1-a);
     y=y0*b+y1*(1-b);
     // TODO? discard vertices outside a given range
-    (x,y,max(-maxScale,min(cglEval(f,x,y),maxScale)))
+    (x,y,cglEval(f,x,y))
   ));
   normalType = cglValOrDefault(normalType,NormalPerVertex);
   // TODO! guess normal-vectors depending on function/derivative
@@ -1312,18 +1316,20 @@ cglCPlot3d(f/*f(z)*/):=(
   x1 = cglValOrDefault(x1,-x0);
   y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
   y1 = cglValOrDefault(y1,-y0);
-  maxScale = max(max(abs(x0),abs(x1)),max(abs(y0),abs(y1)));
-  // TODO? add option to use phase as color
   samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
     a = ix/samplesX;b = iy/samplesY;
     x=x0*a+x1*(1-a);
     y=y0*b+y1*(1-b);
+    z = cglEval(f,x+i*y);
     // TODO? discard vertices outside a given range
-    (x,y,min(abs(cglEval(f,x+i*y)),10*maxScale))
+    ((x,y,abs(z)),arctan2(re(z),im(z)))
   ));
+  // TODO? modifier to determine if phase is used as color
+  colors = apply(samples,row,apply(row,posAndPhase,hue((posAndPhase_2+pi)/(2*pi))));
+  samples = apply(samples,row,apply(row,posAndPhase,posAndPhase_1));
   normalType = cglValOrDefault(normalType,NormalPerVertex);
   // TODO! guess normal-vectors depending on function/derivative
-  cglMesh3d(samples,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
+  cglMesh3d(samples,colors->colors,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
 );
 
 // TODO? plane3d
