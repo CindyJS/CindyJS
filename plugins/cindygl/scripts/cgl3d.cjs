@@ -102,6 +102,7 @@ cglDefaultSizeSphere = 0.5;
 cglDefaultSizeCylinder = 0.4;
 cglDefaultSizeTorus = 0.25;
 cglDefaultCurveSamples = 32;
+cglDefaultPlotSamples = 128;
 
 /////////////////////
 // spheres
@@ -1270,15 +1271,59 @@ cglMesh3d(grid):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
+// TODO? use surface-renderer instead of mesh to display plot
+// TODO? add ability to scale axes
 // TODO? merge plot and cplot?
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y)));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType));
 cglPlot3d(f/*f(x,y)*/):=(
-
+  color = cglValOrDefault(color,cglDefaultColorTriangle);
+  light = cglValOrDefault(light,cglDefaultLight);
+  samples = cglValOrDefault(samples,cglDefaultPlotSamples);
+  // subtract 1 from sample count to simplify mapping onto range [0,1]
+  samplesX = cglValOrDefault(samplesX,samples)-1;
+  samplesY = cglValOrDefault(samplesY,samples)-1;
+  x0 = cglValOrDefault(x0,cglValOrDefault(-x1,-1));
+  x1 = cglValOrDefault(x1,-x0);
+  y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
+  y1 = cglValOrDefault(y1,-y0);
+  maxScale = max(max(abs(x0),abs(x1)),max(abs(y0),abs(y1)));
+  samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
+    a = ix/samplesX;b = iy/samplesY;
+    x=x0*a+x1*(1-a);
+    y=y0*b+y1*(1-b);
+    // TODO? discard vertices outside a given range
+    (x,y,max(-maxScale,min(cglEval(f,x,y),maxScale)))
+  ));
+  normalType = cglValOrDefault(normalType,NormalPerVertex);
+  // TODO! guess normal-vectors depending on function/derivative
+  cglMesh3d(samples,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
 );
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z)));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z)));
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),normalType));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),normalType));
 cglCPlot3d(f/*f(z)*/):=(
-
+  color = cglValOrDefault(color,cglDefaultColorTriangle);
+  light = cglValOrDefault(light,cglDefaultLight);
+  samples = cglValOrDefault(samples,cglDefaultPlotSamples);
+  // subtract 1 from sample count to simplify mapping onto range [0,1]
+  samplesX = cglValOrDefault(samplesX,samples)-1;
+  samplesY = cglValOrDefault(samplesY,samples)-1;
+  // TODO? allow giving range through two points (p0,p1) / complex numbers (z0,z1)
+  x0 = cglValOrDefault(x0,cglValOrDefault(-x1,-1));
+  x1 = cglValOrDefault(x1,-x0);
+  y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
+  y1 = cglValOrDefault(y1,-y0);
+  maxScale = max(max(abs(x0),abs(x1)),max(abs(y0),abs(y1)));
+  // TODO? add option to use phase as color
+  samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
+    a = ix/samplesX;b = iy/samplesY;
+    x=x0*a+x1*(1-a);
+    y=y0*b+y1*(1-b);
+    // TODO? discard vertices outside a given range
+    (x,y,min(abs(cglEval(f,x+i*y)),10*maxScale))
+  ));
+  normalType = cglValOrDefault(normalType,NormalPerVertex);
+  // TODO! guess normal-vectors depending on function/derivative
+  cglMesh3d(samples,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
 );
 
 // TODO? plane3d

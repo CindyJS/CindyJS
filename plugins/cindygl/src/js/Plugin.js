@@ -1174,7 +1174,6 @@ let CindyGL = function(api) {
         }
         cglEvalCallCount++;// increase eval-call count to get distinct names for regional variables
         const expr = replaceVariables(val.expr,argValues);
-        console.log(val.expr,expr);
         return api.evaluate(expr);
     }
     /** @param {number} k  */
