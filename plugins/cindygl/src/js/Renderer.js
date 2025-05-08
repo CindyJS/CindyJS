@@ -198,6 +198,10 @@ Renderer.prototype.rebuild = function(forceRecompile) {
             this.boundingBox.vModifiers.forEach((value,name)=>{
                 // name given to this modifier by code-builder
                 let vname = this.modifierTypes.get(name).uniformName;
+                if(vname == undefined) {
+                    console.warn("unused vertex-modifier:",name);
+                    return;
+                }
                 value.aName = Renderer.vModifierPrefixV+index;
                 // TODO? create structs for composite types
                 attributeVars +=`in  ${webgltype(value.eltType)} ${value.aName};\nout ${webgltype(value.eltType)} ${vname};\n`;
@@ -400,7 +404,7 @@ Renderer.prototype.updateAttributes = function() {
     }
     if(this.boundingBox.type == BoundingBoxType.triangles) {
         this.boundingBox.vModifiers.forEach((value)=>{
-            if(value.aLoc < 0 || value.aSize <= 0)
+            if(value.aData === undefined || value.aLoc < 0 || value.aSize <= 0)
                 return; // no attribute / no data
             gl.bufferSubData(gl.ARRAY_BUFFER, value.aOffset, value.aData);
             gl.vertexAttribPointer(value.aLoc, value.aSize, value.aType, false, 0, value.aOffset);

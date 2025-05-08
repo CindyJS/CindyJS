@@ -3,6 +3,7 @@
 use("CindyGL");
 // normalize if non-zero, map (0,0,0) to inself
 normalize(v):=( // TODO? make built-in
+  regional(l);
   l = |v|;
   if(l>0,v/l,v);
 );
@@ -13,6 +14,7 @@ cglSetDepth(rawDepth):=(
   cglDepth = 1-(v/(rawDepth+v));
   cglRawDepth = rawDepth;
 );
+// TODO does this work correctly if n <= 0
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
 );
@@ -662,7 +664,7 @@ cgl3dTorusShaderCode(direction,layer):=(
 
 cgl3dTriangleShaderCode(direction):=(
   regional(color,normal);
-  cglRawDepth = cglSpacePos_3;
+  cglRawDepth = |cglViewPos-cglSpacePos|;
   color = cglEval(pixelExpr,direction);
   normal = cglEval(normalExpr,direction);
   cglEval(light,color,direction,normal);
@@ -1197,7 +1199,7 @@ cglPolygon3d(vertices):=(
   );
   pixelExpr = cglLazy(pos,cglColor);
   if(normalType == NormalPerVertex,
-    //interpolated vector may not be normalized
+    // interpolated vector may not be normalized
     normalExpr = cglLazy(dir,normalize(cglNormal));
   ,
     normalExpr = cglLazy(dir,cglNormal);
@@ -1253,7 +1255,7 @@ cglMesh3d(grid):=(
   );
   pixelExpr = cglLazy(pos,cglColor);
   if(normalType == NormalPerVertex,
-    //interpolated vector may not be normalized
+    // interpolated vector may not be normalized
     normalExpr = cglLazy(dir,normalize(cglNormal));
   ,
     normalExpr = cglLazy(dir,cglNormal);

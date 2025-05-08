@@ -7,15 +7,16 @@
    // TODO find better way to synchronize z-coords between surface and triangle renderers
    //   ? is distance from viewPosition constant?
    float v = length(cgl_viewPos);
-   float d = length(aPos-cgl_viewPos);
-   float z = 1. - v/(d+v);
+   cgl_viewDirection = aPos - cgl_viewPos;
+   // the way the projection is set op points w is negative iff the point is behind the view-plane
+   float d = length(cgl_viewDirection)*sign(screenPos.w);
+   float z = min(d/v,1. - v/(d+v));
    gl_Position = vec4(
       screenPos.xy/screenPos.w,
       // TODO is there a way to modify the clip planes in webgl
       2.*z-1.,// coordinate system is changed from range -1.. 1 to 0...1 between vertex and fragment shader
       1.
    );
-   cgl_viewDirection = aPos - cgl_viewPos;
    // 2D coordinates
    plain_pixel = aTexCoord;
    // TODO? transform texture coordinates
