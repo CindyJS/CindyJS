@@ -1194,9 +1194,16 @@ cglGuessDerivative(F) := ( // TODO avoid code duplication for repeated applicati
       (cglEval(F,p + [0, 0, eps]) - cglEval(F,p - [0, 0, eps]))
   ) / (2 * eps)),eps->.001)
 );
-// TODO what is a good default for the cut-off region?
-//  ? sphere with radius = zoom * min(|y1-y0|,|x1-x0|) centered at ((x1+x0)/2, (y1+y0)/2, z1)
-cglDefaultSurfaceCutoff = cglLazy(direction,cglSphereDepths(direction,(0,0,0),1));
+cglDefaultSurfaceCutoff = cglLazy(direction,
+  regional(viewRect,x0,y0,x1,y1);
+  viewRect = cglViewRect(); // [x0,y0,x1,y1]
+  x0 = viewRect_1;
+  y0 = viewRect_2;
+  x1 = viewRect_3;
+  y1 = viewRect_4;
+  // TODO support coordinate systems where view-plane is not at z = 0
+  cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-y0|,|y1-x0|)/2)
+);
 // TODO! create user-interface functions for surface cutoff
 // * CutoffSphere(center,radius)
 // * CutoffCylinder(point1,point2,radius)
@@ -1548,12 +1555,11 @@ cglMesh3d(grid):=(
 // TODO? quadric3d
 // TODO? cubic3d
 
-// TODO! surface rendering algorithm treats singularities as roots
 // TODO? make cutoff parameter a JSON-object containing cutoff and bounding box info
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,thickness,alpha,light:(color,direction,normal),
-  texture,uv,normals:(x,y,z),cutoffRegion:(direction),colorExpr:(x,y,z)),degree);
+  texture,uv,normals:(x,y,z),cutoffRegion:(direction),colorExpr:(x,y,z),degree));
 cglSurface3d(fun) := (
-    regional(N,nodes,F,dF,N,B,modifiers);
+    regional(N,nodes,F,dF,N,B,modifiers,viewRect);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,0.75);
@@ -1577,12 +1583,13 @@ cglSurface3d(fun) := (
     ));
     nodes = cglSurfaceChebyshevNodes(N);
     B = cglSurfaceInterpolationMatrix(N);
+    viewRect = cglViewRect();
     modifiers={
       "F":F,"dF":dF,
       "nodes": nodes,"B":B,
       "cglCutoffRegion":cutoffRegion,
       "light":light,"alpha":alpha,
-      "cglResolution": if(isundefined(zoom),1,1/zoom)
+      "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     }; // TODO? find better way to estimate screen size
     if(isundefined(colorExpr),
       modifiers_"pixelExpr" = cglLazy(pos,cglColor);
@@ -1600,14 +1607,13 @@ cglSurface3d(fun) := (
 
 // TODO? add ability to scale axes
 // TODO? merge plot and cplot?
-// TODO find good cutoff-region for plots
 // TODO add back x0,x1,y0,y1 parameters for easier bounding box
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType,cutoffRegion:(direction),colorExpr:(x,y,z)));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType,cutoffRegion:(direction),colorExpr:(x,y,z),degree));
 cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f)); // TODO are there more modifiers than need to be updated
 );
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z)));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z)));
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z),degree));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z),degree));
 cglCPlot3d(f/*f(z)*/):=(
   if(isundefined(colorExpr),
     colorExpr = cglLazy((x,y,ignoreZ),

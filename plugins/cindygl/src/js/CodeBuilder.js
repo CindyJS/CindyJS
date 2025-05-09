@@ -82,6 +82,7 @@ const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are
 const BUILTIN_TEXTURE4 = "cgltexture";
 const BUILTIN_TEXTURE3 = "cgltexturergb";
 const BUILTIN_EVAL_LAZY = "cgleval";
+const BUILTIN_VIEW_RECT = "cglviewrect";
 const BUILTIN_CGLDEPTH = "cglDepth";
 // TODO? add global constant cglNormal?
 /** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}>} */
@@ -93,7 +94,9 @@ CodeBuilder.builtIns=new Map([
     [BUILTIN_TEXTURE3,{type:"function",code:"",expr:"texture",valueType:type.vec3,args:[type.image,type.vec2],writable:false}],
     [BUILTIN_EVAL_LAZY,{type:"function",code:"",expr:"",valueType:undefined,args:undefined,writable:false}],
     // 3D- only
+    // TODO make cglViewPos a function for consitency with interpreted CindyScript code
     ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
+    [BUILTIN_VIEW_RECT,{type:"function",code:"",expr:"cgl_viewRect",args:[],valueType:type.vec4,writable:false}],
     ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
     [BUILTIN_CGLDEPTH,{type:"pixelAttribute",code:"",expr:"cgl_depth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
@@ -851,7 +854,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         } : {
             code: builtIn.code
         };
-    } else if(expr['isbuiltin'] && expr['ctype'] === 'function' && getPlainName(expr['oper']) == BUILTIN_DISCARD){
+    } else if(expr['isbuiltin'] && expr['ctype'] === 'function' && 
+            [BUILTIN_DISCARD, BUILTIN_VIEW_RECT].indexOf(getPlainName(expr['oper'])) != -1) {
+        // TODO? check number of arguments
         let fname = getPlainName(expr['oper']);
         let builtIn = CodeBuilder.builtIns.get(fname);
         return generateTerm ? {

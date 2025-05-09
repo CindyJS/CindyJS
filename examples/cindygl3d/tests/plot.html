@@ -27,9 +27,9 @@
             zoom = 1.0;
 
             cglBegin3d();
-            plot3d(sin((x^2+y^2)-(seconds()-t0)),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom));
+            plot3d(sin((x^2+y^2)-(seconds()-t0)));
 
-            //cplot3d((z^3-1)/(z^3+1),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom),degree->-1);
+            //cplot3d((z^3-1)/(z^3+1),degree->-1);
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.4,zoom=0.4);

@@ -785,6 +785,17 @@ let CindyGL = function(api) {
             value: viewPos.map(toCjsNumber)
         };
     });
+    api.defineFunction("cglViewRect", 0, (args, modifs) => {
+        let zoom = CindyGL.coordinateSystem.zoom;
+        let x0=CindyGL.coordinateSystem.x0*zoom;
+        let x1=CindyGL.coordinateSystem.x1*zoom;
+        let y0=CindyGL.coordinateSystem.y0*zoom;
+        let y1=CindyGL.coordinateSystem.y1*zoom;
+        return { // convert to CindyJS list
+            ctype: 'list',
+            value: [x0,y0,x1,y1].map(toCjsNumber)
+        };
+    });
     api.defineFunction("cglAxes", 0, (args, modifs) => {
         // TODO? initialize coordinate-system if not existent
         let unitPoints = [

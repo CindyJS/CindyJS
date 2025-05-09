@@ -459,6 +459,14 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
         let viewPos4=CindyGL.coordinateSystem.transformedViewPos;
         this.shaderProgram.uniform["cgl_viewPos"]([viewPos4[0]/viewPos4[3],viewPos4[1]/viewPos4[3],viewPos4[2]/viewPos4[3]]);
     }
+    if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewRect')){
+        let zoom = CindyGL.coordinateSystem.zoom;
+        let x0=CindyGL.coordinateSystem.x0*zoom;
+        let x1=CindyGL.coordinateSystem.x1*zoom;
+        let y0=CindyGL.coordinateSystem.y0*zoom;
+        let y1=CindyGL.coordinateSystem.y1*zoom;
+        this.shaderProgram.uniform["cgl_viewRect"]([x0,y0,x1,y1]);
+    }
 }
 Renderer.prototype.setBoundingBoxUniforms = function() {
     // TODO? check first box-type then uniform existence
