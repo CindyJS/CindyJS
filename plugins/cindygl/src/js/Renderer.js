@@ -597,6 +597,7 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
         let uniformName=modifierType.uniformName;
         if (this.shaderProgram.uniform.hasOwnProperty(uniformName)){
             let value = plotModifiers.get(modifierName);
+            if(value === undefined) return; // modifier does not exist
             let uniformSetter = this.shaderProgram.uniform[uniformName];
             if(!value.uniformValue || value.modifierTypes!==this.modifierTypes){ // uniform value not up to date
                 value.uniformValue = Renderer.computeUniformValue(uniformSetter,modifierType.type,value);

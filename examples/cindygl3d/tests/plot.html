@@ -23,14 +23,16 @@
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
+            t0 = seconds();
             zoom = 1.0;
 
             cglBegin3d();
-            //plot3d(sin(x^2+y^2),x0->-pi,y1->pi);
-            cplot3d(z/(z^2+1),x0->-4,y1->4);
+            plot3d(sin((x^2+y^2)-(seconds()-t0)),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom));
+
+            //cplot3d((z^3-1)/(z^3+1),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom),degree->-1);
             updateZoom():=(
-              if(zoom>1.5,zoom=1.5);
-              if(zoom<0.25,zoom=0.25);
+              if(zoom>2.5,zoom=2.5);
+              if(zoom<0.4,zoom=0.4);
               zoom3d(zoom);
             );
         </script>

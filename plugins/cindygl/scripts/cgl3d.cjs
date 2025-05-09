@@ -100,6 +100,7 @@ cglDefaultColorSphere = cglReg;
 cglDefaultColorCylinder = cglBlack;
 cglDefaultColorTorus = cglBlue;
 cglDefaultColorTriangle = cglGreen;
+cglDefaultColorSurface = cglCyan;
 cglDefaultSizeSphere = 0.5;
 cglDefaultSizeCylinder = 0.4;
 cglDefaultSizeTorus = 0.25;
@@ -996,7 +997,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
 cglSurfaceUpdateColor(direction, dst, color) := ( 
   cglSetDepth(dst);
   regional(x, normal);
-  color = (1 - alpha) * color + alpha * cglColor;
+  color = (1 - alpha) * color + alpha * cglEval(pixelExpr,cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
   normal = cglEval(dF,x);
   normal = normal / abs(normal);
@@ -1055,8 +1056,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
       b = u - (u-l)*((id+0)/s-1);
       // how many sign changes has F(ray(direction, ·)) in (a,b)?
       cnt = cglSurfaceNsign(direction, a, b);
-      // TODO replace use of zoom with current render area size
-      if(cnt == 1 % (b-a)<.01/zoom, // in this case we found a root (or it is likely to have a multiple root)
+      if(cnt == 1 % (b-a)<.01*cglResolution, // in this case we found a root (or it is likely to have a multiple root)
         //=>colorize and break DFS
         color = cglSurfaceUpdateColor(direction, cglSurfaceBisectf(direction, a, b), color);
         hasRoot = true;
@@ -1090,8 +1090,7 @@ cglSurfaceKthRoot(direction,l,u,K):=(
       b = l - (l-u)*((id+1)/s-1);
       // how many sign changes has F(ray(direction, ·)) in (a,b)?
       cnt = cglSurfaceNsign(direction, a, b);
-      // TODO replace use of zoom with current render area size
-      if(cnt == 1 % (b-a)<.01/zoom, // in this case we found a root (or it is likely to have a multiple root)
+      if(cnt == 1 % (b-a)<.01*cglResolution, // in this case we found a root (or it is likely to have a multiple root)
         //=>colorize and break DFS
         rootDepth = cglSurfaceBisectf(direction, a, b);
         rootCount = rootCount + 1;
@@ -1168,7 +1167,7 @@ cglSurfaceInterpolationMatrix(N):=(
   );
   val
 );
-// TODO? does this work correctly for rational functions ( e.g.  x^3+1 / x  ~  x^2 )
+// FIXME guessing degree this way can lead to wrong results for some rational functions  ( e.g.  (z^3-1)/(z*(z^2+1))  -> 1  )
 // guess the degree of the trivariate polynomial F. This approximation is reliable up to degree ~20.
 cglGuessdegHelper(F, s, x) := log(|cglEval(F,s*x)|)/log(s*|x|); // is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
 cglGuessdeg(F) := max(apply(1 .. 2, // take the best result of 2
@@ -1545,87 +1544,37 @@ cglMesh3d(grid):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
-// TODO? use surface-renderer instead of mesh to display plot
-// TODO? add ability to scale axes
-// TODO? merge plot and cplot?
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType));
-cglPlot3d(f/*f(x,y)*/):=(
-  color = cglValOrDefault(color,cglDefaultColorTriangle);
-  light = cglValOrDefault(light,cglDefaultLight);
-  samples = cglValOrDefault(samples,cglDefaultPlotSamples);
-  // subtract 1 from sample count to simplify mapping onto range [0,1]
-  samplesX = cglValOrDefault(samplesX,samples)-1;
-  samplesY = cglValOrDefault(samplesY,samples)-1;
-  x0 = cglValOrDefault(x0,cglValOrDefault(-x1,-1));
-  x1 = cglValOrDefault(x1,-x0);
-  y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
-  y1 = cglValOrDefault(y1,-y0);
-  samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
-    a = ix/samplesX;b = iy/samplesY;
-    x=x0*a+x1*(1-a);
-    y=y0*b+y1*(1-b);
-    // TODO? discard vertices outside a given range
-    (x,y,cglEval(f,x,y))
-  ));
-  normalType = cglValOrDefault(normalType,NormalPerVertex);
-  // TODO! guess normal-vectors depending on function/derivative
-  cglMesh3d(samples,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
-);
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),normalType));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,samples,samplesX,samplesY,x0,x1,y0,y1,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),normalType));
-cglCPlot3d(f/*f(z)*/):=(
-  color = cglValOrDefault(color,cglDefaultColorTriangle);
-  light = cglValOrDefault(light,cglDefaultLight);
-  samples = cglValOrDefault(samples,cglDefaultPlotSamples);
-  // subtract 1 from sample count to simplify mapping onto range [0,1]
-  samplesX = cglValOrDefault(samplesX,samples)-1;
-  samplesY = cglValOrDefault(samplesY,samples)-1;
-  // TODO? allow giving range through two points (p0,p1) / complex numbers (z0,z1)
-  x0 = cglValOrDefault(x0,cglValOrDefault(-x1,-1));
-  x1 = cglValOrDefault(x1,-x0);
-  y0 = cglValOrDefault(y0,cglValOrDefault(-y1,-1));
-  y1 = cglValOrDefault(y1,-y0);
-  samples=apply(0..samplesX,ix,apply(0..samplesX,iy,
-    a = ix/samplesX;b = iy/samplesY;
-    x=x0*a+x1*(1-a);
-    y=y0*b+y1*(1-b);
-    z = cglEval(f,x+i*y);
-    // TODO? discard vertices outside a given range
-    ((x,y,abs(z)),arctan2(re(z),im(z)))
-  ));
-  // TODO? modifier to determine if phase is used as color
-  colors = apply(samples,row,apply(row,posAndPhase,hue((posAndPhase_2+pi)/(2*pi))));
-  samples = apply(samples,row,apply(row,posAndPhase,posAndPhase_1));
-  normalType = cglValOrDefault(normalType,NormalPerVertex);
-  // TODO! guess normal-vectors depending on function/derivative
-  cglMesh3d(samples,colors->colors,topology->CglTopologyOpen); // TODO are there more modifiers than need to be updated
-);
-
 // TODO? plane3d
 // TODO? quadric3d
 // TODO? cubic3d
 
+// TODO! surface rendering algorithm treats singularities as roots
 // TODO? make cutoff parameter a JSON-object containing cutoff and bounding box info
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,thickness,alpha,light:(color,direction,normal),
-  texture,uv,normals:(x,y,z),cutoffRegion:(direction)));
+  texture,uv,normals:(x,y,z),cutoffRegion:(direction),colorExpr:(x,y,z)),degree);
 cglSurface3d(fun) := (
-    regional(N,nodes,A,B);
-    color = cglValOrDefault(color,cglDefaultColorTriangle);
+    regional(N,nodes,F,dF,N,B,modifiers);
+    color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,0.75);
     cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
     // convert function to form taking vector insteads of 3 arguments
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
     dF = if(isundefined(normals),cglGuessDerivative(F),normals);
-    N = cglGuessdeg(F);
-    // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)
-    // Nethertheless, it might cause render errors for high degree surfaces. In fact, only a subset of the surface is rendered.
-    // Adapt limit according to hardware.
-    if(N>cglMaxDeg, // TODO? allow using higher degree if degree explicitly given
-      print("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
+    if(isundefined(degree),
+      N = cglGuessdeg(F);
+      // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)
+      // Nethertheless, it might cause render errors for high degree surfaces. In fact, only a subset of the surface is rendered.
+      // Adapt limit according to hardware.
+      if(N>cglMaxDeg,
+        print("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
+        N = cglMaxDeg;
+      );
+    ,if(degree<0,
       N = cglMaxDeg;
-    );
-    // TODO good names
+    , // TODO? limit degree to reasonable values
+      N = max(degree,1);
+    ));
     nodes = cglSurfaceChebyshevNodes(N);
     B = cglSurfaceInterpolationMatrix(N);
     modifiers={
@@ -1633,13 +1582,39 @@ cglSurface3d(fun) := (
       "nodes": nodes,"B":B,
       "cglCutoffRegion":cutoffRegion,
       "light":light,"alpha":alpha,
-      "cglColor":(0,1,0),
-      "zoom": if(isundefined(zoom),1,zoom)
-    }; // TODO? is it neccessary to pass zoom-level as a modifier
+      "cglResolution": if(isundefined(zoom),1,1/zoom)
+    }; // TODO? find better way to estimate screen size
+    if(isundefined(colorExpr),
+      modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+      modifiers_"cglColor" = color;
+    ,
+      modifiers_"pixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
+    );
+    // TODO determine render bounding box depending on cutoff-region
     // TODO parameter for chooseing transparency mode, ? maximum layers
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->1,plotModifiers->modifiers)
     colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
-    // TODO guess render bounding box depending on cutoff-region
+);
+
+// TODO? add ability to scale axes
+// TODO? merge plot and cplot?
+// TODO find good cutoff-region for plots
+// TODO add back x0,x1,y0,y1 parameters for easier bounding box
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType,cutoffRegion:(direction),colorExpr:(x,y,z)));
+cglPlot3d(f/*f(x,y)*/):=(
+  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f)); // TODO are there more modifiers than need to be updated
+);
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z)));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),colorExpr:(x,y,z)));
+cglCPlot3d(f/*f(z)*/):=(
+  if(isundefined(colorExpr),
+    colorExpr = cglLazy((x,y,ignoreZ),
+      regional(z);
+      z=cglEval(f,x+i*y);
+      hue((arctan2(re(z),im(z))+pi)/(2*pi))
+    ,f->f);
+  );
+  cglSurface3d(cglLazy((x,y,z),abs(cglEval(f,x+i*y))-z,f->f)); // TODO are there more modifiers than need to be updated
 );

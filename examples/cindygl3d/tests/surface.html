@@ -24,18 +24,14 @@
             sy = mouse().y;
             dragging = false;
             zoom = 1.0;
-            t0 = seconds();
 
-            fun(x,y,z) := sin((x^2+y^2)-(seconds()-t0))-z;
             cglBegin3d();
-            surface3d(fun(x,y,z),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom));
+            surface3d(cos(x)*sin(y) + cos(y)*sin(z) + cos(z)*sin(x)+1.5*sin((2*pi/64)*mod(seconds(),64)),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom));
 
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.25,zoom=0.25);
               zoom3d(zoom);
-              cglReset3d();
-              surface3d(fun(x,y,z),cutoffRegion->cglSphereDepths(direction,(0,0,0),3*zoom));
             );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
