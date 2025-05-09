@@ -1234,6 +1234,26 @@ let CindyGL = function(api) {
             }
         ));
     }
+    function wrapLazy(expr,params) {
+        // TODO? is there a way to not print error messages when this evaluation fails
+        let value = api.evaluate(expr);
+        if(value['ctype'] === 'cglLazy') {
+            // TODO? warning if parameter names do not match
+            if(value.params.length === params.length) {
+                return value;
+            }
+            console.error("lazy expression has wrong number of arguments: "+
+                `got: ${value.params.length} expected: ${params.length} (${params.map(p=>p['name']).join(",")})`
+            );
+            // TODO? add dummy parameter is given lazy does not have enough paramters
+        }
+        return {
+            ctype: "cglLazy",
+            params: params,
+            expr: cloneExpression(expr),
+            modifs: []
+        };
+    }
     /* cglInterface(<name>,<implName>,<args>,<modifs>)
          function wrapper to simplify user interaction with Cindygl3d implementation in CindyScript
     */
@@ -1252,14 +1272,7 @@ let CindyGL = function(api) {
             // convert function-arguments (marked with parameter-list as user-data) to cglLazy
             for(let i=0;i<fn_args.length;i++) {
                 if (fn_args[i].args != null) {
-                    // TODO? allow directly passing lazy function to argument
-                    // TODO? create function for building cglLazy
-                    callArgs[i] = {
-                        ctype: "cglLazy",
-                        params: fn_args[i].args,
-                        expr: cloneExpression(args[i]),
-                        modifs: new Map()
-                    }
+                    callArgs[i] = wrapLazy(args[i],fn_args[i].args);
                     createCglEval(fn_args[i].args.length);
                 } else {
                     callArgs[i] = args[i];
@@ -1274,13 +1287,7 @@ let CindyGL = function(api) {
                     callMods[modName]=nada;
                 } else if (fn_modifs[i].args != null) {
                     // convert function-arguments (marked with parameter-list as user-data) to cglLazy
-                    // TODO? create function for building cglLazy
-                    callMods[modName]={
-                        ctype: "cglLazy",
-                        params: fn_modifs[i].args,
-                        expr: cloneExpression(mod),
-                        modifs: new Map()
-                    };
+                    callMods[modName]=wrapLazy(mod,fn_modifs[i].args);
                     createCglEval(fn_modifs[i].args.length);
                 } else {
                     callMods[modName]=mod;

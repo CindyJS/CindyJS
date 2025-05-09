@@ -940,6 +940,273 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
 );
 
 /////////////////////
+// algebraric surfaces
+/////////////////////
+
+// ray(direction, t) is the point in R^3 that lies at position t on the ray in direction direction
+cglRay(direction, t) := (t * direction + cglViewPos);
+
+// casteljau algorithm to evaluate and subdivide polynomials in Bernstein form.
+// poly is a vector containing the coefficients, i.e. p(x) = sum(0..N, i, poly_(i+1) * b_(i,N)(x)) where b_(i,N)(x) = choose(N, i)*x^i*(1-x)^(N-1)
+cglEvalCasteljau(poly, x) := (
+  regional(alpha, beta,N);
+  N = length(poly)-1;
+  alpha = 1-x;
+  beta = x;
+  forall(0..N, k,
+    repeat(N-k,
+      poly_# = alpha*poly_# + beta*poly_(#+1);
+    );
+  );
+  poly_1 // poly contains the bernstein-coefficients of the polynomial in the interval [x,1]
+);
+
+cglSurfaceNsign(direction, a, b) := ( // Descartes rule of sign for the interval (a,b)
+  // obtain the coefficients in bernstein basis of F along the ray in interval (a,b) by interpolation within this interval
+  poly = B * apply(nodes,
+    cglEval(F,cglRay(direction, a+#*(b-a))) //evaluate F(ray(direction, ·)) along Chebyshev nodes for (a,b)
+  );
+  // count the number of sign changes
+  ans = 0;
+  // last = poly_1;
+  forall(2..length(poly), k,
+    // if(last == 0, last = poly_k;); this (almost) never happens
+    if(min(poly_(k-1), poly_k) <= 0 & 0 <= max(poly_(k-1), poly_k), // sign switch; avoid products due numerics
+      ans = ans + 1;
+    );
+  );
+  ans // return value
+);
+// bisect F(ray(direction, ·)) in [x0, x1] assuming that F(ray(direction, x0)) and F(ray(direction, x1)) have opposite signs
+cglSurfaceBisectf(direction, x0, x1) := (
+    regional(v0, v1, m, vm);
+    v0 = cglEval(F,cglRay(direction, x0));
+    v1 = cglEval(F,cglRay(direction, x1));
+    repeat(11, // TODO why 11, would a larger number be more precise?
+        m = (x0 + x1) / 2; vm = cglEval(F,cglRay(direction, m));
+        if (min(v0,vm) <= 0 & 0 <= max(v0, vm), // sgn(v0)!=sgn(vm); avoid products due numerics
+            (x1 = m; v1 = vm;),
+            (x0 = m; v0 = vm;)
+        );
+    );
+    m // return value
+);
+// update the color color for the pixel at in direction direction assuming that the surface has been intersected at ray(direction, dst)
+// because of the alpha-transparency updatecolor should be called for the intersections with large dst first
+cglSurfaceUpdateColor(direction, dst, color) := ( 
+  cglSetDepth(dst);
+  regional(x, normal);
+  color = (1 - alpha) * color + alpha * cglColor;
+  x = cglRay(direction, dst); // the intersection point in R^3
+  normal = cglEval(dF,x);
+  normal = normal / abs(normal);
+  cglEval(light,color,direction,normal);
+);
+
+// id encodes a node in a binary tree using heap-indices
+// 1 is root node and node v has children 2*v and 2*v+1
+// computes s=2^depth of a node id: Compute floor(log_2(id));
+// purpose: id corresponds interval [id-s,id+1-s]/s
+cglSurfaceRootItrGetS(id) := (
+  s = 1;
+  repeat(10,
+    if(2*s<=id,
+      s = 2*s;
+    )
+  );
+  s // return value
+);
+// determines the next node in the binary tree that would be visited by a regular in DFS
+// if the children of id are not supposed to be visited
+// In interval logic: finds the biggest unvisited interval directly right of the interval of id.
+cglSurfaceRootItrNext(id) := (
+  id = id+1;
+  // now: remove zeros from right (in binary representation) while(id&1) id=id>>1;
+  repeat(10,
+    if(mod(id,2)==0,
+      id = floor(id/2);
+    )
+  );
+  if(id==1, 0, id) // return value - id 0 means we stop our DFS
+);
+// iterate roots from back to front, merge colors for roots
+cglSurfaceIterateRoots(direction,l,u):=(
+  regional(a,b,color);
+  a = l;
+  b = u;
+  color = (0,0,0);
+  // traverse binary tree (DFS) using heap-indices
+  //1 is root node and node v has children 2*v and 2*v+1
+  id = 1;
+  hasRoot = false;
+  // maximum number of steps
+  repeat((length(nodes)-1)*6,
+    // id=0 means we are done; do only a DFS-step if we are not finished yet
+    if(id>0,
+      s = cglSurfaceRootItrGetS(id); // s = floor(log_2(id))
+
+      // the intervals [a,b] are chossen such that (id in binary notation)
+      // id = 1   => [a,b]=[l,u]
+      // id = 10  => [a,b]=[l,(u+l)/2]
+      // id = 101 => [a,b]=[l,(u+3*l)/4]
+      // id = 11  => [a,b]=[(u+l)/2,u]
+      //...
+      a = u - (u-l)*((id+1)/s-1);
+      b = u - (u-l)*((id+0)/s-1);
+      // how many sign changes has F(ray(direction, ·)) in (a,b)?
+      cnt = cglSurfaceNsign(direction, a, b);
+      // TODO replace use of zoom with current render area size
+      if(cnt == 1 % (b-a)<.01/zoom, // in this case we found a root (or it is likely to have a multiple root)
+        //=>colorize and break DFS
+        color = cglSurfaceUpdateColor(direction, cglSurfaceBisectf(direction, a, b), color);
+        hasRoot = true;
+        id = cglSurfaceRootItrNext(id)
+      ,if(cnt == 0, // there is no root
+        id = cglSurfaceRootItrNext(id) // break DFS
+      ,
+        // otherwise cnt>=2: there are cnt - 2*k roots.
+        id = 2*id;  // visit first child within DFS
+      ));
+    )
+  );
+  if(!hasRoot,cglDiscard());
+  [color_1,color_2,color_3,alpha] // return value
+);
+// find the k-th root of surface (needed for rendering individual roots)
+cglSurfaceKthRoot(direction,l,u,K):=(
+  regional(a,b,color,rootCount,rootDepth);
+  a = l;
+  b = u;
+  // iterate roots from front to back until k-th root is found, discard pixel if there are less than k roots
+  rootDepth = -1;
+  id = 1;
+  rootCount = 0;
+  // maximum number of steps
+  repeat((length(nodes)-1)*6,
+    // id=0 means we are done; do only a DFS-step if we are not finished yet
+    if(id>0 & rootCount < K,
+      s = cglSurfaceRootItrGetS(id); // s = floor(log_2(id))
+      a = l - (l-u)*((id+0)/s-1);
+      b = l - (l-u)*((id+1)/s-1);
+      // how many sign changes has F(ray(direction, ·)) in (a,b)?
+      cnt = cglSurfaceNsign(direction, a, b);
+      // TODO replace use of zoom with current render area size
+      if(cnt == 1 % (b-a)<.01/zoom, // in this case we found a root (or it is likely to have a multiple root)
+        //=>colorize and break DFS
+        rootDepth = cglSurfaceBisectf(direction, a, b);
+        rootCount = rootCount + 1;
+        id = cglSurfaceRootItrNext(id);
+      ,if(cnt == 0, // there is no root
+        id = cglSurfaceRootItrNext(id) // break DFS
+      ,
+        // otherwise cnt>=2: there are cnt - 2*k roots.
+        id = 2*id;  // visit first child within DFS
+      ));
+    )
+  );
+  if(rootCount < K,cglDiscard());
+  color = cglSurfaceUpdateColor(direction,rootDepth, (0,0,0));
+  [color_1,color_2,color_3,alpha] // return value
+);
+// what color should be given to pixel in  direction direction (vec3)
+cgl3dSurfaceShaderCode(direction) := (
+  regional(depths,u,l);
+    // discard points outside bounding sphere
+    depths = cglEval(cglCutoffRegion,direction);
+    l = depths_1;
+    u = depths_2;
+  cglSurfaceIterateRoots(direction,l,u);
+);
+// what color should be given to pixel in  direction direction (vec3)
+cgl3dSurfaceLayerShaderCode(direction) := (
+  regional(depths,u,l);
+    // discard points outside bounding sphere
+    depths = cglEval(cglCutoffRegion,direction);
+    l = depths_1;
+    u = depths_2;
+  cglSurfaceKthRoot(direction,l,u,K);
+);
+
+// maximum degree for interpolating surfaces
+// values of kind 4*n-1 are good values, as it means to use vectors of length 4*n.
+cglMaxDeg = 15;
+// cache for interpolation parameters to avoid repreated recomputation
+cglSurfaceRenderStateCache = {
+  "interpMap":{},
+  "chebNodes":{}
+};
+// TODO? is computing elements of Chebyshev-nodes/interpolation-matrix on demand faster than storing as uniform
+// N+1 Chebyshev nodes for interval (0, 1)
+cglSurfaceChebyshevNodes(N):=(
+  regional(cache,val);
+  cache=cglSurfaceRenderStateCache_"chebNodes";
+  val = cache_N;
+  if(isundefined(val),
+    val = apply(1..(N+1), k, (cos((2 * k - 1) / (2 * (N+1)) * pi)+1)/2);
+    cache_N=val;
+    cglSurfaceRenderStateCache_"chebNodes" = cache;
+  );
+  val
+);
+// matrix for interpolating polynomials (in Bernstein basis), given the values [p(li_1), p(li_2), ...]
+cglSurfaceInterpolationMatrix(N):=(
+  regional(cache,val,A);
+  cache=cglSurfaceRenderStateCache_"interpMap";
+  val = cache_N;
+  if(isundefined(val),
+    // A is the matrix of the linear map that evaluates a polynomial in bernstein-form at the Chebyshev nodes
+    A = apply(cglSurfaceChebyshevNodes(N), node,
+      // the i-th column contains the values of the (i,N) bernstein polynomial evaluated at the Chebyshev nodes
+      apply(0..N, i, cglEvalCasteljau(
+        apply(0..N, if(#==i,1,0)), // e_i = [0,0,0,1,0,0]
+        node // evaluate  b_(i,N)(node)
+      ))
+    );
+    val = inverse(A);
+    cache_N=val;
+    cglSurfaceRenderStateCache_"interpMap" = cache;
+  );
+  val
+);
+// TODO? does this work correctly for rational functions ( e.g.  x^3+1 / x  ~  x^2 )
+// guess the degree of the trivariate polynomial F. This approximation is reliable up to degree ~20.
+cglGuessdegHelper(F, s, x) := log(|cglEval(F,s*x)|)/log(s*|x|); // is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
+cglGuessdeg(F) := max(apply(1 .. 2, // take the best result of 2
+  x = [random(), random(), random()];
+  s = 1;
+  l = 1;
+  best = 1;
+  it = 0;
+  while(l<100 & s < 1e50 & it<100, // throw away Infinity
+    best = round(l);
+    it = it+1;
+    s = 2*s;
+    l = 2*cglGuessdegHelper(F,s*s, x)-cglGuessdegHelper(F,s,x); // remove error caused by log(leadingcoeff)
+  );
+  if(it==100, best = 1000000);
+  best
+));
+
+// use central difference to approximate dF
+cglGuessDerivative(F) := ( // TODO avoid code duplication for repeated application of cglEval
+  cglLazy(p,((
+      (cglEval(F,p + [eps, 0, 0]) - cglEval(F,p - [eps, 0, 0])),
+      (cglEval(F,p + [0, eps, 0]) - cglEval(F,p - [0, eps, 0])),
+      (cglEval(F,p + [0, 0, eps]) - cglEval(F,p - [0, 0, eps]))
+  ) / (2 * eps)),eps->.001)
+);
+// TODO what is a good default for the cut-off region?
+//  ? sphere with radius = zoom * min(|y1-y0|,|x1-x0|) centered at ((x1+x0)/2, (y1+y0)/2, z1)
+cglDefaultSurfaceCutoff = cglLazy(direction,cglSphereDepths(direction,(0,0,0),1));
+// TODO! create user-interface functions for surface cutoff
+// * CutoffSphere(center,radius)
+// * CutoffCylinder(point1,point2,radius)
+// * CutoffCube(center,sidelength)
+// * CutoffCube(center,sidelength,up,front)
+// * CutoffCuboid(center,v1,v2,v3)
+// * CutoffCustom(expr:(direction),boundingBox->...)
+
+/////////////////////
 // user-interface
 /////////////////////
 
@@ -1338,7 +1605,41 @@ cglCPlot3d(f/*f(z)*/):=(
 // TODO? quadric3d
 // TODO? cubic3d
 
-cglInterface("surface3d",cglSurface3d,(expr:(x)),(color,thickness,alpha,light:(color,direction,normal),texture,uv,normals:(x,y,z)));
-cglSurface3d(expr):=(
-
+// TODO? make cutoff parameter a JSON-object containing cutoff and bounding box info
+cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,thickness,alpha,light:(color,direction,normal),
+  texture,uv,normals:(x,y,z),cutoffRegion:(direction)));
+cglSurface3d(fun) := (
+    regional(N,nodes,A,B);
+    color = cglValOrDefault(color,cglDefaultColorTriangle);
+    light = cglValOrDefault(light,cglDefaultLight);
+    alpha = cglValOrDefault(alpha,0.75);
+    cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
+    // convert function to form taking vector insteads of 3 arguments
+    F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
+    dF = if(isundefined(normals),cglGuessDerivative(F),normals);
+    N = cglGuessdeg(F);
+    // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)
+    // Nethertheless, it might cause render errors for high degree surfaces. In fact, only a subset of the surface is rendered.
+    // Adapt limit according to hardware.
+    if(N>cglMaxDeg, // TODO? allow using higher degree if degree explicitly given
+      print("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
+      N = cglMaxDeg;
+    );
+    // TODO good names
+    nodes = cglSurfaceChebyshevNodes(N);
+    B = cglSurfaceInterpolationMatrix(N);
+    modifiers={
+      "F":F,"dF":dF,
+      "nodes": nodes,"B":B,
+      "cglCutoffRegion":cutoffRegion,
+      "light":light,"alpha":alpha,
+      "cglColor":(0,1,0),
+      "zoom": if(isundefined(zoom),1,zoom)
+    }; // TODO? is it neccessary to pass zoom-level as a modifier
+    // TODO parameter for chooseing transparency mode, ? maximum layers
+    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
+    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
+    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->1,plotModifiers->modifiers)
+    colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
+    // TODO guess render bounding box depending on cutoff-region
 );
