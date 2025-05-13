@@ -338,7 +338,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 myfunctions[scope].variables.push(iname);
                 self.initvariable(iname, false);
                 variables[iname].assigments.push(value);
-                if(value['ctype'] === 'cglLazy') {
+                if(value['ctype'] === 'image' || value['ctype'] === 'string' || value['ctype'] === 'cglLazy') {
                     variables[iname].T = guessTypeOfValue(value);
                 } else {
                     variables[iname].T = constant(value);
@@ -873,7 +873,18 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         });
         // assign values to modifiers
         expr.modifs.forEach(([key,value,bindings])=>{
-            if(value['ctype']==='cglLazy') return; // skip lazy values
+            if(value['ctype']==='cglLazy')
+                return; // skip textures and lazy values
+            if(value['ctype']==='string' || value['ctype']==='image') {
+                // TODO? seperate map for image uniforms
+                // create fake uniform variable to make image information accessible to TextureReader
+                this.uniforms[bindings[key] || key] = {
+                    expr: value,
+                    type: type.image,
+                    forceconstant: false
+                };
+                return;
+            }
             code+=this.compile(opAssign({ctype:'variable',name:key,bindings:bindings},value),false).code;
         });
         // evaluate "lazy" expression
@@ -1304,8 +1315,8 @@ CodeBuilder.prototype.compileFunction = function(fname, nargs) {
     for (let i in m.variables) {
         let iname = m.variables[i];
         const varType = this.variables[iname].T;
-        if(varType == type.voidt || varType.type == 'cglLazy')
-            continue;// skip void and lazy variables
+        if(varType === type.voidt  || varType === type.image || varType.type === 'cglLazy')
+            continue;// skip void, image and lazy variables
         code += `${webgltype(varType)} ${iname};\n`;
     }
     let r = self.compile(m.body, !isvoid);

@@ -1247,15 +1247,16 @@ cglSphere3d(center,radius):=(
   light = cglValOrDefault(light,cglDefaultLight);
   projection = cglValOrDefault(projection,cglDefaultSphereProjection);
   needBackFace = if(isundefined(alpha),length(color)==4,true);
-  modifiers = {pixelExpr,"light": light,"projection":projection};
-  // TODO how to detect which draw type (color / texture / function is used)
+  modifiers = {"light": light,"projection":projection};
   // TODO? warning if multiple options are given, pick in order: colorExpr, texture, (colors,) color
-  if(isundefined(colorExpr),
+  if(!isundefined(colorExpr),
+    modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture), // TODO choose right version of texture renderer (rgb vs rgba)
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+  ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor" = color;
-  ,
-    modifiers_"pixelExpr" = colorExpr;
-  );
+  ));
   tags = []; // TODO allow passing tags as modifier
   if(needBackFace,
     ids = [colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
@@ -1294,6 +1295,8 @@ cglCylinder3d(point1,point2,radius):=(
     "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2"};
   if(!isundefined(colorExpr),
     modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture),
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,if(color1!=color2,
     modifiers_"pixelExpr" = cglLazy(pos,(1-pos_2)*cglColor1 + pos_2*cglColor2);
     modifiers_"cglColor1"=color1;
@@ -1301,7 +1304,7 @@ cglCylinder3d(point1,point2,radius):=(
   ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor"=color;
-  ));
+  )));
   if(!isundefined(cap1_"cutDirection"),
      modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
     modifiers_"cglGetCutVector1" = cglGetCutVector1;
@@ -1403,12 +1406,14 @@ cglTorus3d(center,orientation,radius1,radius2):=(
     "light": light,
     "radii": [radius1,radius2]
   };
-  if(isundefined(colorExpr),
+  if(!isundefined(colorExpr),
+    modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture),
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+  ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor" = color;
-  ,
-    modifiers_"pixelExpr" = colorExpr;
-  );
+  ));
   tags = [];
   // TODO handle arcs (discard pixels depending on angle)
   if(needBackFace,
@@ -1459,7 +1464,11 @@ cglTriangle3d(p1,p2,p3):=(
     modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
-  if(isundefined(colorExpr),
+  if(!isundefined(colorExpr),
+    modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture),
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+  ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
@@ -1471,9 +1480,7 @@ cglTriangle3d(p1,p2,p3):=(
       );
       vModifiers_"cglColor"=colors;
     );
-  ,
-    modifiers_"pixelExpr" = colorExpr;
-  );
+  ));
   tags = [];
   colorplot3d(cgl3dTriangleShaderCode(#),[p1,p2,p3],
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["triangle"]++tags);
@@ -1513,7 +1520,11 @@ cglPolygon3d(vertices):=(
     modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
-  if(isundefined(colorExpr),
+  if(!isundefined(colorExpr),
+    modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture),
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+  ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
@@ -1525,9 +1536,7 @@ cglPolygon3d(vertices):=(
       );
       vModifiers_"cglColor"=colors;
     );
-  ,
-    modifiers_"pixelExpr" = colorExpr;
-  );
+  ));
   // TODO different normal-modes: "flat","perFace","perVertex"
   if(triangulationMode==TriangulateSpiral,
     trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers,normalType);
@@ -1542,6 +1551,9 @@ cglPolygon3d(vertices):=(
   colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
+
+// TODO adjust uv coordinates if side of grid-cell is collapsed
+// TODO handle uv-mapping at boundry of closed shape, allow assigining different position to second copy of vertex
 
 // TODO? use different modifiers for vertex and face normals
 // TODO should grid be indexed as grid_x_y or grid_y_x
@@ -1581,16 +1593,18 @@ cglMesh3d(grid):=(
     modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
-  if(isundefined(colorExpr),
+  if(!isundefined(colorExpr),
+    modifiers_"pixelExpr" = colorExpr;
+  ,if(!isundefined(texture),
+    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+  ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
       vModifiers_"cglColor"=colors;
     );
-  ,
-    modifiers_"pixelExpr" = colorExpr;
-  );
+  ));
   vModifiers=apply(vModifiers,samples,cglMeshSamplesToTriangles(samples,Nx,Ny,topology));
   vModifiers_"cglNormal" = normals;
   tags = [];
@@ -1638,11 +1652,11 @@ cglSurface3d(fun) := (
       "light":light,"alpha":alpha,
       "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     }; // TODO? find better way to estimate screen size
-    if(isundefined(colorExpr),
+    if(!isundefined(colorExpr),
+      modifiers_"pixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
+    ,
       modifiers_"pixelExpr" = cglLazy(pos,cglColor);
       modifiers_"cglColor" = color;
-    ,
-      modifiers_"pixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
     );
     // TODO determine render bounding box depending on cutoff-region
     // TODO parameter for chooseing transparency mode, ? maximum layers
