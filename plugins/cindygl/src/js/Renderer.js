@@ -333,6 +333,7 @@ Renderer.prototype.updateAttributes = function() {
     } else {
         gl.disable(gl.CULL_FACE);
     }
+    // TODO reuse same vertex buffer for multiple calls instead of creating a new buffer for every object
     var posBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
 
@@ -676,6 +677,7 @@ Renderer.prototype.loadTextures = function(initCount) {
         let cw = tr.returnCanvaswrapper();
 
         cw.reloadIfRequired();
+        // TODO is there a way to avoid rebinding texture every frame
         cw.bindTexture();
         [
             [`_sampler${tname}`, [cnt]],
@@ -710,6 +712,7 @@ Renderer.prototype.prepareUniforms = function(targetLayer) {
         // set uniforms for rendering to targetLayer
         if(this.shaderProgram.uniform.hasOwnProperty('screenSize'))
             this.shaderProgram.uniform['screenSize']([targetLayer.iw,targetLayer.ih]);
+        // TODO is there a way to avoid rebinding textures every frame
         if(this.shaderProgram.uniform.hasOwnProperty('oldColorTex')) {
             gl.activeTexture(gl.TEXTURE0+texCount);
             gl.bindTexture(gl.TEXTURE_2D, targetLayer.colorTexture);
