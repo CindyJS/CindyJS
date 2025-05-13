@@ -248,7 +248,7 @@ cglCappedCylinderDepths(direction):=( // TODO? make indenpendent of render-bound
 // assumes that normal is normalized, and height is in the range -1..1
 cglProjCylinderToSquare(normal,height,orientation):=(
   regional(d1,d2);
-  if(orientation_1<orientation_2,
+  if(|orientation_1|<|orientation_2|,
     d1=normalize(cross(orientation,(1,0,0)));
   ,
     d1=normalize(cross(orientation,(0,1,0)));
@@ -435,7 +435,7 @@ cgl3dCylinderShaderCode(direction):=(
     normal = normalize(v1-delta*BA);
   ));
   // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglProjCylinderToSquare(normal,max(-1,min(delta,1)),cglOrientation);
+  texturePos = cglEval(projection,normal,max(-1,min(delta,1)),cglOrientation);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
@@ -470,7 +470,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
     normal = normalize(v2-delta*BA);
   ));
   // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglProjCylinderToSquare(normal,max(-1,min(delta,1)),cglOrientation);
+  texturePos = cglEval(projection,normal,max(-1,min(delta,1)),cglOrientation);
   color = cglEval(pixelExpr,texturePos);
   cglEval(light,color,direction,normal);
 );
@@ -813,11 +813,15 @@ cglMeshSamplesToTriangles(samples,Nx,Ny,topology):=(
   regional(p00,p01,p10,p11);
   // TODO? is handling closure by adding missing elements in loop more efficent
   if(topology_1 == CglTopologyClose,//close X
-    samples = apply(samples,row,append(row,row_1));
+    if(length(samples_1)<Nx+1,
+      samples = apply(samples,row,append(row,row_1));
+    );
     Nx=Nx+1;
   );
   if(topology_2 == CglTopologyClose,//close Y
-    samples = append(samples,samples_1);
+    if(length(samples)<Ny+1,
+      samples = append(samples,samples_1);
+    );
     Ny=Ny+1;
   );
   flatten(apply(1..(Ny-1),ny,
@@ -1267,8 +1271,7 @@ cglSphere3d(center,radius):=(
   if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
 );
 
-// TODO? parameter for custom projection from cylinder to texturePos
-cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal),cap1,cap2,caps));
+cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation)));
 cglCylinder3d(point1,point2,radius):=(
   // TODO use alpha parameter
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1285,6 +1288,8 @@ cglCylinder3d(point1,point2,radius):=(
   caps = cglValOrDefault(caps,cglDefaultCapsCylinder);
   cap1 = cglValOrDefault(cap1,caps);
   cap2 = cglValOrDefault(cap2,caps);
+  projection = cglValOrDefault(projection,
+    cglLazy((normal,height,orientation),cglProjCylinderToSquare(normal,height,orientation)));
   overhang = if(cap1_"name" == "Round" % cap2_"name" == "Round",radius,0);
   needBackFace = if(isundefined(alpha),length(color1)==4,true);
   modifiers = {"light": light,
@@ -1292,7 +1297,8 @@ cglCylinder3d(point1,point2,radius):=(
     "cglCap2front":cap2_(if(needBackFace,"shaderFront","shaderNoBack")),"cglCap2back":cap2_"shaderBack",
     "cglCut1":cglCutOrthogonal,"cglCut2":cglCutOrthogonal,
     "cglGetCutVector1":cglCutVectorNone,"cglGetCutVector2":cglCutVectorNone,
-    "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2"};
+    "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2",
+    "projection": projection};
   if(!isundefined(colorExpr),
     modifiers_"pixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1338,8 +1344,8 @@ cglJoint(prev,current,next,jointType):=(
     CylinderCapOpen
   )));
 );
-// TODO? how to parametrize color-expr for connect (? arc-length along curve split relative to cylinders?)
-cglInterface("connect3d",cglConnect3d,(points),(color,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
+// TODO? improve computation form texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
+cglInterface("connect3d",cglConnect3d,(points),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
 cglConnect3d(points):=(
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1352,6 +1358,10 @@ cglConnect3d(points):=(
   jointEnd = joints;
   jointStart = joints;
   if(length(points)>=3,
+    totalLength = sum(consecutive(points),pts,|pts_1-pts_2|);
+    if(closed,totalLength = totalLength + |points_1-points_(length(points))|);
+    a = 0;
+    b = 0;
     if(closed,
       current1 = points_(length(points)-1);
       current2 = points_(length(points));
@@ -1360,19 +1370,31 @@ cglConnect3d(points):=(
       current1 = points_1;
       current2 = points_2;
       next = points_3;
+      a = b;b = a + |current1-current2|/totalLength;
+      segmentProjection = cglLazy((normal,height,orientation),
+        regional(pos0);
+        pos0=cglProjCylinderToSquare(normal,height,orientation);(pos0_1,b*pos0_2+a*(1-pos0_2)),a->a,b->b);
       cglCylinder3d(current1,current2,size,cap1->cap1,
-        cap2->cglJoint(current1,current2,next,jointEnd));
+        cap2->cglJoint(current1,current2,next,jointEnd),projection->segmentProjection);
     );
     forall(if(closed,2,4)..length(points),i,
       prev = current1;
       current1 = current2;
       current2 = next;
       next = points_i;
+      a = b;b = a + |current1-current2|/totalLength;
+      segmentProjection = cglLazy((normal,height,orientation),
+        regional(pos0);
+        pos0=cglProjCylinderToSquare(normal,height,orientation);(pos0_1,b*pos0_2+a*(1-pos0_2)),a->a,b->b);
       cglCylinder3d(current1,current2,size,
-        cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd));
+        cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd),projection->segmentProjection);
     );
+    a = b;b = a + |current2-next|/totalLength;
+    segmentProjection = cglLazy((normal,height,orientation),
+      regional(pos0);
+      pos0=cglProjCylinderToSquare(normal,height,orientation);(pos0_1,b*pos0_2+a*(1-pos0_2)),a->a,b->b);
     cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
-        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
+        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2),projection->segmentProjection);
   ,if(length(points)==2,
     cglCylinder3d(points_1,points_2,size);// TODO? do modifiers need to be updated
   ,if(length(points)==1,
@@ -1553,7 +1575,9 @@ cglPolygon3d(vertices):=(
 );
 
 // TODO adjust uv coordinates if side of grid-cell is collapsed
-// TODO handle uv-mapping at boundry of closed shape, allow assigining different position to second copy of vertex
+// TODO! document parameter handling:
+// * for closed shapes vertex data (e.g. colors/uv-coords) can be one element larger (in each direction) than vertex grid 
+//   the additional element is used as parameter then approaching the vertex from the oher side of the boundry
 
 // TODO? use different modifiers for vertex and face normals
 // TODO should grid be indexed as grid_x_y or grid_y_x

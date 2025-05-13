@@ -36,6 +36,7 @@
             //torus3d([0,0,0],[0,1,0],1,0.5,texture->"equirect");
             //triangle3d([1,0,0],[0,1,0],[0,0,1],texture->"equirect",uv->((0,0),(0.5,1),(1,0)));
             //polygon3d(([1,1,0],[1,-1,0],[-1,-1,0],[-1,1,0]),texture->"equirect",uv->((1,1),(1,0),(0,0),(0,1)));
+            //connect3d(([1,1,0],[1,-1,0],[-1,-1,0],[-1,1,0]),texture->"equirect");
             N=16;
             mesh3d(
                 apply(0..(N-1),y,apply(0..(N-1),x,
@@ -43,7 +44,7 @@
                     ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
                 ))
             ,normalType->NormalPerTriangle,topology->TopologyCloseX+TopologyCloseY,
-                uv->apply(0..(N-1),y,apply(0..(N-1),x,a=x/N;b=y/N;(1-a,b))),texture->"equirect");
+                uv->apply(0..N,y,apply(0..N,x,a=x/N;b=y/N;(1-a,b))),texture->"equirect");
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
