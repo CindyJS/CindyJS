@@ -1,14 +1,16 @@
 // intialization containing implementation for CindyGL3D functions
+// TODO? would creating minified version to speed up import time
 
 use("CindyGL");
 // normalize if non-zero, map (0,0,0) to inself
-normalize(v):=( // TODO? make built-in
+normalize(v):=(
   regional(l);
   l = |v|;
   if(l>0,v/l,v);
 );
 /** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */
 cglSetDepth(rawDepth):=(
+  // TODO? discard negative distances form view
   regional(v);
   v = |cglViewPos|;
   cglDepth = 1-(v/(rawDepth+v));
@@ -202,23 +204,22 @@ cglCylinderDepths(direction):=(
     D= b*b-a*c;
     if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
     r = re(sqrt(D));
-    // TODO? discard negative distances form view
     (w - (b + r)/a, w - (b - r)/a);
 );
 // intersections of ray in given direction with cylinder with circular end-caps
 // needed for bounding box computations
-cglCappedCylinderDepths(direction):=( // TODO? make indenpendent of render-bounding box
+cglCappedCylinderDepths(direction,center,orientation,radius):=(
   regional(w,W,BA,U,VA,S,T,a,b,c,o,D,r,l,v,d,m0t,m1t,m0,m1,low,hi);
-  w = |cglViewPos-cglCenter|;
+  w = |cglViewPos-center|;
   W = cglViewPos + w*direction;
-  BA = cglOrientation;
+  BA = orientation;
   U = BA/(BA*BA);
-  VA = (W-cglCenter);
+  VA = (W-center);
   S = VA - (VA*BA)*U;
   T = direction - (direction*BA)*U;
   a = T*T;
   b = S*T;
-  c = S*S -cglRadius*cglRadius;
+  c = S*S -radius*radius;
   D= b*b-a*c;
   if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
   r = re(sqrt(D));
@@ -228,8 +229,8 @@ cglCappedCylinderDepths(direction):=( // TODO? make indenpendent of render-bound
   // <view + m * dir,(B-A)> = <view,B-A> + m * <dir,B-A>
   d = direction * U;
   v = W * U;
-  c = cglCenter * U;
-  o = cglOrientation * U;
+  c = center * U;
+  o = orientation * U;
   // b >= v + m*d >= a -> (b-a)/d >= m >= (a-v)/d
   m0t = ((c-o)-v)/d;
   m1t = ((c+o)-v)/d;
@@ -382,7 +383,6 @@ cglCutVectorNone = cglLazy((U),U);
 cglGetCutVector1 = cglLazy((U),cglCutDir1);
 cglGetCutVector2 = cglLazy((U),cglCutDir2);
 
-// TODO? give constants a second name in cgl-namespace
 CglCylinderCapVoid = {"name":"Void","shaderFront":cglCapVoidShader,"shaderBack":cglCapVoidShader,
   "shaderNoBack":cglCapVoidShader,"capCut1":cglCapCutFlat1,"capCut2":cglCapCutFlat2};
 CglCylinderCapOpen = {"name":"Open","shaderFront":cglCapVoidShader,"shaderBack":cglCapOpenShaderBack,
@@ -415,7 +415,7 @@ cglDefaultCapsConnect = CglCylinderCapRound;
 
 CglConnectOpen = -1;
 CglConnectRound = 0;
-CglConnectFlat = 1; // TODO name
+CglConnectFlat = 1; // TODO? better name
 ConnectOpen = CglConnectOpen;
 ConnectRound = CglConnectRound;
 ConnectFlat = CglConnectFlat;
@@ -517,7 +517,6 @@ cglEvalP = cglLazy((coeffs,t),
   forall(reverse(coeffs),c,s = t*s + c);
   s;
 );
-// TODO? is it faster to use same vector size for all derivatives
 cglD = cglLazy(coeffs,
   apply(1..(length(coeffs)-1),k,k*coeffs_(k+1));
 );
@@ -610,7 +609,6 @@ cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
   (phi1,phi2)/(2*pi);
 );
-// TODO? is there a way to find torus points without solving general degree 4 equation
 // TODO? separate bounding box-type for torus
 cgl3dTorusShaderCode(direction,layer):=(
   regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
@@ -699,43 +697,12 @@ NormalPerFace=CglNormalPerFace;
 NormalPerTriangle=CglNormalPerTriangle;
 NormalPerVertex=CglNormalPerVertex;
 
-// TODO? better triangulation of non-convex polygons
-// TODO reduce duplicate code
 cglTriangulateCorner(elts):=(
   regional(root);
   root = elts_1;
   flatten(apply(2..(length(elts)-1),i,
     [root,elts_i,elts_(i+1)];
   ));
-);
-cglTriangulatePolygonCorner(vertices,vNormals,vModifiers,normalType):=(
-  regional(triangles,n,vMap,vData);
-  triangles = cglTriangulateCorner(vertices);
-  if(isundefined(vNormals),
-    vNormals = flatten(apply(1..(length(triangles)/3),i,
-      n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
-      [n,n,n];
-    ));
-    if(normalType==NormalFlat,
-      // compute average normal
-      n = normalize(sum(vNormals));
-      vNormals = apply(vNormals,n);
-    ,if(normalType==NormalPerVertex,
-      vMap = cglTriangulateCorner(1..length(vertices));
-      vData = apply(vertices,(0,0,0));
-      // cumpute average normal for each vertex
-      forall(1..length(vNormals),i,
-        vData_(vMap_i) = vData_(vMap_i) + vNormals_i
-      );
-      forall(1..length(vNormals),i,
-        vNormals_i = normalize(vData_(vMap_i));
-      );
-    ));
-  ,
-    vNormals = cglTriangulateCorner(vNormals);
-  );
-  vModifiers=apply(vModifiers,e,cglTriangulateCorner(e));
-  (triangles,vNormals,vModifiers)
 );
 cglTriangulateSpiralRec(elts):=(
   regional(eltCount,even,odd);
@@ -752,35 +719,6 @@ cglTriangulateSpiralRec(elts):=(
     even++cglTriangulateSpiralRec(odd);
   );
 );
-cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers,normalType):=(
-  regional(triangles,n,vMap,vData);
-  triangles = cglTriangulateSpiralRec(vertices);
-  if(isundefined(vNormals),
-    vNormals = flatten(apply(1..(length(triangles)/3),i,
-      n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
-      [n,n,n];
-    ));
-    if(normalType==NormalFlat,
-      // compute average normal
-      n = normalize(sum(vNormals));
-      vNormals = apply(vNormals,n);
-    ,if(normalType==NormalPerVertex,
-      vMap = cglTriangulateSpiralRec(1..length(vertices));
-      vData = apply(vertices,(0,0,0));
-      // cumpute average normal for each vertex
-      forall(1..length(vNormals),i,
-        vData_(vMap_i) = vData_(vMap_i) + vNormals_i
-      );
-      forall(1..length(vNormals),i,
-        vNormals_i = normalize(vData_(vMap_i));
-      );
-    ));
-  ,
-    vNormals = cglTriangulateSpiralRec(vNormals);
-  );
-  vModifiers=apply(vModifiers,e,cglTriangulateSpiralRec(e));
-  (triangles,vNormals,vModifiers)
-);
 cglTriangulateCenter(elts):=(
   regional(center);
   // TODO? how should center be calculated for non-numeric vertex modifiers (? are non-numeric v-modifiers allowed)
@@ -789,9 +727,9 @@ cglTriangulateCenter(elts):=(
     [center,elts_i,elts_(i+1)];
   ))++[center,elts_(length(elts)),elts_1];
 );
-cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
+cglTriangulatePolygon(triangulator,vertices,vNormals,vModifiers,normalType):=(
   regional(triangles,n,vMap,vData);
-  triangles = cglTriangulateCenter(vertices);
+  triangles = cglEval(triangulator,vertices);
   if(isundefined(vNormals),
     vNormals = flatten(apply(1..(length(triangles)/3),i,
       n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
@@ -802,9 +740,9 @@ cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
       n = normalize(sum(vNormals));
       vNormals = apply(vNormals,n);
     ,if(normalType==NormalPerVertex,
-      vMap = cglTriangulateCenter(1..length(vertices));
+      vMap = cglEval(triangulator,1..length(vertices));
       vData = apply(vertices,(0,0,0));
-      // cumpute average normal for each vertex
+      // compute average normal for each vertex
       forall(1..length(vNormals),i,
         vData_(vMap_i) = vData_(vMap_i) + vNormals_i
       );
@@ -813,9 +751,9 @@ cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
       );
     ));
   ,
-    vNormals = cglTriangulateCenter(vNormals);
+    vNormals = cglEval(triangulator,vNormals);
   );
-  vModifiers=apply(vModifiers,e,cglTriangulateCenter(e));
+  vModifiers=apply(vModifiers,e,cglEval(triangulator,e));
   (triangles,vNormals,vModifiers)
 );
 
@@ -1017,7 +955,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
     regional(v0, v1, m, vm);
     v0 = cglEval(F,cglRay(direction, x0));
     v1 = cglEval(F,cglRay(direction, x1));
-    repeat(11, // TODO why 11, would a larger number be more precise?
+    repeat(11, // TODO? why 11, would a larger number be more precise?
         m = (x0 + x1) / 2; vm = cglEval(F,cglRay(direction, m));
         if (min(v0,vm) <= 0 & 0 <= max(v0, vm), // sgn(v0)!=sgn(vm); avoid products due numerics
             (x1 = m; v1 = vm;),
@@ -1045,7 +983,7 @@ cglSurfaceUpdateColor(direction, dst, color) := (
 cglSurfaceRootItrGetS(id) := (
   regional(s);
   s = 1;
-  repeat(10,
+  repeat(10, // TODO? is there a reason why 10 is used
     if(2*s<=id,
       s = 2*s;
     )
@@ -1169,7 +1107,7 @@ cglSurfaceRenderStateCache = {
   "interpMap":{},
   "chebNodes":{}
 };
-// TODO? is computing elements of Chebyshev-nodes/interpolation-matrix on demand faster than storing as uniform variable
+// TODO? would computing elements of Chebyshev-nodes/interpolation-matrix on demand be faster than storing as uniform variable
 // N+1 Chebyshev nodes for interval (0, 1)
 cglSurfaceChebyshevNodes(N):=(
   regional(cache,val);
@@ -1548,7 +1486,7 @@ cglTriangle3d(p1,p2,p3):=(
 
 cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalType));
 cglPolygon3d(vertices):=(
-  regional(modifiers,vModifiers,trianglesAndNormals,tags);
+  regional(modifiers,vModifiers,triangulator,trianglesAndNormals,tags);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   triangulationMode = cglValOrDefault(triangulationMode,CglTriangulateDefault);
@@ -1596,12 +1534,13 @@ cglPolygon3d(vertices):=(
     );
   ));
   if(triangulationMode==CglTriangulateSpiral,
-    trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers,normalType);
+    triangulator = cglLazy(elts,cglTriangulateSpiralRec(elts));
   ,if(triangulationMode==CglTriangulateCorner,
-    trianglesAndNormals = cglTriangulatePolygonCorner(vertices,normals,vModifiers,normalType);
+    triangulator = cglLazy(elts,cglTriangulateCorner(elts));
   ,
-    trianglesAndNormals = cglTriangulatePolygonCenter(vertices,normals,vModifiers,normalType);
+    triangulator = cglLazy(elts,cglTriangulateCenter(elts));
   ));
+  trianglesAndNormals = cglTriangulatePolygon(triangulator,vertices,normals,vModifiers,normalType);
   vModifiers = trianglesAndNormals_3;
   vModifiers_"cglNormal" =trianglesAndNormals_2;
   tags = [];
