@@ -44,6 +44,7 @@ similarely connect and curve have the same cap modifiers as well as the modifier
   - `ConnectRound` join ends of cylinders with round cap
   - `ConnectFlat` cut both cylinders along common intersection plane
 
+* `colors` individual colors for each joint (including the end-points)
 * `closed` a boolean to specify if the two end-points of the curve should be connected
 
 

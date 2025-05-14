@@ -90,14 +90,14 @@ cglLayers(topLayer):=(
 // color constants
 cglBlack = (0,0,0);
 cglWhite = (1,1,1);
-cglReg = (1,0,0);
+cglRed = (1,0,0);
 cglGreen = (0,1,0);
 cglBlue = (0,0,1);
 cglYellow = (1,1,0);
 cglCyan = (0,1,1);
 cglMagenta = (1,0,1);
 
-cglDefaultColorSphere = cglReg;
+cglDefaultColorSphere = cglRed;
 cglDefaultColorCylinder = cglBlack;
 cglDefaultColorTorus = cglBlue;
 cglDefaultColorTriangle = cglGreen;
@@ -1296,6 +1296,7 @@ cglAppendAll(dict1,dict2):=(
 // TODO use alpha parameter
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO? warning if multiple color options are given, pick in order: colorExpr, texture, (colors,) color
+// TODO ensure modifiers are correctly initialized when directly calling other implementation
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
 cglDraw3d(pos3d):=(
@@ -1410,11 +1411,10 @@ cglJoint(prev,current,next,jointType):=(
     CglCylinderCapOpen
   )));
 );
-// TODO? colors-modifier with one color per vertex / sample-point
 // TODO? improve computation for texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
-cglInterface("connect3d",cglConnect3d,(points),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
+cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
-  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,segmentProjection);
+  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1427,9 +1427,14 @@ cglConnect3d(points):=(
   jointEnd = joints;
   jointStart = joints;
   if(length(points)>=3,
-    segmentProjection = cglLazy((normal,height,orientation),
+    // update projection if color is computed per pixel
+    if(!isundefined(colorExpr) % !isundefined(texture),
+      projection = cglLazy((normal,height,orientation),
         regional(pos0);
-        pos0=cglProjCylinderToSquare(normal,height,orientation);(pos0_1,cglSegmentEnd*pos0_2+cglSegmentStart*(1-pos0_2)));
+        pos0=cglProjCylinderToSquare(normal,height,orientation);
+        (pos0_1,cglSegmentEnd*pos0_2+cglSegmentStart*(1-pos0_2))
+      );
+    );
     totalLength = sum(consecutive(points),pts,|pts_1-pts_2|);
     if(closed,totalLength = totalLength + |points_1-points_(length(points))|);
     a = 0;
@@ -1438,39 +1443,55 @@ cglConnect3d(points):=(
       current1 = points_(length(points)-1);
       current2 = points_(length(points));
       next = points_1;
+      color1 = if(isundefined(colors),color,colors_(length(points)-1));
+      color2 = if(isundefined(colors),color,colors_(length(points)));
+      nextColor = if(isundefined(colors),color,colors_1);
     ,
       current1 = points_1;
       current2 = points_2;
       next = points_3;
+      color1 = if(isundefined(colors),color,colors_1);
+      color2 = if(isundefined(colors),color,colors_2);
+      nextColor = if(isundefined(colors),color,colors_3);
       a = b;b = a + |current1-current2|/totalLength;
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
       cglCylinder3d(current1,current2,size,cap1->cap1,
-        cap2->cglJoint(current1,current2,next,jointEnd),projection->segmentProjection);
+        cap2->cglJoint(current1,current2,next,jointEnd));
     );
     forall(if(closed,2,4)..length(points),i,
       prev = current1;
       current1 = current2;
       current2 = next;
       next = points_i;
+      color1 = color2;
+      color2 = nextColor;
+      nextColor = if(isundefined(colors),color,colors_i);
       a = b;b = a + |current1-current2|/totalLength;
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
       cglCylinder3d(current1,current2,size,
-        cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd),projection->segmentProjection);
+        cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd));
     );
+    color1 = color2;
+    color2 = nextColor;
     a = b;b = a + |current2-next|/totalLength;
     plotModifiers_"cglSegmentStart"=a;
     plotModifiers_"cglSegmentEnd"=b;
     cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
-        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2),projection->segmentProjection);
+        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
   ,if(length(points)==2,
-    cglCylinder3d(points_1,points_2,size);// TODO? do modifiers need to be updated
+    color1 = if(isundefined(colors),color,colors_1);
+    color2 = if(isundefined(colors),color,colors_2);
+    cglCylinder3d(points_1,points_2,size);
   ,if(length(points)==1,
-    cglSphere3d(points_1,size);// TODO? do modifiers need to be updated
+    if(!isundefined(colors),
+      color = colors_1
+    );
+    cglSphere3d(points_1,size);
   )));
 );
-cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
+cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,colors,size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglCurve3d(expr,from,to):=(
   samples = cglValOrDefault(samples,cglDefaultCurveSamples)-1;
   cglConnect3d(apply(0..samples,k,
@@ -1771,7 +1792,6 @@ cglSurface3d(fun) := (
     ))));
 );
 
-// TODO ensure plot takes same modifiers as surface
 // TODO? add ability to scale axes
 // TODO add back x0,x1,y0,y1 parameters for easier bounding box
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
