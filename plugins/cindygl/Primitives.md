@@ -64,10 +64,15 @@ Surfaces and plots allow specifing:
 <!-- uv:?  a way to map surface to 2D coordinates -->
 * `normals:(x,y,z)` (for surface) specify the normal vector for the surface point at the gien space position
 * `df:(x,y)` /  `df:(z)` (for plots) derivative of the plotted function at the given coordinates, can be used to simplify computation of normal vectors
-* `cutoffRegion:(direction)` region in 3D-space where the surface/plot should be rendered possible values are:
-  -
-  -
-  -
+* `cutoffRegion` region in 3D-space where the surface/plot should be rendered possible values are:
+  - `CutoffScreenSphere` largest sphere fitting into current screen, updates depending on current zoom level
+  - `CutoffScreenCylinder` largest cylinder fitting into current screen, updates depending on current zoom level
+  - `CutoffScreenCylinder(orientation)` largest cylinder fitting into current screen rotated to the given orientation, updates depending on current zoom level
+  - `CutoffSphere(center,radius)` a sphere with given center and radius
+  - `CutoffCylinder(point1,point2,radius)` a cylinder with the given endpoints and radius
+  - `CutoffCube(center,sideLength)` an axis-aligned cube with the given center and sideLengths
+  - `CutoffCube(center,sideLength,up,front)` a cube with the given center and sidelength with axes pointing in directions `up` and `front`
+  - `CutoffCuboid(center,v1,v2,v3)` a cuboid with the given center and axes
 * `degree` the degree of the rendered surface (may be smaller than the actual degree), use a value of `-1` to specify a degree of infinity.
 
 

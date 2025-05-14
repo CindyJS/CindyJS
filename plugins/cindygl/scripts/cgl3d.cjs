@@ -1168,23 +1168,108 @@ cglGuessDerivative(F) := ( // TODO avoid code duplication for repeated applicati
       (cglEval(F,p + [0, 0, eps]) - cglEval(F,p - [0, 0, eps]))
   ) / (2 * eps)),eps->.001)
 );
-cglDefaultSurfaceCutoff = cglLazy(direction,
+
+CglBoundsUnbounded = {"type":"unbounded"};
+CglBoundsSphere(center,radius) := {"type":"sphere","center":center,"radius":radius};
+CglBoundsCylinder(point1,point2,radius) := {"type":"cylinder","point1":point1,"point2":point2,"radius":radius};
+CglBoundsCuboid(center,v1,v2,v3) := {"type":"cuboid","center":center,"v1":v1,"v2":v2,"v3":v3};
+
+// get intersections of view-ray with cobius given by center point and (scaled) directions of the three axes
+cglCuboidDepths(direction,center,up,left,front):=(
+  regional(relCenter,l1,l2,l1t,l2t,d1,d2,d);
+  relCenter = center-cglViewPos;
+  // + up, - up
+  d1 = up*(relCenter-up);
+  d2 = up*(relCenter+up);
+  d = up*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = min(l1t,l2t);
+  l2 = max(l1t,l2t);
+  l1 = max(l1,0);
+ // + left, - left
+  d1 = left*(relCenter-left);
+  d2 = left*(relCenter+left);
+  d = left*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = max(l1,min(l1t,l2t));
+  l2 = min(l2,max(l1t,l2t));
+   // + front, - front
+  d1 = front*(relCenter-front);
+  d2 = front*(relCenter+front);
+  d = front*direction;
+  l1t = d1/d;
+  l2t = d2/d;
+  l1 = max(l1,min(l1t,l2t));
+  l2 = min(l2,max(l1t,l2t));
+  if(l1>=l2,cglDiscard());
+  [l1,l2];
+);
+
+// TODO support coordinate systems where view-plane is not at z = 0
+CglCutoffScreenSphere = {"expr": cglLazy(direction,
   regional(viewRect,x0,y0,x1,y1);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
   x0 = viewRect_1;
   y0 = viewRect_2;
   x1 = viewRect_3;
   y1 = viewRect_4;
-  // TODO support coordinate systems where view-plane is not at z = 0
   cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-y0|,|y1-x0|)/2)
-);
-// TODO! create user-interface functions for surface cutoff
-// * CutoffSphere(center,radius)
-// * CutoffCylinder(point1,point2,radius)
-// * CutoffCube(center,sidelength)
-// * CutoffCube(center,sidelength,up,front)
-// * CutoffCuboid(center,v1,v2,v3)
-// * CutoffCustom(expr:(direction),boundingBox->...)
+),"bounds": CglBoundsUnbounded};
+CglCutoffScreenCylinder = {"expr": cglLazy(direction,
+  regional(viewRect,x0,y0,x1,y1,r);
+  viewRect = cglViewRect(); // [x0,y0,x1,y1]
+  x0 = viewRect_1;
+  y0 = viewRect_2;
+  x1 = viewRect_3;
+  y1 = viewRect_4;
+  r = min(|x1-y0|,|y1-x0|)/2.5;
+  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,[0,r,0],r)
+),"bounds": CglBoundsUnbounded};
+// TODO? pass orientation as modifier
+CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
+  regional(viewRect,x0,y0,x1,y1,r);
+  viewRect = cglViewRect(); // [x0,y0,x1,y1]
+  x0 = viewRect_1;
+  y0 = viewRect_2;
+  x1 = viewRect_3;
+  y1 = viewRect_4;
+  r = min(|x1-y0|,|y1-x0|)/2.5;
+  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*normalize(orientation),r)
+,orientation->orientation),"bounds": CglBoundsUnbounded};
+
+CglCutoffSphere(center,radius) := {"expr":cglLazy(direction,
+  cglSphereDepths(direction,cglCenter,cglRadius)
+),"bounds":CglBoundsSphere(center,radius)};
+CglCutoffCylinder(point1,point2,radius) := {"expr":cglLazy(direction,
+  cglCappedCylinderDepths(direction,cglCenter,cglOrientation,cglRadius)
+),"bounds":CglBoundsCylinder(point1,point2,radius)};
+CglCutoffCube(center,sideLength) := {"expr":cglLazy(direction,
+  cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)
+),"bounds":CglBoundsCuboid(center,[sideLength,0,0],[0,sideLength,0],[0,0,sideLength])};
+CglCutoffCube(center,sideLength,up,front) := {
+  "expr":cglLazy(direction,
+    cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
+  "bounds":CglBoundsCuboid(center,sideLength*normalize(up),sideLength*normalize(front),
+    sideLength*normalize(cross(up,front)))
+};
+CglCutoffCuboid(center,v1,v2,v3) := {
+  "expr":cglLazy(direction,
+    cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
+  "bounds":CglBoundsCuboid(center,v1,v2,v3)
+};
+
+CutoffScreenSphere = CglCutoffScreenSphere;
+CutoffScreenCylinder = CglCutoffScreenCylinder;
+CutoffScreenCylinder(orientation) := CglCutoffScreenCylinder(orientation);
+CutoffSphere(center,radius) := CglCutoffSphere(center,radius);
+CutoffCylinder(point1,point2,radius) := CglCutoffCylinder(point1,point2,radius);
+CutoffCube(center,sideLength) := CglCutoffCube(center,sideLength);
+CutoffCube(center,sideLength,up,front) := CglCutoffCube(center,sideLength,up,front);
+CutoffCuboid(center,v1,v2,v3) := CglCutoffCuboid(center,v1,v2,v3);
+
+cglDefaultSurfaceCutoff = CglCutoffScreenSphere;
 
 /////////////////////
 // user-interface
@@ -1200,7 +1285,7 @@ cglValOrDefault(val,default):=(
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
-// TODO? seperate modifier for texture with alpha-chanell
+// TODO? seperate modifier for texture with alpha-channel
 // TODO allow passing tags as modifier
 // TODO use alpha parameter
 // TODO? warning if multiple color options are given, pick in order: colorExpr, texture, (colors,) color
@@ -1613,9 +1698,9 @@ cglMesh3d(grid):=(
 
 // TODO? make cutoff parameter a JSON-object containing cutoff and bounding box info
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
-  texture,uv,normals:(x,y,z),cutoffRegion:(direction),degree)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
+  texture,uv,normals:(x,y,z),cutoffRegion,degree)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
 cglSurface3d(fun) := (
-    regional(N,nodes,F,dF,N,B,modifiers,viewRect);
+    regional(N,nodes,F,dF,N,B,modifiers,viewRect,bounds);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,0.75);
@@ -1639,11 +1724,11 @@ cglSurface3d(fun) := (
     ));
     nodes = cglSurfaceChebyshevNodes(N);
     B = cglSurfaceInterpolationMatrix(N);
-    viewRect = cglViewRect();
+    viewRect = cglViewRect(); // TODO? should resolution be computed within shader
     modifiers={
       "F":F,"dF":dF,
       "nodes": nodes,"B":B,
-      "cglCutoffRegion":cutoffRegion,
+      "cglCutoffRegion":cutoffRegion_"expr",
       "light":light,"alpha":alpha,
       "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     }; // TODO? find better way to estimate screen size
@@ -1658,18 +1743,31 @@ cglSurface3d(fun) := (
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->1,plotModifiers->modifiers)
-    colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
+
+    // TODO? extract to function "plotInBounds"
+    bounds = cutoffRegion_"bounds";
+    if(bounds_"type" == "unbounded",
+      colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
+    ,if(bounds_"type" == "sphere",
+      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"radius",plotModifiers->modifiers)
+    ,if(bounds_"type" == "cylinder",
+      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"point1",bounds_"point2",bounds_"radius",plotModifiers->modifiers)
+    ,if(bounds_"type" == "cuboid",
+      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers)
+    ,
+      print("unknown bounding box type: "+text(bounds_"type"));
+    ))));
 );
 
 // TODO ensure plot takes same modifiers as surface
 // TODO? add ability to scale axes
 // TODO add back x0,x1,y0,y1 parameters for easier bounding box
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion:(direction),degree));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree));
 cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f));
 );
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),degree));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),degree));
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree));
 cglCPlot3d(f/*f(z)*/):=(
   if(isundefined(color) & isundefined(colorExpr),
     colorExpr = cglLazy((x,y,ignoreZ),
