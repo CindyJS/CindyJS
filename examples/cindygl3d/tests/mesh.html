@@ -32,8 +32,7 @@
                     a=2*pi*x/N;b=2*pi*y/N;
                     ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
                 ))
-            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY,
-                /*uv->apply(0..(N-1),y,apply(0..(N-1),x,a=x/N;b=y/N;(a,b))),colorExpr->(texturePos_1,texturePos_2,0)*/);
+            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY);
             updateZoom():=(
               if(zoom>1.5,zoom=1.5);
               if(zoom<0.25,zoom=0.25);

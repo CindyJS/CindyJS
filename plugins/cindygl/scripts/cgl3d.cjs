@@ -1231,19 +1231,20 @@ cglValOrDefault(val,default):=(
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
+// TODO ensure that all internal modifiers have cgl prefix
+
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),projection));
 cglDraw3d(pos3d):=(
   size = cglValOrDefault(size,cglDefaultSizeSphere);
   cglSphere3d(pos3d,size);
 );
-cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2));
+cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation)));
 draw3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
   cglCylinder3d(point1,point2,size);
 );
 
-// TODO support textures (? allow passing texture through modifier)
 cglInterface("sphere3d",cglSphere3d,(center,radius),(color,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal),projection:normal));
 cglSphere3d(center,radius):=(
   regional(needBackFace);
@@ -1401,6 +1402,7 @@ cglConnect3d(points):=(
     cglSphere3d(points_1,size);// TODO? do modifiers need to be updated
   )));
 );
+// TODO? colors-modifier with one color per sample-point
 cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
 cglCurve3d(expr,from,to):=(
   closed = cglValOrDefault(closed,false);
@@ -1460,6 +1462,9 @@ cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaultSizeTorus);
   cglTorus3d(center,orientation,radius,size);
 );
+
+// TODO support normalExpr for all triangle-based shapes,
+// ?  additional parameters for uv-coord and space position
 
 // TODO? how to parametrize color-expr (?space-pos or uv-mapping)
 cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals));
@@ -1693,7 +1698,7 @@ cglSurface3d(fun) := (
 // TODO? add ability to scale axes
 // TODO? merge plot and cplot?
 // TODO add back x0,x1,y0,y1 parameters for easier bounding box
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),normalType,cutoffRegion:(direction),degree));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion:(direction),degree));
 cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f)); // TODO are there more modifiers than need to be updated
 );
