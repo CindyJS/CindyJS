@@ -3,11 +3,14 @@
 ## Common modifiers
 
 The following modiifers are present on all geoemetric primitives
-* `color`
-* `texture`
-* `colorExpr:(texturePos)`
-* `alpha`
-* `light:(color,direction,normal)`
+* `color` the surface color <!-- TODO? list pre-defined colors-->
+* `texture` the texture use to color the surface
+* `colorExpr:(texturePos)` an explicit expression for the color at each pixel
+* `alpha` the transparency for the given shape
+* `light:(color,direction,normal)` a expression for computing the lighting at a given pixel depending on the surface color, view-direction and normal-vector, in addition to an explicit expression the following pre-defined values can be used:
+  - `cglNoLight` return the color unmodified
+  - `cglSimpleLight` change brigthness depending on angle between normal and view-direction
+  - `cglDefaultLight` the default lighting engine <!--TODO? short descritption -->
 
 Points lines and circles aditionally have the modifier:
 * `size` to specifiy the size (measured as a radius) of the drawn object
@@ -21,20 +24,23 @@ For cylinders and lines there are additionall the following modifiers:
 * `color1`, `color2`: the colors of the individual endpoints
 * `projection:(normal,height,orientation)` specifies how the 2D texture-coordinates of a point on the cylinder are computed
 * `caps`, `cap1`, `cap2`: the style(s) use for the end-caps of the cylinder possible values are:
-    -
-    -
-    -
-    -
-    -
-    -
+    - `CylinderCapOpen` cut orthagonal to cylinder axis, draw back face (if visible)
+    - `CylinderCapFlat` cut orthagonal to cylinder axis, draw a flat surface
+    - `CylinderCapRound` cut orthagonal to cylinder axis, draw a round cap
+    - `CylinderCapCutOpen(normal)` cut orthagonal to given normal vector, draw back face (if visible)
+    - `CylinderCapCutFlat(normal)` cut orthagonal to given normal vector, draw a flat surface
+    additionally the following values are used internally:
+    - `CglCylinderCapVoid` cut orthagonal to cylinder axis, draw nothing
+    - `CglCylinderCapCutVoid(normal)` cut orthagonal to given normal vector, draw nothing (used internally for "flat" joints)
+    - `CglCylinderCapCutVoidRound(normal)` add round end-cap then cut orthagonal to given normal vector (used internally for round joints)
 
 similarely connect and curve have the same cap modifiers as well as the modifiers:
 
 <!-- TODO is curve the right word here -->
 * `joints` the joint-style for connecting the segments of the curve possible values are:
-  -
-  -
-  -
+  - `ConnectOpen` add no joints
+  - `ConnectRound` join ends of cylinders with round cap
+  - `ConnectFlat` cut both cylinders along common intersection plane
 
 * `closed` a boolean to specify if the two end-points of the curve should be connected
 
@@ -47,9 +53,10 @@ For triangles, polygons and meshes there are the following additional parameters
 * `normals` normal vectors at the individual vertices
 * `normalExpr:(dir)` gives a normal vector for each pixel <!--TODO find good parameter list-->
 * `normalType` (does not exist for triangles) specifies how normals are computed/assigned to vertices, possible values are:
-  -
-  -
-  -
+  - `NormalPerFace` assign a normal vector to each face
+  - `NormalFlat` alias for `NormalPerFace` for use in `polygon3d(..)`
+  - `NormalPerTriangle` assign a normal vector to each rendered triangle
+  - `NormalPerVertex` assign a normal vector to each vertex
 
 Surfaces and plots allow specifing:
 <!--TODO? make space-color and texture color different modifiers-->
@@ -80,15 +87,16 @@ CindyGL3D defines the following functions for drawing primitive objects:
 
 * `triangle3d(p1,p2,p3)` draw a triangle with the given vertices
 * `polygon3d(vertices)` draw a polygon with the given vertices, the modifier `triangulationMode` can be used to specify how the vertices are seperated into triangles, possible values are:
-  -
-  -
-  -
+  - `TriangulateCorner` connect all vertices to first vertex
+  - `TriangulateCenter` connect all vertices to additional vertex in center of polygon (mean of vertcies)
+  - `TriangulateSpiral` cut of every second vertex until only 3-vertices are left
+
 * `mesh3d(grid)` draws the rectangual mesh with the given sample points in grid, given as a rectangual matrix with in the form `grid_y_x`. It is expected that vertex data is given as retangual grids of the same shape. The modifier `topology` can be used to specify how the gird should be closed, possible values are:
-  -
-  -
-  -
-If the topology in a direction is closed it is possible to give one addtional row/column of vertex modifiers in that direction to specify the vertex data of the end-points when approaching from the other side. 
-<!-- TODO formulation "the other side" may be unclear -->
+  - `TopologyOpen` don't close shape
+  - `TopologyCloseX` close shape in x-direction
+  - `TopologyCloseY` close shape in y-direction
+  - `TopologyCloseXY` close shape in both x- and y-direction (It is possible to combine a x and y topology by adding the corresponding constants)
+If the topology in a direction is closed it is possible to give one additional row/column of vertex modifiers in that direction to specify the vertex data of the end-points when approaching from the other side of the boundry.
 
 * `surface3d(expr:(x,y,z))` render the algebraic surface that is the zero-set of the given expression
 * `plot3d(f:(x,y))` plot a 2D-function
