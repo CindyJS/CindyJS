@@ -169,9 +169,9 @@ cglDefaultSphereProjection = cglLazy(normal,cglProjSphereToSquare(normal));
 cgl3dSphereShaderCode(direction,isBack):=(
   regional(normal,texturePos,color);
   normal = cglSphereNormal(direction,cglCenter,isBack);
-  texturePos = cglEval(projection,normal);
-  color = cglEval(pixelExpr,texturePos);
-  cglEval(light,color,direction,normal);
+  texturePos = cglEval(cglProjection,normal);
+  color = cglEval(cglPixelExpr,texturePos);
+  cglEval(cglLight,color,direction,normal);
 );
 
 /////////////////////
@@ -452,9 +452,9 @@ cgl3dCylinderShaderCode(direction):=(
     normal = normalize(v1-delta*BA);
   ));
   // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglEval(projection,normal,max(-1,min(delta,1)),cglOrientation);
-  color = cglEval(pixelExpr,texturePos);
-  cglEval(light,color,direction,normal);
+  texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
+  color = cglEval(cglPixelExpr,texturePos);
+  cglEval(cglLight,color,direction,normal);
 );
 cgl3dCylinderShaderCodeBack(direction):=(
   regional(l,BA,U,v2,delta,normalAndHeight,v3,normal,texturePos,color);
@@ -488,9 +488,9 @@ cgl3dCylinderShaderCodeBack(direction):=(
     normal = normalize(v2-delta*BA);
   ));
   // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglEval(projection,normal,max(-1,min(delta,1)),cglOrientation);
-  color = cglEval(pixelExpr,texturePos);
-  cglEval(light,color,direction,normal);
+  texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
+  color = cglEval(cglPixelExpr,texturePos);
+  cglEval(cglLight,color,direction,normal);
 );
 
 /////////////////////
@@ -617,8 +617,8 @@ cgl3dTorusShaderCode(direction,layer):=(
   // compute torus coordinates from cylinder bounding box arguments
   //   reduces number of needed uniforms
   center = cglCenter;
-  radius1 = radii_1;
-  radius2 = radii_2;
+  radius1 = cglRadii_1;
+  radius2 = cglRadii_2;
   v=|center-cglViewPos|;
   V=cglViewPos+v*direction;
   // 1. find intersections of view-ray with sphere around center with given radius r1+r2
@@ -671,8 +671,8 @@ cgl3dTorusShaderCode(direction,layer):=(
   normal = normalize(pos3d - arcCenter);
   cglSetDepth(v+dst);
   pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
-  color = cglEval(pixelExpr,pixelPos);
-  cglEval(light,color,direction,normal);
+  color = cglEval(cglPixelExpr,pixelPos);
+  cglEval(cglLight,color,direction,normal);
 );
 
 /////////////////////
@@ -682,10 +682,10 @@ cgl3dTorusShaderCode(direction,layer):=(
 cgl3dTriangleShaderCode(direction):=(
   regional(color,normal,texCoord);
   cglRawDepth = |cglViewPos-cglSpacePos|; // set raw depth to correct value (depth is handled by v-shader)
-  texCoord = cglEval(textureMapping,cglSpacePos,direction);
-  color = cglEval(pixelExpr,texCoord);
-  normal = cglEval(normalExpr,direction);
-  cglEval(light,color,direction,normal);
+  texCoord = cglEval(cglTextureMapping,cglSpacePos,direction);
+  color = cglEval(cglPixelExpr,texCoord);
+  normal = cglEval(cglNormalExpr,direction);
+  cglEval(cglLight,color,direction,normal);
 );
 
 CglNormalFlat=0;
@@ -935,9 +935,9 @@ cglEvalCasteljau(poly, x) := (
 
 cglSurfaceNsign(direction, a, b) := ( // Descartes rule of sign for the interval (a,b)
   regional(poly,ans);
-  // obtain the coefficients in bernstein basis of F along the ray in interval (a,b) by interpolation within this interval
-  poly = B * apply(nodes,
-    cglEval(F,cglRay(direction, a+#*(b-a))) //evaluate F(ray(direction, ·)) along Chebyshev nodes for (a,b)
+  // obtain the coefficients in bernstein basis of cglSurfaceExpr along the ray in interval (a,b) by interpolation within this interval
+  poly = cglInterpMat * apply(cglChebNodes,
+    cglEval(cglSurfaceExpr,cglRay(direction, a+#*(b-a))) //evaluate cglSurfaceExpr(ray(direction, ·)) along Chebyshev nodes for (a,b)
   );
   // count the number of sign changes
   ans = 0;
@@ -950,13 +950,13 @@ cglSurfaceNsign(direction, a, b) := ( // Descartes rule of sign for the interval
   );
   ans // return value
 );
-// bisect F(ray(direction, ·)) in [x0, x1] assuming that F(ray(direction, x0)) and F(ray(direction, x1)) have opposite signs
+// bisect cglSurfaceExpr(ray(direction, ·)) in [x0, x1] assuming that cglSurfaceExpr(ray(direction, x0)) and cglSurfaceExpr(ray(direction, x1)) have opposite signs
 cglSurfaceBisectf(direction, x0, x1) := (
     regional(v0, v1, m, vm);
-    v0 = cglEval(F,cglRay(direction, x0));
-    v1 = cglEval(F,cglRay(direction, x1));
+    v0 = cglEval(cglSurfaceExpr,cglRay(direction, x0));
+    v1 = cglEval(cglSurfaceExpr,cglRay(direction, x1));
     repeat(11, // TODO? why 11, would a larger number be more precise?
-        m = (x0 + x1) / 2; vm = cglEval(F,cglRay(direction, m));
+        m = (x0 + x1) / 2; vm = cglEval(cglSurfaceExpr,cglRay(direction, m));
         if (min(v0,vm) <= 0 & 0 <= max(v0, vm), // sgn(v0)!=sgn(vm); avoid products due numerics
             (x1 = m; v1 = vm;),
             (x0 = m; v0 = vm;)
@@ -969,11 +969,11 @@ cglSurfaceBisectf(direction, x0, x1) := (
 cglSurfaceUpdateColor(direction, dst, color) := ( 
   regional(x, normal);
   cglSetDepth(dst);
-  color = (1 - alpha) * color + alpha * cglEval(pixelExpr,cglViewPos+dst*direction);
+  color = (1 - cglAlpha) * color + cglAlpha * cglEval(cglPixelExpr,cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
-  normal = cglEval(dF,x);
+  normal = cglEval(cglNormalExpr,x);
   normal = normal / abs(normal);
-  cglEval(light,color,direction,normal);
+  cglEval(cglLight,color,direction,normal);
 );
 
 // id encodes a node in a binary tree using heap-indices
@@ -1014,7 +1014,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
   id = 1;
   hasRoot = false;
   // maximum number of steps
-  repeat((length(nodes)-1)*6,
+  repeat((length(cglChebNodes)-1)*6,
     // id=0 means we are done; do only a DFS-step if we are not finished yet
     if(id>0,
       s = cglSurfaceRootItrGetS(id); // s = floor(log_2(id))
@@ -1027,7 +1027,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
       //...
       a = u - (u-l)*((id+1)/s-1);
       b = u - (u-l)*((id+0)/s-1);
-      // how many sign changes has F(ray(direction, ·)) in (a,b)?
+      // how many sign changes has cglSurfaceExpr(ray(direction, ·)) in (a,b)?
       cnt = cglSurfaceNsign(direction, a, b);
       if(cnt == 1 % (b-a)<.01*cglResolution, // in this case we found a root (or it is likely to have a multiple root)
         //=>colorize and break DFS
@@ -1043,7 +1043,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
     )
   );
   if(!hasRoot,cglDiscard());
-  [color_1,color_2,color_3,alpha] // return value
+  [color_1,color_2,color_3,cglAlpha] // return value
 );
 // find the k-th root of surface (needed for rendering individual roots)
 cglSurfaceKthRoot(direction,l,u,K):=(
@@ -1055,13 +1055,13 @@ cglSurfaceKthRoot(direction,l,u,K):=(
   id = 1;
   rootCount = 0;
   // maximum number of steps
-  repeat((length(nodes)-1)*6,
+  repeat((length(cglChebNodes)-1)*6,
     // id=0 means we are done; do only a DFS-step if we are not finished yet
     if(id>0 & rootCount < K,
       s = cglSurfaceRootItrGetS(id); // s = floor(log_2(id))
       a = l - (l-u)*((id+0)/s-1);
       b = l - (l-u)*((id+1)/s-1);
-      // how many sign changes has F(ray(direction, ·)) in (a,b)?
+      // how many sign changes has cglSurfaceExpr(ray(direction, ·)) in (a,b)?
       cnt = cglSurfaceNsign(direction, a, b);
       if(cnt == 1 % (b-a)<.01*cglResolution, // in this case we found a root (or it is likely to have a multiple root)
         //=>colorize and break DFS
@@ -1078,7 +1078,7 @@ cglSurfaceKthRoot(direction,l,u,K):=(
   );
   if(rootCount < K,cglDiscard());
   color = cglSurfaceUpdateColor(direction,rootDepth, (0,0,0));
-  [color_1,color_2,color_3,alpha] // return value
+  [color_1,color_2,color_3,cglAlpha] // return value
 );
 // what color should be given to pixel in  direction direction (vec3)
 cgl3dSurfaceShaderCode(direction) := (
@@ -1285,12 +1285,10 @@ cglValOrDefault(val,default):=(
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
-// TODO? seperate modifier for texture with alpha-channel
+// TODO? seperate modifier for semi-transparent texture
 // TODO allow passing tags as modifier
 // TODO use alpha parameter
 // TODO? warning if multiple color options are given, pick in order: colorExpr, texture, (colors,) color
-
-// TODO ensure that all internal modifiers have cgl prefix
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),projection));
 cglDraw3d(pos3d):=(
@@ -1311,13 +1309,13 @@ cglSphere3d(center,radius):=(
   light = cglValOrDefault(light,cglDefaultLight);
   projection = cglValOrDefault(projection,cglDefaultSphereProjection);
   needBackFace = if(isundefined(alpha),length(color)==4,true);
-  modifiers = {"light": light,"projection":projection};
+  modifiers = {"cglLight": light,"cglProjection":projection};
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor" = color;
   ));
   tags = [];
@@ -1351,23 +1349,23 @@ cglCylinder3d(point1,point2,radius):=(
     cglLazy((normal,height,orientation),cglProjCylinderToSquare(normal,height,orientation)));
   overhang = if(cap1_"name" == "Round" % cap2_"name" == "Round",radius,0);
   needBackFace = if(isundefined(alpha),length(color1)==4,true);
-  modifiers = {"light": light,
+  modifiers = {"cglLight": light,
     "cglCap1front":cap1_(if(needBackFace,"shaderFront","shaderNoBack")),"cglCap1back":cap1_"shaderBack",
     "cglCap2front":cap2_(if(needBackFace,"shaderFront","shaderNoBack")),"cglCap2back":cap2_"shaderBack",
     "cglCut1":cglCutOrthogonal,"cglCut2":cglCutOrthogonal,
     "cglGetCutVector1":cglCutVectorNone,"cglGetCutVector2":cglCutVectorNone,
     "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2",
-    "projection": projection};
+    "cglProjection": projection};
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,if(color1!=color2,
-    modifiers_"pixelExpr" = cglLazy(pos,(1-pos_2)*cglColor1 + pos_2*cglColor2);
+    modifiers_"cglPixelExpr" = cglLazy(pos,(1-pos_2)*cglColor1 + pos_2*cglColor2);
     modifiers_"cglColor1"=color1;
     modifiers_"cglColor2"=color2;
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor"=color;
   )));
   if(!isundefined(cap1_"cutDirection"),
@@ -1480,15 +1478,15 @@ cglTorus3d(center,orientation,radius1,radius2):=(
   light = cglValOrDefault(light,cglDefaultLight);
   needBackFace = if(isundefined(alpha),length(color)==4,true);
   modifiers = {
-    "light": light,
-    "radii": [radius1,radius2]
+    "cglLight": light,
+    "cglRadii": [radius1,radius2]
   };
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor" = color;
   ));
   tags = [];
@@ -1533,24 +1531,24 @@ cglTriangle3d(p1,p2,p3):=(
   );
   normalExpr = cglLazy(dir,cglNormal);
   modifiers = {
-    "light": light, "normalExpr":normalExpr
+    "cglLight": light, "cglNormalExpr":normalExpr
   };
   vModifiers = {
     "cglNormal":normals
   };
   if(isundefined(uv),
     // TODO? default uv-mapping ((0,0),(0,1),(1,0)) instead of texture position
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),pos3d);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
   ,
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
@@ -1592,21 +1590,21 @@ cglPolygon3d(vertices):=(
     normalExpr = cglLazy(dir,cglNormal);
   );
   modifiers = {
-    "light": light, "normalExpr":normalExpr
+    "cglLight": light, "cglNormalExpr":normalExpr
   };
   vModifiers = {};
   if(isundefined(uv),
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),pos3d);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
   ,
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
@@ -1663,22 +1661,22 @@ cglMesh3d(grid):=(
     );
   );
   modifiers = {
-    "light": light,
-    "normalExpr":normalExpr
+    "cglLight": light,
+    "cglNormalExpr":normalExpr
   };
   vModifiers = {};
   if(isundefined(uv),
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),pos3d);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
   ,
-    modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
     vModifiers_"cglTexCoords" = uv;
   );
   if(!isundefined(colorExpr),
-    modifiers_"pixelExpr" = colorExpr;
+    modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
-    modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
-    modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+    modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
@@ -1700,14 +1698,14 @@ cglMesh3d(grid):=(
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
   texture,uv,normals:(x,y,z),cutoffRegion,degree)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
 cglSurface3d(fun) := (
-    regional(N,nodes,F,dF,N,B,modifiers,viewRect,bounds);
+    regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,0.75);
     cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
     // convert function to form taking vector insteads of 3 arguments
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
-    dF = if(isundefined(normals),cglGuessDerivative(F),normals);
+    normalExpr = if(isundefined(normals),cglGuessDerivative(F),normals);
     if(isundefined(degree),
       N = cglGuessdeg(F);
       // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)
@@ -1725,17 +1723,17 @@ cglSurface3d(fun) := (
     nodes = cglSurfaceChebyshevNodes(N);
     B = cglSurfaceInterpolationMatrix(N);
     viewRect = cglViewRect(); // TODO? should resolution be computed within shader
-    modifiers={
-      "F":F,"dF":dF,
-      "nodes": nodes,"B":B,
+    modifiers = {
+      "cglSurfaceExpr":F,"cglNormalExpr":normalExpr,
+      "cglChebNodes": nodes,"cglInterpMat":B,
       "cglCutoffRegion":cutoffRegion_"expr",
-      "light":light,"alpha":alpha,
+      "cglLight":light,"cglAlpha":alpha,
       "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     }; // TODO? find better way to estimate screen size
     if(!isundefined(colorExpr),
-      modifiers_"pixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
+      modifiers_"cglPixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
     ,
-      modifiers_"pixelExpr" = cglLazy(pos,cglColor);
+      modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
       modifiers_"cglColor" = color;
     );
     // TODO determine render bounding box depending on cutoff-region
