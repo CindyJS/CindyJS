@@ -11,6 +11,8 @@ The following modiifers are present on all geoemetric primitives
   - `cglNoLight` return the color unmodified
   - `cglSimpleLight` change brigthness depending on angle between normal and view-direction
   - `cglDefaultLight` the default lighting engine <!--TODO? short descritption -->
+* `plotModifiers` a dictionary mapping variable names to values, within the shader code (for instance in color or light expressions) reading one of the modifier variables will yield the value passed to the plot function independent of the current global value of that variable.
+<!-- TODO plot modifiers can be modified using cglUpdate(objId,modiifers), TODO? write wrapper function -->
 
 Points lines and circles aditionally have the modifier:
 * `size` to specifiy the size (measured as a radius) of the drawn object
@@ -57,6 +59,7 @@ For triangles, polygons and meshes there are the following additional parameters
   - `NormalFlat` alias for `NormalPerFace` for use in `polygon3d(..)`
   - `NormalPerTriangle` assign a normal vector to each rendered triangle
   - `NormalPerVertex` assign a normal vector to each vertex
+* `vertexModifiers` a dictionary mapping variable names to list of values (one for each vertex). The variables behave similarely to plotModifiers with the difference that the value of the variable will be linearly interpolated between the values at the vertices of the current triangle.
 
 Surfaces and plots allow specifing:
 <!--TODO? make space-color and texture color different modifiers-->
