@@ -14,7 +14,6 @@ cglSetDepth(rawDepth):=(
   cglDepth = 1-(v/(rawDepth+v));
   cglRawDepth = rawDepth;
 );
-// TODO does this work correctly if n <= 0
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
 );
@@ -71,14 +70,14 @@ cglDefaultLight=cglDefaultLight0;
 /////////////////////
 
 // empty list to hold mapping from top layer to list of layers in userdata
-cglLayerInfo = []; // TODO? use dict
+cglLayerInfo = {};
 cglRememberLayers(layers):=(
-  cglLayerInfo:(layers_(length(layers))) = layers;
+  cglLayerInfo_(layers_(length(layers))) = layers;
   layers;
 );
 cglLayers(topLayer):=(
   regional(layers);
-  layers =  cglLayerInfo:topLayer;
+  layers =  cglLayerInfo_topLayer;
   if(isundefined(layers),
     [topLayer]
   ,
@@ -257,14 +256,13 @@ cglProjCylinderToSquare(normal,height,orientation):=(
   ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),0.5*(height+1));
 );
 
-// TODO mark all local variables as regional
-
 cglCapVoidShader = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     cglDiscard();
     (0,0,0,0) // compiler cannot detect that code is unreachable -> have to return correct type
     // TODO make compiler realize that code after discard is unreachable
 );
 cglCapOpenShaderNoBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(v2,delta2,normal);
     v2 = (cglViewPos+cylinderDepths_2*direction)-cglCenter;
     delta2 = v2*cutVector;
     if(delta2*delta>1,cglDiscard());
@@ -274,16 +272,19 @@ cglCapOpenShaderNoBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
 );
 cglCapOpenShaderBack = cglCapVoidShader;
 cglCapRoundShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,normal);
     m = cglCenter+delta*cglOrientation;
     normal = cglSphereNormal(direction,m,false);
     (normal_1,normal_2,normal_3,delta);
 );
 cglCapRoundShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,normal);
     m = cglCenter+delta*cglOrientation;
     normal = cglSphereNormal(direction,m,true);
     (normal_1,normal_2,normal_3,delta);
 );
 cglCapFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,a,normal);
     m = cglCenter+delta*cglOrientation;
     // <v + a*d,o> = <m,o>
     a = (m*cglOrientation-cglViewPos*cglOrientation)/(direction*cglOrientation);
@@ -293,6 +294,7 @@ cglCapFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     (normal_1,normal_2,normal_3,delta)
 );
 cglCapFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,a,normal);
     m = cglCenter+delta*cglOrientation;
     // <v + a*d,o> = <m,o>
     a = (m*cglOrientation-cglViewPos*cglOrientation)/(direction*cglOrientation);
@@ -302,6 +304,7 @@ cglCapFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     (normal_1,normal_2,normal_3,delta)
 );
 cglCapAngleFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,a,p,o,normal);
     m = cglCenter+delta*cglOrientation;
     // <v + a*d,n> = <m,n>
     a = (m*cutVector-cglViewPos*cutVector)/(direction*cutVector);
@@ -314,6 +317,7 @@ cglCapAngleFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector
     (normal_1,normal_2,normal_3,delta)
 );
 cglCapAngleFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+    regional(m,a,p,o,normal);
     m = cglCenter+delta*cglOrientation;
     // <v + a*d,n> = <m,n>
     a = (m*cutVector-cglViewPos*cutVector)/(direction*cutVector);
@@ -326,12 +330,14 @@ cglCapAngleFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector)
     (normal_1,normal_2,normal_3,delta)
 );
 cglCapAngleVoidRoundShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+  regional(res,v2);
   res = cglEval(cglCapRoundShaderFront,direction,cylinderDepths,delta,U,cutVector);
   v2 = cglViewPos + cglRawDepth * direction - cglCenter;
   if((delta*(v2*cutVector)>1) % (delta*(v2*U)<1),cglDiscard());
   res
 );
 cglCapAngleVoidRoundShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
+  regional(res,v2);
   res = cglEval(cglCapRoundShaderBack,direction,cylinderDepths,delta,U,cutVector);
   v2 = cglViewPos + cglRawDepth * direction - cglCenter;
   if((delta*(v2*cutVector)>1) % (delta*(v2*U)<1),cglDiscard());
@@ -377,34 +383,45 @@ cglGetCutVector1 = cglLazy((U),cglCutDir1);
 cglGetCutVector2 = cglLazy((U),cglCutDir2);
 
 // TODO? give constants a second name in cgl-namespace
-CylinderCapVoid = {"name":"Void","shaderFront":cglCapVoidShader,"shaderBack":cglCapVoidShader,
+CglCylinderCapVoid = {"name":"Void","shaderFront":cglCapVoidShader,"shaderBack":cglCapVoidShader,
   "shaderNoBack":cglCapVoidShader,"capCut1":cglCapCutFlat1,"capCut2":cglCapCutFlat2};
-CylinderCapOpen = {"name":"Open","shaderFront":cglCapVoidShader,"shaderBack":cglCapOpenShaderBack,
+CglCylinderCapOpen = {"name":"Open","shaderFront":cglCapVoidShader,"shaderBack":cglCapOpenShaderBack,
   "shaderNoBack":cglCapOpenShaderNoBack,"capCut1":cglCapCutFlat1,"capCut2":cglCapCutFlat2};
-CylinderCapFlat = {"name":"Flat","shaderFront":cglCapFlatShaderFront,"shaderBack":cglCapFlatShaderBack,
+CglCylinderCapFlat = {"name":"Flat","shaderFront":cglCapFlatShaderFront,"shaderBack":cglCapFlatShaderBack,
   "shaderNoBack":cglCapFlatShaderFront,"capCut1":cglCapCutFlat1,"capCut2":cglCapCutFlat2};
-CylinderCapRound = {"name":"Round","shaderFront":cglCapRoundShaderFront,"shaderBack":cglCapRoundShaderBack,
+CglCylinderCapRound = {"name":"Round","shaderFront":cglCapRoundShaderFront,"shaderBack":cglCapRoundShaderBack,
   "shaderNoBack":cglCapRoundShaderFront,"capCut1":cglCapCutRound1,"capCut2":cglCapCutRound2};
-CylinderCapCutVoid(normal) := {"name":"Cut-Void","cutDirection":normal,"cutOrthogonal":false,
+CglCylinderCapCutVoid(normal) := {"name":"Cut-Void","cutDirection":normal,"cutOrthogonal":false,
   "shaderFront":cglCapVoidShader,"shaderNoBack":cglCapVoidShader,"shaderBack":cglCapVoidShader,
   "capCut1":cglCapCutAngle1,"capCut2":cglCapCutAngle2};
-CylinderCapCutOpen(normal) := {"name":"Cut-Open","cutDirection":normal,"cutOrthogonal":false,
+CglCylinderCapCutOpen(normal) := {"name":"Cut-Open","cutDirection":normal,"cutOrthogonal":false,
   "shaderFront":cglCapVoidShader,"shaderNoBack":cglCapOpenShaderNoBack,"shaderBack":cglCapOpenShaderBack,
   "capCut1":cglCapCutAngle1,"capCut2":cglCapCutAngle2};
-CylinderCapCutFlat(normal) := {"name":"Cut-Flat","cutDirection":normal,"cutOrthogonal":false,
+CglCylinderCapCutFlat(normal) := {"name":"Cut-Flat","cutDirection":normal,"cutOrthogonal":false,
   "shaderFront":cglCapAngleFlatShaderFront,"shaderNoBack":cglCapAngleFlatShaderFront,"shaderBack":cglCapAngleFlatShaderBack,
   "capCut1":cglCapCutAngle1,"capCut2":cglCapCutAngle2};
-CylinderCapCutVoidRound(normal) := {"name":"Cut-Round","cutDirection":normal,"cutOrthogonal":true,
+CglCylinderCapCutVoidRound(normal) := {"name":"Cut-Round","cutDirection":normal,"cutOrthogonal":true,
   "shaderFront":cglCapAngleVoidRoundShaderFront,"shaderNoBack":cglCapAngleVoidRoundShaderFront,"shaderBack":cglCapAngleVoidRoundShaderBack,
   "capCut1":cglCapCutAngleRound1,"capCut2":cglCapCutAngleRound2};
-cglDefaultCapsCylinder = CylinderCapOpen;
-cglDefaultCapsConnect = CylinderCapRound;
 
-ConnectOpen = -1;
-ConnectRound = 0;
-ConnectFlat = 1; // TODO name
+CylinderCapOpen=CglCylinderCapOpen;
+CylinderCapFlat=CglCylinderCapFlat;
+CylinderCapRound=CglCylinderCapRound;
+CylinderCapCutOpen(normal):=CglCylinderCapCutOpen(normal);
+CylinderCapCutFlat(normal):=CglCylinderCapCutFlat(normal);
+
+cglDefaultCapsCylinder = CglCylinderCapOpen;
+cglDefaultCapsConnect = CglCylinderCapRound;
+
+CglConnectOpen = -1;
+CglConnectRound = 0;
+CglConnectFlat = 1; // TODO name
+ConnectOpen = CglConnectOpen;
+ConnectRound = CglConnectRound;
+ConnectFlat = CglConnectFlat;
 
 cgl3dCylinderShaderCode(direction):=(
+  regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color);
   l = cglCylinderDepths(direction);
   BA = cglOrientation;
   U = BA/(BA*BA);
@@ -440,6 +457,7 @@ cgl3dCylinderShaderCode(direction):=(
   cglEval(light,color,direction,normal);
 );
 cgl3dCylinderShaderCodeBack(direction):=(
+  regional(l,BA,U,v2,delta,normalAndHeight,v3,normal,texturePos,color);
   l = cglCylinderDepths(direction);
   BA = cglOrientation;
   U = BA/(BA*BA);
@@ -476,7 +494,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
 );
 
 /////////////////////
-// surface-renderer: common
+// simple surface-renderer: common
 /////////////////////
 
 // simple algrithm for small degree surfaces:
@@ -491,8 +509,8 @@ cgl3dCylinderShaderCodeBack(direction):=(
 //l  c0  c1  c2  <-roots of p3
 // \ / \ / \ / \ /
 // d0  d1  d2  d3 <-roots of p4
-// TODO? add a way use call same procedure with multiple signatures
 // use lazy-procedures to allow multiple signatures for same code
+// TODO? add a way use call same procedure with multiple signatures
 cglEvalP = cglLazy((coeffs,t),
   regional(s);
   s = 0;
@@ -520,7 +538,7 @@ cglBinSearchP = cglLazy((poly, x0, x1, def),
     def
   )
 );
-// wrapper for cglBinSearchP instanciated for each commonly used degree
+// wrapper function for cglBinSearchP instanciated for each commonly used degree
 cglBinSearchP4(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
 cglBinSearchP3(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
 cglBinSearchP2(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
@@ -592,7 +610,7 @@ cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
   (phi1,phi2)/(2*pi);
 );
-// TODO is there a way to find torus points without solving general degree 4 equation
+// TODO? is there a way to find torus points without solving general degree 4 equation
 // TODO? separate bounding box-type for torus
 cgl3dTorusShaderCode(direction,layer):=(
   regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
@@ -665,31 +683,35 @@ cgl3dTorusShaderCode(direction,layer):=(
 
 cgl3dTriangleShaderCode(direction):=(
   regional(color,normal,texCoord);
-  cglRawDepth = |cglViewPos-cglSpacePos|;
+  cglRawDepth = |cglViewPos-cglSpacePos|; // set raw depth to correct value (depth is handled by v-shader)
   texCoord = cglEval(textureMapping,cglSpacePos,direction);
   color = cglEval(pixelExpr,texCoord);
   normal = cglEval(normalExpr,direction);
   cglEval(light,color,direction,normal);
 );
 
-// TODO add version of constants in CGL namespace
-NormalFlat=0;
-NormalPerFace=0; // faces are triangles
-NormalPerTriangle=1;
-NormalPerVertex=2;
+CglNormalFlat=0;
+CglNormalPerFace=0;
+CglNormalPerTriangle=1;
+CglNormalPerVertex=2;
+NormalFlat=CglNormalFlat;
+NormalPerFace=CglNormalPerFace;
+NormalPerTriangle=CglNormalPerTriangle;
+NormalPerVertex=CglNormalPerVertex;
 
 // TODO? better triangulation of non-convex polygons
 // TODO reduce duplicate code
 cglTriangulateCorner(elts):=(
+  regional(root);
   root = elts_1;
   flatten(apply(2..(length(elts)-1),i,
     [root,elts_i,elts_(i+1)];
   ));
 );
 cglTriangulatePolygonCorner(vertices,vNormals,vModifiers,normalType):=(
+  regional(triangles,n,vMap,vData);
   triangles = cglTriangulateCorner(vertices);
   if(isundefined(vNormals),
-    // TODO option to compute normals per vertex/ single normal for complete polygon
     vNormals = flatten(apply(1..(length(triangles)/3),i,
       n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
       [n,n,n];
@@ -731,6 +753,7 @@ cglTriangulateSpiralRec(elts):=(
   );
 );
 cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers,normalType):=(
+  regional(triangles,n,vMap,vData);
   triangles = cglTriangulateSpiralRec(vertices);
   if(isundefined(vNormals),
     vNormals = flatten(apply(1..(length(triangles)/3),i,
@@ -759,6 +782,7 @@ cglTriangulatePolygonSpiral(vertices,vNormals,vModifiers,normalType):=(
   (triangles,vNormals,vModifiers)
 );
 cglTriangulateCenter(elts):=(
+  regional(center);
   // TODO? how should center be calculated for non-numeric vertex modifiers (? are non-numeric v-modifiers allowed)
   center = sum(elts)/length(elts);
   flatten(apply(1..(length(elts)-1),i,
@@ -766,6 +790,7 @@ cglTriangulateCenter(elts):=(
   ))++[center,elts_(length(elts)),elts_1];
 );
 cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
+  regional(triangles,n,vMap,vData);
   triangles = cglTriangulateCenter(vertices);
   if(isundefined(vNormals),
     vNormals = flatten(apply(1..(length(triangles)/3),i,
@@ -794,10 +819,13 @@ cglTriangulatePolygonCenter(vertices,vNormals,vModifiers,normalType):=(
   (triangles,vNormals,vModifiers)
 );
 
-TriangulateCorner = 0; // connect all vertices to first vertex
-TriangulateCenter = 1; // connect all vertices to additional vertex in center of polygon (mean of vertcies)
-TriangulateSpiral = 2; // cut of all vertices with even index, repest recursively on remaining vertices
-TriangulateDefault = TriangulateSpiral;
+CglTriangulateCorner = 0; // connect all vertices to first vertex
+CglTriangulateCenter = 1; // connect all vertices to additional vertex in center of polygon (mean of vertcies)
+CglTriangulateSpiral = 2; // cut of all vertices with even index, repest recursively on remaining vertices
+TriangulateCorner = CglTriangulateCorner;
+TriangulateCenter = CglTriangulateCenter;
+TriangulateSpiral = CglTriangulateSpiral;
+CglTriangulateDefault = TriangulateSpiral;
 
 CglTopologyYFactor = 16;
 CglTopologyOpen = 0;
@@ -946,7 +974,7 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
 );
 
 /////////////////////
-// algebraric surfaces
+// general algebraric surfaces
 /////////////////////
 
 // ray(direction, t) is the point in R^3 that lies at position t on the ray in direction direction
@@ -968,6 +996,7 @@ cglEvalCasteljau(poly, x) := (
 );
 
 cglSurfaceNsign(direction, a, b) := ( // Descartes rule of sign for the interval (a,b)
+  regional(poly,ans);
   // obtain the coefficients in bernstein basis of F along the ray in interval (a,b) by interpolation within this interval
   poly = B * apply(nodes,
     cglEval(F,cglRay(direction, a+#*(b-a))) //evaluate F(ray(direction, ·)) along Chebyshev nodes for (a,b)
@@ -1000,8 +1029,8 @@ cglSurfaceBisectf(direction, x0, x1) := (
 // update the color color for the pixel at in direction direction assuming that the surface has been intersected at ray(direction, dst)
 // because of the alpha-transparency updatecolor should be called for the intersections with large dst first
 cglSurfaceUpdateColor(direction, dst, color) := ( 
-  cglSetDepth(dst);
   regional(x, normal);
+  cglSetDepth(dst);
   color = (1 - alpha) * color + alpha * cglEval(pixelExpr,cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
   normal = cglEval(dF,x);
@@ -1014,6 +1043,7 @@ cglSurfaceUpdateColor(direction, dst, color) := (
 // computes s=2^depth of a node id: Compute floor(log_2(id));
 // purpose: id corresponds interval [id-s,id+1-s]/s
 cglSurfaceRootItrGetS(id) := (
+  regional(s);
   s = 1;
   repeat(10,
     if(2*s<=id,
@@ -1037,7 +1067,7 @@ cglSurfaceRootItrNext(id) := (
 );
 // iterate roots from back to front, merge colors for roots
 cglSurfaceIterateRoots(direction,l,u):=(
-  regional(a,b,color);
+  regional(a,b,color,id,hasRoot,s,cnt);
   a = l;
   b = u;
   color = (0,0,0);
@@ -1079,7 +1109,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
 );
 // find the k-th root of surface (needed for rendering individual roots)
 cglSurfaceKthRoot(direction,l,u,K):=(
-  regional(a,b,color,rootCount,rootDepth);
+  regional(a,b,rootCount,rootDepth,id,s,cnt,color);
   a = l;
   b = u;
   // iterate roots from front to back until k-th root is found, discard pixel if there are less than k roots
@@ -1115,19 +1145,19 @@ cglSurfaceKthRoot(direction,l,u,K):=(
 // what color should be given to pixel in  direction direction (vec3)
 cgl3dSurfaceShaderCode(direction) := (
   regional(depths,u,l);
-    // discard points outside bounding sphere
-    depths = cglEval(cglCutoffRegion,direction);
-    l = depths_1;
-    u = depths_2;
+  // discard points outside bounding sphere
+  depths = cglEval(cglCutoffRegion,direction);
+  l = depths_1;
+  u = depths_2;
   cglSurfaceIterateRoots(direction,l,u);
 );
 // what color should be given to pixel in  direction direction (vec3)
 cgl3dSurfaceLayerShaderCode(direction) := (
   regional(depths,u,l);
-    // discard points outside bounding sphere
-    depths = cglEval(cglCutoffRegion,direction);
-    l = depths_1;
-    u = depths_2;
+  // discard points outside bounding sphere
+  depths = cglEval(cglCutoffRegion,direction);
+  l = depths_1;
+  u = depths_2;
   cglSurfaceKthRoot(direction,l,u,K);
 );
 
@@ -1139,7 +1169,7 @@ cglSurfaceRenderStateCache = {
   "interpMap":{},
   "chebNodes":{}
 };
-// TODO? is computing elements of Chebyshev-nodes/interpolation-matrix on demand faster than storing as uniform
+// TODO? is computing elements of Chebyshev-nodes/interpolation-matrix on demand faster than storing as uniform variable
 // N+1 Chebyshev nodes for interval (0, 1)
 cglSurfaceChebyshevNodes(N):=(
   regional(cache,val);
@@ -1176,6 +1206,7 @@ cglSurfaceInterpolationMatrix(N):=(
 // guess the degree of the trivariate polynomial F. This approximation is reliable up to degree ~20.
 cglGuessdegHelper(F, s, x) := log(|cglEval(F,s*x)|)/log(s*|x|); // is approx. degree+log(leadingcoeff)/log(s*|x|) for large s
 cglGuessdeg(F) := max(apply(1 .. 2, // take the best result of 2
+  regional(x,s,l,best,it);
   x = [random(), random(), random()];
   s = 1;
   l = 1;
@@ -1231,6 +1262,11 @@ cglValOrDefault(val,default):=(
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
+// TODO? seperate modifier for texture with alpha-chanell
+// TODO allow passing tags as modifier
+// TODO use alpha parameter
+// TODO? warning if multiple color options are given, pick in order: colorExpr, texture, (colors,) color
+
 // TODO ensure that all internal modifiers have cgl prefix
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),projection));
@@ -1247,22 +1283,21 @@ draw3d(point1,point2):=(
 
 cglInterface("sphere3d",cglSphere3d,(center,radius),(color,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal),projection:normal));
 cglSphere3d(center,radius):=(
-  regional(needBackFace);
+  regional(needBackFace,modifiers,tags,ids,topLayer);
   color = cglValOrDefault(color,cglDefaultColorSphere);
   light = cglValOrDefault(light,cglDefaultLight);
   projection = cglValOrDefault(projection,cglDefaultSphereProjection);
   needBackFace = if(isundefined(alpha),length(color)==4,true);
   modifiers = {"light": light,"projection":projection};
-  // TODO? warning if multiple options are given, pick in order: colorExpr, texture, (colors,) color
   if(!isundefined(colorExpr),
     modifiers_"pixelExpr" = colorExpr;
-  ,if(!isundefined(texture), // TODO choose right version of texture renderer (rgb vs rgba)
+  ,if(!isundefined(texture),
     modifiers_"pixelExpr" = cglLazy(pos,cglTextureRGB(texture,pos),texture->texture);
   ,
     modifiers_"pixelExpr" = cglLazy(pos,cglColor);
     modifiers_"cglColor" = color;
   ));
-  tags = []; // TODO allow passing tags as modifier
+  tags = [];
   if(needBackFace,
     ids = [colorplot3d(cgl3dSphereShaderCode(#,true),center,radius,
       plotModifiers->modifiers,tags->["sphere","backside"]++tags)];
@@ -1274,7 +1309,7 @@ cglSphere3d(center,radius):=(
 
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation)));
 cglCylinder3d(point1,point2,radius):=(
-  // TODO use alpha parameter
+  regional(overhang,needBackFace,modifiers,n,tags,ids,topLayer);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   color1 = cglValOrDefault(color1,color);
   color2 = cglValOrDefault(color2,color);
@@ -1337,17 +1372,19 @@ cglCylinder3d(point1,point2,radius):=(
 );
 
 cglJoint(prev,current,next,jointType):=(
-  if(jointType==ConnectRound,
-    CylinderCapCutVoidRound((normalize(next-current)+normalize(current-prev))/2);
-  ,if(jointType==ConnectFlat,
-    CylinderCapCutVoid((normalize(next-current)+normalize(current-prev))/2);
-  ,if(jointType==ConnectOpen,
-    CylinderCapOpen
+  if(jointType==CglConnectRound,
+    CglCylinderCapCutVoidRound((normalize(next-current)+normalize(current-prev))/2);
+  ,if(jointType==CglConnectFlat,
+    CglCylinderCapCutVoid((normalize(next-current)+normalize(current-prev))/2);
+  ,if(jointType==CglConnectOpen,
+    CglCylinderCapOpen
   )));
 );
-// TODO? improve computation form texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
+// TODO? colors-modifier with one color per vertex / sample-point
+// TODO? improve computation for texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
 cglInterface("connect3d",cglConnect3d,(points),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
 cglConnect3d(points):=(
+  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,segmentProjection);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1355,7 +1392,7 @@ cglConnect3d(points):=(
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
   cap1 = cglValOrDefault(cap1,caps);
   cap2 = cglValOrDefault(cap2,caps);
-  joints = cglValOrDefault(joints,ConnectRound);
+  joints = cglValOrDefault(joints,CglConnectRound);
   jointEnd = joints;
   jointStart = joints;
   if(length(points)>=3,
@@ -1372,6 +1409,7 @@ cglConnect3d(points):=(
       current2 = points_2;
       next = points_3;
       a = b;b = a + |current1-current2|/totalLength;
+      // TODO allow passing user-data into cylinder3d, define a,b as user-modifiers and use single segmentProjection
       segmentProjection = cglLazy((normal,height,orientation),
         regional(pos0);
         pos0=cglProjCylinderToSquare(normal,height,orientation);(pos0_1,b*pos0_2+a*(1-pos0_2)),a->a,b->b);
@@ -1402,19 +1440,10 @@ cglConnect3d(points):=(
     cglSphere3d(points_1,size);// TODO? do modifiers need to be updated
   )));
 );
-// TODO? colors-modifier with one color per sample-point
 cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed));
 cglCurve3d(expr,from,to):=(
-  closed = cglValOrDefault(closed,false);
-  color = cglValOrDefault(color,cglDefaultColorCylinder);
-  size = cglValOrDefault(size,cglDefaultSizeCylinder);
-  light = cglValOrDefault(light,cglDefaultLight);
-  caps = cglValOrDefault(caps,cglDefaultCapsConnect);
-  cap1 = cglValOrDefault(cap1,caps);
-  cap2 = cglValOrDefault(cap2,caps);
   samples = cglValOrDefault(samples,cglDefaultCurveSamples)-1;
-  joints = cglValOrDefault(joints,ConnectRound);
-  cglConnect3d( apply(0..samples,k,
+  cglConnect3d(apply(0..samples,k,
     t = k/samples;
     cglEval(expr,t*to+(1-t)*from);
   ));
@@ -1422,6 +1451,7 @@ cglCurve3d(expr,from,to):=(
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,colorExpr:(texturePos),alpha,light:(color,direction,normal)));
 cglTorus3d(center,orientation,radius1,radius2):=(
+  regional(needBackFace,modifiers,tags,ids,topLayer);
   orientation=normalize(orientation);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   light = cglValOrDefault(light,cglDefaultLight);
@@ -1466,9 +1496,9 @@ cglCircle3d(center,orientation,radius):=(
 // TODO support normalExpr for all triangle-based shapes,
 // ?  additional parameters for uv-coord and space position
 
-// TODO? how to parametrize color-expr (?space-pos or uv-mapping)
 cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals));
 cglTriangle3d(p1,p2,p3):=(
+  regional(modifiers,vModifiers,tags);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   normal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
@@ -1486,6 +1516,7 @@ cglTriangle3d(p1,p2,p3):=(
     "cglNormal":normals
   };
   if(isundefined(uv),
+    // TODO? default uv-mapping ((0,0),(0,1),(1,0)) instead of texture position
     modifiers_"textureMapping" = cglLazy((pos3d,direction),pos3d);
   ,
     modifiers_"textureMapping" = cglLazy((pos3d,direction),cglTexCoords);
@@ -1517,12 +1548,13 @@ cglTriangle3d(p1,p2,p3):=(
 
 cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalType));
 cglPolygon3d(vertices):=(
+  regional(modifiers,vModifiers,trianglesAndNormals,tags);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
-  triangulationMode = cglValOrDefault(triangulationMode,TriangulateDefault);
+  triangulationMode = cglValOrDefault(triangulationMode,CglTriangulateDefault);
   // TODO? warn for mismatched normal-type
   if(isundefined(normals),
-    if(! isundefined(normal),
+    if(!isundefined(normal),
       normals = apply(vertices,normal);
       normalType = NormalFlat;
     ,
@@ -1530,7 +1562,6 @@ cglPolygon3d(vertices):=(
     ),
     normalType = NormalPerVertex;
   );
-  pixelExpr = cglLazy(pos,cglColor);
   if(normalType == NormalPerVertex,
     // interpolated vector may not be normalized
     normalExpr = cglLazy(dir,normalize(cglNormal));
@@ -1564,10 +1595,9 @@ cglPolygon3d(vertices):=(
       vModifiers_"cglColor"=colors;
     );
   ));
-  // TODO different normal-modes: "flat","perFace","perVertex"
-  if(triangulationMode==TriangulateSpiral,
+  if(triangulationMode==CglTriangulateSpiral,
     trianglesAndNormals = cglTriangulatePolygonSpiral(vertices,normals,vModifiers,normalType);
-  ,if(triangulationMode==TriangulateCorner,
+  ,if(triangulationMode==CglTriangulateCorner,
     trianglesAndNormals = cglTriangulatePolygonCorner(vertices,normals,vModifiers,normalType);
   ,
     trianglesAndNormals = cglTriangulatePolygonCenter(vertices,normals,vModifiers,normalType);
@@ -1579,15 +1609,12 @@ cglPolygon3d(vertices):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
 );
 
-// TODO adjust uv coordinates if side of grid-cell is collapsed
-// TODO! document parameter handling:
-// * for closed shapes vertex data (e.g. colors/uv-coords) can be one element larger (in each direction) than vertex grid 
-//   the additional element is used as parameter then approaching the vertex from the oher side of the boundry
+// TODO? adjust uv coordinates if side of grid-cell is collapsed
 
 // TODO? use different modifiers for vertex and face normals
-// TODO should grid be indexed as grid_x_y or grid_y_x
-cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalType,normalExpr,topology));
+cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalType,normalExpr:(dir),topology));
 cglMesh3d(grid):=(
+  regional(Ny,Nx,triangles,modifiers,vModifiers,tags);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   topology = cglValOrDefault(topology,TopologyOpen);
@@ -1603,18 +1630,18 @@ cglMesh3d(grid):=(
     normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology);
     normalType = NormalPerVertex;
   );
-  pixelExpr = cglLazy(pos,cglColor);
-  if(normalType == NormalPerVertex,
-    // interpolated vector may not be normalized
-    normalExpr = cglLazy(dir,normalize(cglNormal));
-  ,
-    normalExpr = cglLazy(dir,cglNormal);
+  if(isundefined(normalExpr),
+    if(normalType == NormalPerVertex,
+      // interpolated vector may not be normalized
+      normalExpr = cglLazy(dir,normalize(cglNormal));
+    ,
+      normalExpr = cglLazy(dir,cglNormal);
+    );
   );
   modifiers = {
-    "pixelExpr":pixelExpr,  "light": light,
+    "light": light,
     "normalExpr":normalExpr
   };
-  // TODO allow attaching user-data to vertices
   vModifiers = {};
   if(isundefined(uv),
     modifiers_"textureMapping" = cglLazy((pos3d,direction),pos3d);
@@ -1688,29 +1715,29 @@ cglSurface3d(fun) := (
       modifiers_"cglColor" = color;
     );
     // TODO determine render bounding box depending on cutoff-region
-    // TODO parameter for chooseing transparency mode, ? maximum layers
+    // TODO parameter for chooseing transparency mode, render-layers: (-1 -> all 0-> merge all layers, 1,2,3,4,..)
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->1,plotModifiers->modifiers)
     colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
 );
 
+// TODO ensure plot takes same modifiers as surface
 // TODO? add ability to scale axes
-// TODO? merge plot and cplot?
 // TODO add back x0,x1,y0,y1 parameters for easier bounding box
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion:(direction),degree));
 cglPlot3d(f/*f(x,y)*/):=(
-  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f)); // TODO are there more modifiers than need to be updated
+  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f));
 );
 cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),degree));
 cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion:(direction),degree));
 cglCPlot3d(f/*f(z)*/):=(
-  if(isundefined(colorExpr),
+  if(isundefined(color) & isundefined(colorExpr),
     colorExpr = cglLazy((x,y,ignoreZ),
       regional(z);
       z=cglEval(f,x+i*y);
       hue((arctan2(re(z),im(z))+pi)/(2*pi))
     ,f->f);
   );
-  cglSurface3d(cglLazy((x,y,z),abs(cglEval(f,x+i*y))-z,f->f)); // TODO are there more modifiers than need to be updated
+  cglSurface3d(cglLazy((x,y,z),abs(cglEval(f,x+i*y))-z,f->f));
 );
