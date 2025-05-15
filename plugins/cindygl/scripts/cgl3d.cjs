@@ -684,18 +684,20 @@ cgl3dTriangleShaderCode(direction):=(
   cglRawDepth = |cglViewPos-cglSpacePos|; // set raw depth to correct value (depth is handled by v-shader)
   texCoord = cglEval(cglTextureMapping,cglSpacePos,direction);
   color = cglEval(cglPixelExpr,texCoord);
-  normal = cglEval(cglNormalExpr,direction);
+  normal = cglEval(cglNormalExpr,cglSpacePos,texCoord);
   cglEval(cglLight,color,direction,normal);
 );
 
-CglNormalFlat=0;
-CglNormalPerFace=0;
-CglNormalPerTriangle=1;
-CglNormalPerVertex=2;
+CglNormalFlat = 0;
+CglNormalPerFace = 0;
+CglNormalPerTriangle = 1;
+CglNormalPerVertex = 2;
+CglNormalPerPixel = 3;
 NormalFlat=CglNormalFlat;
 NormalPerFace=CglNormalPerFace;
 NormalPerTriangle=CglNormalPerTriangle;
 NormalPerVertex=CglNormalPerVertex;
+NormalPerPixel = CglNormalPerPixel;
 
 cglTriangulateCorner(elts):=(
   regional(root);
@@ -730,15 +732,14 @@ cglTriangulateCenter(elts):=(
 cglTriangulatePolygon(triangulator,vertices,vNormals,vModifiers,normalType):=(
   regional(triangles,n,vMap,vData);
   triangles = cglEval(triangulator,vertices);
-  if(isundefined(vNormals),
+  if(isundefined(vNormals) & normalType != CglNormalPerPixel,
     vNormals = flatten(apply(1..(length(triangles)/3),i,
       n=normalize(cross(triangles_(3*i)-triangles_(3*i-1),triangles_(3*i-2)-triangles_(3*i-1)));
       [n,n,n];
     ));
     if(normalType==NormalFlat,
       // compute average normal
-      n = normalize(sum(vNormals));
-      vNormals = apply(vNormals,n);
+      vNormals = normalize(sum(vNormals)); // for flat normal-type normals is a single normal
     ,if(normalType==NormalPerVertex,
       vMap = cglEval(triangulator,1..length(vertices));
       vData = apply(vertices,(0,0,0));
@@ -1545,30 +1546,50 @@ cglCircle3d(center,orientation,radius):=(
   cglTorus3d(center,orientation,radius,size);
 );
 
-// TODO support normalExpr for all triangle-based shapes,
-// ?  additional parameters for uv-coord and space position
+// TODO? normalTexture modifier (texture of normal vectors)
+// TODO handle mismatched normal-types:
+//  * if normal-type explicitly given use parameter for normal type (or recompute is not present)
+//  * if multiple values are given give warning and use most specific
+//  * if no value given guess normal for default normal-type
 
-cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,plotModifiers,vertexModifiers,tags));
+cglCheckSize(vData,vCount,msg,defVal) := (
+  if(length(vData)==vCount,
+    vData
+  ,
+    print(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
+    apply(1..vCount,defVal);
+  )
+);
+cglCheckSize(vData,vCount,msg) := (
+  if(length(vData)==vCount,
+    vData
+  ,
+    print(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
+  )
+);
+
+cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
 cglTriangle3d(p1,p2,p3):=(
   regional(modifiers,vModifiers);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
-  normal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
-  normals = cglValOrDefault(normals,[normal,normal,normal]);
-  if(length(normals)!=3, // TODO! create function for size-check of vertex data
-    print("unexpected value for normals, expected list of length 3 got:");
-    print(normals);
-    normals=[normal,normal,normal]
-  );
-  normalExpr = cglLazy(dir,cglNormal);
   modifiers = {
-    "cglLight": light, "cglNormalExpr":normalExpr
+    "cglLight": light
   };
   modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
-  vModifiers = {
-    "cglNormal":normals
-  };
-  vModifiers = cglAppendAll(vModifiers,cglValOrDefault(vertexModifiers,{}));
+  vModifiers = cglValOrDefault(vertexModifiers,{});
+  if(isundefined(normalExpr),
+    normal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+    if(isundefined(normals),
+      modifiers_"cglNormal" = normal;
+    ,
+      normals = cglCheckSize(normals,3,"wrong length for normals",normal);
+      vModifiers_"cglNormal" = normals;
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+    );
+  );
+  modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
     // TODO? default uv-mapping ((0,0),(0,1),(1,0)) instead of texture position
     modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
@@ -1585,11 +1606,7 @@ cglTriangle3d(p1,p2,p3):=(
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
-      if(length(colors)!=3, // TODO! create function for size-check of vertex data
-        print("unexpected value for colors, expected list of length 3 got:");
-        print(colors);
-        colors=[color,color,color]
-      );
+      colors = cglCheckSize(colors,3,"wrong length for colors",color);
       vModifiers_"cglColor"=colors;
     );
   ));
@@ -1600,33 +1617,39 @@ cglTriangle3d(p1,p2,p3):=(
 
 // TODO? triangles3d
 
-cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalType,plotModifiers,vertexModifiers,tags));
+cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),normalType,plotModifiers,vertexModifiers,tags));
 cglPolygon3d(vertices):=(
   regional(modifiers,vModifiers,triangulator,trianglesAndNormals);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   triangulationMode = cglValOrDefault(triangulationMode,CglTriangulateDefault);
-  // TODO? warn for mismatched normal-type
-  if(isundefined(normals),
-    if(!isundefined(normal),
-      normals = apply(vertices,normal);
-      normalType = NormalFlat;
-    ,
-      normalType = cglValOrDefault(normalType,NormalPerTriangle);
-    ),
-    normalType = NormalPerVertex;
-  );
-  if(normalType == NormalPerVertex,
-    // interpolated vector may not be normalized
-    normalExpr = cglLazy(dir,normalize(cglNormal));
-  ,
-    normalExpr = cglLazy(dir,cglNormal);
-  );
   modifiers = {
-    "cglLight": light, "cglNormalExpr":normalExpr
+    "cglLight": light
   };
   modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
   vModifiers = cglValOrDefault(vertexModifiers,{});
+  if(isundefined(normalExpr),
+    if(isundefined(normals),
+      if(!isundefined(normal),
+        normals = normal; // for flat normal-type normals is a single normal
+        normalType = CglNormalFlat;
+      ,
+        normalType = cglValOrDefault(normalType,NormalPerTriangle);
+      )
+    ,
+      normalType = CglNormalPerVertex;
+      normals = cglCheckSize(normals,length(vertices),"wrong length for normals");
+    );
+    if(normalType == CglNormalPerVertex,
+      // interpolated vector may not be normalized
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+    ,
+      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+    );
+  ,
+    normalType = CglNormalPerPixel;
+  );
+  modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
     modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
   ,
@@ -1642,11 +1665,7 @@ cglPolygon3d(vertices):=(
     if(isundefined(colors),
       modifiers_"cglColor"=color;
     ,
-      if(length(colors)!=length(vertices), // TODO! create function for size-check of vertex data
-        print("unexpected value for colors, expected list of length "+text(length(vertices))+" got:");
-        print(colors);
-        colors=apply(vertices,color);
-      );
+      colors = cglCheckSize(colors,length(vertices),"wrong length for colors",color);
       vModifiers_"cglColor"=colors;
     );
   ));
@@ -1659,7 +1678,11 @@ cglPolygon3d(vertices):=(
   ));
   trianglesAndNormals = cglTriangulatePolygon(triangulator,vertices,normals,vModifiers,normalType);
   vModifiers = trianglesAndNormals_3;
-  vModifiers_"cglNormal" =trianglesAndNormals_2;
+  if(normalType == CglNormalFlat,
+    modifiers_"cglNormal" =trianglesAndNormals_2;
+  ,if(normalType != CglNormalPerPixel,
+    vModifiers_"cglNormal" =trianglesAndNormals_2;
+  ));
   tags = cglValOrDefault(tags,[]);
   colorplot3d(cgl3dTriangleShaderCode(#),trianglesAndNormals_1,
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
@@ -1668,7 +1691,7 @@ cglPolygon3d(vertices):=(
 // TODO? adjust uv coordinates if side of grid-cell is collapsed
 
 // TODO? use different modifiers for vertex and face normals
-cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalType,normalExpr:(dir),topology,plotModifiers,vertexModifiers,tags));
+cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalType,normalExpr:(spacePos,texturePos),topology,plotModifiers,vertexModifiers,tags));
 cglMesh3d(grid):=(
   regional(Ny,Nx,triangles,modifiers,vModifiers);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
@@ -1689,10 +1712,12 @@ cglMesh3d(grid):=(
   if(isundefined(normalExpr),
     if(normalType == NormalPerVertex,
       // interpolated vector may not be normalized
-      normalExpr = cglLazy(dir,normalize(cglNormal));
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
     ,
-      normalExpr = cglLazy(dir,cglNormal);
+      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
     );
+  ,
+    normalType = NormalPerPixel
   );
   modifiers = {
     "cglLight": light,
@@ -1719,7 +1744,9 @@ cglMesh3d(grid):=(
     );
   ));
   vModifiers=apply(vModifiers,samples,cglMeshSamplesToTriangles(samples,Nx,Ny,topology));
-  vModifiers_"cglNormal" = normals;
+  if(normalType != NormalPerPixel,
+    vModifiers_"cglNormal" = normals;
+  );
   tags = cglValOrDefault(tags,[]);
   colorplot3d(cgl3dTriangleShaderCode(#),triangles,
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags);
@@ -1730,7 +1757,7 @@ cglMesh3d(grid):=(
 // TODO? cubic3d
 
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
-  texture,uv,normals:(x,y,z),cutoffRegion,degree,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
+  texture,uv,dF:(x,y,z),cutoffRegion,degree,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
 cglSurface3d(fun) := (
     regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds);
     color = cglValOrDefault(color,cglDefaultColorSurface);
@@ -1739,7 +1766,7 @@ cglSurface3d(fun) := (
     cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
     // convert function to form taking vector insteads of 3 arguments
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
-    normalExpr = if(isundefined(normals),cglGuessDerivative(F),normals);
+    normalExpr = if(isundefined(dF),cglGuessDerivative(F),dF);
     if(isundefined(degree),
       N = cglGuessdeg(F);
       // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)

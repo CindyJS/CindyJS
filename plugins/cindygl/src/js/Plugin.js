@@ -1246,8 +1246,19 @@ let CindyGL = function(api) {
         ));
     }
     function wrapLazy(expr,params) {
-        // TODO? is there a way to not print error messages when this evaluation fails
-        let value = api.evaluate(expr);
+        let value = nada;
+        const oldLog = console.log;
+        try{
+            // this is evil:
+            //  redefine console.log to silence error messages during `api.evaluate` call
+            console.log = function() {};
+            value = api.evaluate(expr);
+        } catch (ignored) {
+            // if evaluation failed use result as expression
+        } finally {
+            // restore console.log to previous value
+            console.log = oldLog;
+        }
         if(value['ctype'] === 'cglLazy') {
             // TODO? warning if parameter names do not match
             if(value.params.length === params.length) {

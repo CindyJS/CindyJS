@@ -5,6 +5,7 @@
 The following modiifers are present on all geoemetric primitives
 * `color` the surface color <!-- TODO? list pre-defined colors-->
 * `texture` the texture use to color the surface
+<!--TODO? make colorExpr take both space and texture pos as parameters-->
 * `colorExpr:(texturePos)` an explicit expression for the color at each pixel
 * `alpha` the transparency for the given shape
 * `light:(color,direction,normal)` a expression for computing the lighting at a given pixel depending on the surface color, view-direction and normal-vector, in addition to an explicit expression the following pre-defined values can be used:
@@ -54,7 +55,7 @@ For triangles, polygons and meshes there are the following additional parameters
 * `uv` the texture positions for each given vertex
 * `normal` the normal vector to the polygon (does not exist for meshes)
 * `normals` normal vectors at the individual vertices
-* `normalExpr:(dir)` gives a normal vector for each pixel <!--TODO find good parameter list-->
+* `normalExpr:(spacePos,texturePos)` gives a normal vector for each pixel depending on position in 3D-space and/or texture position
 * `normalType` (does not exist for triangles) specifies how normals are computed/assigned to vertices, possible values are:
   - `NormalPerFace` assign a normal vector to each face
   - `NormalFlat` alias for `NormalPerFace` for use in `polygon3d(..)`
@@ -66,7 +67,7 @@ Surfaces and plots allow specifing:
 <!--TODO? make space-color and texture color different modifiers-->
 * `colorExpr:(x,y,z)` (instead of `colorExpr:texturePos`) gives a color for each pixel in 3D-space that can be used when rendering the shape
 <!-- uv:?  a way to map surface to 2D coordinates -->
-* `normals:(x,y,z)` (for surface) specify the normal vector for the surface point at the gien space position
+* `dF:(x,y,z)` (for surface) specify the normal vector for the surface point at the given space position
 * `df:(x,y)` /  `df:(z)` (for plots) derivative of the plotted function at the given coordinates, can be used to simplify computation of normal vectors
 * `cutoffRegion` region in 3D-space where the surface/plot should be rendered possible values are:
   - `CutoffScreenSphere` largest sphere fitting into current screen, updates depending on current zoom level
