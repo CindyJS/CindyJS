@@ -1573,6 +1573,7 @@ cglTriangle3d(p1,p2,p3):=(
   regional(modifiers,vModifiers);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
+  uv = cglValOrDefault(uv,[(0,0),(1,0),(0,1)]);
   modifiers = {
     "cglLight": light
   };
@@ -1590,13 +1591,8 @@ cglTriangle3d(p1,p2,p3):=(
     );
   );
   modifiers_"cglNormalExpr" = normalExpr;
-  if(isundefined(uv),
-    // TODO? default uv-mapping ((0,0),(0,1),(1,0)) instead of texture position
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
-  ,
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
-    vModifiers_"cglTexCoords" = uv;
-  );
+  modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+  vModifiers_"cglTexCoords" = uv;
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1651,11 +1647,24 @@ cglPolygon3d(vertices):=(
   );
   modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
-  ,
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
-    vModifiers_"cglTexCoords" = uv;
+    regional(n,a);
+    n = length(vertices);
+    // compute uv-coordinates by picking points at uniform distance along boundry of unit square
+    uv = apply(1..n,i,
+      a=4*(i-1)/n;
+      if(a<2,if(a<1, // 0...1
+        (0,a)
+      ,// 1...2
+        (a-1,1)
+      ),if(a<3, // 2...3
+        (1,3-a)
+      , // 3...4
+        (4-a,0)
+      ));
+    );
   );
+  modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+  vModifiers_"cglTexCoords" = uv;
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1726,11 +1735,14 @@ cglMesh3d(grid):=(
   modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
   vModifiers = cglValOrDefault(vertexModifiers,{});
   if(isundefined(uv),
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),pos3d);
-  ,
-    modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
-    vModifiers_"cglTexCoords" = uv;
+    // map grid-positions to unit-square
+    regional(nx,ny);
+    nx = if(topology_2==CglTopologyOpen,Ny-1,Ny);
+    ny = if(topology_1==CglTopologyOpen,Nx-1,Nx);
+    uv=apply(0..ny,y,apply(0..nx,x,(x/nx,y/ny)));
   );
+  modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+  vModifiers_"cglTexCoords" = uv;
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),

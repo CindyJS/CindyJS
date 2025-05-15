@@ -40,11 +40,10 @@
             /*N=16;
             mesh3d(
                 apply(0..(N-1),y,apply(0..(N-1),x,
-                    a=2*pi*x/N;b=2*pi*y/N;
+                    a=2*pi*(1-x/N);b=2*pi*y/N;
                     ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
                 ))
-            ,normalType->NormalPerTriangle,topology->TopologyCloseX+TopologyCloseY,
-                uv->apply(0..N,y,apply(0..N,x,a=x/N;b=y/N;(1-a,b))),texture->"equirect");*/
+            ,normalType->NormalPerTriangle,topology->TopologyCloseX+TopologyCloseY,texture->"equirect");
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
