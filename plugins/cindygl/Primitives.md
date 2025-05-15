@@ -107,6 +107,8 @@ CindyGL3D defines the following functions for drawing primitive objects:
   - `TopologyCloseY` close shape in y-direction
   - `TopologyCloseXY` close shape in both x- and y-direction (It is possible to combine a x and y topology by adding the corresponding constants)
 If the topology in a direction is closed it is possible to give one additional row/column of vertex modifiers in that direction to specify the vertex data of the end-points when approaching from the other side of the boundry.
+When the normalType is per face the normal-vector of the top-left corner of each grid-cell will be used for that cell,
+for normals per triangle the top-left and bottom right corners are used. <!--TODO formulation-->
 
 * `surface3d(expr:(x,y,z))` render the algebraic surface that is the zero-set of the given expression
 * `plot3d(f:(x,y))` plot a 2D-function

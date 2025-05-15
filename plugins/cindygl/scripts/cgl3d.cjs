@@ -775,8 +775,11 @@ TopologyCloseX = CglTopologyClose;
 TopologyCloseY = CglTopologyYFactor*CglTopologyClose;
 TopologyCloseXY = TopologyCloseX+TopologyCloseY;
 // TODO? allow mirrored closing
+cglSampleVertex = 0;
+cglSampleFace = 1;
+cglSampleTriangle = 2;
 
-cglMeshSamplesToTriangles(samples,Nx,Ny,topology):=(
+cglMeshSamplesToTriangles(samples,Nx,Ny,topology,sampleType):=(
   regional(p00,p01,p10,p11);
   // TODO? is handling closure by adding missing elements in loop more efficent
   if(topology_1 == CglTopologyClose,//close X
@@ -797,7 +800,13 @@ cglMeshSamplesToTriangles(samples,Nx,Ny,topology):=(
       p01 = samples_ny_(nx+1);
       p10 = samples_(ny+1)_nx;
       p11 = samples_(ny+1)_(nx+1);
-      [p00,p01,p10,p01,p10,p11];
+      if(sampleType == cglSampleVertex,
+        [p00,p01,p10,p01,p10,p11];
+      ,if(sampleType == cglSampleFace,
+        [p00,p00,p00,p00,p00,p00];
+      ,
+        [p00,p00,p00,p11,p11,p11];
+      ));
     );
   ),levels->2);
 );
@@ -908,7 +917,7 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
       );
     );
     // assign normals to corresponding vertices
-    cglMeshSamplesToTriangles(vNormals,Nx,Ny,topology);
+    cglMeshSamplesToTriangles(vNormals,Nx,Ny,topology,cglSampleVertex);
   ));
 );
 
@@ -1298,6 +1307,8 @@ cglAppendAll(dict1,dict2):=(
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO? warning if multiple color options are given, pick in order: colorExpr, texture, (colors,) color
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
+// TODO? spacePos parameter for colorExpr
+//       ? rename spacePos -> pos3d
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
 cglDraw3d(pos3d):=(
@@ -1709,16 +1720,19 @@ cglMesh3d(grid):=(
   topology = (mod(topology,CglTopologyYFactor),floor(topology/CglTopologyYFactor));
   Ny = length(grid);
   Nx = length(grid_1);
-  triangles = cglMeshSamplesToTriangles(grid,Nx,Ny,topology);
-  if(isundefined(normals),
-    normalType = cglValOrDefault(normalType,NormalPerTriangle);
-    normals = cglMeshGuessNormals(grid,Nx,Ny,normalType,topology);
-  ,
-    // TODO if normal-type is per face, copy normal to all vertices of face
-    normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology);
-    normalType = NormalPerVertex;
-  );
+  triangles = cglMeshSamplesToTriangles(grid,Nx,Ny,topology,cglSampleVertex);
   if(isundefined(normalExpr),
+    if(isundefined(normals),
+      normalType = cglValOrDefault(normalType,NormalPerTriangle);
+      normals = cglMeshGuessNormals(grid,Nx,Ny,normalType,topology);
+    ,if(normalType == NormalPerFace,
+      normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleFace);
+    ,if(normalType == NormalPerTriangle,
+      normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleTriangle);
+    ,
+      normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleVertex);
+      normalType = NormalPerVertex;
+    )));
     if(normalType == NormalPerVertex,
       // interpolated vector may not be normalized
       normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
@@ -1755,7 +1769,7 @@ cglMesh3d(grid):=(
       vModifiers_"cglColor"=colors;
     );
   ));
-  vModifiers=apply(vModifiers,samples,cglMeshSamplesToTriangles(samples,Nx,Ny,topology));
+  vModifiers=apply(vModifiers,samples,cglMeshSamplesToTriangles(samples,Nx,Ny,topology,cglSampleVertex));
   if(normalType != NormalPerPixel,
     vModifiers_"cglNormal" = normals;
   );
@@ -1810,7 +1824,6 @@ cglSurface3d(fun) := (
       modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
       modifiers_"cglColor" = color;
     );
-    // TODO determine render bounding box depending on cutoff-region
     // TODO parameter for chooseing transparency mode, render-layers: (-1 -> all 0-> merge all layers, 1,2,3,4,..)
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
     // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
