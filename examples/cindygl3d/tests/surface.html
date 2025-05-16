@@ -27,7 +27,7 @@
 
             cglBegin3d();
             surface3d(cos(x)*sin(y) + cos(y)*sin(z) + cos(z)*sin(x)+1.5*sin((2*pi/64)*mod(seconds(),64)),
-                cutoffRegion->CutoffScreenCylinder);
+                cutoffRegion->CutoffScreenCylinder([1,1,1]));
 
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);

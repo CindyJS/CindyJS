@@ -712,7 +712,7 @@ cglTriangulateSpiralRec(elts):=(
   if(eltCount<=3,
     if(eltCount<3,[],elts)
   ,
-    // TODO split of last element to avoid check for overflow in remaining elements
+    // TODO? split of last element to avoid check for overflow in remaining elements
     even = flatten(apply(1..(eltCount/2),i,(elts_(2*i-1),elts_(2*i),elts_(cglMod1plus(2*i+1,eltCount)))));
     odd = apply(1..(eltCount/2),i,elts_(2*i-1));
     if(mod(eltCount,2)==1,
@@ -1171,7 +1171,7 @@ cglGuessdeg(F) := max(apply(1 .. 2, // take the best result of 2
 ));
 
 // use central difference to approximate dF
-cglGuessDerivative(F) := ( // TODO avoid code duplication for repeated application of cglEval
+cglGuessDerivative(F) := ( // TODO? avoid code duplication for repeated application of cglEval
   cglLazy(p,((
       (cglEval(F,p + [eps, 0, 0]) - cglEval(F,p - [eps, 0, 0])),
       (cglEval(F,p + [0, eps, 0]) - cglEval(F,p - [0, eps, 0])),
@@ -1226,7 +1226,7 @@ CglCutoffScreenSphere = {"expr": cglLazy(direction,
   x1 = viewRect_3;
   y1 = viewRect_4;
   cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-y0|,|y1-x0|)/2)
-),"bounds": CglBoundsUnbounded};
+),"bounds": CglBoundsUnbounded,"modifs":{}};
 CglCutoffScreenCylinder = {"expr": cglLazy(direction,
   regional(viewRect,x0,y0,x1,y1,r);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
@@ -1236,8 +1236,7 @@ CglCutoffScreenCylinder = {"expr": cglLazy(direction,
   y1 = viewRect_4;
   r = min(|x1-y0|,|y1-x0|)/2.5;
   cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,[0,r,0],r)
-),"bounds": CglBoundsUnbounded};
-// TODO? pass orientation as modifier
+),"bounds": CglBoundsUnbounded,"modifs":{}};
 CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
   regional(viewRect,x0,y0,x1,y1,r);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
@@ -1246,28 +1245,28 @@ CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
   x1 = viewRect_3;
   y1 = viewRect_4;
   r = min(|x1-y0|,|y1-x0|)/2.5;
-  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*normalize(orientation),r)
-,orientation->orientation),"bounds": CglBoundsUnbounded};
+  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*cglBoxOrientation,r)),
+  "bounds": CglBoundsUnbounded,"modifs":{"cglBoxOrientation":normalize(orientation)}};
 
 CglCutoffSphere(center,radius) := {"expr":cglLazy(direction,
   cglSphereDepths(direction,cglCenter,cglRadius)
-),"bounds":CglBoundsSphere(center,radius)};
+),"bounds":CglBoundsSphere(center,radius),"modifs":{}};
 CglCutoffCylinder(point1,point2,radius) := {"expr":cglLazy(direction,
   cglCappedCylinderDepths(direction,cglCenter,cglOrientation,cglRadius)
-),"bounds":CglBoundsCylinder(point1,point2,radius)};
+),"bounds":CglBoundsCylinder(point1,point2,radius),"modifs":{}};
 CglCutoffCube(center,sideLength) := {"expr":cglLazy(direction,
   cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)
-),"bounds":CglBoundsCuboid(center,[sideLength,0,0],[0,sideLength,0],[0,0,sideLength])};
+),"bounds":CglBoundsCuboid(center,[sideLength,0,0],[0,sideLength,0],[0,0,sideLength]),"modifs":{}};
 CglCutoffCube(center,sideLength,up,front) := {
   "expr":cglLazy(direction,
     cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
   "bounds":CglBoundsCuboid(center,sideLength*normalize(up),sideLength*normalize(front),
-    sideLength*normalize(cross(up,front)))
+    sideLength*normalize(cross(up,front))),"modifs":{}
 };
 CglCutoffCuboid(center,v1,v2,v3) := {
   "expr":cglLazy(direction,
     cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
-  "bounds":CglBoundsCuboid(center,v1,v2,v3)
+  "bounds":CglBoundsCuboid(center,v1,v2,v3),"modifs":{}
 };
 
 CutoffScreenSphere = CglCutoffScreenSphere;
@@ -1290,11 +1289,14 @@ cglValOrDefault(val,default):=(
 );
 // TODO is there realy no built-in for this
 // ? implement in javascript
-cglAppendAll(dict1,dict2):=(
+// add all entries in second dictionary to first dictionary
+cglMergeDicts(dict1,dict2):=(
   res = dict1;
-  forall(dict2,val,key,print((key,val));res_key=val);
+  forall(dict2,val,key,res_key=val);
   res;
 );
+// returns undefined
+cglUndefinedVal():=(regional(nada);nada);
 
 // TODO find good list of default modifiers‚
 // function->f(#pos,#norm,#kmin,#kmax....) (colorplot on drawn surface)
@@ -1330,7 +1332,7 @@ cglSphere3d(center,radius):=(
   projection = cglValOrDefault(projection,cglDefaultSphereProjection);
   needBackFace = if(isundefined(alpha),length(color)==4,true);
   modifiers = {"cglLight": light,"cglProjection":projection};
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1377,7 +1379,7 @@ cglCylinder3d(point1,point2,radius):=(
     "cglGetCutVector1":cglCutVectorNone,"cglGetCutVector2":cglCutVectorNone,
     "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2",
     "cglProjection": projection};
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1523,7 +1525,7 @@ cglTorus3d(center,orientation,radius1,radius2):=(
     "cglLight": light,
     "cglRadii": [radius1,radius2]
   };
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   if(!isundefined(colorExpr),
     modifiers_"cglPixelExpr" = colorExpr;
   ,if(!isundefined(texture),
@@ -1557,12 +1559,6 @@ cglCircle3d(center,orientation,radius):=(
   cglTorus3d(center,orientation,radius,size);
 );
 
-// TODO? normalTexture modifier (texture of normal vectors)
-// TODO handle mismatched normal-types:
-//  * if normal-type explicitly given use parameter for normal type (or recompute is not present)
-//  * if multiple values are given give warning and use most specific
-//  * if no value given guess normal for default normal-type
-
 cglCheckSize(vData,vCount,msg,defVal) := (
   if(length(vData)==vCount,
     vData
@@ -1579,27 +1575,39 @@ cglCheckSize(vData,vCount,msg) := (
   )
 );
 
+// TODO? normalTexture modifier (texture of normal vectors)
 cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
 cglTriangle3d(p1,p2,p3):=(
-  regional(modifiers,vModifiers);
+  regional(modifiers,vModifiers,defNormal);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   uv = cglValOrDefault(uv,[(0,0),(1,0),(0,1)]);
   modifiers = {
     "cglLight": light
   };
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   vModifiers = cglValOrDefault(vertexModifiers,{});
-  if(isundefined(normalExpr),
-    normal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
-    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
-    if(isundefined(normals),
-      modifiers_"cglNormal" = normal;
-    ,
-      normals = cglCheckSize(normals,3,"wrong length for normals",normal);
+  defNormal = cglValOrDefault(normal,normalize(cross(p2-p1,p3-p1)));
+  if(!isundefined(normals),
+    if(isundefined(normalExpr),
+      normals = cglCheckSize(normals,3,"wrong length for normals",defNormal);
       vModifiers_"cglNormal" = normals;
       normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+    ,
+      print("Warning: modifier `normals` is ignored if `normalExpr` is given");
     );
+  );
+  if(!isundefined(normal),
+    if(isundefined(normalExpr),
+      modifiers_"cglNormal" = normal;
+      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+    ,
+      print("Warning: modifier `normal` is ignored if `normals` or `normalExpr` is given");
+    );
+  );
+  if(isundefined(normalExpr),
+    modifiers_"cglNormal" = defNormal;
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
   );
   modifiers_"cglNormalExpr" = normalExpr;
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
@@ -1633,29 +1641,51 @@ cglPolygon3d(vertices):=(
   modifiers = {
     "cglLight": light
   };
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   vModifiers = cglValOrDefault(vertexModifiers,{});
-  if(isundefined(normalExpr),
-    if(isundefined(normals),
-      if(!isundefined(normal),
-        normals = normal; // for flat normal-type normals is a single normal
-        normalType = CglNormalFlat;
+  if(isundefined(normalType),
+    if(!isundefined(normalExpr),
+      normalType = CglNormalPerPixel;
+    );
+    if(!isundefined(normals),
+      if(isundefined(normalType),
+        normalType = CglNormalPerVertex;
       ,
-        normalType = cglValOrDefault(normalType,NormalPerTriangle);
+        print("Warning: modifier `normals` is ignored if `normalExpr` is given");
       )
-    ,
+    );
+    if(!isundefined(normal),
+      if(isundefined(normalType),
+        normalType = CglNormalPerFace;
+      ,
+        print("Warning: modifier `normal` is ignored if `normalExpr` or `normals` is given");
+      )
+    );
+    if(isundefined(normalType),
+      normalType = CglNormalPerTriangle;
+    );
+  );
+  if(normalType == CglNormalPerPixel,
+    if(isundefined(normalExpr),
+      print("modifier `normalExpr` has to be set when using per-pixel normals");
+      normals = cglUndefinedVal();
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
       normalType = CglNormalPerVertex;
+    );
+  ,if(normalType == CglNormalPerVertex,
+    normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+    if(!isundefined(normals),
       normals = cglCheckSize(normals,length(vertices),"wrong length for normals");
     );
-    if(normalType == CglNormalPerVertex,
-      // interpolated vector may not be normalized
-      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
-    ,
-      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
-    );
+  ,if(normalType == CglNormalPerTriangle,
+    normals = cglUndefinedVal();
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+  ,if(normalType == CglNormalFlat,
+    normals = normal; // for flat normal-type normals is a single normal
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
   ,
-    normalType = CglNormalPerPixel;
-  );
+    print("unknown normal-type: "+text(normalType));
+  ))));
   modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
     regional(n,x,y,xmin,xmax,ymin,ymax,p);
@@ -1677,7 +1707,6 @@ cglPolygon3d(vertices):=(
     uv = apply(uv,p,
       ((p_1-xmin)/(xmax-xmin),(p_2-ymin)/(ymax-ymin))
     );
-    print(uv);
   );
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
   vModifiers_"cglTexCoords" = uv;
@@ -1716,7 +1745,7 @@ cglPolygon3d(vertices):=(
 // TODO? adjust uv coordinates if side of grid-cell is collapsed
 
 // TODO? use different modifiers for vertex and face normals
-cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalType,normalExpr:(spacePos,texturePos),topology,plotModifiers,vertexModifiers,tags));
+cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
 cglMesh3d(grid):=(
   regional(Ny,Nx,triangles,modifiers,vModifiers);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
@@ -1726,32 +1755,48 @@ cglMesh3d(grid):=(
   Ny = length(grid);
   Nx = length(grid_1);
   triangles = cglMeshSamplesToTriangles(grid,Nx,Ny,topology,cglSampleVertex);
-  if(isundefined(normalExpr),
+  if(isundefined(normalType),
+    if(!isundefined(normalExpr),
+      normalType = CglNormalPerPixel;
+    );
+    if(!isundefined(normals),
+      if(isundefined(normalType),
+        normalType = CglNormalPerVertex;
+      ,
+        print("Warning: modifier `normals` is ignored if `normalExpr` is given");
+      )
+    );
+    if(isundefined(normalType),
+      normalType = NormalPerTriangle;
+    );
+  );
+  if(normalType == CglNormalPerPixel & isundefined(normalExpr),
+      print("modifier `normalExpr` has to be set when using per-pixel normals");
+      normals = cglUndefinedVal();
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+      normalType = CglNormalPerVertex;
+  );
+  if(normalType != CglNormalPerPixel,
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
     if(isundefined(normals),
-      normalType = cglValOrDefault(normalType,NormalPerTriangle);
       normals = cglMeshGuessNormals(grid,Nx,Ny,normalType,topology);
-    ,if(normalType == NormalPerFace,
+    ,if(normalType == CglNormalPerFace,
       normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleFace);
-    ,if(normalType == NormalPerTriangle,
+    ,if(normalType == CglNormalPerTriangle,
       normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleTriangle);
-    ,
-      normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleVertex);
-      normalType = NormalPerVertex;
-    )));
-    if(normalType == NormalPerVertex,
+    ,if(normalType == CglNormalPerVertex,
       // interpolated vector may not be normalized
       normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+      normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleVertex);
     ,
-      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
-    );
-  ,
-    normalType = NormalPerPixel
+      print("unknown normal-type: "+text(normalType));
+    ))));
   );
   modifiers = {
     "cglLight": light,
     "cglNormalExpr":normalExpr
   };
-  modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
   vModifiers = cglValOrDefault(vertexModifiers,{});
   if(isundefined(uv),
     // map grid-positions to unit-square
@@ -1788,13 +1833,14 @@ cglMesh3d(grid):=(
 // TODO? cubic3d
 
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
-  texture,uv,dF:(x,y,z),cutoffRegion,degree,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
+  texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
 cglSurface3d(fun) := (
     regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,0.75);
     cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
+    layers = cglValOrDefault(layers,0);
     // convert function to form taking vector insteads of 3 arguments
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
     normalExpr = if(isundefined(dF),cglGuessDerivative(F),dF);
@@ -1822,35 +1868,50 @@ cglSurface3d(fun) := (
       "cglLight":light,"cglAlpha":alpha,
       "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     };
-    modifiers = cglAppendAll(modifiers,cglValOrDefault(plotModifiers,{}));
+    modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
     if(!isundefined(colorExpr),
       modifiers_"cglPixelExpr" = cglLazy(pos,cglEval(colorExpr,pos.x,pos.y,pos.z),colorExpr->colorExpr);
     ,
       modifiers_"cglPixelExpr" = cglLazy(pos,cglColor);
       modifiers_"cglColor" = color;
     );
-    // TODO parameter for chooseing transparency mode, render-layers: (-1 -> all 0-> merge all layers, 1,2,3,4,..)
-    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->3,plotModifiers->modifiers);
-    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->2,plotModifiers->modifiers);
-    // colorplot3d(cgl3dSurfaceLayerShaderCode(#),UK->1,plotModifiers->modifiers)
-
-    // TODO? extract to function "plotInBounds"
+    modifiers = cglMergeDicts(modifiers,cutoffRegion_"modifs");
     bounds = cutoffRegion_"bounds";
-    if(bounds_"type" == "unbounded",
-      colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
-    ,if(bounds_"type" == "sphere",
-      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"radius",plotModifiers->modifiers)
-    ,if(bounds_"type" == "cylinder",
-      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"point1",bounds_"point2",bounds_"radius",plotModifiers->modifiers)
-    ,if(bounds_"type" == "cuboid",
-      colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers)
+    // TODO? is there a way to avoid duplicate code for bounding box selection
+    // ? allow passing lazy-func as first parameter of colorplot3d
+    if(layers==0,
+      if(bounds_"type" == "unbounded",
+        colorplot3d(cgl3dSurfaceShaderCode(#),plotModifiers->modifiers)
+      ,if(bounds_"type" == "sphere",
+        colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"radius",plotModifiers->modifiers)
+      ,if(bounds_"type" == "cylinder",
+        colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"point1",bounds_"point2",bounds_"radius",plotModifiers->modifiers)
+      ,if(bounds_"type" == "cuboid",
+        colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers)
+      ,
+        print("unknown bounding box type: "+text(bounds_"type"));
+      ))));
     ,
-      print("unknown bounding box type: "+text(bounds_"type"));
-    ))));
+      if(layers<0,layers=N,layers=min(layers,N));
+      while(layers>0,
+        modifiers_"K"=layers;
+        if(bounds_"type" == "unbounded",
+          colorplot3d(cgl3dSurfaceLayerShaderCode(#),plotModifiers->modifiers)
+        ,if(bounds_"type" == "sphere",
+          colorplot3d(cgl3dSurfaceLayerShaderCode(#),bounds_"center",bounds_"radius",plotModifiers->modifiers)
+        ,if(bounds_"type" == "cylinder",
+          colorplot3d(cgl3dSurfaceLayerShaderCode(#),bounds_"point1",bounds_"point2",bounds_"radius",plotModifiers->modifiers)
+        ,if(bounds_"type" == "cuboid",
+          colorplot3d(cgl3dSurfaceLayerShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers)
+        ,
+          print("unknown bounding box type: "+text(bounds_"type"));
+        ))));
+        layers=layers-1;
+      );
+    );
 );
 
-// TODO? add ability to scale axes
-// TODO add back x0,x1,y0,y1 parameters for easier bounding box
+// TODO? add ability to scale axes independently  from rendered axes
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f));
