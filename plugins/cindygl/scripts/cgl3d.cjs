@@ -720,7 +720,6 @@ cglTriangulateSpiralRec(elts):=(
   if(eltCount<=3,
     if(eltCount<3,[],elts)
   ,
-    // TODO? split of last element to avoid check for overflow in remaining elements
     even = flatten(apply(1..(eltCount/2),i,(elts_(2*i-1),elts_(2*i),elts_(cglMod1plus(2*i+1,eltCount)))));
     odd = apply(1..(eltCount/2),i,elts_(2*i-1));
     if(mod(eltCount,2)==1,
@@ -819,7 +818,7 @@ cglMeshSamplesToTriangles(samples,Nx,Ny,topology,sampleType):=(
   ),levels->2);
 );
 cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
-  regional(n,vNormals,p00,p01,p10,p11,n1,n2);
+  regional(n,vNormals,p00,p01,p10,p11,n1,n2,Nx1,Ny1);
   if(normalType == NormalPerTriangle,
     // TODO? pass triangles as input, to avoid recomputing triangulation
     if(topology_1 == CglTopologyClose,//close X
@@ -862,68 +861,37 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
         [n,n,n,n,n,n];
       );
     ),levels->2);
-  ,
-    // vertex normals -> average face normal of faces containing edges
-    //  -> sum up face normals, normalize
-    // TODO? is there a better algorithm for guessing vertex normals
-    vNormals=apply(1..Ny,ny,apply(1..Nx,nx,[0,0,0]));
-    forall(1..(Ny-1),ny,
-      forall(1..(Nx-1),nx,
-        p00 = samples_ny_nx;
-        p01 = samples_ny_(nx+1);
-        p10 = samples_(ny+1)_nx;
-        p11 = samples_(ny+1)_(nx+1);
-        n1=normalize(cross(p01-p00,p10-p00));
-        n2=-normalize(cross(p01-p11,p10-p11));
-        vNormals_ny_nx = vNormals_ny_nx+n1;
-        vNormals_ny_(nx+1) = vNormals_ny_(nx+1)+n1+n2;
-        vNormals_(ny+1)_nx = vNormals_(ny+1)_nx+n1+n2;
-        vNormals_(ny+1)_(nx+1) = vNormals_(ny+1)_(nx+1)+n2;
-      );
-      if(topology_1==CglTopologyClose,//closeX
-        p00 = samples_ny_Nx;
-        p01 = samples_ny_1;
-        p10 = samples_(ny+1)_Nx;
-        p11 = samples_(ny+1)_1;
-        n1=normalize(cross(p01-p00,p10-p00));
-        n2=-normalize(cross(p01-p11,p10-p11));
-        vNormals_ny_Nx = vNormals_ny_Nx+n1;
-        vNormals_ny_1 = vNormals_ny_1+n1+n2;
-        vNormals_(ny+1)_Nx = vNormals_(ny+1)_Nx+n1+n2;
-        vNormals_(ny+1)_1 = vNormals_(ny+1)_1+n2;
-      );
+  , // vertex normals
+    if(topology_1 == CglTopologyClose,//close X
+      samples = apply(samples,row,append(row,row_1));
+      Nx1=Nx+1;
+    ,
+      Nx1=Nx;
     );
-    if(topology_2==CglTopologyClose,//closeY
-      forall(1..(Nx-1),nx,
-        p00 = samples_Ny_nx;
-        p01 = samples_Ny_(nx+1);
-        p10 = samples_1_nx;
-        p11 = samples_1_(nx+1);
-        n1=normalize(cross(p01-p00,p10-p00));
-        n2=-normalize(cross(p01-p11,p10-p11));
-        vNormals_Ny_nx = vNormals_Ny_nx+n1;
-        vNormals_Ny_(nx+1) = vNormals_Ny_(nx+1)+n1+n2;
-        vNormals_1_nx = vNormals_1_nx+n1+n2;
-        vNormals_1_(nx+1) = vNormals_1_(nx+1)+n2;
-      );
-      if(topology_1==CglTopologyClose,//closeX
-        p00 = samples_Ny_Nx;
-        p01 = samples_Ny_1;
-        p10 = samples_1_Nx;
-        p11 = samples_1_1;
-        n1=normalize(cross(p01-p00,p10-p00));
-        n2=-normalize(cross(p01-p11,p10-p11));
-        vNormals_Ny_Nx = vNormals_Ny_Nx+n1;
-        vNormals_Ny_1 = vNormals_Ny_1+n1+n2;
-        vNormals_1_Nx = vNormals_1_Nx+n1+n2;
-        vNormals_1_1 = vNormals_1_1+n2;
-      );
+    if(topology_2 == CglTopologyClose,//close Y
+      samples = append(samples,samples_1);
+      Ny1=Ny+1;
+    ,
+      Ny1=Ny;
     );
-    forall(1..Ny,ny,
-      forall(1..Nx,nx,
-        vNormals_ny_nx = normalize(vNormals_ny_nx);
+    vNormals=apply(1..Ny,ny,apply(1..Nx,nx,
+      p00 = samples_ny_nx;
+      n = (0,0,0);
+      // normals orineted to point "up" when grid is flat
+      if(nx>1 & ny > 1,
+        n = n + cross(samples_(ny-1)_nx-p00,samples_ny_(nx-1)-p00);
       );
-    );
+      if(nx>1 & ny<Ny1,
+        n = n + cross(samples_ny_(nx-1)-p00,samples_(ny+1)_nx-p00);
+      );
+      if(nx<Nx1 & ny > 1,
+        n = n + cross(samples_ny_(nx+1)-p00,samples_(ny-1)_nx-p00);
+      );
+      if(nx<Nx1 & ny<Ny1,
+        n = n + cross(samples_(ny+1)_nx-p00,samples_ny_(nx+1)-p00);
+      );
+      normalize(n)
+    ));
     // assign normals to corresponding vertices
     cglMeshSamplesToTriangles(vNormals,Nx,Ny,topology,cglSampleVertex);
   ));
@@ -1119,7 +1087,8 @@ cgl3dSurfaceLayerShaderCode(direction) := (
 
 // maximum degree for interpolating surfaces
 // values of kind 4*n-1 are good values, as it means to use vectors of length 4*n.
-cglMaxDeg = 15;
+cglMaxDeg = 31;
+cglMaxAutoDeg = 15;
 // cache for interpolation parameters to avoid repreated recomputation
 cglSurfaceRenderStateCache = {
   "interpMap":{},
@@ -1433,7 +1402,7 @@ cglJoint(prev,current,next,jointType):=(
     CglCylinderCapOpen
   )));
 );
-// TODO? improve computation for texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
+// TODO improve computation for texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
   regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor);
@@ -1699,7 +1668,6 @@ cglPolygon3d(vertices):=(
     regional(n,x,y,xmin,xmax,ymin,ymax,p);
     n = length(vertices);
     xmin=1;ymin=1;xmax=0;ymax=0;
-    // TODO? choose starting angle depending on vertex count to always maximize covered area
     // 1. pick points at constant distance along unit circle
     // the starting position is chosen such that 4-gons can be scaled to fill the complete unit-square
     uv = apply(0..(n-1),i,
@@ -1752,7 +1720,6 @@ cglPolygon3d(vertices):=(
 
 // TODO? adjust uv coordinates if side of grid-cell is collapsed
 
-// TODO? use different modifiers for vertex and face normals
 cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,colorExpr:(texturePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
 cglMesh3d(grid):=(
   regional(Ny,Nx,triangles,modifiers,vModifiers);
@@ -1781,11 +1748,15 @@ cglMesh3d(grid):=(
   if(normalType == CglNormalPerPixel & isundefined(normalExpr),
       print("modifier `normalExpr` has to be set when using per-pixel normals");
       normals = cglUndefinedVal();
-      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
       normalType = CglNormalPerVertex;
   );
   if(normalType != CglNormalPerPixel,
-    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+    if(normalType == CglNormalPerVertex,
+      // interpolated vector may not be normalized
+      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+    ,
+      normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+    );
     if(isundefined(normals),
       normals = cglMeshGuessNormals(grid,Nx,Ny,normalType,topology);
     ,if(normalType == CglNormalPerFace,
@@ -1793,8 +1764,6 @@ cglMesh3d(grid):=(
     ,if(normalType == CglNormalPerTriangle,
       normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleTriangle);
     ,if(normalType == CglNormalPerVertex,
-      // interpolated vector may not be normalized
-      normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
       normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleVertex);
     ,
       print("unknown normal-type: "+text(normalType));
@@ -1853,22 +1822,19 @@ cglSurface3d(fun) := (
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
     normalExpr = if(isundefined(dF),cglGuessDerivative(F),dF);
     if(isundefined(degree),
-      N = cglGuessdeg(F);
-      // The following line is DIRTY, but it makes the application run smooth for high degrees. :-)
-      // Nethertheless, it might cause render errors for high degree surfaces. In fact, only a subset of the surface is rendered.
-      // Adapt limit according to hardware.
+      N = min(cglGuessdeg(F),cglMaxAutoDeg);
+    ,if(degree<0,
+      N = cglMaxAutoDeg;
+    ,
+      N = max(degree,1);
       if(N>cglMaxDeg,
         print("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
         N = cglMaxDeg;
       );
-    ,if(degree<0,
-      N = cglMaxDeg;
-    , // TODO? limit degree to reasonable values
-      N = max(degree,1);
     ));
     nodes = cglSurfaceChebyshevNodes(N);
     B = cglSurfaceInterpolationMatrix(N);
-    viewRect = cglViewRect(); // TODO? should resolution be computed within shader
+    viewRect = cglViewRect();
     modifiers = {
       "cglSurfaceExpr":F,"cglNormalExpr":normalExpr,
       "cglChebNodes": nodes,"cglInterpMat":B,
@@ -1919,7 +1885,7 @@ cglSurface3d(fun) := (
     );
 );
 
-// TODO? add ability to scale axes independently  from rendered axes
+// TODO? add ability to scale axes independently from CindyJS coordinate system
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f));
