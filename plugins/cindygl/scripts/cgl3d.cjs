@@ -268,7 +268,7 @@ cglCapOpenShaderNoBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     delta2 = v2*cutVector;
     if(delta2*delta>1,cglDiscard());
     cglSetDepth(cylinderDepths_2);
-    normal = normalize(v2-delta2*BA);
+    normal = normalize(v2-delta2*cglOrientation);
     (normal_1,normal_2,normal_3,delta2);
 );
 cglCapOpenShaderBack = cglCapVoidShader;
@@ -420,8 +420,10 @@ ConnectOpen = CglConnectOpen;
 ConnectRound = CglConnectRound;
 ConnectFlat = CglConnectFlat;
 
+// TODO? seperate projection for for end-caps
+// TODO make starting angle customizable
 cgl3dCylinderShaderCode(direction):=(
-  regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color);
+  regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color,pos3d);
   l = cglCylinderDepths(direction);
   BA = cglOrientation;
   U = BA/(BA*BA);
@@ -437,6 +439,8 @@ cgl3dCylinderShaderCode(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
+    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   ,if(cglEval(cglCut2,delta,v1)>1, // cap2
     normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
     v2 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -447,17 +451,18 @@ cgl3dCylinderShaderCode(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
+    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
     cglSetDepth(l_1);
     normal = normalize(v1-delta*BA);
+    texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
-  // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   color = cglEval(cglPixelExpr,texturePos);
   cglEval(cglLight,color,direction,normal);
 );
 cgl3dCylinderShaderCodeBack(direction):=(
-  regional(l,BA,U,v2,delta,normalAndHeight,v3,normal,texturePos,color);
+  regional(l,BA,U,v2,delta,normalAndHeight,v3,normal,texturePos,color,pos3d);
   l = cglCylinderDepths(direction);
   BA = cglOrientation;
   U = BA/(BA*BA);
@@ -473,6 +478,8 @@ cgl3dCylinderShaderCodeBack(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
+    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   ,if(cglEval(cglCut2,delta,v2)>1, // cap2
     normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
     v3 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -483,12 +490,13 @@ cgl3dCylinderShaderCodeBack(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
+    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
     cglSetDepth(l_2);
     normal = normalize(v2-delta*BA);
+    texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
-  // TODO? include caps in mapping, ? within caps use direction center->point instead of normal for coordinates
-  texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   color = cglEval(cglPixelExpr,texturePos);
   cglEval(cglLight,color,direction,normal);
 );
@@ -1318,7 +1326,7 @@ cglDraw3d(pos3d):=(
   cglSphere3d(pos3d,size);
 );
 cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,colorExpr:(texturePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
-draw3d(point1,point2):=(
+cglDraw3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
   cglCylinder3d(point1,point2,size);
