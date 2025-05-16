@@ -8,13 +8,13 @@ normalize(v):=(
   l = |v|;
   if(l>0,v/l,v);
 );
-/** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */
-cglSetDepth(rawDepth):=(
+/** maps the raw depth value given in the interval [0,inf) to a concrete depth in [-1,1) and sets cglDepth accordingly */
+cglSetDepth(rawDepth,direction):=(
   // TODO? discard negative distances form view
   regional(v);
-  v = |cglViewPos|;
-  cglDepth = 1-(v/(rawDepth+v));
   cglRawDepth = rawDepth;
+  v = 0.5*(cglViewNormal*cglViewNormal)/(cglViewNormal*direction);
+  cglDepth = (rawDepth-v)/rawDepth;
 );
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
@@ -131,7 +131,7 @@ cglSphereNormal(direction,center,isBack):=(
   );
   if(isBack,dst=dst2);
   pos3d = cglViewPos+ dst*direction;
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   normalize(pos3d - center);
 );
 cglSphereDepths(direction,center,radius):=(
@@ -267,7 +267,7 @@ cglCapOpenShaderNoBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     v2 = (cglViewPos+cylinderDepths_2*direction)-cglCenter;
     delta2 = v2*cutVector;
     if(delta2*delta>1,cglDiscard());
-    cglSetDepth(cylinderDepths_2);
+    cglSetDepth(cylinderDepths_2,direction);
     normal = normalize(v2-delta2*cglOrientation);
     (normal_1,normal_2,normal_3,delta2);
 );
@@ -290,7 +290,7 @@ cglCapFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     // <v + a*d,o> = <m,o>
     a = (m*cglOrientation-cglViewPos*cglOrientation)/(direction*cglOrientation);
     if(|cglViewPos + a*direction - m| > cglRadius,cglDiscard());
-    cglSetDepth(a);
+    cglSetDepth(a,direction);
     normal = normalize(cglOrientation*delta);
     (normal_1,normal_2,normal_3,delta)
 );
@@ -300,7 +300,7 @@ cglCapFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     // <v + a*d,o> = <m,o>
     a = (m*cglOrientation-cglViewPos*cglOrientation)/(direction*cglOrientation);
     if(|cglViewPos + a*direction - m| > cglRadius,cglDiscard());
-    cglSetDepth(a);
+    cglSetDepth(a,direction);
     normal = -normalize(cglOrientation*delta);
     (normal_1,normal_2,normal_3,delta)
 );
@@ -312,7 +312,7 @@ cglCapAngleFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector
     p = cglViewPos + a*direction;
     o = normalize(cglOrientation);
     if(|p - (p*o)*o| > cglRadius,cglDiscard());
-    cglSetDepth(a);
+    cglSetDepth(a,direction);
     normal = delta*normalize(cutVector);
     delta = (p-cglCenter)*U;
     (normal_1,normal_2,normal_3,delta)
@@ -325,7 +325,7 @@ cglCapAngleFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector)
     p = cglViewPos + a*direction;
     o = normalize(cglOrientation);
     if(|p - (p*o)*o| > cglRadius,cglDiscard());
-    cglSetDepth(a);
+    cglSetDepth(a,direction);
     normal = -delta*normalize(cutVector);
     delta = (p-cglCenter)*U;
     (normal_1,normal_2,normal_3,delta)
@@ -454,7 +454,7 @@ cgl3dCylinderShaderCode(direction):=(
     pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
-    cglSetDepth(l_1);
+    cglSetDepth(l_1,direction);
     normal = normalize(v1-delta*BA);
     texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
@@ -493,7 +493,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
     pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
-    cglSetDepth(l_2);
+    cglSetDepth(l_2,direction);
     normal = normalize(v2-delta*BA);
     texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
@@ -677,7 +677,7 @@ cgl3dTorusShaderCode(direction,layer):=(
   arcDirection = normalize(pc-(orientation*pc)*orientation);
   arcCenter = center+radius1*arcDirection;
   normal = normalize(pos3d - arcCenter);
-  cglSetDepth(v+dst);
+  cglSetDepth(v+dst,direction);
   pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
   color = cglEval(cglPixelExpr,pixelPos);
   cglEval(cglLight,color,direction,normal);
@@ -954,7 +954,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
 // because of the alpha-transparency updatecolor should be called for the intersections with large dst first
 cglSurfaceUpdateColor(direction, dst, color) := ( 
   regional(x, normal);
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   color = (1 - cglAlpha) * color + cglAlpha * cglEval(cglPixelExpr,cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
   normal = cglEval(cglNormalExpr,x);

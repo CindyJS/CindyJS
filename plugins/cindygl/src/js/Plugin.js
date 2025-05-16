@@ -729,21 +729,26 @@ let CindyGL = function(api) {
         let y1=CindyGL.coordinateSystem.y1*zoom;
         let z0=CindyGL.coordinateSystem.z0*zoom;
         let z1=CindyGL.coordinateSystem.z1*zoom;
+        // TODO this will break if z0 is near 0
         CindyGL.projectionMatrix=[
             [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
             [0, 2/(y1-y0), 0, - 2*y0/(y1-y0) -1],
-            [0, 0, 1/(z1-z0), - z0/(z1-z0) -.5],
-            [0, 0, 1/(z1-z0), - z0/(z1-z0)]
+            [0, 0, 1/(z1-z0), - z0/(z1-z0) -1],
+            [0, 0, -1/z0, 1]
         ];
-        CindyGL.coordinateSystem.viewPosition=
-            [(x0+x1)/2,(y0+y1)/2,z0,1];
-        CindyGL.coordinateSystem.transformedViewPos=
+        CindyGL.coordinateSystem.viewPosition = [(x0+x1)/2,(y0+y1)/2,z0,1];
+        CindyGL.coordinateSystem.transformedViewNormal = mvmult4(CindyGL.invTrafoMatrix,[0,0,(z1-z0),1]);
+        CindyGL.coordinateSystem.transformedViewPos =
             mvmult4(CindyGL.invTrafoMatrix,CindyGL.coordinateSystem.viewPosition);
     };
     let resetRotation = function(){
-        CindyGL.trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
-        CindyGL.invTrafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-        CindyGL.coordinateSystem.transformedViewPos=CindyGL.coordinateSystem.viewPosition;
+        CindyGL.trafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
+        CindyGL.invTrafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+        CindyGL.coordinateSystem.transformedViewPos = CindyGL.coordinateSystem.viewPosition;
+        let zoom = CindyGL.coordinateSystem.zoom;
+        let z0=CindyGL.coordinateSystem.z0*zoom;
+        let z1=CindyGL.coordinateSystem.z1*zoom;
+        CindyGL.coordinateSystem.transformedViewNormal = [0,0,(z1-z0),1];
     };
     let updateCoordSytem = function(modifs) {
         let ul=computeUpperLeftCorner(api);
@@ -843,8 +848,13 @@ let CindyGL = function(api) {
         CindyGL.trafoMatrix=mmult4(rotationMatrix,trafoMatrix);
         CindyGL.invTrafoMatrix=mmult4(CindyGL.invTrafoMatrix,transposeM4(rotationMatrix));
         if(typeof(CindyGL.coordinateSystem)!== "undefined"){
-            CindyGL.coordinateSystem.transformedViewPos=
+            CindyGL.coordinateSystem.transformedViewPos =
                 mvmult4(CindyGL.invTrafoMatrix,CindyGL.coordinateSystem.viewPosition);
+            let zoom = CindyGL.coordinateSystem.zoom;
+            let z0=CindyGL.coordinateSystem.z0*zoom;
+            let z1=CindyGL.coordinateSystem.z1*zoom;
+            CindyGL.coordinateSystem.transformedViewNormal =
+                mvmult4(CindyGL.invTrafoMatrix,[0,0,(z1-z0),1]);
             return nada;
         }
         return nada;

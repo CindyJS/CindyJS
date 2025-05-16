@@ -4,10 +4,10 @@ use("CindyGL");
 normalize(v):=(v/|v|); // TODO? make built-in
 
 /** maps the raw depth value given in the interval [0,inf) to a concrete depth in [0,1) and sets cglDepth accordingly */
-cglSetDepth(rawDepth):=(
+cglSetDepth(rawDepth,direction):=(
   regional(v);
-  v = |cglViewPos|;
-  cglDepth = 1-(v/(rawDepth+v));
+  v = 0.5*(cglViewNormal*cglViewNormal)/(cglViewNormal*direction);
+  cglDepth = (rawDepth-v)/rawDepth;
 );
 
 cglNoLight = cglLazy((color,viewDirection,normal),color);
@@ -101,7 +101,7 @@ cglSphereNormalAndDepth(direction,center,isBack):=(
   );
   if(isBack,dst=dst2);
   pos3d = cglViewPos+ dst*direction;
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   normal = normalize(pos3d - center);
   [normal_1,normal_2,normal_3];
 );
@@ -290,13 +290,13 @@ cgl3dCylinderNormalAndHeight(direction):=(
   v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta1 = (v1*U);
   if((delta1>-1)& (delta1<1),
-    cglSetDepth(l_1);
+    cglSetDepth(l_1,direction);
     normal = normalize(v1-delta1*BA);
     (normal_1,normal_2,normal_3,delta1),
     v2 = (cglViewPos+l_2*direction)-cglCenter;
     delta2 = v2*U;
     if((delta2<-1) % (delta2>1),cglDiscard());
-    cglSetDepth(l_2);
+    cglSetDepth(l_2,direction);
     normal = normalize(v2-delta2*BA);
     (normal_1,normal_2,normal_3,delta2);
   );
@@ -309,11 +309,11 @@ cgl3dCylinderNormalAndHeightBack(direction):=(
   v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta1 = (v1*U);
   if((delta1<-1) % (delta1>1),cglDiscard()); // no second intersection
-  cglSetDepth(l_1);
+  cglSetDepth(l_1,direction);
   v2 = (cglViewPos+l_2*direction)-cglCenter;
   delta2 = v2*U;
   if((delta2<-1) % (delta2>1),cglDiscard());
-  cglSetDepth(l_2);
+  cglSetDepth(l_2,direction);
   normal = normalize(v2-delta2*BA);
   (normal_1,normal_2,normal_3,delta2);
 );
@@ -923,7 +923,7 @@ cgl3dTorusShaderCode(direction,layer):=(
   arcDirection = normalize(pc-(orientation*pc)*orientation);
   arcCenter = center+radius1*arcDirection;
   normal = normalize(pos3d - arcCenter);
-  cglSetDepth(v+dst);
+  cglSetDepth(v+dst,direction);
   pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
   color = cglEval(pixelExpr,pixelPos);
   cglEval(light,color,direction,normal);
@@ -1081,7 +1081,7 @@ cgl3dPlaneShaderCode(direction):=(
   // TODO? better coordinate system for pixel mapping
   pos3 = (pos4_1,pos4_2,pos4_3);
   color = cglEval(pixelExpr,normalize(pos3-(normal*pos3)*normal));
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   cglEval(light,color,direction,normal);
 );
 // TODO? use polygons instead of surface renderer for plane
@@ -1147,7 +1147,7 @@ cgl3dQuadricShaderCode(direction,isBack):=(
   normal = normalize((n4_1,n4_2,n4_3));
   // TODO? map surface to 2D space
   color = cglEval(pixelExpr,(pos4_1,pos4_2,pos4_3));
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   cglEval(light,color,direction,normal);
 );
 cglDrawQuadricInSphere(matrix,center,radius,color,cutoff):=(
@@ -1239,7 +1239,7 @@ cgl3dCubicShaderCode(direction,level):=(
   if(dst<depths_1,cglDiscard());
   pos3d = cglViewPos+ dst*direction;
   normal = normalize(cglEval(cglNormalExpr,pos3d));
-  cglSetDepth(dst);
+  cglSetDepth(dst,direction);
   color = cglEval(pixelExpr,pos3d);
   cglEval(light,color,direction,normal);
 );

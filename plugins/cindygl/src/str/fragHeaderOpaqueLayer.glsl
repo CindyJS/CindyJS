@@ -14,6 +14,7 @@ layout(location=1) out float fragDepth;
 uniform vec2 screenSize;
 
 uniform vec3 cgl_viewPos;
+uniform vec3 cgl_viewNormal;
 uniform vec4 cgl_viewRect;
 uniform vec3 uCenter;
 uniform vec3 uOrientation;

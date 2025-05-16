@@ -11,6 +11,7 @@ in vec3 cgl_spacePos;
 out vec4 fragColor;
 
 uniform vec3 cgl_viewPos;
+uniform vec3 cgl_viewNormal;
 uniform vec4 cgl_viewRect;
 uniform vec3 uCenter;
 uniform vec3 uOrientation;

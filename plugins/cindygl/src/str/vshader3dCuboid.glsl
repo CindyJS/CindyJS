@@ -16,7 +16,7 @@ void main(void) {
    vec3 pos3 = uCenter+uCubeAxes*aPos;
    // transform to viewSpace
    gl_Position = projAndTrafoMatrix*vec4(pos3,1);
-   gl_Position.z=0.0;
+   gl_Position.z=0.0; // ignore z-position (will be rewritten in f-shader)
    cgl_viewDirection = pos3 - cgl_viewPos;
    // 2D coordinates
    plain_pixel = aTexCoord;

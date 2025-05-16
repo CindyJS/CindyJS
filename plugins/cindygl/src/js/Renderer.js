@@ -460,6 +460,10 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
         let viewPos4=CindyGL.coordinateSystem.transformedViewPos;
         this.shaderProgram.uniform["cgl_viewPos"]([viewPos4[0]/viewPos4[3],viewPos4[1]/viewPos4[3],viewPos4[2]/viewPos4[3]]);
     }
+    if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewNormal')){
+        let viewNormal4=CindyGL.coordinateSystem.transformedViewNormal;
+        this.shaderProgram.uniform["cgl_viewNormal"]([viewNormal4[0]/viewNormal4[3],viewNormal4[1]/viewNormal4[3],viewNormal4[2]/viewNormal4[3]]);
+    }
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewRect')){
         let zoom = CindyGL.coordinateSystem.zoom;
         let x0=CindyGL.coordinateSystem.x0*zoom;
