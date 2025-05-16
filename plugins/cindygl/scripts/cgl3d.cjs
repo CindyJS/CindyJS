@@ -1658,21 +1658,26 @@ cglPolygon3d(vertices):=(
   );
   modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
-    regional(n,a);
+    regional(n,x,y,xmin,xmax,ymin,ymax,p);
     n = length(vertices);
-    // compute uv-coordinates by picking points at uniform distance along boundry of unit square
-    uv = apply(1..n,i,
-      a=4*(i-1)/n;
-      if(a<2,if(a<1, // 0...1
-        (0,a)
-      ,// 1...2
-        (a-1,1)
-      ),if(a<3, // 2...3
-        (1,3-a)
-      , // 3...4
-        (4-a,0)
-      ));
+    xmin=1;ymin=1;xmax=0;ymax=0;
+    // TODO? choose starting angle depending on vertex count to always maximize covered area
+    // 1. pick points at constant distance along unit circle
+    // the starting position is chosen such that 4-gons can be scaled to fill the complete unit-square
+    uv = apply(0..(n-1),i,
+      x = sin(2*pi*(i/n-0.375));
+      y = cos(2*pi*(i/n-0.375));
+      xmin=min(xmin,x);
+      xmax=max(xmax,x);
+      ymin=min(ymin,y);
+      ymax=max(ymax,y);
+      (x,y);
     );
+    // 2. scale point to unit square
+    uv = apply(uv,p,
+      ((p_1-xmin)/(xmax-xmin),(p_2-ymin)/(ymax-ymin))
+    );
+    print(uv);
   );
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
   vModifiers_"cglTexCoords" = uv;

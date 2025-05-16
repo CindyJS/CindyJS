@@ -27,7 +27,7 @@
 
             cglBegin3d();
             //triangle3d([1,0,0],[0,1,0],[0,0,1]);
-            //polygon3d(([1,0,0],[0,1,0],[0,0,1],[1,-1,1]),colorExpr->(texturePos_1,texturePos_2,0),uv->((0,0),(0,1),(1,1),(1,0)));
+            //polygon3d(([1,0,0],[0,1,0],[0,0,1],[1,-1,1]),colorExpr->(texturePos_1,texturePos_2,0));
             N=12;
             polygon3d(apply(0..(N-1),i,(sin(2*pi*(i/N)),cos(2*pi*(i/N)),0.1*sin(6*pi*((i-0.5)/N)))),
                 colors->apply(0..(N-1),i,hue(i/N)),triangulationMode->TriangulateSpiral/*,normalType->NormalPerVertex*/);
