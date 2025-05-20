@@ -156,6 +156,7 @@ let CindyGL = function(api) {
                         console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
                     }
                     value.type = commonType;
+                    mergedTypes.get(key).type = commonType;
                 } else {
                     // differernt sets of modifers
                     compatible = false;

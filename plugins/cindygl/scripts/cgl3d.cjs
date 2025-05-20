@@ -163,6 +163,7 @@ cglProjSphereToSquare(normal):=(
   theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
   (1/(2*pi))*(phi+pi,2*theta+pi);
 );
+// TODO? add projection for non-axis aligned coordinate system
 
 cglDefaultSphereProjection = cglLazy(normal,cglProjSphereToSquare(normal));
 
@@ -244,15 +245,19 @@ cglCappedCylinderDepths(direction,center,orientation,radius):=(
   [low+w,hi+w];
 );
 
-// project cylinder onto unit square using normal and height as input
-// assumes that normal is normalized, and height is in the range -1..1
-cglProjCylinderToSquare(normal,height,orientation):=(
-  regional(d1,d2);
+cglCylinderProjDirection1Default = cglLazy((normal,height,orientation),
+  regional(d1);
   if(|orientation_1|<|orientation_2|,
     d1=normalize(cross(orientation,(1,0,0)));
   ,
     d1=normalize(cross(orientation,(0,1,0)));
   );
+);
+// project cylinder onto unit square using normal and height as input
+// assumes that normal is normalized, and height is in the range -1..1
+cglProjCylinderToSquare(normal,height,orientation):=(
+  regional(d1,d2);
+  d1 = cglEval(cglCylinderProjDirection1,normal,height,orientation);
   d2 = -normalize(cross(orientation,d1));
   ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),0.5*(height+1));
 );
@@ -421,7 +426,6 @@ ConnectRound = CglConnectRound;
 ConnectFlat = CglConnectFlat;
 
 // TODO? seperate projection for for end-caps
-// TODO make starting angle customizable
 cgl3dCylinderShaderCode(direction):=(
   regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color,pos3d);
   l = cglCylinderDepths(direction);
@@ -439,7 +443,7 @@ cgl3dCylinderShaderCode(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
-    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    pos3d = (cglViewPos+cglRawDepth*direction);
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   ,if(cglEval(cglCut2,delta,v1)>1, // cap2
     normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
@@ -451,7 +455,7 @@ cgl3dCylinderShaderCode(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
-    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    pos3d = (cglViewPos+cglRawDepth*direction);
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
     cglSetDepth(l_1,direction);
@@ -478,7 +482,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
-    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    pos3d = (cglViewPos+cglRawDepth*direction);
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   ,if(cglEval(cglCut2,delta,v2)>1, // cap2
     normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
@@ -490,7 +494,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
-    pos3d = (cglViewPos+cglRawDepth*direction)-cglCenter;
+    pos3d = (cglViewPos+cglRawDepth*direction);
     texturePos = cglEval(cglProjection,normalize((pos3d-cglCenter)-delta*BA),max(-1,min(delta,1)),cglOrientation);
   , // intersection with body of cylinder
     cglSetDepth(l_2,direction);
@@ -1291,7 +1295,7 @@ cglUndefinedVal():=(regional(nada);nada);
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 
 // helper functions for resolving of colorExpression/textures
-// TODO to which extend can this function be shorted by extracting code
+// TODO? to which extend can this function be shorted by extracting code
 // pick the first defined color expression return undefined if there is none
 cglResolveColorExpr(hasAlpha):=(
   regional(pixelExpr,usesAlpha);
@@ -1445,7 +1449,8 @@ cglSphere3d(center,radius):=(
 
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
+  projection:(normal,height,orientation),projDir1,plotModifiers,tags));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,pixelExpr,exprAndUseAlpha);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1517,10 +1522,15 @@ cglCylinder3d(point1,point2,radius):=(
   );
   modifiers_"cglCap1front"=cap1_(if(needBackFace,"shaderFront","shaderNoBack"));
   modifiers_"cglCap2front"=cap2_(if(needBackFace,"shaderFront","shaderNoBack"));
+  modifiers_"cglCylinderProjDirection1" = cglCylinderProjDirection1Default;
   if(!isundefined(cap1_"cutDirection"),
      modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
     modifiers_"cglGetCutVector1" = cglGetCutVector1;
     n = cap1_"cutDirection";
+    modifiers_"cglCylinderProjDirection1data" = 
+      normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
+    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
+      cglCylinderProjDirection1data);
     modifiers_"cglCutDir1" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
   );
@@ -1528,8 +1538,17 @@ cglCylinder3d(point1,point2,radius):=(
     modifiers_"cglCut2" = if(cap2_"cutOrthogonal",cglCutBoth2,cglCutVector2);
     modifiers_"cglGetCutVector2" = cglGetCutVector2;
     n = cap2_"cutDirection";
+    modifiers_"cglCylinderProjDirection1data" = 
+      normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
+    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
+      cglCylinderProjDirection1data);
     modifiers_"cglCutDir2" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
+  );
+  if(!isundefined(projDir1),
+    modifiers_"cglCylinderProjDirection1data" = projDir1;
+    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
+      cglCylinderProjDirection1data);
   );
   tags = cglValOrDefault(tags,[]);
   if(needBackFace,
@@ -1550,12 +1569,11 @@ cglJoint(prev,current,next,jointType):=(
     CglCylinderCapOpen
   )));
 );
-// TODO improve computation for texture coordinates at connection points (align cylinder rotation, improve rendering on caps)
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
-  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor);
+  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,projDir1,cutDir);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1584,6 +1602,8 @@ cglConnect3d(points):=(
       current1 = points_(length(points)-1);
       current2 = points_(length(points));
       next = points_1;
+      projDir1 = normalize(next-current2)+normalize(current2-current1);
+      projDir1 = normalize(projDir1 - (normalize(current2-current1)*projDir1)*normalize(current2-current1));
       color1 = if(isundefined(colors),color,colors_(length(points)-1));
       color2 = if(isundefined(colors),color,colors_(length(points)));
       nextColor = if(isundefined(colors),color,colors_1);
@@ -1591,6 +1611,8 @@ cglConnect3d(points):=(
       current1 = points_1;
       current2 = points_2;
       next = points_3;
+      projDir1 = normalize(next-current2)+normalize(current2-current1);
+      projDir1 = normalize(projDir1 - (normalize(current2-current1)*projDir1)*normalize(current2-current1));
       color1 = if(isundefined(colors),color,colors_1);
       color2 = if(isundefined(colors),color,colors_2);
       nextColor = if(isundefined(colors),color,colors_3);
@@ -1605,6 +1627,9 @@ cglConnect3d(points):=(
       current1 = current2;
       current2 = next;
       next = points_i;
+      cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
+      projDir1 = projDir1-(projDir1*cutDir)*cutDir; // project angle onto cut-plane
+      projDir1 = ((projDir1*normalize(current2-current1))/(cutDir*normalize(current2-current1)))*cutDir-projDir1;
       color1 = color2;
       color2 = nextColor;
       nextColor = if(isundefined(colors),color,colors_i);
@@ -1619,6 +1644,9 @@ cglConnect3d(points):=(
     a = b;b = a + |current2-next|/totalLength;
     plotModifiers_"cglSegmentStart"=a;
     plotModifiers_"cglSegmentEnd"=b;
+    cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
+    projDir1 = projDir1-(projDir1*cutDir)*cutDir; // project angle onto cut-plane
+    projDir1 = projDir1 - ((projDir1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
     cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
         cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
   ,if(length(points)==2,
