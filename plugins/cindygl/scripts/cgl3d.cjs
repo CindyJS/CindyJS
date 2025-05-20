@@ -1295,6 +1295,7 @@ cglUndefinedVal():=(regional(nada);nada);
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 // TODO store texture-name in plotModifier instead of lambda-modifier
 // TODO prevent recompilation when lambda modifier changes
+// TODO translucent 3D-objects do not seem to work correctly on mobile browser
 
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shorted by extracting code
