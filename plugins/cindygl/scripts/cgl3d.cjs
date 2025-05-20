@@ -1282,11 +1282,13 @@ cglUndefinedVal():=(regional(nada);nada);
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
-// TODO? seperate modifier for semi-transparent texture
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
-// TODO? spacePos parameter for colorExpr
-//       ? rename spacePos -> pos3d
+// TODO? rename spacePos -> pos3d
+// TODO? option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
+//  ? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
+// TODO? support interaction between translucent mesh and other objects
+// ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 
 // helper functions for resolving of colorExpression/textures
 // TODO to which extend can this function be shorted by extracting code
@@ -1375,7 +1377,7 @@ cglResolveColorExpr(hasAlpha):=(
 cglNormalColor(color):=( // TODO better name
   if(length(color)==1,
     (color,color,color)
-  ,if(if(length(color)==4, color_4 == 1, false), // TODO? does cyindy-script realy have no short-circuit and
+  ,if(if(length(color)==4, color_4 == 1, false), // TODO? is there really no short-circuit and
     (color_1,color_2,color_3)
   ,
     color
@@ -1770,9 +1772,9 @@ cglTriangle3d(p1,p2,p3):=(
       length(color)
     ,
       colors = cglCheckSize(colors,3,"wrong length for colors",color);
+      colors = apply(colors,col,cglNormalColor(col));
       colLen = max(apply(colors,col,length(col)));
       colors = apply(colors,col,
-        col = cglNormalColor(col);
         if(colLen > length(col),(col_1,col_2,col_3,1),col);
       );
       colLen;
@@ -1892,9 +1894,9 @@ cglPolygon3d(vertices):=(
       length(color)
     ,
       colors = cglCheckSize(colors,length(vertices),"wrong length for colors",color);
+      colors = apply(colors,col,cglNormalColor(col));
       colLen = max(apply(colors,col,length(col)));
       colors = apply(colors,col,
-        col = cglNormalColor(col);
         if(colLen > length(col),(col_1,col_2,col_3,1),col);
       );
       colLen;
@@ -1937,9 +1939,6 @@ cglPolygon3d(vertices):=(
 );
 
 // TODO? adjust uv coordinates if side of grid-cell is collapsed
-
-// TODO? support interaction between translucent mesh and other objects
-// ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
@@ -2018,9 +2017,9 @@ cglMesh3d(grid):=(
       color = cglNormalColor(color);
       length(color)
     ,
+      colors = apply(colors,row,apply(row,col,cglNormalColor(col)));
       colLen = max(apply(colors,row,apply(row,col,length(col))));
       colors = apply(colors,row,apply(row,col,
-        col = cglNormalColor(col);
         if(colLen > length(col),(col_1,col_2,col_3,1),col);
       ));
       colLen;
