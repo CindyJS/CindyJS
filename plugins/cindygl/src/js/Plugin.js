@@ -888,6 +888,43 @@ let CindyGL = function(api) {
             new Cgl3dLayeredSceneRenderer(iw,ih,layerCount);
         sceneRenderer.renderOpaque(CindyGL.objectBuffer.opaque);
         if(CindyGL.objectBuffer.translucent.size>0){
+            // ? split mesh into seperate layers depending on view direction
+            CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
+                // sort triangles by depth
+                if(obj3d.boundingBox.type!=BoundingBoxType.triangles) return;
+                /**@type{Array<number>} */
+                const vertices = obj3d.boundingBox.vertices;
+                const triangleCount = vertices.length/9;
+                const viewNormal = CindyGL.coordinateSystem.transformedViewNormal;
+                // create an array of indices
+                const indices = Array.from({ length: triangleCount }, (_, index) => index);
+                // sort indices by distance of triangle midpoints from view-plane
+                indices.sort((i1,i2)=>{
+                    const m1x = (vertices[9*i1]+vertices[9*i1+3]+vertices[9*i1+6])/3;
+                    const m1y = (vertices[9*i1+1]+vertices[9*i1+4]+vertices[9*i1+7])/3;
+                    const m1z = (vertices[9*i1+2]+vertices[9*i1+5]+vertices[9*i1+8])/3;
+                    const m2x = (vertices[9*i2]+vertices[9*i2+3]+vertices[9*i2+6])/3;
+                    const m2y = (vertices[9*i2+1]+vertices[9*i2+4]+vertices[9*i2+7])/3;
+                    const m2z = (vertices[9*i2+2]+vertices[9*i2+5]+vertices[9*i2+8])/3;
+                    const d1 = dot3([m1x,m1y,m1z],viewNormal);
+                    const d2 = dot3([m2x,m2y,m2z],viewNormal);
+                    return (d1 < d2) - (d2 < d1);
+                });
+                obj3d.boundingBox.vertices = vertices.map((_,index)=>{
+                    const triIndex =  Math.floor(index/9);
+                    const coordIndex = index%9;
+                    console.log(9*indices[triIndex]+coordIndex,triIndex,coordIndex);
+                    return vertices[9*indices[triIndex]+coordIndex];
+                });
+                obj3d.boundingBox.vModifiers.forEach((vMod)=>{
+                    vMod.values = vMod.values.map((_,index)=>{
+                        const triIndex = Math.floor(index/3);
+                        const vIndex = index%3;
+                        return vMod.values[3*indices[triIndex]+vIndex];
+                    });
+                    vMod.aData = undefined; // remove cached attribute data
+                });
+            });
             sceneRenderer.renderTranslucent(CindyGL.objectBuffer.translucent);
         }
         // TODO? extract to function on sceneRenderer

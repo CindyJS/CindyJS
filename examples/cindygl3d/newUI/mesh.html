@@ -32,7 +32,7 @@
                     a=2*pi*x/N;b=2*pi*y/N;
                     ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
                 ))
-            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY);
+            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY,alpha->0.75);
             updateZoom():=(
               if(zoom>1.5,zoom=1.5);
               if(zoom<0.25,zoom=0.25);

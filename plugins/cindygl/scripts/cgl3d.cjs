@@ -1938,7 +1938,8 @@ cglPolygon3d(vertices):=(
 
 // TODO? adjust uv coordinates if side of grid-cell is collapsed
 
-// TODO? (optional) depth-sorting for triangles in same colorplot call
+// TODO? support interaction between translucent mesh and other objects
+// ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
