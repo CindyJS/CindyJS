@@ -1293,6 +1293,8 @@ cglUndefinedVal():=(regional(nada);nada);
 //  ? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 // TODO? support interaction between translucent mesh and other objects
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
+// TODO store texture-name in plotModifier instead of lambda-modifier
+// TODO prevent recompilation when lambda modifier changes
 
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shorted by extracting code
