@@ -16,7 +16,7 @@
             // no longer smooth: safari: ~5000 firefox: ~10000
             testLinearSpeed():=(
               delta = color_3;
-              repeat(15000,t,
+              repeat(10000,t,
                 delta = delta + sin(t);
               );
               (color_1,color_2,delta)
@@ -48,11 +48,22 @@
                 eps = re(2^(-8*(x+8*y)));
                 (1+eps>1,x,y);
             );
+            // firefox: smooth until ~10000 safari: ~5000
+            testConversions():=(
+                col3 = color;
+                repeat(10000,t,
+                    col4 = mat*(col3_1,col3_2,col3_3,1);
+                    col3 = (col4_1,col4_2,col4_3);
+                );
+                col3
+            );
             // TODO write simple pixel-wise root-finding algorithm (? raytracer examples seem to be most affected by switching to safari)
             cglBegin3d();
             //colorplot3d(testLinearSpeed(),Ucolor->[0.5,0,0]);
             //colorplot3d(testDataMatrix(#),Umatrix->dataMatrix,Ucolor->[0.5,0,0]);
-            colorplot3d(testFloatPrecission(#));
+            //colorplot3d(testFloatPrecission(#));
+            colorplot3d(testConversions(),Ucolor->[0.5,0,0],
+                Umat->[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             t = seconds()-t0;
