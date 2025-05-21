@@ -436,6 +436,7 @@ cgl3dCylinderShaderCode(direction):=(
   if(cglEval(cglCut1,delta,v1)<-1, // cap1
     normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
     v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+    // TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
     if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
       normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
       v2 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -1295,14 +1296,17 @@ cglUndefinedVal():=(regional(nada);nada);
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
 // TODO? rename spacePos -> pos3d
-// TODO? option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
-//  ? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 // TODO? support interaction between translucent mesh and other objects
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 // TODO? store texture-name in plotModifier instead of lambda-modifier
 // TODO is there a way to avoid recompilation when texture changes
 // TODO? prevent recompilation when lambda modifier changes
 // TODO translucent 3D-objects do not seem to work correctly on mobile browser
+// TODO? WEBGL.get*Parameter is slow try to avoid use
+// TODO curve3d is nummerically unstable if number of sample points gets large
+//  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
+// TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
+//  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shorted by extracting code
@@ -1586,6 +1590,8 @@ cglJoint(prev,current,next,jointType):=(
     CglCylinderCapOpen
   )));
 );
+// TODO! calling cylinder3d can mess up modifiers
+// ? create wrapper to correctly pass through modifiers
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
@@ -1602,6 +1608,7 @@ cglConnect3d(points):=(
   joints = cglValOrDefault(joints,CglConnectRound);
   jointEnd = joints;
   jointStart = joints;
+  alpha0 = alpha;
   if(length(points)>=3,
     // update projection if color is computed per pixel
     if(!isundefined(colorExpr) % !isundefined(texture),
@@ -1636,6 +1643,7 @@ cglConnect3d(points):=(
       a = b;b = a + |current1-current2|/totalLength;
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
+      alpha = alpha0;
       cglCylinder3d(current1,current2,size,cap1->cap1,
         cap2->cglJoint(current1,current2,next,jointEnd));
     );
@@ -1653,6 +1661,7 @@ cglConnect3d(points):=(
       a = b;b = a + |current1-current2|/totalLength;
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
+      alpha = alpha0;
       cglCylinder3d(current1,current2,size,
         cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd));
     );
@@ -1664,11 +1673,13 @@ cglConnect3d(points):=(
     cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
     direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
     direction1 = direction1 - ((direction1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
+    alpha = alpha0;
     cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
         cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
   ,if(length(points)==2,
     color1 = if(isundefined(colors),color,colors_1);
     color2 = if(isundefined(colors),color,colors_2);
+    alpha = alpha0;
     cglCylinder3d(points_1,points_2,size);
   ,if(length(points)==1,
     if(!isundefined(colors),
