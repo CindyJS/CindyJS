@@ -316,7 +316,7 @@ cglCapAngleFlatShaderFront = cglLazy((direction,cylinderDepths,delta,U,cutVector
     a = (m*cutVector-cglViewPos*cutVector)/(direction*cutVector);
     p = cglViewPos + a*direction;
     o = normalize(cglOrientation);
-    if(|p - (p*o)*o| > cglRadius,cglDiscard());
+    if(|p-m - ((p-m)*o)*o| > cglRadius,cglDiscard());
     cglSetDepth(a,direction);
     normal = delta*normalize(cutVector);
     delta = (p-cglCenter)*U;
@@ -329,7 +329,7 @@ cglCapAngleFlatShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVector)
     a = (m*cutVector-cglViewPos*cutVector)/(direction*cutVector);
     p = cglViewPos + a*direction;
     o = normalize(cglOrientation);
-    if(|p - (p*o)*o| > cglRadius,cglDiscard());
+    if(|p-m - ((p-m)*o)*o| > cglRadius,cglDiscard());
     cglSetDepth(a,direction);
     normal = -delta*normalize(cutVector);
     delta = (p-cglCenter)*U;
@@ -1311,6 +1311,8 @@ cglUndefinedVal():=(regional(nada);nada);
 // TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
 //  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 
+// TODO? support open caps in connect3d
+
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shorted by extracting code
 // pick the first defined color expression return undefined if there is none
@@ -1548,25 +1550,25 @@ cglCylinder3d(point1,point2,radius):=(
   modifiers_"cglCap2front"=cap2_(if(needBackFace,"shaderFront","shaderNoBack"));
   modifiers_"cglCylinderProjGetDirection1" = cglCylinderProjGetDirection1Default;
   if(!isundefined(cap1_"cutDirection"),
-     modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
+    modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
     modifiers_"cglGetCutVector1" = cglGetCutVector1;
     n = cap1_"cutDirection";
+    modifiers_"cglCutDir1" = n/(0.5*(point2-point1)*n);
     modifiers_"cglDirection1" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
     modifiers_"cglCylinderProjGetDirection1" = cglLazy((normal,height,orientation),
       cglDirection1);
-    modifiers_"cglCutDir1" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
   );
   if(!isundefined(cap2_"cutDirection"),
     modifiers_"cglCut2" = if(cap2_"cutOrthogonal",cglCutBoth2,cglCutVector2);
     modifiers_"cglGetCutVector2" = cglGetCutVector2;
     n = cap2_"cutDirection";
+    modifiers_"cglCutDir2" = n/(0.5*(point2-point1)*n);
     modifiers_"cglDirection1" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
     modifiers_"cglCylinderProjGetDirection1" = cglLazy((normal,height,orientation),
       cglDirection1);
-    modifiers_"cglCutDir2" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
   );
   if(!isundefined(direction1),
@@ -1599,7 +1601,7 @@ cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
-  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir);
+  regional(jointEnd,jointStart,totalLength,alpha0,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1682,7 +1684,6 @@ cglConnect3d(points):=(
   ,if(length(points)==2,
     color1 = if(isundefined(colors),color,colors_1);
     color2 = if(isundefined(colors),color,colors_2);
-    alpha = alpha0;
     cglCylinder3d(points_1,points_2,size);
   ,if(length(points)==1,
     if(!isundefined(colors),

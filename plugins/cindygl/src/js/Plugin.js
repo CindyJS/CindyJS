@@ -139,7 +139,7 @@ let CindyGL = function(api) {
             let changed = false;
             let compatible = true;
             for(const key of mergedTypes.keys()){
-                let value = modifierTypes.get(key);
+                const value = modifierTypes.get(key);
                 if(prevModifiers.has(key)) {
                     let prevVal = prevModifiers.get(key);
                     if(prevVal.isuniform != value.isuniform){
@@ -153,9 +153,8 @@ let CindyGL = function(api) {
                         break;
                     } else if(! typesareequal(commonType, prevVal.type)) {
                         changed = true;
-                        console.log(`changled type of modifier ${key} to ${typeToString(commonType)}`);
+                        console.log(`changed type of modifier ${key} to ${typeToString(commonType)}`);
                     }
-                    value.type = commonType;
                     mergedTypes.get(key).type = commonType;
                 } else {
                     // differernt sets of modifers

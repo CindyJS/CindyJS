@@ -346,14 +346,17 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                     variables[iname].T = constant(value);
                 }
             });
-            exprData.params.forEach((param,index) => {
+            let inlined = {}; // remember which arguments where inlined
+            exprData.params.forEach((param_,index) => {
+                // !!! do not modify the original param, modifications can leak into different uses of the same lazy-expression
+                param = Object.assign({}, param_);
                 let vname = param['name'];
                 // TODO? should modification to lazy-argument modifiy into passed in variable
                 if(expr['args'][index+1]['ctype']==='variable') {
                     // resuse same variable if argument is variable
                     let argname = expr['args'][index+1]['name'];
                     nbindings[vname] = bindings[argname] || argname;
-                    param['inline'] = true;
+                    inlined[vname] = true;
                 } else {
                     let iname = generateUniqueHelperString();
                     nbindings[vname] = iname;
@@ -371,6 +374,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             expr.params = exprData.params.map(param=>{
                 // create independent copy of parameter
                 let newParam = Object.assign({}, param);
+                newParam["inline"] = inlined.hasOwnProperty(param['name']);
                 newParam.bindings = nbindings;
                 return newParam;
             });
