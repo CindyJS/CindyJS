@@ -437,6 +437,7 @@ cgl3dCylinderShaderCode(direction):=(
     normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
     v2 = cglViewPos + cglRawDepth*direction - cglCenter;
     // TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
+    // TODO cap intersection does not work correctly if cap1 is open and cap2 is flat
     if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
       normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
       v2 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -1292,6 +1293,8 @@ cglUndefinedVal():=(regional(nada);nada);
 // thickness -> give rendered surfaces a thinkness (needed for conversion to 3d-printer file)
 // ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
+
+// TODO function for updating/resetting defaults
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
