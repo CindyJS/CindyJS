@@ -914,7 +914,6 @@ let CindyGL = function(api) {
                 obj3d.boundingBox.vertices = vertices.map((_,index)=>{
                     const triIndex =  Math.floor(index/9);
                     const coordIndex = index%9;
-                    console.log(9*indices[triIndex]+coordIndex,triIndex,coordIndex);
                     return vertices[9*indices[triIndex]+coordIndex];
                 });
                 obj3d.boundingBox.vModifiers.forEach((vMod)=>{
@@ -986,7 +985,7 @@ let CindyGL = function(api) {
         let minDst = Infinity;
         let pickedId = -1;
         let searchObject = (obj3d)=>{
-            // TODO Set.intersection once suppported
+            // TODO use Set.intersection once suppported
             let sharesTag = tags.size==0;
             for(const tag of tags){
                 if(obj3d.tags.has(tag)){
