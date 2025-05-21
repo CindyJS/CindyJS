@@ -78,7 +78,8 @@ CodeBuilder.prototype.api;
 /** @type {Object.<TextureReader>} */
 CodeBuilder.prototype.texturereaders;
 
-const BUILTIN_DISCARD = "cgldiscard"; // internal cindyscript function names are lower-case
+// internal cindyscript function names are lower-case
+const BUILTIN_DISCARD = "cgldiscard";
 const BUILTIN_TEXTURE4 = "cgltexture";
 const BUILTIN_TEXTURE3 = "cgltexturergb";
 const BUILTIN_EVAL_LAZY = "cgleval";
@@ -347,12 +348,20 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             });
             exprData.params.forEach((param,index) => {
                 let vname = param['name'];
-                let iname = generateUniqueHelperString();
-                nbindings[vname] = iname;
-                if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
-                myfunctions[scope].variables.push(iname);
-                self.initvariable(iname, false);
-                variables[iname].assigments.push(expr['args'][index+1]);
+                // TODO? should modification to lazy-argument modifiy into passed in variable
+                if(expr['args'][index+1]['ctype']==='variable') {
+                    // resuse same variable if argument is variable
+                    let argname = expr['args'][index+1]['name'];
+                    nbindings[vname] = bindings[argname] || argname;
+                    param['inline'] = true;
+                } else {
+                    let iname = generateUniqueHelperString();
+                    nbindings[vname] = iname;
+                    if (!myfunctions[scope].variables) myfunctions[scope].variables = [];
+                    myfunctions[scope].variables.push(iname);
+                    self.initvariable(iname, false);
+                    variables[iname].assigments.push(expr['args'][index+1]);
+                }
             });
             // clone expression to allow more than one instantiation
             expr['args'][0] = cloneExpression(exprData.expr);
@@ -550,7 +559,8 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
             let vname =  expr.bindings[vname0] || vname0;
             // TODO? allow precomputing expressions containing built-ins/call-dependent variables in some cases
             if(CodeBuilder.builtIns.has(vname)){
-                expr["isbuiltin"] = true;
+                expr['isbuiltin'] = true;
+                expr['name'] = vname; // directly use name of built-in
                 return expr["dependsOnPixel"] = true;
             }else if(self.modifierTypes.has(vname)){
                 // give each modifier a unique id
@@ -565,6 +575,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
                     }
                 }
                 expr["ismodifier"] = true;
+                expr['name'] = vname; // directly use name of modifier
                 return expr["dependsOnPixel"] = true;
             }
             if (variableDependendsOnPixel[vname]) {
@@ -836,7 +847,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     let ctype = this.getType(expr);
     if (expr['isuniform']) {
         let uname = expr['uvariable'];
-        let uniforms = this.uniforms;
         return generateTerm ? {
             code: '',
             term: ctype.type === 'constant' ? pastevalue(ctype.value, generalize(ctype), self) : uname,
@@ -870,6 +880,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let code = "";
         // assign arguments to parameters
         expr.params.forEach((param,index)=>{
+            if(param['inline'])return;// skip inlined parameters
             code+=this.compile(opAssign(param,expr['args'][index+1]),false).code;
         });
         // assign values to modifiers
@@ -1176,9 +1187,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             let builtIn = CodeBuilder.builtIns.get(fname);
             targettype = builtIn.args;
             if(fname == BUILTIN_TEXTURE4) {
-                termGenerator = useplainimagergba2
+                termGenerator = useplainimagergba2;
             } else if(fname == BUILTIN_TEXTURE3){
-                termGenerator = useplainimagergb2
+                termGenerator = useplainimagergb2;
             } else {
                 termGenerator = (args,modifs,self)=>{
                     return usefunction(builtIn.expr)(args);
