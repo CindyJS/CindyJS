@@ -245,7 +245,7 @@ cglCappedCylinderDepths(direction,center,orientation,radius):=(
   [low+w,hi+w];
 );
 
-cglCylinderProjDirection1Default = cglLazy((normal,height,orientation),
+cglCylinderProjGetDirection1Default = cglLazy((normal,height,orientation),
   regional(d1);
   if(|orientation_1|<|orientation_2|,
     d1=normalize(cross(orientation,(1,0,0)));
@@ -257,7 +257,7 @@ cglCylinderProjDirection1Default = cglLazy((normal,height,orientation),
 // assumes that normal is normalized, and height is in the range -1..1
 cglProjCylinderToSquare(normal,height,orientation):=(
   regional(d1,d2);
-  d1 = cglEval(cglCylinderProjDirection1,normal,height,orientation);
+  d1 = cglEval(cglCylinderProjGetDirection1,normal,height,orientation);
   d2 = -normalize(cross(orientation,d1));
   ((arctan2(d1*normal,d2*normal)+pi)/(2*pi),0.5*(height+1));
 );
@@ -611,11 +611,15 @@ cglKthrootP4(k, poly, l, u, def) := (
 // torus
 /////////////////////
 
+
+cglTorusProjGetDirection1Default = cglLazy((normal,radiusDirection,orientation),
+  normalize(cross(orientation,if(abs(orientation_1)<abs(orientation_2),(1,0,0),(0,1,0))));
+);
 // the torus with the given orientation onto the unit square using normal vector and radius-direction as input
 // assumes that normal and radiusDirection are normalized
 cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   regional(v1,v2,phi1,phi2);
-  v1 = normalize(cross(orientation,if(abs(orientation_1)<abs(orientation_2),(1,0,0),(0,1,0))));
+  v1 = cglEval(cglTorusProjGetDirection1,normal,radiusDirection,orientation);
   v2 = -normalize(cross(orientation,v1));
   phi1 = arctan2(radiusDirection*v1,radiusDirection*v2)+pi;
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
@@ -1459,7 +1463,7 @@ cglSphere3d(center,radius):=(
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
-  projection:(normal,height,orientation),projDir1,plotModifiers,tags));
+  projection:(normal,height,orientation),direction1,plotModifiers,tags));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,pixelExpr,exprAndUseAlpha);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1531,15 +1535,15 @@ cglCylinder3d(point1,point2,radius):=(
   );
   modifiers_"cglCap1front"=cap1_(if(needBackFace,"shaderFront","shaderNoBack"));
   modifiers_"cglCap2front"=cap2_(if(needBackFace,"shaderFront","shaderNoBack"));
-  modifiers_"cglCylinderProjDirection1" = cglCylinderProjDirection1Default;
+  modifiers_"cglCylinderProjGetDirection1" = cglCylinderProjGetDirection1Default;
   if(!isundefined(cap1_"cutDirection"),
      modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
     modifiers_"cglGetCutVector1" = cglGetCutVector1;
     n = cap1_"cutDirection";
-    modifiers_"cglCylinderProjDirection1data" =
+    modifiers_"cglDirection1" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
-    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
-      cglCylinderProjDirection1data);
+    modifiers_"cglCylinderProjGetDirection1" = cglLazy((normal,height,orientation),
+      cglDirection1);
     modifiers_"cglCutDir1" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
   );
@@ -1547,17 +1551,17 @@ cglCylinder3d(point1,point2,radius):=(
     modifiers_"cglCut2" = if(cap2_"cutOrthogonal",cglCutBoth2,cglCutVector2);
     modifiers_"cglGetCutVector2" = cglGetCutVector2;
     n = cap2_"cutDirection";
-    modifiers_"cglCylinderProjDirection1data" =
+    modifiers_"cglDirection1" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
-    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
-      cglCylinderProjDirection1data);
+    modifiers_"cglCylinderProjGetDirection1" = cglLazy((normal,height,orientation),
+      cglDirection1);
     modifiers_"cglCutDir2" = n/(0.5*(point2-point1)*n);
     overhang = max(overhang,radius*tan(arccos(|normalize(n)*normalize(point2-point1)|)));
   );
-  if(!isundefined(projDir1),
-    modifiers_"cglCylinderProjDirection1data" = projDir1;
-    modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
-      cglCylinderProjDirection1data);
+  if(!isundefined(direction1),
+    modifiers_"cglDirection1" = normalize(direction1);
+    modifiers_"cglCylinderProjGetDirection1" = cglLazy((normal,height,orientation),
+      cglDirection1);
   );
   tags = cglValOrDefault(tags,[]);
   if(needBackFace,
@@ -1582,7 +1586,7 @@ cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
-  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,projDir1,cutDir);
+  regional(jointEnd,jointStart,totalLength,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1611,8 +1615,8 @@ cglConnect3d(points):=(
       current1 = points_(length(points)-1);
       current2 = points_(length(points));
       next = points_1;
-      projDir1 = normalize(next-current2)+normalize(current2-current1);
-      projDir1 = normalize(projDir1 - (normalize(current2-current1)*projDir1)*normalize(current2-current1));
+      direction1 = normalize(next-current2)+normalize(current2-current1);
+      direction1 = normalize(direction1 - (normalize(current2-current1)*direction1)*normalize(current2-current1));
       color1 = if(isundefined(colors),color,colors_(length(points)-1));
       color2 = if(isundefined(colors),color,colors_(length(points)));
       nextColor = if(isundefined(colors),color,colors_1);
@@ -1620,8 +1624,8 @@ cglConnect3d(points):=(
       current1 = points_1;
       current2 = points_2;
       next = points_3;
-      projDir1 = normalize(next-current2)+normalize(current2-current1);
-      projDir1 = normalize(projDir1 - (normalize(current2-current1)*projDir1)*normalize(current2-current1));
+      direction1 = normalize(next-current2)+normalize(current2-current1);
+      direction1 = normalize(direction1 - (normalize(current2-current1)*direction1)*normalize(current2-current1));
       color1 = if(isundefined(colors),color,colors_1);
       color2 = if(isundefined(colors),color,colors_2);
       nextColor = if(isundefined(colors),color,colors_3);
@@ -1637,8 +1641,8 @@ cglConnect3d(points):=(
       current2 = next;
       next = points_i;
       cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
-      projDir1 = projDir1-(projDir1*cutDir)*cutDir; // project angle onto cut-plane
-      projDir1 = ((projDir1*normalize(current2-current1))/(cutDir*normalize(current2-current1)))*cutDir-projDir1;
+      direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
+      direction1 = ((direction1*normalize(current2-current1))/(cutDir*normalize(current2-current1)))*cutDir-direction1;
       color1 = color2;
       color2 = nextColor;
       nextColor = if(isundefined(colors),color,colors_i);
@@ -1654,8 +1658,8 @@ cglConnect3d(points):=(
     plotModifiers_"cglSegmentStart"=a;
     plotModifiers_"cglSegmentEnd"=b;
     cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
-    projDir1 = projDir1-(projDir1*cutDir)*cutDir; // project angle onto cut-plane
-    projDir1 = projDir1 - ((projDir1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
+    direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
+    direction1 = direction1 - ((direction1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
     cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
         cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
   ,if(length(points)==2,
@@ -1682,8 +1686,8 @@ cglCurve3d(expr,from,to):=(
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),arcRange,angle1range,angle2range,
-  plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
 cglTorus3d(center,orientation,radius1,radius2):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,exprAndUseAlpha,pixelExpr);
   orientation=normalize(orientation);
@@ -1754,6 +1758,12 @@ cglTorus3d(center,orientation,radius1,radius2):=(
   ,
     modifiers_"cglCheckAngle2" = cglLazy(texturePos,);
   );
+
+  modifiers_"cglTorusProjGetDirection1" = cglTorusProjGetDirection1Default;
+  if(!isundefined(direction1),
+    modifiers_"cglDirection1" = normalize(direction1);
+    modifiers_"cglTorusProjGetDirection1" = cglLazy((normal,height,orientation),cglDirection1);
+  );
   tags = cglValOrDefault(tags,[]);
   // TODO handle arcs (discard pixels depending on angle)
   if(needBackFace,
@@ -1776,7 +1786,7 @@ cglTorus3d(center,orientation,radius1,radius2):=(
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,plotModifiers,tags));
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
 cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaultSizeTorus);
   cglTorus3d(center,orientation,radius,size);
