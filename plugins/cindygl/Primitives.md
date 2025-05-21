@@ -50,6 +50,10 @@ similarely connect and curve have the same cap modifiers as well as the modifier
 * `colors` individual colors for each joint (including the end-points)
 * `closed` a boolean to specify if the two end-points of the curve should be connected
 
+For circles and toruses there are following modifiers:
+* `arcRange` range of angles around the (major) circle that should be drawn, input should be a list containing the starting and end angle, the angles are treated modulo 2pi.
+* `angle1range` alias for `arcRange`
+* `angle2range` range of angles around the minor circle that should be drawn, the angles are handled the same way as for `arcRange`
 
 For triangles, polygons and meshes there are the following additional parameters:
 

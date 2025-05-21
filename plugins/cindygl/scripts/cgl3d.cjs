@@ -625,7 +625,7 @@ cglProjTorusToSquare(normal,radiusDirection,orientation):=(
 cgl3dTorusShaderCode(direction,layer):=(
   regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
     orientation,b1,c1,E,W,a2,b2,c2,p3,p2,p1,p0,dst,pos3d,pc,
-    arcDirection,arcCenter,normal,color,pixelPos);
+    arcDirection,arcCenter,normal,color,texturePos);
   // compute torus coordinates from cylinder bounding box arguments
   //   reduces number of needed uniforms
   center = cglCenter;
@@ -682,8 +682,10 @@ cgl3dTorusShaderCode(direction,layer):=(
   arcCenter = center+radius1*arcDirection;
   normal = normalize(pos3d - arcCenter);
   cglSetDepth(v+dst,direction);
-  pixelPos = cglProjTorusToSquare(normal,arcDirection,orientation);
-  color = cglEval(cglPixelExpr,pixelPos,cglViewPos + cglRawDepth*direction);
+  texturePos = cglProjTorusToSquare(normal,arcDirection,orientation);
+  cglEval(cglCheckAngle1,texturePos);
+  cglEval(cglCheckAngle2,texturePos);
+  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction);
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -956,7 +958,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
 );
 // update the color color for the pixel at in direction direction assuming that the surface has been intersected at ray(direction, dst)
 // because of the alpha-transparency updatecolor should be called for the intersections with large dst first
-cglSurfaceUpdateColor(direction, dst, color) := ( 
+cglSurfaceUpdateColor(direction, dst, color) := (
   regional(x, normal);
   cglSetDepth(dst,direction);
   // TODO find good way to determine texture coordinates on surface
@@ -1390,6 +1392,10 @@ cglNormalColor(color):=( // TODO better name
     color
   ));
 );
+cglNormalizeRange(range):=(
+  range = range/(2*pi); // scale: 0...2*pi -> 0..1
+  range = apply(range,val,mod(val,1)); // pick representant in 0..1
+);
 
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,
@@ -1401,7 +1407,7 @@ cglDraw3d(pos3d):=(
 );
 cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),,size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
 cglDraw3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
@@ -1530,7 +1536,7 @@ cglCylinder3d(point1,point2,radius):=(
      modifiers_"cglCut1" = if(cap1_"cutOrthogonal",cglCutBoth1,cglCutVector1);
     modifiers_"cglGetCutVector1" = cglGetCutVector1;
     n = cap1_"cutDirection";
-    modifiers_"cglCylinderProjDirection1data" = 
+    modifiers_"cglCylinderProjDirection1data" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
     modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
       cglCylinderProjDirection1data);
@@ -1541,7 +1547,7 @@ cglCylinder3d(point1,point2,radius):=(
     modifiers_"cglCut2" = if(cap2_"cutOrthogonal",cglCutBoth2,cglCutVector2);
     modifiers_"cglGetCutVector2" = cglGetCutVector2;
     n = cap2_"cutDirection";
-    modifiers_"cglCylinderProjDirection1data" = 
+    modifiers_"cglCylinderProjDirection1data" =
       normalize(n - (normalize(point2-point1)*n)*normalize(point2-point1));
     modifiers_"cglCylinderProjDirection1" = cglLazy((normal,height,orientation),
       cglCylinderProjDirection1data);
@@ -1676,7 +1682,8 @@ cglCurve3d(expr,from,to):=(
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),arcRange,angle1range,angle2range,
+  plotModifiers,tags));
 cglTorus3d(center,orientation,radius1,radius2):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,exprAndUseAlpha,pixelExpr);
   orientation=normalize(orientation);
@@ -1709,6 +1716,44 @@ cglTorus3d(center,orientation,radius1,radius2):=(
   ,
     modifiers_"cglPixelExpr" = pixelExpr;
   );
+  // use arcRange if angle1range is not given
+  angle1range = cglValOrDefault(angle1range,arcRange);
+  if(!isundefined(angle1range),
+    needBackFace = true;
+    angle1range = cglNormalizeRange(angle1range);
+    modifiers_"cglAngle1Range" = angle1range;
+    if(angle1range_1<angle1range_2,
+      modifiers_"cglCheckAngle1" = cglLazy(texturePos,
+        if(texturePos_1<cglAngle1Range_1 % texturePos_1>cglAngle1Range_2,cglDiscard());
+      );
+    ,if(angle1range_1>angle1range_2,
+      modifiers_"cglCheckAngle1" = cglLazy(texturePos,
+        if(texturePos_1<cglAngle1Range_1 & texturePos_1>cglAngle1Range_2,cglDiscard());
+      );
+    ,
+      modifiers_"cglCheckAngle1" = cglLazy(texturePos,);
+    ));
+  ,
+    modifiers_"cglCheckAngle1" = cglLazy(texturePos,);
+  );
+  if(!isundefined(angle2range),
+    needBackFace = true;
+    angle2range = cglNormalizeRange(angle2range);
+    modifiers_"cglAngle2Range" = angle2range;
+    if(angle2range_1<angle2range_2,
+      modifiers_"cglCheckAngle2" = cglLazy(texturePos,
+        if(texturePos_2<cglAngle2Range_1 % texturePos_2>cglAngle2Range_2,cglDiscard());
+      );
+    ,if(angle2range_1>angle2range_2,
+      modifiers_"cglCheckAngle2" = cglLazy(texturePos,
+        if(texturePos_2<cglAngle2Range_1 & texturePos_2>cglAngle2Range_2,cglDiscard());
+      );
+    ,
+      modifiers_"cglCheckAngle2" = cglLazy(texturePos,);
+    ));
+  ,
+    modifiers_"cglCheckAngle2" = cglLazy(texturePos,);
+  );
   tags = cglValOrDefault(tags,[]);
   // TODO handle arcs (discard pixels depending on angle)
   if(needBackFace,
@@ -1730,7 +1775,8 @@ cglTorus3d(center,orientation,radius1,radius2):=(
 // TODO? option to use aspect ratio instead of second radius
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),,texturePos,size,alpha,light:(color,direction,normal),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
+  arcRange,angle1range,angle2range,plotModifiers,tags));
 cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaultSizeTorus);
   cglTorus3d(center,orientation,radius,size);
