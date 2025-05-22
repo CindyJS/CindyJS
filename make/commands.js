@@ -156,7 +156,7 @@ exports.sass = function (src, dst) {
     this.addJob(function () {
         task.log(src + " \u219d " + dst);
         var basename = path.basename(dst);
-        return Q.fcall(require, "node-sass")
+        return Q.fcall(require, "sass")
             .ninvoke("render", {
                 file: src,
                 outFile: basename,

@@ -41,7 +41,7 @@ $focused-shadow: 0px 0px 3px #06f;
     }
 
     button.CindyJS-active {
-        @extend %button:active;
+        @extend %button, :active;
     }
 
     button:focus {
@@ -130,7 +130,7 @@ $focused-shadow: 0px 0px 3px #06f;
     }
 
     input[type="checkbox"]:checked + label {
-        @extend %button:active;
+        @extend %button, :active;
     }
 
     button:focus:active,
