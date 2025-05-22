@@ -93,7 +93,9 @@ CindyGL3D defines the following functions for drawing primitive objects:
 
 * `draw3d(pos3d)` draw a point at position `pos3d`
 * `draw3d(point1,point2)` draw a line between the two points `point1` and `point2`
+* `sphere3d(center)` draw a sphere with the given center
 * `sphere3d(center,radius)` draw a sphere with the given center and radius
+* `cylinder3d(point1,point2)` draw a cylinder with the endpoints `point1` and `point2`
 * `cylinder3d(point1,point2,radius)` draw a cylinder with radius `radius` between the endpoints `point1` and `point2` 
 * `connect3d(points)` connect the given points by lines
 * `curve3d(expr:(t),from,to)` draw the curve specified by the given equation for `t` in the range `from` and `to`
@@ -101,7 +103,7 @@ CindyGL3D defines the following functions for drawing primitive objects:
 * `circle3d(center,orientation,radius)` draws a circle with the given center and radius, in the plane with normal-vector pointing in orientation
 * `torus3d(center,orientation,radius1,radius2)` draws a torus with the given center, and orientation with major radius `radius1` and minor radius `radius2`
 
-* `triangle3d(p1,p2,p3)` draw a triangle with the given vertices
+* `draw3d(p1,p2,p3)` `triangle3d(p1,p2,p3)` draw a triangle with the given vertices
 * `polygon3d(vertices)` draw a polygon with the given vertices, the modifier `triangulationMode` can be used to specify how the vertices are seperated into triangles, possible values are:
   - `TriangulateCorner` connect all vertices to first vertex
   - `TriangulateCenter` connect all vertices to additional vertex in center of polygon (mean of vertcies)

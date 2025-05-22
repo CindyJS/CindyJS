@@ -1310,6 +1310,7 @@ cglUndefinedVal():=(regional(nada);nada);
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
 // TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
 //  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
+// TODO? default alpha value
 
 // TODO? support open caps in connect3d
 
@@ -1412,21 +1413,15 @@ cglNormalizeRange(range):=(
   range = apply(range,val,mod(val,1)); // pick representant in 0..1
 );
 
-
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,
+  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
+cglInterface("sphere3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
 cglDraw3d(pos3d):=(
   size = cglValOrDefault(size,cglDefaultSizeSphere);
   cglSphere3d(pos3d,size);
-);
-cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,
-  textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
-cglDraw3d(point1,point2):=(
-  size = cglValOrDefault(size,cglDefaultSizeCylinder);
-  caps = cglValOrDefault(caps,cglDefaultCapsConnect);
-  cglCylinder3d(point1,point2,size);
 );
 
 cglInterface("sphere3d",cglSphere3d,(center,radius),(color,texture,textureRGB,textureRGBA,
@@ -1472,6 +1467,22 @@ cglSphere3d(center,radius):=(
   if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
 );
 
+
+cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,
+  textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
+cglDraw3d(point1,point2):=(
+  size = cglValOrDefault(size,cglDefaultSizeCylinder);
+  caps = cglValOrDefault(caps,cglDefaultCapsConnect);
+  cglCylinder3d(point1,point2,size);
+);
+cglInterface("cylinder3d",cglCylinder3d,(point1,point2),(color,color1,color2,texture,
+  textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
+cglCylinder3d(point1,point2):=(
+  size = cglValOrDefault(size,cglDefaultSizeCylinder);
+  cglCylinder3d(point1,point2,size);
+);
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
@@ -1829,6 +1840,9 @@ cglCheckSize(vData,vCount,msg) := (
 );
 
 // TODO? normalTexture modifier (texture of normal vectors)
+cglInterface("draw3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,
+  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
 cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
@@ -2157,6 +2171,7 @@ cglMesh3d(grid):=(
 // TODO? quadric3d
 // TODO? cubic3d
 
+// TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
 // TODO use same color-expr syntax as for other objects
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
   texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
@@ -2249,5 +2264,5 @@ cglCPlot3d(f/*f(z)*/):=(
       hue((arctan2(re(z),im(z))+pi)/(2*pi))
     ,f->f);
   );
-  cglSurface3d(cglLazy((x,y,z),abs(cglEval(f,x+i*y))-z,f->f));
+  cglSurface3d(cglLazy((x,y,z),abs(cglEval(f,x+i*y))-z,f->f),degree->cglValOrDefault(degree,-1));
 );
