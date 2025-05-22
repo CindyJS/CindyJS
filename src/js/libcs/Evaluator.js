@@ -217,7 +217,7 @@ function printStackTrace(msg) {
         msg +
             callStack
                 .map(function (frame) {
-                    return "\n  at " + frame.oper;
+                    return "  at " + frame.oper;
                 })
                 .join("\n")
     );
