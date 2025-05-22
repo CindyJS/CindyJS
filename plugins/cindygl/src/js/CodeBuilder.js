@@ -349,7 +349,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             let inlined = {}; // remember which arguments where inlined
             exprData.params.forEach((param_,index) => {
                 // !!! do not modify the original param, modifications can leak into different uses of the same lazy-expression
-                param = Object.assign({}, param_);
+                const param = Object.assign({}, param_);
                 let vname = param['name'];
                 // TODO? should modification to lazy-argument modifiy into passed in variable
                 if(expr['args'][index+1]['ctype']==='variable') {
