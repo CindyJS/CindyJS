@@ -2186,7 +2186,10 @@ cglSurface3d(fun) := (
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
     normalExpr = if(isundefined(dF),cglGuessDerivative(F),dF);
     if(isundefined(degree),
-      N = min(cglGuessdeg(F),cglMaxAutoDeg);
+      N = min(cglTryDetermineDegree(fun),cglMaxAutoDeg);
+      if(isundefined(N),
+        N = min(cglGuessdeg(F),cglMaxAutoDeg);
+      );
     ,if(degree<0,
       N = cglMaxAutoDeg;
     ,
@@ -2252,7 +2255,10 @@ cglSurface3d(fun) := (
 // TODO? add ability to scale axes independently from CindyJS coordinate system
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
-  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f));
+  if(isundefined(degree),
+      degree = min(cglTryDetermineDegree(f),cglMaxAutoDeg);
+  );
+  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f,degree->degree));
 );
 cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));

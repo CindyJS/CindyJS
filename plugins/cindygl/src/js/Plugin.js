@@ -1378,6 +1378,29 @@ let CindyGL = function(api) {
             return api.evaluate(call);
         });
     });
+    api.defineFunction("cglTryDetermineDegree",1,(args,modifs) => {
+        let arg = api.evaluate(args[0]);
+        if(arg['ctype'] !== 'cglLazy') {
+            console.error("expected cglLazy expression, if the first argument should be used as an expression add checked variables as second parameter");
+            return nada;
+        }
+        const degreeData = tryDetermineDegree(arg.expr,arg.params.map(asName));
+        if(degreeData.degree === undefined)
+            return nada;
+        return toCjsNumber(degreeData.degree);
+    });
+    api.defineFunction("cglTryDetermineDegree",2,(args,modifs) => {
+        let params = api.evaluate(args[1]);
+        if(params["ctype"] === "list") {
+            params = params.value.map(asName);
+        } else {
+            params=[asName(params)];
+        }
+        const degreeData = tryDetermineDegree(args[0],params);
+        if(degreeData.degree === undefined)
+            return nada;
+        return toCjsNumber(degreeData.degree);
+    });
 
     api.defineFunction("cglDebugPrint", 1, (args, modifs) => {
         console.log(args[0],api.evaluate(args[0]),api.evaluateAndVal(args[0]));

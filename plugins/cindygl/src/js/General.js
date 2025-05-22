@@ -382,3 +382,78 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
     while (ans < a) ans <<= 1;
     return ans;
 };
+
+const UNARY_DEG_INF_FUNCTIONS = ['abs','exp','log','sin','cos','tan','arcsin','arccos','arctan'];
+/**
+ * try to determine the degree of `expr` in the given variables returns:
+ *  1) a positive integer N if the expression is a degree N polynomial
+ *  2) -1 if the degree is infinite
+ *  3) null if the degree could not be determined
+ * @param {Array<String>} vars variables that should be checked
+ */
+function tryDetermineDegree(expr,vars) {
+  if(expr['ctype']==='variable') {
+    if(vars.includes(expr['name']))
+        return {degree:1};
+    // TODO? check for variables declared in expression
+    return {degree:0};
+  } else if(expr['ctype']==='number') {
+    if(expr['value']['imag'] === 0 && Number.isInteger(expr['value']['real'])){
+        return {value:expr['value']['real'],degree:0};
+    }
+    return {degree:0};
+  } else if(expr['ctype']==='void') {
+    return {value:0,degree:0};
+  } else if(expr['ctype']==='infix' && ['+','-','*','/'].includes(expr['oper'])) {
+    const arg1=tryDetermineDegree(expr['args'][0],vars);
+    const arg2=tryDetermineDegree(expr['args'][1],vars);
+    if(arg1.degree === undefined || arg2.degree === undefined) return {};
+    if(arg1.degree < 0 || arg2.degree  < 0) return {degree:-1};
+    let degree = 0;
+    let hasValue = (arg1.value !== undefined) && (arg2.value !== undefined);
+    let value;
+    switch(expr['oper']){
+        case '+':
+            degree=Math.max(arg1.degree,arg2.degree);
+            if(hasValue) value = arg1.value + arg2.value;
+            break;
+        case '-':
+            degree=Math.max(arg1.degree,arg2.degree);
+            if(hasValue) value = arg1.value - arg2.value;
+            break;
+        case '*':
+            degree=arg1.degree+arg2.degree;
+            if(hasValue) value = arg1.value * arg2.value;
+            break;
+        case '/':
+            degree=arg2.degree==0?arg1.degree:-1;
+            if(hasValue) value = arg1.value / arg2.value;
+            break;
+    }
+    return hasValue ? {degree:degree,value:value} : {degree:degree};
+  } else if(expr['ctype']==='infix' && expr['oper'] === '^') {
+    const arg2=tryDetermineDegree(expr['args'][1],vars);
+    if(arg2.degree === undefined) return {};
+    if(arg2.value !== undefined && arg2.value >= 0) {
+        const arg1=tryDetermineDegree(expr['args'][0],vars);
+        if(arg1.degree === undefined) return {};
+        const degree = arg1.degree * arg2.value;
+        return arg2.value !== undefined ? {degree: degree, value: Math.pow(arg1.value,arg2.value)}: {degree: degree};
+    }
+    return {degree:-1};
+  } else if(expr['ctype']==='function' && expr['args'].length == 1 && UNARY_DEG_INF_FUNCTIONS.includes(getPlainName(expr['oper']))) {
+    const arg=tryDetermineDegree(expr['args'][0],vars);
+    if(arg.degree === undefined) return {};
+    if(arg.degree != 0) {
+        return {degree:-1};
+    }
+    if (arg.value !== "undefined" && getPlainName(expr['oper']) === "abs") {
+        return {degree: 0, value: Math.abs(arg.value)};
+    }
+    return {degree:0};
+  }
+  console.log(expr);
+  // TODO support cglEval expressions
+  // TODO? support variables and if
+  return {};
+}
