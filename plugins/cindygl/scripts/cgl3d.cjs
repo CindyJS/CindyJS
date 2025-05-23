@@ -1315,7 +1315,7 @@ cglUndefinedVal():=(regional(nada);nada);
 // TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
 //  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 
-// TODO? support open caps in connect3d
+// TODO? angled caps for connect might cut into next segment
 
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shortened by extracting code
@@ -1491,7 +1491,7 @@ cglCylinder3d(point1,point2):=(
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
   textureRGB,textureRGBA,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
-  projection:(normal,height,orientation),direction1,plotModifiers,tags));
+  projection:(normal,height,orientation),direction1,plotModifiers,tags,renderBack));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,usesAlpha,pixelExpr,exprData,opacityExpr);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1501,6 +1501,7 @@ cglCylinder3d(point1,point2,radius):=(
   caps = cglValOrDefault(caps,cglDefaultCapsCylinder);
   cap1 = cglValOrDefault(cap1,caps);
   cap2 = cglValOrDefault(cap2,caps);
+  renderBack = cglValOrDefault(renderBack,false); // if true back-face should always be rendered
   projection = cglValOrDefault(projection,
     cglLazy((normal,height,orientation),cglProjCylinderToSquare(normal,height,orientation)));
   overhang = if(cap1_"name" == "Round" % cap2_"name" == "Round",radius,0);
@@ -1562,7 +1563,7 @@ cglCylinder3d(point1,point2,radius):=(
   ,
     modifiers_"cglPixelExpr" = pixelExpr;
   );
-  needBackFace = hasAlpha % usesAlpha;
+  needBackFace = hasAlpha % usesAlpha % renderBack;
   modifiers_"cglCap1front"=cap1_(if(needBackFace,"shaderFront","shaderNoBack"));
   modifiers_"cglCap2front"=cap2_(if(needBackFace,"shaderFront","shaderNoBack"));
   modifiers_"cglCylinderProjGetDirection1" = cglCylinderProjGetDirection1Default;
@@ -1619,7 +1620,7 @@ cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglConnect3d(points):=(
-  regional(jointEnd,jointStart,totalLength,alpha0,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir);
+  regional(jointEnd,jointStart,totalLength,alpha0,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir,renderBack);
   closed = cglValOrDefault(closed,false);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
@@ -1628,6 +1629,10 @@ cglConnect3d(points):=(
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
   cap1 = cglValOrDefault(cap1,caps);
   cap2 = cglValOrDefault(cap2,caps);
+  if(cap1 == CglCylinderCapOpen % cap1 == CglCylinderCapCutOpen %
+    cap2 == CglCylinderCapOpen % cap2 == CglCylinderCapCutOpen,
+    renderBack = true; // caps are open -> need back face
+  );
   joints = cglValOrDefault(joints,CglConnectRound);
   jointEnd = joints;
   jointStart = joints;
