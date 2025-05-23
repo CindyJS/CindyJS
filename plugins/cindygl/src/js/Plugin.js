@@ -1124,143 +1124,156 @@ let CindyGL = function(api) {
         return toCjsNumber(pickedId);
     });
     // TODO? allow taking multiple ids as input
-    function objectById(idVal) {
-        let objId = coerce.toInt(api.evaluateAndVal(idVal),-1);
-        if(objId<0)
-            return [undefined,-1,false];
-        let obj3d = CindyGL.objectBuffer.opaque.get(objId);
-        let wasOpaque = true;
-        if(obj3d === undefined){
-            obj3d = CindyGL.objectBuffer.translucent.get(objId);
-            wasOpaque = false;
-            if(obj3d === undefined){
-                console.warn(`could not find object with id ${objId}`);
-                return [undefined,-1,false];
-            }
+    function objectsById(idVal) {
+        idVal = api.evaluateAndVal(idVal);
+        let ids;
+        if(idVal['ctype'] === 'number') {
+            let objId = coerce.toInt(idVal,-1);
+            if(objId<0)
+                return [];
+            ids = [objId];
+        } else if(idVal['ctype'] === 'list') {
+            ids = idVal['value'].map(id=>coerce.toInt(id,-1)).filter(id=>id>=0);
         }
-        return [obj3d,objId,wasOpaque];
+        return ids.map(objId=>{
+            let obj3d = CindyGL.objectBuffer.opaque.get(objId);
+            let wasOpaque = true;
+            if(obj3d === undefined){
+                obj3d = CindyGL.objectBuffer.translucent.get(objId);
+                wasOpaque = false;
+                if(obj3d === undefined){
+                    console.warn(`could not find object with id ${objId}`);
+                    return null;
+                }
+            }
+            return [obj3d,objId,wasOpaque];
+        }).filter(val=>val!==null);
     }
     // change bounding box
     api.defineFunction("cglUpdateBounds",1, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
-        obj3d.boundingBox = Renderer.noBounds();
-        return toCjsNumber(objId);
+        return objectsById(args[0]).map(([obj3d,objId,_])=>{
+            obj3d.boundingBox = Renderer.noBounds();
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglUpdateBounds",2, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
-        let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
-        if(vertices === undefined) {
-            console.warn("invalid vertex data",args[1]);
-            return nada;
-        }
-        let vCount = vertices.length/3;
-        if(vCount < 3) {
-            console.warn("not enough vertices for triangle");
-            return nada; // not enough vertices
-        }
-        let vModifiers = get3DPlotVertexModifiers(modifs,vCount,obj3d.plotModifiers);
-        obj3d.boundingBox = Renderer.boundingTriangles(vertices,vModifiers);
-        return toCjsNumber(objId);
+        return objectsById(args[0]).map(([obj3d,objId,_])=>{
+            let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
+            if(vertices === undefined) {
+                console.warn("invalid vertex data",args[1]);
+                return nada;
+            }
+            let vCount = vertices.length/3;
+            if(vCount < 3) {
+                console.warn("not enough vertices for triangle");
+                return nada; // not enough vertices
+            }
+            let vModifiers = get3DPlotVertexModifiers(modifs,vCount,obj3d.plotModifiers);
+            obj3d.boundingBox = Renderer.boundingTriangles(vertices,vModifiers);
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglUpdateBounds",3, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
-        var center = coerce.toDirection(api.evaluateAndVal(args[1]));
-        var radius = api.evaluateAndVal(args[2])["value"]["real"];
-        obj3d.boundingBox=Renderer.boundingSphere(center,radius);
-        return toCjsNumber(objId);
+        return objectsById(args[0]).map(([obj3d,objId,_])=>{
+            var center = coerce.toDirection(api.evaluateAndVal(args[1]));
+            var radius = api.evaluateAndVal(args[2])["value"]["real"];
+            obj3d.boundingBox=Renderer.boundingSphere(center,radius);
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglUpdateBounds",4, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
-        var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
-        var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
-        var radius = api.evaluateAndVal(args[3])["value"]["real"];
-        var overhang = 0;
-        if (modifs.hasOwnProperty("overhang")) {
-            overhang = modifs["overhang"]["value"]["real"];
-        }
-        obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
-        return toCjsNumber(objId);
+        return objectsById(args[0]).map(([obj3d,objId,_])=>{
+            var pointA = coerce.toDirection(api.evaluateAndVal(args[1]));
+            var pointB = coerce.toDirection(api.evaluateAndVal(args[2]));
+            var radius = api.evaluateAndVal(args[3])["value"]["real"];
+            var overhang = 0;
+            if (modifs.hasOwnProperty("overhang")) {
+                overhang = modifs["overhang"]["value"]["real"];
+            }
+            obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglUpdateBounds",5, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
-        var center = coerce.toDirection(api.evaluateAndVal(args[1]));
-        var v1 = coerce.toDirection(api.evaluateAndVal(args[2]));
-        var v2 = coerce.toDirection(api.evaluateAndVal(args[3]));
-        var v3 = coerce.toDirection(api.evaluateAndVal(args[4]));
-        obj3d.boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
-        return toCjsNumber(objId);
+        return objectsById(args[0]).map(([obj3d,objId,_])=>{
+            var center = coerce.toDirection(api.evaluateAndVal(args[1]));
+            var v1 = coerce.toDirection(api.evaluateAndVal(args[2]));
+            var v2 = coerce.toDirection(api.evaluateAndVal(args[3]));
+            var v3 = coerce.toDirection(api.evaluateAndVal(args[4]));
+            obj3d.boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglUpdate", 1, (args, modifs) => {
-        let [obj3d,objId,wasOpaque] = objectById(args[0]);
-        if(objId<0)return nada;
-        let plotModifiers=get3DPlotModifiers(modifs);
-        let vModifiers;
-        if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
-            let vCount = obj3d.boundingBox.vertices.length/3;
-            vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
-        } else {
-            vModifiers = new Map();
-        }
-        if(plotModifiers.size == 0 && vModifiers.size == 0) {
-            return toCjsNumber(objId); // no changes -> no need to update
-        }
-        // modifiers changed -> recompile if neccessary
-        let vModsChanged = vModifiers.size > 0;
-        // copy unchanged modifiers
-        obj3d.plotModifiers.forEach((value,key)=>{
-            if(!plotModifiers.has(key)){
-                plotModifiers.set(key,value);
+        return objectsById(args[0]).map(([obj3d,objId,wasOpaque])=>{
+            let plotModifiers=get3DPlotModifiers(modifs);
+            let vModifiers;
+            if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
+                let vCount = obj3d.boundingBox.vertices.length/3;
+                vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
+            } else {
+                vModifiers = new Map();
             }
-        });
-        if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
-            obj3d.boundingBox.vModifiers.forEach((value,key)=>{
-                if(!vModifiers.has(key)) {
-                    vModifiers.set(key,value);
-                } else if(value.aName !== undefined) {
-                    // copy attribute names (if existent)
-                    vModifiers.get(key).aName = value.aName;
+            if(plotModifiers.size == 0 && vModifiers.size == 0) {
+                return toCjsNumber(objId); // no changes -> no need to update
+            }
+            // modifiers changed -> recompile if neccessary
+            let vModsChanged = vModifiers.size > 0;
+            // copy unchanged modifiers
+            obj3d.plotModifiers.forEach((value,key)=>{
+                if(!plotModifiers.has(key)){
+                    plotModifiers.set(key,value);
                 }
             });
-        }
-        if(vModsChanged){ // update bounding box
-            obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
-        }
-        // update modifers types in renderer
-        obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
-        if(obj3d.renderer.opaque !== wasOpaque){
-            // opacity changed
-            if(wasOpaque) {
-                CindyGL.objectBuffer.opaque.delete(objId);
-                CindyGL.objectBuffer.translucent.set(objId,obj3d);
-            } else {
-                CindyGL.objectBuffer.translucent.delete(objId);
-                CindyGL.objectBuffer.opaque.set(objId,obj3d);
+            if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
+                obj3d.boundingBox.vModifiers.forEach((value,key)=>{
+                    if(!vModifiers.has(key)) {
+                        vModifiers.set(key,value);
+                    } else if(value.aName !== undefined) {
+                        // copy attribute names (if existent)
+                        vModifiers.get(key).aName = value.aName;
+                    }
+                });
             }
-        }
-        obj3d.plotModifiers = plotModifiers;
-        if(modifs.hasOwnProperty('opaqueIf')) {
-            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
-        }
-        computeOpacity(obj3d,api);
-        return toCjsNumber(objId);
+            if(vModsChanged){ // update bounding box
+                obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
+            }
+            // update modifers types in renderer
+            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
+            if(obj3d.renderer.opaque !== wasOpaque){
+                // opacity changed
+                if(wasOpaque) {
+                    CindyGL.objectBuffer.opaque.delete(objId);
+                    CindyGL.objectBuffer.translucent.set(objId,obj3d);
+                } else {
+                    CindyGL.objectBuffer.translucent.delete(objId);
+                    CindyGL.objectBuffer.opaque.set(objId,obj3d);
+                }
+            }
+            obj3d.plotModifiers = plotModifiers;
+            if(modifs.hasOwnProperty('opaqueIf')) {
+                obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            }
+            computeOpacity(obj3d,api);
+            return toCjsNumber(objId);
+        });
     });
     api.defineFunction("cglDelete", 1, (args, modifs) => {
-        let [_,objId,wasOpaque] = objectById(args[0]);
-        if(wasOpaque) {
-            CindyGL.objectBuffer.opaque.delete(objId);
-        } else {
-            CindyGL.objectBuffer.translucent.delete(objId);
-        }
+        return objectsById(args[0]).forEach(([_,objId,wasOpaque])=>{
+            if(wasOpaque) {
+                CindyGL.objectBuffer.opaque.delete(objId);
+            } else {
+                CindyGL.objectBuffer.translucent.delete(objId);
+            }
+        });
     });
     // TODO? cglObjectInfo()
     api.defineFunction("cglSpherePos", 1, (args, modifs) => {
-        let [obj3d,objId,_] = objectById(args[0]);
-        if(objId<0)return nada;
+        let objects = objectsById(args[0]);
+        if(objects.length === 0)
+            return nada;
+        // TODO? better support for multiple ids
+        let [obj3d,objId,_] = objects[0];
         if(obj3d.boundingBox.type !== BoundingBoxType.sphere) {
             console.log(`the object with id ${objId} is no sphere`);
             return nada;
