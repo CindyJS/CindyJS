@@ -19,6 +19,8 @@ cglSetDepth(rawDepth,direction):=(
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
 );
+// returns undefined
+cglUndefinedVal():=(regional(nada);nada);
 
 /////////////////////
 // light functions
@@ -107,6 +109,7 @@ cglDefaultSizeCylinder = 0.4;
 cglDefaultSizeTorus = 0.25;
 cglDefaultCurveSamples = 32;
 cglDefaultPlotSamples = 128;
+cglDefaultAlpha = cglUndefinedVal();
 
 /////////////////////
 // spheres
@@ -1286,8 +1289,6 @@ cglMergeDicts(dict1,dict2):=(
   forall(dict2,val,key,res_key=val);
   res;
 );
-// returns undefined
-cglUndefinedVal():=(regional(nada);nada);
 
 // TODO find good list of default modifiers‚
 // function->f(#pos,#norm,#kmin,#kmax....) (colorplot on drawn surface)
@@ -1296,9 +1297,8 @@ cglUndefinedVal():=(regional(nada);nada);
 // ? rememberId -> remember object id
 
 // TODO function for updating/resetting defaults
-// ? use global variables
+// ? use internal global variables
 // ? always use cglAlpha even if explicitly not specified
-// cglDefaultAlpha -> if set use alpha-modifier on all rendered objects
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
@@ -1315,7 +1315,7 @@ cglUndefinedVal():=(regional(nada);nada);
 // TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
 //  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
 
-// TODO? angled caps for connect might cut into next segment
+// TODO? connect3d: angled caps for might cut into next segment
 
 // helper functions for resolving of colorExpression/textures
 // TODO? to which extend can this function be shortened by extracting code
@@ -1435,6 +1435,7 @@ cglSphere3d(center,radius):=(
   color = cglValOrDefault(color,cglDefaultColorSphere);
   light = cglValOrDefault(light,cglDefaultLight);
   projection = cglValOrDefault(projection,cglDefaultSphereProjection);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = ! isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   modifiers = {"cglLight": light,"cglProjection":projection};
@@ -1505,6 +1506,7 @@ cglCylinder3d(point1,point2,radius):=(
   projection = cglValOrDefault(projection,
     cglLazy((normal,height,orientation),cglProjCylinderToSquare(normal,height,orientation)));
   overhang = if(cap1_"name" == "Round" % cap2_"name" == "Round",radius,0);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = !isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   modifiers = {"cglLight": light,
@@ -1735,6 +1737,7 @@ cglTorus3d(center,orientation,radius1,radius2):=(
   orientation=normalize(orientation);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
   light = cglValOrDefault(light,cglDefaultLight);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = !isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   modifiers = {
@@ -1864,6 +1867,7 @@ cglTriangle3d(p1,p2,p3):=(
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   uv = cglValOrDefault(uv,[(0,0),(1,0),(0,1)]);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = !isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   modifiers = {
@@ -1947,6 +1951,7 @@ cglPolygon3d(vertices):=(
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
   triangulationMode = cglValOrDefault(triangulationMode,CglTriangulateDefault);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = !isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   modifiers = {
@@ -2084,6 +2089,7 @@ cglMesh3d(grid):=(
   regional(Ny,Nx,triangles,modifiers,vModifiers,exprData,pixelExpr,hasAlpha,usesAlpha,colLen,opacityExpr);
   color = cglValOrDefault(color,cglDefaultColorTriangle);
   light = cglValOrDefault(light,cglDefaultLight);
+  alpha = cglValOrDefault(alpha,cglDefaultAlpha);
   hasAlpha = !isundefined(alpha);
   alpha = cglValOrDefault(alpha,1);
   topology = cglValOrDefault(topology,TopologyOpen);
@@ -2201,7 +2207,8 @@ cglSurface3d(fun) := (
     regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds,usesAlpha,opacityExpr);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
-    alpha = cglValOrDefault(alpha,0.75);
+    alpha = cglValOrDefault(alpha,cglDefaultAlpha);
+    alpha = cglValOrDefault(alpha,1); // cglDefaultAlpha can be undefined
     cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaultSurfaceCutoff);
     layers = cglValOrDefault(layers,0);
     // convert function to form taking vector insteads of 3 arguments
@@ -2284,7 +2291,7 @@ cglPlot3d(f/*f(x,y)*/):=(
   if(isundefined(degree),
       degree = min(cglTryDetermineDegree(f),cglMaxAutoDeg);
   );
-  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f,degree->degree));
+  cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f),degree->degree);
 );
 cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));

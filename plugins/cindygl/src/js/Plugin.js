@@ -606,9 +606,7 @@ let CindyGL = function(api) {
             expr = obj3d.opaqueIfExpr;
         }
         expr = replaceVariables(expr,obj3d.plotModifiers);
-        console.log(expr);
         const value = tryEvaluate(expr,api,nada);
-        console.log(value);
         // TODO? allow non-boolean expressions
         if(obj3d.opaqueIfExpr['ctype']!=='boolean'){
             delete obj3d.opaque;
