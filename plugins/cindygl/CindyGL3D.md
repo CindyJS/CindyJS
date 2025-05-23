@@ -92,6 +92,10 @@ Like for the plot modifiers additional vertex modifiers can be specified as a ke
 
 The values of the constants are directly associated with the drawn object and can be changed by calling `cglUpdate` with the matching modifiers.
 
+The modifier `opaqueIf` can be used to specify when the object should be rendered opaque, the given value can be eigther a boolean, an expression evaluating to a boolean variable or a cglLazy expression without parameters.
+Within the given (lazy) expression plotModifiers can be used and will evaluate to their value within the render evironment.
+`opaqueIf` is only a hit for how the renderer should treat the object (rendering translucent objects is much more expensive), it does not have an effect on the actual rendered alpha-value.
+
 ## Primitive objects
 
 The file `scripts/cglInit.cjs` contains definitions for geometric primitive objects,

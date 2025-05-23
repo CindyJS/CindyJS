@@ -51,6 +51,25 @@ function dot3(u,v){
     return u[0]*v[0]+u[1]*v[1]+u[2]*v[2];
 }
 
+// try evaluating expr, return nada if evaluation fails
+// silences all errors& warnings that occur during evaluation
+function tryEvaluate(expr,api,def) {
+    let value = def;
+    const oldLog = console.log;
+    try{
+        // this is evil:
+        //  redefine console.log to silence error messages during `api.evaluate` call
+        console.log = function() {};
+        value = api.evaluate(expr);
+    } catch (ignored) {
+        // if evaluation failed use result as expression
+    } finally {
+        // restore console.log to previous value
+        console.log = oldLog;
+    }
+    return value;
+}
+
 /**
  * @param {Renderer} renderer rendering program
  * @param { { type: BoundingBoxType } } boundingBox bounding box of rendered object in 3D space
@@ -568,6 +587,35 @@ let CindyGL = function(api) {
         }
         return val;
     }
+
+    // TODO? currently the opacity is only updated when a modifier changes
+    // ? detect expressions that depend on global variables and update the opacity of those objects every frame
+    function computeOpacity(obj3d,api){
+        let expr = obj3d.opaqueIfExpr;
+        if(expr === undefined) {
+            delete obj3d.opaque;
+            return;
+        }
+        expr = tryEvaluate(expr,api,expr);
+        if(expr['ctype']==='cglLazy'){
+            if(expr.params.length>0) {
+                console.warn("opacity expression should not have any parameters");
+            }
+            expr = expr.expr;
+        } else {
+            expr = obj3d.opaqueIfExpr;
+        }
+        expr = replaceVariables(expr,obj3d.plotModifiers);
+        console.log(expr);
+        const value = tryEvaluate(expr,api,nada);
+        console.log(value);
+        // TODO? allow non-boolean expressions
+        if(obj3d.opaqueIfExpr['ctype']!=='boolean'){
+            delete obj3d.opaque;
+            return;
+        }
+        obj3d.opaque = value['value'];
+    }
     /**
      * plots colorplot on whole main canvas in CindyJS coordinates
      * uses the z-coordinate for the nearest pixel as depth information
@@ -578,6 +626,10 @@ let CindyGL = function(api) {
         let plotModifiers=get3DPlotModifiers(modifs);
         let compiledProg=compile(prog,Renderer.noBounds(),plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs));
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            computeOpacity(obj3d,api);
+        }
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -659,6 +711,10 @@ let CindyGL = function(api) {
         let boundingBox=Renderer.boundingTriangles(vertices,vModifiers);
         let compiledProg=compile(prog,boundingBox,plotModifiers,vModifiers);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            computeOpacity(obj3d,api);
+        }
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -676,6 +732,10 @@ let CindyGL = function(api) {
         let boundingBox=Renderer.boundingSphere(center,radius);
         let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            computeOpacity(obj3d,api);
+        }
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -699,6 +759,10 @@ let CindyGL = function(api) {
         let boundingBox=Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
         let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            computeOpacity(obj3d,api);
+        }
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -718,6 +782,10 @@ let CindyGL = function(api) {
         let boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
         let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+            computeOpacity(obj3d,api);
+        }
         setObject(obj3d.id,obj3d);
         return toCjsNumber(obj3d.id);
     });
@@ -1069,7 +1137,7 @@ let CindyGL = function(api) {
             wasOpaque = false;
             if(obj3d === undefined){
                 console.warn(`could not find object with id ${objId}`);
-                return [undefined,objId,false];
+                return [undefined,-1,false];
             }
         }
         return [obj3d,objId,wasOpaque];
@@ -1140,31 +1208,32 @@ let CindyGL = function(api) {
         } else {
             vModifiers = new Map();
         }
+        if(plotModifiers.size == 0 && vModifiers.size == 0) {
+            return toCjsNumber(objId); // no changes -> no need to update
+        }
         // modifiers changed -> recompile if neccessary
-        if(plotModifiers.size > 0 || vModifiers.size > 0) {
-            let vModsChanged = vModifiers.size > 0;
-            // copy unchanged modifiers
-            obj3d.plotModifiers.forEach((value,key)=>{
-                if(!plotModifiers.has(key)){
-                    plotModifiers.set(key,value);
+        let vModsChanged = vModifiers.size > 0;
+        // copy unchanged modifiers
+        obj3d.plotModifiers.forEach((value,key)=>{
+            if(!plotModifiers.has(key)){
+                plotModifiers.set(key,value);
+            }
+        });
+        if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
+            obj3d.boundingBox.vModifiers.forEach((value,key)=>{
+                if(!vModifiers.has(key)) {
+                    vModifiers.set(key,value);
+                } else if(value.aName !== undefined) {
+                    // copy attribute names (if existent)
+                    vModifiers.get(key).aName = value.aName;
                 }
             });
-            if(obj3d.boundingBox.type == BoundingBoxType.triangles) {
-                obj3d.boundingBox.vModifiers.forEach((value,key)=>{
-                    if(!vModifiers.has(key)) {
-                        vModifiers.set(key,value);
-                    } else if(value.aName !== undefined) {
-                        // copy attribute names (if existent)
-                        vModifiers.get(key).aName = value.aName;
-                    }
-                });
-            }
-            if(vModsChanged){ // update bounding box
-                obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
-            }
-            // update modifers types in renderer
-            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
         }
+        if(vModsChanged){ // update bounding box
+            obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
+        }
+        // update modifers types in renderer
+        obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
         if(obj3d.renderer.opaque !== wasOpaque){
             // opacity changed
             if(wasOpaque) {
@@ -1176,6 +1245,10 @@ let CindyGL = function(api) {
             }
         }
         obj3d.plotModifiers = plotModifiers;
+        if(modifs.hasOwnProperty('opaqueIf')) {
+            obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
+        }
+        computeOpacity(obj3d,api);
         return toCjsNumber(objId);
     });
     api.defineFunction("cglDelete", 1, (args, modifs) => {
@@ -1262,6 +1335,16 @@ let CindyGL = function(api) {
             modifs: Object.entries(modifs).map(([key,value])=>[key,api.evaluate(value)]) // TODO? convert to map
         };
     });
+    // convenience function for lazy expression without parameters
+    api.defineFunction("cglLazy", 1, (args, modifs) => {
+        createCglEval(0);
+        return {
+            ctype: "cglLazy",
+            params: [],
+            expr: cloneExpression(args[0]),
+            modifs: Object.entries(modifs).map(([key,value])=>[key,api.evaluate(value)]) // TODO? convert to map
+        };
+    });
     api.defineFunction("cglIsLazy", 1, (args, modifs) => {
         let val = api.evaluate(args[0]);
         return {
@@ -1292,19 +1375,7 @@ let CindyGL = function(api) {
         ));
     }
     function wrapLazy(expr,params) {
-        let value = nada;
-        const oldLog = console.log;
-        try{
-            // this is evil:
-            //  redefine console.log to silence error messages during `api.evaluate` call
-            console.log = function() {};
-            value = api.evaluate(expr);
-        } catch (ignored) {
-            // if evaluation failed use result as expression
-        } finally {
-            // restore console.log to previous value
-            console.log = oldLog;
-        }
+        let value = tryEvaluate(expr,api,nada);
         if(value['ctype'] === 'cglLazy') {
             // TODO? warning if parameter names do not match
             if(value.params.length === params.length) {
