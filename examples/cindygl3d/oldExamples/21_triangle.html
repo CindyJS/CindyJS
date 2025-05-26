@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            r1 = 0.1;
+
+            cglBegin3d(z0->-5);
+            v1 = [1,0,0];
+            v2 = [0,1,0];
+            v3 = [0,0,1];
+
+            triangleTextureD():=(
+              [cglDepth,1-cglDepth,0]
+            );
+            triangleTextureC():=(
+              color
+            );
+
+            update():=(
+              sphere(v1,r1,v1);
+              sphere(v2,r1,v2);
+              sphere(v3,r1,v3);
+              colorplot3d(triangleTextureC(),[v1,v2,v3],Vcolor->[v1,v2,v3]);
+              colorplotSphere(-v1,r1,cglLazy(pos,triangleTextureD()));
+              colorplotSphere(-v2,r1,cglLazy(pos,triangleTextureD()));
+              colorplotSphere(-v3,r1,cglLazy(pos,triangleTextureD()));
+              colorplot3d(triangleTextureD(),[-v1,-v2,-v3]);
+            );
+            update();
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>

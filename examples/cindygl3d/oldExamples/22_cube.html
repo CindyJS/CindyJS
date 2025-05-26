@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href=../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            r1 = 0.1;
+
+            cglBegin3d(z0->-10);
+            v1 = [1,1,1];
+            v2 = [1,1,-1];
+            v3 = [1,-1,1];
+            v4 = [1,-1,-1];
+            v5 = [-1,1,1];
+            v6 = [-1,1,-1];
+            v7 = [-1,-1,1];
+            v8 = [-1,-1,-1];
+            col1 = [1,0,0];
+            col2 = [0,1,0];
+            col3 = [0,0,1];
+            col4 = [1,1,1];
+            col5 = [1,1,0];
+            col6 = [1,0.5,0];
+
+            background(gray(.7));
+            polygon3d([v1,v3,v4,v2],col1);
+            polygon3d([v1,v2,v6,v5],col2);
+            polygon3d([v3,v7,v8,v4],col3);
+            polygon3d([v1,v5,v7,v3],col4);
+            polygon3d([v2,v4,v8,v6],col5);
+            polygon3d([v5,v6,v8,v7],col6);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>

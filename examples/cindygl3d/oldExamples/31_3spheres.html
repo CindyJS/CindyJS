@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            showBackground = true;
+            zoom=1.0;
+            updateZoom():=(
+              if(zoom>1.5,zoom=1.5);
+              if(zoom<0.05,zoom=0.05);
+              zoom3d(zoom);
+            );
+            getSlider(P0,P1,P,min,max):=(
+              regional(y);
+              y=P.y;
+              if(y<P0.y,y=P0.y);
+              if(y>P1.y,y=P1.y);
+              P.xy=(P0.x,y);
+              (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+
+            cglBegin3d();            
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 2 * (mouse().x -sx); dy = 2 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+            layers=floor(getSlider(R0,R1,R,0,7));
+            alpha=getSlider(A0,A1,A,0,1);
+
+            cglReset3d();
+            if(showBackground,background(gray(.7)));
+            sphere([2/3,-1/3,-1/3],1,[1,0,0,alpha]);
+            sphere([-1/3,2/3,-1/3],1,[0,1,0,alpha]);
+            sphere([-1/3,-1/3,2/3],1,[0,0,1,alpha]);
+            cglRender3d(layers->layers);
+
+            drawtext(R1+(-.2,.07),"layers");
+            drawtext(R+(.03,.03),text(layers));
+            drawtext(A1+(-.2,.07),"alpha");
+            drawtext(A+(.03,.03),format(alpha,2));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        <input
+            id="showBackground"
+            onclick="cdy.evokeCS('showBackground = ' + this.checked+';');"
+            checked
+            type="checkbox"
+        /> background
+
+        <script type="text/javascript">
+            showBackground.checked = true;
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 640,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 3, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "R0", type: "Free", pos: [2.1, -1.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "R1", type: "Free", pos: [2.1, 1.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R", type: "Free", pos: [2.1, -1.0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "A0", type: "Free", pos: [2.6, -1.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "A1", type: "Free", pos: [2.6, 1.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["A0", "A1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "A", type: "Free", pos: [2.6, 0.0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                ],
+                import: {
+                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
