@@ -1170,7 +1170,7 @@ cglGuessDerivative(F) := ( // TODO? avoid code duplication for repeated applicat
       (cglEval(F,p + [eps, 0, 0]) - cglEval(F,p - [eps, 0, 0])),
       (cglEval(F,p + [0, eps, 0]) - cglEval(F,p - [0, eps, 0])),
       (cglEval(F,p + [0, 0, eps]) - cglEval(F,p - [0, 0, eps]))
-  ) / (2 * eps)),eps->.001)
+  ) / (2 * eps)),eps->.001,F->F)
 );
 
 CglBoundsUnbounded = {"type":"unbounded"};
