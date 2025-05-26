@@ -73,9 +73,8 @@ evaluator.err$1 = function (args, modifs) {
         s = args[0];
     }
     s = varname + " ===> " + niceprint(evaluate(s));
-
-    printStackTrace(s);
-
+    //printStackTrace(s);
+    csconsole.err(s);
     return nada;
 };
 
