@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -23,19 +23,16 @@
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
+            t0 = seconds();
             zoom = 1.0;
 
             cglBegin3d();
-            N=16;
-            mesh3d(
-                apply(0..(N-1),y,apply(0..(N-1),x,
-                    a=2*pi*x/N;b=2*pi*y/N;
-                    ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
-                ))
-            ,normalType->NormalPerFace,topology->TopologyCloseX+TopologyCloseY,alpha->0.75);
+            //plot3d(sin((x^2+y^2)-(seconds()-t0)));
+
+            cplot3d((z^3-1)/(z^3+1),degree->-1);
             updateZoom():=(
-              if(zoom>1.5,zoom=1.5);
-              if(zoom<0.25,zoom=0.25);
+              if(zoom>2.5,zoom=2.5);
+              if(zoom<0.4,zoom=0.4);
               zoom3d(zoom);
             );
         </script>
@@ -70,7 +67,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>

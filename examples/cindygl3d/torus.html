@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -23,9 +23,16 @@
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
+            zoom = 1.0;
 
             cglBegin3d();
-            sphere3d([0,0,0],.75);
+            circle3d([0,0,-0.5],[0,0,1],0.5,arcRange->(pi/2,0));
+
+            updateZoom():=(
+              if(zoom>1.5,zoom=1.5);
+              if(zoom<0.25,zoom=0.25);
+              zoom3d(zoom);
+            );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
@@ -41,7 +48,11 @@
         <div id="CSCanvas" style="border: 0px"></div>
 
         <script type="text/javascript">
-            CindyJS({
+            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            const cdy = CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",
                 animation: { autoplay: true },
@@ -54,7 +65,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>

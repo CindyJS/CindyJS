@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -26,10 +26,13 @@
             zoom = 1.0;
 
             cglBegin3d();
+            //connect3d([(1,0,0),(0,1,0),(0,0,1),(1,1,1)],joints->ConnectFlat,caps->CylinderCapFlat,closed->true);
+            curve3d((sin(t),cos(t),0),-pi/2,pi/2,joints->ConnectRound,samples->6,caps->CylinderCapFlat);
+            //curve3d((sin(t),sin(2*t),cos(3*t)),0,2*pi,samples->1024,closed->true);
 
             updateZoom():=(
-              if(zoom>5,zoom=5);
-              if(zoom<0.2,zoom=0.2);
+              if(zoom>1.5,zoom=1.5);
+              if(zoom<0.25,zoom=0.25);
               zoom3d(zoom);
             );
         </script>
@@ -44,41 +47,9 @@
             cglRender3d();
         </script>
 
-        <div class="container" style="display: flex;width: 100%;">
-            <div id="CSCanvas" style="border: 0px"></div>
-<!--no indentation to ensure text is aligned correctly-->
-<textarea id="exampleCode" style="width: 50%;margin-left: auto;">
-forall((1,-1),x,forall((1,-1),y,
-    draw3d((x,y,1),(x,y,-1));
-    draw3d((x,1,y),(x,-1,y));
-    draw3d((1,x,y),(-1,x,y));
-    forall((1,-1),z,
-        draw3d((x,y,z));
-    )
-));
-</textarea>
-<!--
-N=12;
-samples=apply(0..(N-1),y,apply(0..(N-1),x,
-   a=2*pi*x/N;b=2*pi*y/N;
-   ((2+sin(b))*sin(a),(2+sin(b))*cos(a),cos(b)+0.5*sin(a))
-));
-mesh3d(samples,topology->TopologyCloseX+TopologyCloseY);
--->
-        </div>
+        <div id="CSCanvas" style="border: 0px"></div>
 
         <script type="text/javascript">
-            const textarea = document.getElementById('exampleCode');
-            textarea.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    redrawScene();
-                }
-            });
-            function redrawScene(){
-                cdy.evokeCS("cglReset3d();"+textarea.value+";");
-            }
-            setTimeout(function() { redrawScene(); }, 100); // 100ms delay to allow CS initscript to execute
-            setTimeout(function() { redrawScene(); }, 1000); // 1s should be enough to ensure that everythign is loaded
             // zoom using mouse wheel, inverted direction for compatability with old raycaster script
             window.addEventListener("wheel", // use only sign as value range may differ depending on browser
               event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
@@ -96,9 +67,8 @@ mesh3d(samples,topology->TopologyCloseX+TopologyCloseY);
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
-                },
-                images: { earthCylinder: "../images/Lambert.jpg", earth: "../images/Equirectangular.jpg"},
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
             });
         </script>
     </body>

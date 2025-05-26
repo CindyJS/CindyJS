@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -23,18 +23,9 @@
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
-            zoom = 1.0;
 
             cglBegin3d();
-            //connect3d([(1,0,0),(0,1,0),(0,0,1),(1,1,1)],joints->ConnectFlat,caps->CylinderCapFlat,closed->true);
-            curve3d((sin(t),cos(t),0),-pi/2,pi/2,joints->ConnectRound,samples->6,caps->CylinderCapFlat);
-            //curve3d((sin(t),sin(2*t),cos(3*t)),0,2*pi,samples->1024,closed->true);
-
-            updateZoom():=(
-              if(zoom>1.5,zoom=1.5);
-              if(zoom<0.25,zoom=0.25);
-              zoom3d(zoom);
-            );
+            sphere3d([0,0,0],.75);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
@@ -50,11 +41,7 @@
         <div id="CSCanvas" style="border: 0px"></div>
 
         <script type="text/javascript">
-            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
-            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
-              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
-            );
-            const cdy = CindyJS({
+            CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",
                 animation: { autoplay: true },
@@ -67,7 +54,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>
