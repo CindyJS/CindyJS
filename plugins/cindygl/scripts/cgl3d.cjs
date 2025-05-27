@@ -169,6 +169,7 @@ cglProjSphereToSquare(normal):=(
 // TODO? add projection for non-axis aligned coordinate system
 
 cglDefaultSphereProjection = cglLazy(normal,cglProjSphereToSquare(normal));
+cglRiemannSphereProjection = cglLazy(normal,cglProjSphereToC(normal));
 
 cgl3dSphereShaderCode(direction,isBack):=(
   regional(normal,texturePos,color);
@@ -1219,7 +1220,7 @@ CglCutoffScreenSphere = {"expr": cglLazy(direction,
   y0 = viewRect_2;
   x1 = viewRect_3;
   y1 = viewRect_4;
-  cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-y0|,|y1-x0|)/2)
+  cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-x0|,|y1-y0|)/2)
 ),"bounds": CglBoundsUnbounded,"modifs":{}};
 CglCutoffScreenCylinder = {"expr": cglLazy(direction,
   regional(viewRect,x0,y0,x1,y1,r);
@@ -1228,7 +1229,7 @@ CglCutoffScreenCylinder = {"expr": cglLazy(direction,
   y0 = viewRect_2;
   x1 = viewRect_3;
   y1 = viewRect_4;
-  r = min(|x1-y0|,|y1-x0|)/2.5;
+  r = min(|x1-x0|,|y1-y0|)/2.5;
   cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,[0,r,0],r)
 ),"bounds": CglBoundsUnbounded,"modifs":{}};
 CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
@@ -1238,7 +1239,7 @@ CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
   y0 = viewRect_2;
   x1 = viewRect_3;
   y1 = viewRect_4;
-  r = min(|x1-y0|,|y1-x0|)/2.5;
+  r = min(|x1-x0|,|y1-y0|)/2.5;
   cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*cglBoxOrientation,r)),
   "bounds": CglBoundsUnbounded,"modifs":{"cglBoxOrientation":normalize(orientation)}};
 
@@ -1314,6 +1315,10 @@ cglMergeDicts(dict1,dict2):=(
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
 // TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
 //  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
+
+// TODO option to turn of texture interpolation
+// TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level)
+// TODO? cheaper multi-layer rendering (render to multiple textures in single shader-call)
 
 // TODO? connect3d: angled caps for might cut into next segment
 
@@ -1722,10 +1727,14 @@ cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,colors,texture,textu
   colorExprRGBA:(texturePos,spacePos),size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
 cglCurve3d(expr,from,to):=(
   samples = cglValOrDefault(samples,cglDefaultCurveSamples)-1;
-  cglConnect3d(apply(0..samples,k,
-    t = k/samples;
-    cglEval(expr,t*to+(1-t)*from);
-  ));
+  if(from==to,
+    cglSphere3d(cglEval(expr,from),size);
+  ,
+    cglConnect3d(apply(0..samples,k,
+      t = k/samples;
+      cglEval(expr,t*to+(1-t)*from);
+    ));
+  );
 );
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,

@@ -27,7 +27,12 @@
             zoom = 1.0;
 
             cglBegin3d();
-            cplot3d((z^3-1)/(z^3+1),degree->-1);
+            fun = cglLazy(z,(z^3-1)/(z^3+1));
+            update():=(
+                cglReset3d();
+                cplot3d(fun,degree->-1);
+            );
+            update();
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.4,zoom=0.4);
@@ -46,6 +51,17 @@
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>
+        <div>
+          f(z)=
+          <input
+              type="text"
+              id="exprInput"
+              value="(z^3-1)/(z^3+1)"
+              onkeypress="cdy.evokeCS(`fun = cglLazy(z,${this.value});update();`)"
+              size="60"
+              style="font-size: 18px"
+          />
+        </div>
 
         <script type="text/javascript">
             // zoom using mouse wheel, inverted direction for compatability with old raycaster script

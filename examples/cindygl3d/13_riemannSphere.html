@@ -9,6 +9,8 @@
     </head>
 
     <body style="font-family: Arial">
+        <h1>CindyGL3D: Riemann Sphere</h1>
+
         <script id="csmousedown" type="text/x-cindyscript">
             x0 = mouse().x;
             y0 = mouse().y;
@@ -23,28 +25,30 @@
             sx = mouse().x;
             sy = mouse().y;
             dragging = false;
-            t0 = seconds();
-            zoom = 1.0;
+            oo=1000;
 
+            color(z) := ( //what color should be given to a complex number z?
+              regional(n, grey1, grey2);
+              n = 12;
+              z = log(z)/2/pi;
+
+              zfract = n*z - floor(n*z); //value of n*z in C mod Z[i]
+
+              grey1 = im(zfract);
+              grey2 = re(zfract);
+
+              hue(im(z))*(.9+.1*re(sqrt(grey1*grey2)));
+            );
             cglBegin3d();
-            fun = cglLazy((x,y),sin((x^2+y^2)-(seconds()-t0)));
-            update():=(
-                cglReset3d();
-                plot3d(fun);
-            );
-            update();
-
-            updateZoom():=(
-              if(zoom>2.5,zoom=2.5);
-              if(zoom<0.4,zoom=0.4);
-              zoom3d(zoom);
-            );
+            sphere3d([0,0,0],1,light->cglSimpleLight,
+                colorExpr->color(expr(texturePos)),projection->cglRiemannSphereProjection);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
-                dx = 0.5*(mouse().x -sx); dy = 0.5*(mouse().y -sy);
+                dx = (mouse().x -sx); dy = (mouse().y -sy);
                 rotate3d(dx,dy);
             );
+
             sx = mouse().x;
             sy = mouse().y;
 
@@ -52,24 +56,22 @@
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>
+
         <div>
-          f(x,y)=
           <input
               type="text"
               id="exprInput"
-              value="sin((x^2+y^2)-(seconds()-t0))"
-              onkeypress="cdy.evokeCS(`fun = cglLazy((x,y),${this.value});update();`)"
+              value="(z^2+1/4)/(z^3-1/27)"
+              onkeypress="if((event.which ? event.which : event.keyCode)==13) { inputChanged() }"
               size="60"
               style="font-size: 18px"
           />
         </div>
-
         <script type="text/javascript">
-            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
-            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
-              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
-            );
-            const cdy = CindyJS({
+            function inputChanged(){
+              cdy.evokeCS('expr(z) := (' + exprInput.value + ');');
+            }
+            let cdy = CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",
                 animation: { autoplay: true },
@@ -78,13 +80,14 @@
                         id: "CSCanvas",
                         width: 512,
                         height: 512,
-                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                        transform: [{ visibleRect: [-1.2, -1.2, 1.2, 1.2] }],
                     },
                 ],
                 import: {
                     "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
+            inputChanged();
         </script>
     </body>
 </html>
