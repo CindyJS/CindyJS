@@ -31,6 +31,13 @@
             drawLayered = true;
             gridColor = [.25,.25,.25];
 
+            updateZoom():=(
+              if(zoom>exp(2.2),zoom=exp(2.2));
+              if(zoom<exp(-0.2),zoom=exp(-0.2));
+              PC.y = (1 - log(zoom))/1.5;
+              zoom3d(zoom);
+              update();
+            );
             cglBegin3d();
 
             //fun is the user defined trivariate polynomial
@@ -55,7 +62,7 @@
         <script id="csdraw" type="text/x-cindyscript">
             //the following is executed for every rendered frame
             if (dragging,
-                dx = 3 * (sx - mouse().x); dy = 3 * (sy - mouse().y);,
+                dx = 3 * (mouse().x - sx); dy = 3 * (mouse().y - sy);,
                 dx = .005 * cos(seconds() * .1); dy = .003 * sin(seconds() * .1);
             );
 
@@ -78,7 +85,6 @@
             if (PB.y > .8, PB.y = .8);
             if (PB.y < -.8, PB.y = -.8);
             alpha = ((.8 + PB.y) / 1.6) * .7 + .3;
-            print(alpha);
 
             PC.x = 1.3;
             if (PC.y > .8, PC.y = .8);
@@ -102,6 +108,10 @@
         <div id="CSCanvas" style="border: 0px"></div>
 
         <script type="text/javascript">
+            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
+            );
             var cdy = CindyJS({
                 canvasname: "CSCanvas",
                 scripts: "cs*",
