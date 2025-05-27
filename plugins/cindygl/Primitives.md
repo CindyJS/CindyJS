@@ -6,6 +6,8 @@ The following modiifers are present on all geoemetric primitives
 * `color` the surface color <!-- TODO? list pre-defined colors-->
 * `texture` `textureRGB` the (RGB) texture use to color the surface, ignores alpha channel of texture
 * `textureRGBA` the texture use to color the surface, unlike `textureRGB` the alpha channel of the texture is included in the drawing
+* `interpolateTexture` enable/disable interpolation between pixels (`true` by default)
+* `repeatTexture` should the texture be repeated when drawn range is outside `[0,1]^2` (`false` by default)
 * `colorExpr:(texturePos,spacePos)` an explicit expression for the color at each pixel, dependent on the texture position (2D) and the position of the rendered pixel in space, the result of the function should be a list of 3 floats in the range `[0,1]` representing the RGB values of the pixel-color
 * `colorExprRGB:(texturePos,spacePos)` alias to `colorExpr`
 * `colorExprRGBA:(texturePos,spacePos)` like `colorExpr` but with an additional fourth component for the alpha-value of the color at the pixel

@@ -80,8 +80,7 @@
             //plots to canvas using no interpolation
             cglBegin3d(p0->[-1.6,-1.6],p1->[1.6,1.6]);
             cglReset3d();
-            torus3d([0,0,0],[0,1,0],1,0.5, // TODO support non-interpolating texture
-                colorExpr->imagergb(L, R, "gol", 128*texturePos, interpolate->false));
+            torus3d([0,0,0],[0,1,0],1,0.5,texture->"gol",interpolateTexture->false);
             cglRender3d();
             cglEnd3d();
         </script>

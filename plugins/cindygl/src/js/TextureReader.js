@@ -16,11 +16,13 @@ function TextureReader(name, expr, modifs, api) {
 uniform float _ratio${name};
 uniform vec2 _cropfact${name};
 vec4 _plainimagergba${name}(vec2 p) {
-    if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
+${(properties.repeat ?
+    `return texture(_sampler${name}, mod(p,vec2(1.))*_cropfact${name});` :
+    `if(0. <= p.x && p.x <= 1. && 0. <= p.y && p.y <= 1.)
         return texture(_sampler${name}, p*_cropfact${name});
     else
-        return vec4(0.);
-}
+        return vec4(0.);`
+)}}
 vec4 _imagergba${name}(vec2 A, vec2 B, vec2 p) {
   p -= A; B -= A;
   float b = dot(B,B);

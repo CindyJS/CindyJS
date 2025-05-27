@@ -203,9 +203,9 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
         if (!t) return false;
     } else if (expr['ctype'] === 'string') {
         return type.image;
-    } else if (expr['ctype'] === 'list') {
+    } else if (expr['ctype'] === 'list' || expr['ctype'] === 'boolean') {
         return constant(expr);
-    }else if (expr['ctype'] === 'cglLazy') {
+    } else if (expr['ctype'] === 'cglLazy') {
         return type.cglLazy(expr);
     } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
         var argtypes = new Array(expr['args'].length);
