@@ -1294,7 +1294,6 @@ cglMergeDicts(dict1,dict2):=(
 // TODO find good list of default modifiers‚
 // function->f(#pos,#norm,#kmin,#kmax....) (colorplot on drawn surface)
 // thickness -> give rendered surfaces a thinkness (needed for conversion to 3d-printer file)
-// ? support for adding arbitary user-data to plot/vertices
 // ? rememberId -> remember object id
 
 // TODO function for updating/resetting defaults
@@ -1313,11 +1312,10 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? WEBGL.get*Parameter is slow try to avoid use
 // TODO curve3d is nummerically unstable if number of sample points gets large
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
-// TODO option to tell rendering kernel if transparency only depends on modifier (draw alpha = 1 as opaque if possible)
-//  ?? skip drawing background layers of object if opaque ( -> need to tell render-kernel that layers are part of same object)
+// TODO? option to containionally disable rendering (renderIf parameter analogously to opaqueIf)
 
 // TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level)
-// TODO? cheaper multi-layer rendering (render to multiple textures in single shader-call)
+// TODO?can rendering multiple texture-layeres in single shader call speed up rendering for multi-layered surfaces
 
 // TODO? connect3d: angled caps for might cut into next segment
 
