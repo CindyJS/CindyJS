@@ -438,14 +438,40 @@ cgl3dCylinderShaderCode(direction):=(
   v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta = (v1*U);
   if(cglEval(cglCut1,delta,v1)<-1, // cap1
-    normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
-    v2 = cglViewPos + cglRawDepth*direction - cglCenter;
-    // TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
-    // TODO cap intersection does not work correctly if cap1 is open and cap2 is flat
-    if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
-      normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
+    // TODO? is there a less nested algorithm for correctly handling intersecting end-caps
+    if(cglEval(cglCut2,delta,v1)>1, // cap1 & cap2
+      // -> pick cut that is further from viewPosition
+      // <v + a*d,n> = <m,n>
+      cutVector1=cglEval(cglGetCutVector1,U);
+      cutVector2=cglEval(cglGetCutVector2,U);
+      a1 = ((cglCenter-cglOrientation)*cutVector1-cglViewPos*cutVector1)/(direction*cutVector1);
+      a2 = ((cglCenter+cglOrientation)*cutVector2-cglViewPos*cutVector2)/(direction*cutVector2);
+      if(a1<a2,
+        normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
+        v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut1,v2,U), // cap1 and cap2
+          normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
+          v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+          if(cglEval(cglCapCut2,v2,U),cglDiscard()); // both intersections with caps are cut of by other cap
+        );
+      ,
+        normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
+        v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
+          normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
+          v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+          if(cglEval(cglCapCut1,v2,U),cglDiscard()); // both intersections with caps are cut of by other cap
+        );
+      );
+    ,
+      normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
       v2 = cglViewPos + cglRawDepth*direction - cglCenter;
-      if(cglEval(cglCapCut1,v2,U),cglDiscard()); // both intersections with caps are cut of by other cap
+      // TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
+      if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
+        normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
+        v2 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut1,v2,U),cglDiscard()); // both intersections with caps are cut of by other cap
+      );
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;
@@ -479,12 +505,38 @@ cgl3dCylinderShaderCodeBack(direction):=(
   v2 = (cglViewPos+l_2*direction)-cglCenter;
   delta = (v2*U);
   if(cglEval(cglCut1,delta,v2)<-1, // cap 1
-    normalAndHeight = cglEval(cglCap1back,direction,l,-1,U,cglEval(cglGetCutVector1,U));
-    v3 = cglViewPos + cglRawDepth*direction - cglCenter;
-    if(cglEval(cglCapCut2,v3,U), // cap1 and cap2
-      normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
+    if(cglEval(cglCut2,delta,v2)>1, // cap1 & cap2
+      // -> pick cut that is further from viewPosition
+      // <v + a*d,n> = <m,n>
+      cutVector1=cglEval(cglGetCutVector1,U);
+      cutVector2=cglEval(cglGetCutVector2,U);
+      a1 = ((cglCenter-cglOrientation)*cutVector1-cglViewPos*cutVector1)/(direction*cutVector1);
+      a2 = ((cglCenter+cglOrientation)*cutVector2-cglViewPos*cutVector2)/(direction*cutVector2);
+      if(a1<a2,
+        normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
+        v3 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut1,v3,U), // cap1 and cap2
+          normalAndHeight = cglEval(cglCap1back,direction,l,-1,U,cglEval(cglGetCutVector1,U));
+          v3 = cglViewPos + cglRawDepth*direction - cglCenter;
+          if(cglEval(cglCapCut2,v3,U),cglDiscard()); // both intersections with caps are cut of by other cap
+        );
+      ,
+        normalAndHeight = cglEval(cglCap1back,direction,l,-1,U,cglEval(cglGetCutVector1,U));
+        v3 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut2,v3,U), // cap1 and cap2
+          normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
+          v3 = cglViewPos + cglRawDepth*direction - cglCenter;
+          if(cglEval(cglCapCut1,v3,U),cglDiscard()); // both intersections with caps are cut of by other cap
+        );
+      );
+    ,
+      normalAndHeight = cglEval(cglCap1back,direction,l,-1,U,cglEval(cglGetCutVector1,U));
       v3 = cglViewPos + cglRawDepth*direction - cglCenter;
-      if(cglEval(cglCapCut1,v3,U),cglDiscard()); // both intersections with caps are cut of by other cap
+      if(cglEval(cglCapCut2,v3,U), // cap1 and cap2
+        normalAndHeight = cglEval(cglCap2back,direction,l,1,U,cglEval(cglGetCutVector2,U));
+        v3 = cglViewPos + cglRawDepth*direction - cglCenter;
+        if(cglEval(cglCapCut1,v3,U),cglDiscard()); // both intersections with caps are cut of by other cap
+      );
     );
     normal = (normalAndHeight_1,normalAndHeight_2,normalAndHeight_3);
     delta = normalAndHeight_4;

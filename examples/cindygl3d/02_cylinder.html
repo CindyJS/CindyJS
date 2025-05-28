@@ -26,8 +26,8 @@
             zoom = 1.0;
 
             cglBegin3d();
-            //draw3d([0,0,0.05],[0,0,-.5],cap1->CylinderCapCutFlat((1,1,.5)),cap2->CylinderCapCutOpen((1,1,-.5)));
-            cylinder3d([0,0,1],[0,0,-1],0.5,color->(0,1,0),alpha->0.5);
+            draw3d([0,0,0.05],[0,0,-.5],cap1->CylinderCapCutFlat((1,1,.5)),cap2->CylinderCapCutOpen((1,1,-.5)),alpha->1);
+            //cylinder3d([0,0,1],[0,0,-1],0.5,color->(0,1,0),alpha->0.5);
 
             updateZoom():=(
               if(zoom>1.5,zoom=1.5);
