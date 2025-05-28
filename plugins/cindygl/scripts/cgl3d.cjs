@@ -1312,9 +1312,16 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? WEBGL.get*Parameter is slow try to avoid use
 // TODO curve3d is nummerically unstable if number of sample points gets large
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
-// TODO? option to containionally disable rendering (renderIf parameter analogously to opaqueIf)
+// TODO? option to conditionally disable rendering (renderIf parameter analogously to opaqueIf)
 
-// TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level)
+// TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level) ?
+// a) "dynamic(<expr>)": would need a check in the core-library for every parameter to catch dynamic values within expression
+// b) modifier for dynamic size value, harder to understand for users?, how to pass expressions through cindy-script functions
+// c) function that will be run when external system is updated
+// onFrame:(objId) -> runs at the start of each frame
+// onZoom:(objId) -> runs whenever zoom-level changes
+// -> zoom-dependent radius => sphere3d(center,r0,onZoom->update3d(obj,radius->r0*zoom))
+
 // TODO?can rendering multiple texture-layeres in single shader call speed up rendering for multi-layered surfaces
 
 // TODO? connect3d: angled caps for might cut into next segment
