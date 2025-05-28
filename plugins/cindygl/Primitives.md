@@ -72,8 +72,6 @@ For triangles, polygons and meshes there are the following additional parameters
 * `vertexModifiers` a dictionary mapping variable names to list of values (one for each vertex). The variables behave similarely to plotModifiers with the difference that the value of the variable will be linearly interpolated between the values at the vertices of the current triangle.
 
 Surfaces and plots allow specifing:
-<!--TODO? make space-color and texture color different modifiers-->
-* `colorExpr:(x,y,z)` (instead of `colorExpr:texturePos`) gives a color for each pixel in 3D-space that can be used when rendering the shape
 <!-- uv:?  a way to map surface to 2D coordinates -->
 * `dF:(x,y,z)` (for surface) specify the normal vector for the surface point at the given space position
 * `df:(x,y)` /  `df:(z)` (for plots) derivative of the plotted function at the given coordinates, can be used to simplify computation of normal vectors

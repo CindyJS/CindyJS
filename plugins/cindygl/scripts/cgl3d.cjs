@@ -19,7 +19,7 @@ cglSetDepth(rawDepth,direction):=(
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
 );
-// returns undefined
+// returns undefined TODO? is there a less hacky way to relibarly set a variable to undefined?
 cglUndefinedVal():=(regional(nada);nada);
 
 /////////////////////
@@ -1349,7 +1349,7 @@ cglMergeDicts(dict1,dict2):=(
 // ? rememberId -> remember object id
 
 // TODO function for updating/resetting defaults
-// ? use internal global variables
+// ? use internal global variables (-> document names of default values)
 // ? always use cglAlpha even if explicitly not specified
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
@@ -1379,8 +1379,8 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? connect3d: angled caps for might cut into next segment
 
 // helper functions for resolving of colorExpression/textures
-// TODO? to which extend can this function be shortened by extracting code
 // pick the first defined color expression return undefined if there is none
+// TODO? to which extend can this function be shortened by extracting code
 cglResolveColorExpr(hasAlpha):=(
   regional(pixelExpr,usesAlpha,modifiers);
   repeatTexture = cglValOrDefault(repeatTexture,false);
@@ -2267,9 +2267,9 @@ cglMesh3d(grid):=(
 // TODO? cubic3d
 
 // TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
-// TODO use same color-expr syntax as for other objects
-cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),
-  texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags)); // TODO? texture + mapping to 2D (? distinguish colorExpr3d (space-pos) &  colorExpr2 (texturePos))
+// TODO fully support texture dependent colorExpression
+cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),
+  texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags));
 cglSurface3d(fun) := (
     regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds,usesAlpha,opacityExpr);
     color = cglValOrDefault(color,cglDefaultColorSurface);
@@ -2308,7 +2308,7 @@ cglSurface3d(fun) := (
     modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
     usesAlpha = false;
     if(!isundefined(colorExpr),
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglEval(colorExpr,pos3d.x,pos3d.y,pos3d.z),colorExpr->colorExpr);
+      modifiers_"cglPixelExpr" = colorExpr;
     ,
       color = cglNormalColor(color);
       usesAlpha = length(color) == 4;
@@ -2353,20 +2353,20 @@ cglSurface3d(fun) := (
 );
 
 // TODO? add ability to scale axes independently from CindyJS coordinate system
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   if(isundefined(degree),
       degree = min(cglTryDetermineDegree(f),cglMaxAutoDeg);
   );
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f),degree->degree);
 );
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(x,y,z),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglCPlot3d(f/*f(z)*/):=(
   if(isundefined(color) & isundefined(colorExpr),
-    colorExpr = cglLazy((x,y,ignoreZ),
+    colorExpr = cglLazy((texturePos,spacePos),
       regional(z);
-      z=cglEval(f,x+i*y);
+      z=cglEval(f,spacePos_1+i*spacePos_2);
       hue((arctan2(re(z),im(z))+pi)/(2*pi))
     ,f->f);
   );
