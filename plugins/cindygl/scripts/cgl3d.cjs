@@ -1,5 +1,5 @@
 // intialization containing implementation for CindyGL3D functions
-// TODO? would creating minified version to speed up import time
+// opt TODO? would creating minified version to speed up import time
 
 use("CindyGL");
 // normalize if non-zero, map (0,0,0) to inself
@@ -10,7 +10,7 @@ normalize(v):=(
 );
 /** maps the raw depth value given in the interval [0,inf) to a concrete depth in [-1,1) and sets cglDepth accordingly */
 cglSetDepth(rawDepth,direction):=(
-  // TODO? discard negative distances form view
+  // opt TODO? discard negative distances form view
   regional(v);
   cglRawDepth = rawDepth;
   v = 0.5*(cglViewNormal*cglViewNormal)/(cglViewNormal*direction);
@@ -19,7 +19,7 @@ cglSetDepth(rawDepth,direction):=(
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
 );
-// returns undefined TODO? is there a less hacky way to relibarly set a variable to undefined?
+// returns undefined // cindyscript TODO? is there a less hacky way to relibarly set a variable to undefined?
 cglUndefinedVal():=(regional(nada);nada);
 
 /////////////////////
@@ -166,7 +166,7 @@ cglProjSphereToSquare(normal):=(
   theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
   (1/(2*pi))*(phi+pi,2*theta+pi);
 );
-// TODO? add projection for non-axis aligned coordinate system
+// feature TODO? add projection for non-axis aligned coordinate system
 
 cglDefaultSphereProjection = cglLazy(normal,cglProjSphereToSquare(normal));
 cglRiemannSphereProjection = cglLazy(normal,cglProjSphereToC(normal));
@@ -269,7 +269,7 @@ cglProjCylinderToSquare(normal,height,orientation):=(
 cglCapVoidShader = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     cglDiscard();
     (0,0,0,0) // compiler cannot detect that code is unreachable -> have to return correct type
-    // TODO make compiler realize that code after discard is unreachable
+    // bug TODO make compiler realize that code after discard is unreachable
 );
 cglCapOpenShaderNoBack = cglLazy((direction,cylinderDepths,delta,U,cutVector),
     regional(v2,delta2,normal);
@@ -353,12 +353,12 @@ cglCapAngleVoidRoundShaderBack = cglLazy((direction,cylinderDepths,delta,U,cutVe
   if((delta*(v2*cutVector)>1) % (delta*(v2*U)<1),cglDiscard());
   res
 );
-// TODO? add open and closed version of capAngle...Round
+// feature TODO? add open and closed version of capAngle...Round
 
 cglCutOrthogonal = cglLazy((delta,v),delta);
 cglCutVector1 = cglLazy((delta,v),v*cglCutDir1);
 cglCutVector2 = cglLazy((delta,v),v*cglCutDir2);
-cglCutBoth1 = cglLazy((delta,v),min(delta,v*cglCutDir1)); // TODO? better name
+cglCutBoth1 = cglLazy((delta,v),min(delta,v*cglCutDir1)); // code TODO? better name
 cglCutBoth2 = cglLazy((delta,v),max(delta,v*cglCutDir2));
 
 cglCapCutFlat1 = cglLazy((v2,U),
@@ -424,12 +424,12 @@ cglDefaultCapsConnect = CglCylinderCapRound;
 
 CglConnectOpen = -1;
 CglConnectRound = 0;
-CglConnectFlat = 1; // TODO? better name
+CglConnectFlat = 1; // feature TODO? better name
 ConnectOpen = CglConnectOpen;
 ConnectRound = CglConnectRound;
 ConnectFlat = CglConnectFlat;
 
-// TODO? seperate projection for for end-caps
+// feature TODO? seperate projection for for end-caps
 cgl3dCylinderShaderCode(direction):=(
   regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color,pos3d);
   l = cglCylinderDepths(direction);
@@ -438,7 +438,7 @@ cgl3dCylinderShaderCode(direction):=(
   v1 = (cglViewPos+l_1*direction)-cglCenter;
   delta = (v1*U);
   if(cglEval(cglCut1,delta,v1)<-1, // cap1
-    // TODO? is there a less nested algorithm for correctly handling intersecting end-caps
+    // opt TODO? is there a less nested algorithm for correctly handling intersecting end-caps
     if(cglEval(cglCut2,delta,v1)>1, // cap1 & cap2
       // -> pick cut that is further from viewPosition
       // <v + a*d,n> = <m,n>
@@ -466,7 +466,7 @@ cgl3dCylinderShaderCode(direction):=(
     ,
       normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
       v2 = cglViewPos + cglRawDepth*direction - cglCenter;
-      // TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
+      // opt TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
       if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
         normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
         v2 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -580,7 +580,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
 // \ / \ / \ / \ /
 // d0  d1  d2  d3 <-roots of p4
 // use lazy-procedures to allow multiple signatures for same code
-// TODO? add a way to call same procedure with multiple signatures
+// feature TODO? add a way to call same function with multiple signatures
 cglEvalP = cglLazy((coeffs,t),
   regional(s);
   s = 0;
@@ -683,7 +683,7 @@ cglProjTorusToSquare(normal,radiusDirection,orientation):=(
   phi2 = arctan2(normal*radiusDirection,normal*orientation)+pi;
   (phi1,phi2)/(2*pi);
 );
-// TODO? separate bounding box-type for torus
+// opt TODO? separate bounding box-type for torus
 cgl3dTorusShaderCode(direction,layer):=(
   regional(center,radius1,radius2,v,V,vc,b0,c0,D0,x0,x1,
     orientation,b1,c1,E,W,a2,b2,c2,p3,p2,p1,p0,dst,pos3d,pc,
@@ -798,7 +798,6 @@ cglTriangulateSpiralRec(elts):=(
 );
 cglTriangulateCenter(elts):=(
   regional(center);
-  // TODO? how should center be calculated for non-numeric vertex modifiers (? are non-numeric v-modifiers allowed)
   center = sum(elts)/length(elts);
   flatten(apply(1..(length(elts)-1),i,
     [center,elts_i,elts_(i+1)];
@@ -849,14 +848,14 @@ TopologyOpen = CglTopologyOpen;
 TopologyCloseX = CglTopologyClose;
 TopologyCloseY = CglTopologyYFactor*CglTopologyClose;
 TopologyCloseXY = TopologyCloseX+TopologyCloseY;
-// TODO? allow mirrored closing
+// feature TODO? allow mirrored closing
 cglSampleVertex = 0;
 cglSampleFace = 1;
 cglSampleTriangle = 2;
 
 cglMeshSamplesToTriangles(samples,Nx,Ny,topology,sampleType):=(
   regional(p00,p01,p10,p11);
-  // TODO? is handling closure by adding missing elements in loop more efficent
+  // opt TODO? is handling closure by computing missing elements on demand more efficent
   if(topology_1 == CglTopologyClose,//close X
     if(length(samples_1)<Nx+1,
       samples = apply(samples,row,append(row,row_1));
@@ -888,7 +887,7 @@ cglMeshSamplesToTriangles(samples,Nx,Ny,topology,sampleType):=(
 cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
   regional(n,vNormals,p00,p01,p10,p11,n1,n2,Nx1,Ny1);
   if(normalType == NormalPerTriangle,
-    // TODO? pass triangles as input, to avoid recomputing triangulation
+    // opt TODO? pass triangles as input, to avoid recomputing triangulation
     if(topology_1 == CglTopologyClose,//close X
       samples = apply(samples,row,append(row,row_1));
       Nx=Nx+1;
@@ -1009,7 +1008,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
     regional(v0, v1, m, vm);
     v0 = cglEval(cglSurfaceExpr,cglRay(direction, x0));
     v1 = cglEval(cglSurfaceExpr,cglRay(direction, x1));
-    repeat(11, // TODO? why 11, would a larger number be more precise?
+    repeat(11, // algorithm TODO? why 11, would a larger number be more precise?
         m = (x0 + x1) / 2; vm = cglEval(cglSurfaceExpr,cglRay(direction, m));
         if (min(v0,vm) <= 0 & 0 <= max(v0, vm), // sgn(v0)!=sgn(vm); avoid products due numerics
             (x1 = m; v1 = vm;),
@@ -1023,7 +1022,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
 cglSurfaceUpdateColor(direction, dst, color) := (
   regional(x, normal);
   cglSetDepth(dst,direction);
-  // TODO find good way to determine texture coordinates on surface
+  // Feature TODO find good way to determine texture coordinates on surface
   color = (1 - cglAlpha) * color + cglAlpha * cglEval(cglPixelExpr,(0,0),cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
   normal = cglEval(cglNormalExpr,x);
@@ -1038,7 +1037,7 @@ cglSurfaceUpdateColor(direction, dst, color) := (
 cglSurfaceRootItrGetS(id) := (
   regional(s);
   s = 1;
-  repeat(10, // TODO? is there a reason why 10 is used
+  repeat(10, // algorithm TODO? is there a reason why 10 is used
     if(2*s<=id,
       s = 2*s;
     )
@@ -1084,7 +1083,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
       b = u - (u-l)*((id+0)/s-1);
       // how many sign changes has cglSurfaceExpr(ray(direction, ·)) in (a,b)?
       cnt = cglSurfaceNsign(direction, a, b);
-      // TODO? this way of checking for multi-root seems to create artifacts, is the check necessary/ is there a better way
+      // algorithm TODO? this way of checking for multi-root seems to create artifacts, is the check necessary/ is there a better way
       if(cnt == 1 /*% (b-a)<.01*cglResolution*/, // in this case we found a root (or it is likely to have a multiple root)
         //=>colorize and break DFS
         color = cglSurfaceUpdateColor(direction, cglSurfaceBisectf(direction, a, b), color);
@@ -1164,7 +1163,7 @@ cglSurfaceRenderStateCache = {
   "interpMap":{},
   "chebNodes":{}
 };
-// TODO? would computing elements of Chebyshev-nodes/interpolation-matrix on demand be faster than storing as uniform variable
+// opt TODO? would computing elements of Chebyshev-nodes/interpolation-matrix on demand be faster than storing as uniform variable
 // N+1 Chebyshev nodes for interval (0, 1)
 cglSurfaceChebyshevNodes(N):=(
   regional(cache,val);
@@ -1218,7 +1217,7 @@ cglGuessdeg(F) := max(apply(1 .. 2, // take the best result of 2
 ));
 
 // use central difference to approximate dF
-cglGuessDerivative(F) := ( // TODO? avoid code duplication for repeated application of cglEval
+cglGuessDerivative(F) := ( // opt TODO? avoid code duplication for repeated application of cglEval
   cglLazy(p,((
       (cglEval(F,p + [eps, 0, 0]) - cglEval(F,p - [eps, 0, 0])),
       (cglEval(F,p + [0, eps, 0]) - cglEval(F,p - [0, eps, 0])),
@@ -1264,7 +1263,7 @@ cglCuboidDepths(direction,center,up,left,front):=(
   [l1,l2];
 );
 
-// TODO support coordinate systems where view-plane is not at z = 0
+// bug TODO support coordinate systems where view-plane is not at z = 0
 CglCutoffScreenSphere = {"expr": cglLazy(direction,
   regional(viewRect,x0,y0,x1,y1);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
@@ -1334,7 +1333,7 @@ cglDefaultSurfaceCutoff = CglCutoffScreenSphere;
 cglValOrDefault(val,default):=(
   if(isundefined(val),default,val)
 );
-// TODO is there realy no built-in for this
+// cindyscript TODO is there realy no built-in for this
 // ? implement in javascript
 // add all entries in second dictionary to first dictionary
 cglMergeDicts(dict1,dict2):=(
@@ -1343,29 +1342,17 @@ cglMergeDicts(dict1,dict2):=(
   res;
 );
 
+// feature TODO:
 // TODO find good list of default modifiers‚
 // function->f(#pos,#norm,#kmin,#kmax....) (colorplot on drawn surface)
 // thickness -> give rendered surfaces a thinkness (needed for conversion to 3d-printer file)
 // ? rememberId -> remember object id
-
 // TODO function for updating/resetting defaults
 // ? use internal global variables (-> document names of default values)
 // ? always use cglAlpha even if explicitly not specified
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
-// TODO ensure modifiers are correctly initialized when directly calling other implementation
 // TODO? rename spacePos -> pos3d
-// TODO? support interaction between translucent mesh and other objects
-// ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
-// TODO? store texture-name in plotModifier instead of lambda-modifier
-// TODO is there a way to avoid recompilation when texture changes
-// TODO? prevent recompilation when lambda modifier changes
-// TODO translucent 3D-objects do not seem to work correctly on some mobile browsers
-// TODO? WEBGL.get*Parameter is slow try to avoid use
-// TODO curve3d is nummerically unstable if number of sample points gets large
-//  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
-// TODO? option to conditionally disable rendering (renderIf parameter analogously to opaqueIf)
-
 // TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level) ?
 // a) "dynamic(<expr>)": would need a check in the core-library for every parameter to catch dynamic values within expression
 // b) modifier for dynamic size value, harder to understand for users?, how to pass expressions through cindy-script functions
@@ -1374,13 +1361,27 @@ cglMergeDicts(dict1,dict2):=(
 // onZoom:(objId) -> runs whenever zoom-level changes
 // -> zoom-dependent radius => sphere3d(center,r0,onZoom->update3d(obj,radius->r0*zoom))
 
+// bug TODO:
+// TODO ensure modifiers are correctly initialized when directly calling other implementation
+// TODO? support interaction between translucent mesh and other objects
+// ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
+// TODO translucent 3D-objects do not seem to work correctly on some mobile browsers
+// TODO curve3d is nummerically unstable if number of sample points gets large
+//  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
+// TODO? connect3d: angled caps for might cut into next segment
+
+// opt TODO:
+// TODO? store texture-name in plotModifier instead of lambda-modifier
+// TODO is there a way to avoid recompilation when texture changes
+// TODO? prevent recompilation when lambda modifier changes
+// TODO? WEBGL.get*Parameter is slow try to avoid use
+// TODO? option to conditionally disable rendering (renderIf parameter analogously to opaqueIf)
 // TODO?can rendering multiple texture-layeres in single shader call speed up rendering for multi-layered surfaces
 
-// TODO? connect3d: angled caps for might cut into next segment
 
 // helper functions for resolving of colorExpression/textures
 // pick the first defined color expression return undefined if there is none
-// TODO? to which extend can this function be shortened by extracting code
+// code TODO? to which extend can this function be shortened by extracting code
 cglResolveColorExpr(hasAlpha):=(
   regional(pixelExpr,usesAlpha,modifiers);
   repeatTexture = cglValOrDefault(repeatTexture,false);
@@ -1399,7 +1400,7 @@ cglResolveColorExpr(hasAlpha):=(
       colorExprRGBA
     );
   );
-  // TODO warining for re-definition
+  // feature TODO warining for re-definition
   if(!isundefined(colorExprRGB),
     pixelExpr = if(hasAlpha,
       cglLazy((texturePos,spacePos),
@@ -1465,10 +1466,10 @@ cglResolveColorExpr(hasAlpha):=(
   {"pixelExpr":pixelExpr, "usesAlpha": usesAlpha, "modifiers": modifiers}
 );
 // bring color into standard from
-cglNormalColor(color):=( // TODO better name
+cglNormalColor(color):=( // code TODO better name
   if(length(color)==1,
     (color,color,color)
-  ,if(if(length(color)==4, color_4 == 1, false), // TODO? is there really no short-circuit and
+  ,if(if(length(color)==4, color_4 == 1, false), // cindyscript TODO? is there really no short-circuit and
     (color_1,color_2,color_3)
   ,
     color
@@ -1585,7 +1586,7 @@ cglCylinder3d(point1,point2,radius):=(
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
   if(hasAlpha, modifiers_"cglAlpha" = alpha);
-  // TODO? is there some way to compress this code
+  // code TODO? is there some way to compress this code
   if(isundefined(pixelExpr),
     color1 = cglNormalColor(color1);
     color2 = cglNormalColor(color2);
@@ -1680,7 +1681,7 @@ cglJoint(prev,current,next,jointType):=(
   )));
 );
 // ! calling cylinder3d can mess up modifiers
-// TODO? create wrapper to correctly pass through modifiers
+// code TODO? create wrapper to correctly pass through modifiers
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
@@ -1896,7 +1897,7 @@ cglTorus3d(center,orientation,radius1,radius2):=(
     plotModifiers->modifiers,tags->["torus"]++tags,opaqueIf->opacityExpr);
   if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
 );
-// TODO? option to use aspect ratio instead of second radius
+// feature TODO? option to use aspect ratio instead of second radius
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
@@ -1922,7 +1923,7 @@ cglCheckSize(vData,vCount,msg) := (
   )
 );
 
-// TODO? normalTexture modifier (texture of normal vectors)
+// feature TODO? normalTexture modifier (texture of normal vectors)
 cglInterface("draw3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
@@ -2008,7 +2009,7 @@ cglTriangle3d(p1,p2,p3):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["triangle"]++tags,opaqueIf->opacityExpr);
 );
 
-// TODO? triangles3d
+// feature TODO? triangles3d
 
 cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
@@ -2148,7 +2149,7 @@ cglPolygon3d(vertices):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags,opaqueIf->opacityExpr);
 );
 
-// TODO? adjust uv coordinates if side of grid-cell is collapsed
+// feature TODO? adjust uv coordinates if side of grid-cell is collapsed
 cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
@@ -2262,12 +2263,12 @@ cglMesh3d(grid):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["polygon"]++tags,opaqueIf->opacityExpr);
 );
 
-// TODO? plane3d
-// TODO? quadric3d
-// TODO? cubic3d
+// feature TODO? plane3d
+// feature TODO? quadric3d
+// feature TODO? cubic3d
 
-// TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
-// TODO fully support texture dependent colorExpression
+// feature TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
+// feature TODO fully support texture dependent colorExpression
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),
   texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags));
 cglSurface3d(fun) := (
@@ -2318,7 +2319,7 @@ cglSurface3d(fun) := (
     modifiers = cglMergeDicts(modifiers,cutoffRegion_"modifs");
     bounds = cutoffRegion_"bounds";
     opacityExpr = if(usesAlpha,false,cglLazy(cglAlpha>=1));
-    // TODO? is there a way to avoid duplicate code for bounding box selection
+    // code TODO? is there a way to avoid duplicate code for bounding box selection
     // ? allow passing lazy-func as first parameter of colorplot3d
     if(layers==0,
       if(bounds_"type" == "unbounded",
@@ -2352,7 +2353,7 @@ cglSurface3d(fun) := (
     );
 );
 
-// TODO? add ability to scale axes independently from CindyJS coordinate system
+// feature TODO? add ability to scale axes independently from CindyJS coordinate system
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   if(isundefined(degree),
