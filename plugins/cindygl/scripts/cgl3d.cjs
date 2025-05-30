@@ -1017,16 +1017,40 @@ cglSurfaceBisectf(direction, x0, x1) := (
     );
     m // return value
 );
+
+// temporary algorithm for texture computation on surfaces
+// decomposes postion into normal part and tangential part, then combine the corresponding texture coordinates
+// ! local texture coordinates do not approximate euclidean plane on some flat surfaces (e.g. cylinder)
+// map does not seem to be injective
+// Feature TODO find better algorithm ; make algorithm customizable
+cglSurfaceComputeTextureCoords(pos3d,normal) := (
+  regional(phi,theta,p0,pos2d,alpha,ax,ay,S,C);
+  // texture-coordinates of normal-vector on sphere
+  phi = if(|normal_2|==1,0,arctan2(-normal_3,normal_1)); // (-pi, pi]
+  theta = arctan2(|(normal_1,normal_3)|,normal_2); // (-pi, pi]
+  p0 = (1/(2*pi))*(phi+pi,2*theta+pi);
+  // part of position that is orthogonal to normal
+  pos2d = pos3d - (normal*pos3d)*normal;
+  // find rotation angle needed to make z-component of normal vector zero
+  alpha = arctan2(normal_3,|(normal_1,normal_2)|);
+  ax = -normal_2;
+  ay = normal_1;
+  S = sin(alpha);
+  C = cos(alpha);
+  // rotation around (ax,ay,0) with angle alpha
+  pos2d = ((ax*ax* (1-C) + C, ax*ay* (1-C), ay* S),(ax*ay* (1-C), ay*ay* (1-C) + C, - ax*S),(-ay*S, ax*S, C))*pos2d;
+  (pos2d_1+p0_1,pos2d_2+p0_2);
+);
 // update the color color for the pixel at in direction direction assuming that the surface has been intersected at ray(direction, dst)
 // because of the alpha-transparency updatecolor should be called for the intersections with large dst first
 cglSurfaceUpdateColor(direction, dst, color) := (
-  regional(x, normal);
+  regional(x,pos3d,normal,pixelCol);
   cglSetDepth(dst,direction);
-  // Feature TODO find good way to determine texture coordinates on surface
-  color = (1 - cglAlpha) * color + cglAlpha * cglEval(cglPixelExpr,(0,0),cglViewPos+dst*direction);
   x = cglRay(direction, dst); // the intersection point in R^3
-  normal = cglEval(cglNormalExpr,x);
-  normal = normal / abs(normal);
+  normal = normalize(cglEval(cglNormalExpr,x));
+  pos3d = cglViewPos+dst*direction;
+  pixelCol = cglEval(cglPixelExpr,cglSurfaceComputeTextureCoords(pos3d,normal),pos3d);
+  color = (1 - cglAlpha) * color + cglAlpha * pixelCol;
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -1062,7 +1086,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
   regional(a,b,color,id,hasRoot,s,cnt);
   a = l;
   b = u;
-  color = (0,0,0);
+  color = cglColor0;
   // traverse binary tree (DFS) using heap-indices
   //1 is root node and node v has children 2*v and 2*v+1
   id = 1;
@@ -1132,7 +1156,7 @@ cglSurfaceKthRoot(direction,l,u,K):=(
     )
   );
   if(rootCount < K,cglDiscard());
-  color = cglSurfaceUpdateColor(direction,rootDepth, (0,0,0));
+  color = cglSurfaceUpdateColor(direction,rootDepth, cglColor0);
   [color_1,color_2,color_3,cglAlpha] // return value
 );
 // what color should be given to pixel in  direction direction (vec3)
@@ -1384,6 +1408,7 @@ cglMergeDicts(dict1,dict2):=(
 // code TODO? to which extend can this function be shortened by extracting code
 cglResolveColorExpr(hasAlpha):=(
   regional(pixelExpr,usesAlpha,modifiers);
+  hasAlpha = cglValOrDefault(hasAlpha,false); // undefined condition would be silent failure
   repeatTexture = cglValOrDefault(repeatTexture,false);
   interpolateTexture = cglValOrDefault(interpolateTexture, true);
   modifiers = {};
@@ -1504,7 +1529,7 @@ cglSphere3d(center,radius):=(
   alpha = cglValOrDefault(alpha,1);
   modifiers = {"cglLight": light,"cglProjection":projection};
   modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -1581,7 +1606,7 @@ cglCylinder3d(point1,point2,radius):=(
     "cglCapCut1":cap1_"capCut1","cglCapCut2":cap2_"capCut2",
     "cglProjection": projection};
   modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -1813,7 +1838,7 @@ cglTorus3d(center,orientation,radius1,radius2):=(
     "cglRadii": [radius1,radius2]
   };
   modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -1968,7 +1993,7 @@ cglTriangle3d(p1,p2,p3):=(
   modifiers_"cglNormalExpr" = normalExpr;
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
   vModifiers_"cglTexCoords" = uv;
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -2093,7 +2118,7 @@ cglPolygon3d(vertices):=(
   );
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
   vModifiers_"cglTexCoords" = uv;
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -2219,7 +2244,7 @@ cglMesh3d(grid):=(
   );
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
   vModifiers_"cglTexCoords" = uv;
-  exprData = cglResolveColorExpr(alpha < 1);
+  exprData = cglResolveColorExpr(hasAlpha);
   pixelExpr = exprData_"pixelExpr";
   usesAlpha = exprData_"usesAlpha";
   modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
@@ -2269,10 +2294,12 @@ cglMesh3d(grid):=(
 
 // feature TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
 // feature TODO fully support texture dependent colorExpression
-cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),
+cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,texture,textureRGB,textureRGBA,
+  interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),
   texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags));
 cglSurface3d(fun) := (
-    regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds,usesAlpha,opacityExpr);
+    regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds,usesAlpha,opacityExpr,exprData,pixelExpr);
     color = cglValOrDefault(color,cglDefaultColorSurface);
     light = cglValOrDefault(light,cglDefaultLight);
     alpha = cglValOrDefault(alpha,cglDefaultAlpha);
@@ -2307,15 +2334,22 @@ cglSurface3d(fun) := (
       "cglResolution": 2/min(|viewRect_1-viewRect_3|,|viewRect_2-viewRect_4|)
     };
     modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
-    usesAlpha = false;
-    if(!isundefined(colorExpr),
-      modifiers_"cglPixelExpr" = colorExpr;
+    repeatTexture = cglValOrDefault(repeatTexture,true); // repeat surface texture by default
+    hasAlpha = true;
+    exprData = cglResolveColorExpr(false); // do not use alpha-modifier directly in color-expression
+    cglDebugPrint(exprData);
+    pixelExpr = exprData_"pixelExpr";
+    usesAlpha = exprData_"usesAlpha";
+    modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
+    if(!isundefined(pixelExpr),
+      modifiers_"cglPixelExpr" = pixelExpr;
     ,
       color = cglNormalColor(color);
       usesAlpha = length(color) == 4;
       modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
       modifiers_"cglColor" = color;
     );
+    modifiers_"cglColor0" = if(usesAlpha,(0,0,0,0),(0,0,0));
     modifiers = cglMergeDicts(modifiers,cutoffRegion_"modifs");
     bounds = cutoffRegion_"bounds";
     opacityExpr = if(usesAlpha,false,cglLazy(cglAlpha>=1));
@@ -2354,17 +2388,23 @@ cglSurface3d(fun) := (
 );
 
 // feature TODO? add ability to scale axes independently from CindyJS coordinate system
-cglInterface("plot3d",cglPlot3d,(f:(x,y)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("plot3d",cglPlot3d,(f:(x,y)),(colortexture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
+  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),colorExprRGBA:(texturePos,spacePos),
+  thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   if(isundefined(degree),
       degree = min(cglTryDetermineDegree(f),cglMaxAutoDeg);
   );
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f),degree->degree);
 );
-cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
-cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,colorExpr:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,texture,textureRGB,textureRGBA,interpolateTexture,
+  repeatTexture, colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,texture,textureRGB,textureRGBA,interpolateTexture,
+  repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglCPlot3d(f/*f(z)*/):=(
-  if(isundefined(color) & isundefined(colorExpr),
+  if(isundefined(color) & isundefined(colorExpr), // TODO find better condition for choosing phase-coloring
     colorExpr = cglLazy((texturePos,spacePos),
       regional(z);
       z=cglEval(f,spacePos_1+i*spacePos_2);
