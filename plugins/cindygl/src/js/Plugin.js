@@ -87,6 +87,24 @@ function CindyGL3DObject(renderer,boundingBox,plotModifiers,tags) {
 }
 CindyGL3DObject.NEXT_ID=0;
 
+let cglLogLevel = 3;
+function cglLogError(...args){
+    if(cglLogLevel<0)return;
+    console.error(...args);
+}
+function cglLogWarning(...args){
+    if(cglLogLevel<1)return;
+    console.warn(...args);
+}
+function cglLogInfo(...args){
+    if(cglLogLevel<2)return;
+    console.info(...args);
+}
+function cglLogDebug(...args){
+    if(cglLogLevel<3)return;
+    console.debug(...args);
+}
+
 let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
@@ -100,7 +118,7 @@ let CindyGL = function(api) {
         let cb = new CodeBuilder(api);
         let plotModifiers = get3DPlotModifiers(modifs);
         let code = cb.generateColorPlotProgram(expr,plotModifiers,false);
-        console.log(code);
+        cglLogDebug(code);
         return {
             ctype: 'string',
             value: code
@@ -111,7 +129,7 @@ let CindyGL = function(api) {
     api.defineFunction("use8bittextures", 0, (args, modifs) => {
         use8bittextures = true;
         can_use_texture_float = can_use_texture_half_float = false;
-        console.log("Switching to 8-bit textures mode.");
+        cglLogInfo("Switching to 8-bit textures mode.");
         return api.nada;
     });
 
@@ -173,7 +191,7 @@ let CindyGL = function(api) {
                         break;
                     } else if(! typesareequal(commonType, prevVal.type)) {
                         changed = true;
-                        console.log(`changed type of modifier ${key} to ${typeToString(commonType)}`);
+                        cglLogDebug(`changed type of modifier ${key} to ${typeToString(commonType)}`);
                     }
                     mergedTypes.get(key).type = commonType;
                 } else {
@@ -191,13 +209,13 @@ let CindyGL = function(api) {
             break;
         }
         if(!foundMatch){
-            console.log("create new Renderer for modifiers: ",modifierTypes);
+            cglLogDebug("create new Renderer for modifiers: ",modifierTypes);
             renderer = new Renderer(api, prog, boundingBox, modifierTypes,mode3D);
             prog.renderers.push(renderer);
             // TODO? sort renderes by number of instances
             modifierTypes.forEach((value,key)=>{
                 if(!value.used){
-                    console.log(`modifier ${key} is never used`)
+                    cglLogInfo(`modifier ${key} is never used`)
                 }
             });
         }
@@ -278,7 +296,7 @@ let CindyGL = function(api) {
                     newArgs = expr['args'].map((oldArg)=>replaceVariables(oldArg,argValues));
                 } else {
                     // TODO? how to handle (conditional) assignment to cgl-lazy parameter
-                    console.error(`assignemnt to cglLazy parameter "${expr['args'][0]['name']}" is not supported`);
+                    cglLogError(`assignemnt to cglLazy parameter "${expr['args'][0]['name']}" is not supported`);
                 }
             } else if(expr['oper'] === ":=") {
                 const lhs = expr['args'][0];
@@ -446,12 +464,12 @@ let CindyGL = function(api) {
             modList = modValue['value'];
             modList = modList.map(v => {
                 if(v['ctype'] !== 'list' || v['value'].length != 2) {
-                    console.error("unexpected entry in modifier list expected [key,value] got: ",v);
+                    cglLogError("unexpected entry in modifier list expected [key,value] got: ",v);
                     return [undefined,undefined];
                 }
                 let key = v["value"][0];
                 if(key['ctype'] !== "string") {
-                    console.error("unexpected key for modifier list expected string got: ",key);
+                    cglLogError("unexpected key for modifier list expected string got: ",key);
                     return;
                 }
                 key = key['value'];
@@ -460,7 +478,7 @@ let CindyGL = function(api) {
         } else if(modValue["ctype"] === "JSON") {
             modList = Object.entries(modValue['value']);
         } else {
-            console.error(`unexpected value for '${modName}' expected list or dict got: `,modValue);
+            cglLogError(`unexpected value for '${modName}' expected list or dict got: `,modValue);
             modList=[];
         }
         modList.forEach(([key,value])=>{
@@ -478,7 +496,7 @@ let CindyGL = function(api) {
         // TODO? warn for duplicate elements
         function addUmodifier(modifiers,modName,modValue) {
             if(CodeBuilder.builtIns.has(modName)){
-                console.warn("modifier is shadowed by built-in: "+modName);
+                cglLogWarning("modifier is shadowed by built-in: "+modName);
             }
             modifiers.set(modName,modValue);
         }
@@ -502,16 +520,16 @@ let CindyGL = function(api) {
         let modifiers = new Map();
         function addVmodifier(modifiers,modName,modValue) {
             if(plotModifiers.has(modName)){
-                console.warn("vertex modifer is shadowed by uniform modifier: "+modName);
+                cglLogWarning("vertex modifer is shadowed by uniform modifier: "+modName);
                 return;
             }
             if(CodeBuilder.builtIns.has(modName)){
-                console.warn("modifer is shadowed by built-in: "+modName);
+                cglLogWarning("modifer is shadowed by built-in: "+modName);
             }
             let valList = coerce.toList(modValue,[]);
             if(valList.length != vCount){
-                console.error(`vertex modifier should be list with one element for each vertex: ${modName}`);
-                console.error(`expected: ${vCount} got: ${valList.length}`);
+                cglLogError(`vertex modifier should be list with one element for each vertex: ${modName}`);
+                cglLogError(`expected: ${vCount} got: ${valList.length}`);
                 return;
             }
             // compute common element type
@@ -580,10 +598,10 @@ let CindyGL = function(api) {
         /**@type {Array<number>} */
         let val = val0.map(coerce.toReal);
         if(val.length < 2) {
-            console.warn(`not enough elements for point ${name} expected 2 got ${val.length}`);
+            cglLogWarning(`not enough elements for point ${name} expected 2 got ${val.length}`);
             return val.length > 0 ? [val[0],val[0]] : defValue;
         } else if(val.length > 2) {
-            console.warn("point has to many components, truncating");
+            cglLogWarning("point has to many components, truncating");
             return val.slice(0,2);
         }
         return val;
@@ -600,7 +618,7 @@ let CindyGL = function(api) {
         expr = tryEvaluate(expr,api,expr);
         if(expr['ctype']==='cglLazy'){
             if(expr.params.length>0) {
-                console.warn("opacity expression should not have any parameters");
+                cglLogWarning("opacity expression should not have any parameters");
             }
             expr = expr.expr;
         } else {
@@ -650,7 +668,7 @@ let CindyGL = function(api) {
                     if(Array.isArray(xyz)&&xyz.length>0&&xyz[0]['ctype']=='list'){
                         contentType = "triangles";
                     }
-                    console.warn(`${contentType} should be lists of length 3`);
+                    cglLogWarning(`${contentType} should be lists of length 3`);
                     return [];
                 }
                 return xyz;
@@ -661,7 +679,7 @@ let CindyGL = function(api) {
                 vertices = vertices.flatMap(v=>{
                     let xyz=coerce.toList(v);
                     if(!Array.isArray(xyz)||xyz.length!=3){
-                        console.warn("vertices should be lists of length 3");
+                        cglLogWarning("vertices should be lists of length 3");
                         return [];
                     }
                     return xyz;
@@ -672,12 +690,12 @@ let CindyGL = function(api) {
         if(eltType === 'number') {
             vertices = vertices.map(coerce.toReal);
             if(vertices.length % 3 !== 0){
-                console.error("the number of coordinates should be divisible by 3");
+                cglLogError("the number of coordinates should be divisible by 3");
             }else if(vertices.length % 9 !== 0){
-                console.error("the number of vertices should be divisible by 3");
+                cglLogError("the number of vertices should be divisible by 3");
             }
         } else {
-            console.error(`unexpected type for vertex-coordinate: ${eltType}`);
+            cglLogError(`unexpected type for vertex-coordinate: ${eltType}`);
             return undefined;
         }
         return vertices;
@@ -698,12 +716,12 @@ let CindyGL = function(api) {
         let plotModifiers = get3DPlotModifiers(modifs);
         let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
         if(vertices === undefined) {
-            console.warn("invalid vertex data",args[1]);
+            cglLogWarning("invalid vertex data",args[1]);
             return nada;
         }
         let vCount = vertices.length/3;
         if(vCount < 3) {
-            console.warn("not enough vertices for triangle");
+            cglLogWarning("not enough vertices for triangle");
             return nada; // not enough vertices
         }
         let vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
@@ -998,7 +1016,7 @@ let CindyGL = function(api) {
         // TODO? extract to function on sceneRenderer
         let wrongOpacity = sceneRenderer.wrongOpacity;
         if(wrongOpacity.size>0){
-            console.log(`changing opacity of ${wrongOpacity.size} objects`);
+            cglLogDebug(`changing opacity of ${wrongOpacity.size} objects`);
             // update objects that had the wrong opacity
             wrongOpacity.forEach((obj3d)=>{
                 if(obj3d.renderer.opaque){
@@ -1145,7 +1163,7 @@ let CindyGL = function(api) {
                 obj3d = CindyGL.objectBuffer.translucent.get(objId);
                 wasOpaque = false;
                 if(obj3d === undefined){
-                    console.warn(`could not find object with id ${objId}`);
+                    cglLogWarning(`could not find object with id ${objId}`);
                     return null;
                 }
             }
@@ -1163,12 +1181,12 @@ let CindyGL = function(api) {
         return objectsById(args[0]).map(([obj3d,objId,_])=>{
             let vertices = verticesFromCJS(api.evaluateAndVal(args[1]));
             if(vertices === undefined) {
-                console.warn("invalid vertex data",args[1]);
+                cglLogWarning("invalid vertex data",args[1]);
                 return nada;
             }
             let vCount = vertices.length/3;
             if(vCount < 3) {
-                console.warn("not enough vertices for triangle");
+                cglLogWarning("not enough vertices for triangle");
                 return nada; // not enough vertices
             }
             let vModifiers = get3DPlotVertexModifiers(modifs,vCount,obj3d.plotModifiers);
@@ -1278,7 +1296,7 @@ let CindyGL = function(api) {
         // TODO? better support for multiple ids
         let [obj3d,objId,_] = objects[0];
         if(obj3d.boundingBox.type !== BoundingBoxType.sphere) {
-            console.log(`the object with id ${objId} is no sphere`);
+            cglLogWarning(`the object with id ${objId} is no sphere`);
             return nada;
         }
         return { // convert to CindyJS list
@@ -1302,11 +1320,11 @@ let CindyGL = function(api) {
     function cglEvalImpl(csexpr,args,modifs) {
         const val = api.evaluate(csexpr);
         if(val['ctype'] !== 'cglLazy') {
-            console.log("this first argument of cglEval has to be a cglLazy expression");
+            cglLogWarning("this first argument of cglEval has to be a cglLazy expression");
             return nada;
         }
         if(val.params.length != args.length) {
-            console.log(`wrong number of arguments for lazy expression expected ${val.params.length} got ${args.length}`);
+            cglLogWarning(`wrong number of arguments for lazy expression expected ${val.params.length} got ${args.length}`);
             return nada;
         }
         let argValues = new Map();
@@ -1334,7 +1352,7 @@ let CindyGL = function(api) {
         let paramsOk = true;
         params.forEach(val=>{
             if(val['ctype'] !== 'variable'){
-                console.error("unexpected parameter in cglLazy expected variable got:",val);
+                cglLogError("unexpected parameter in cglLazy expected variable got:",val);
                 paramsOk = false;
             }
         });
@@ -1372,7 +1390,7 @@ let CindyGL = function(api) {
         } else if(csVal['ctype'] === 'string') {
             return csVal['value'];
         } else {
-            console.error("unexpected value for name:",csVal);
+            cglLogError("unexpected value for name:",csVal);
         }
     }
     function parseInterfaceArgs(csVal) {
@@ -1395,7 +1413,7 @@ let CindyGL = function(api) {
             if(value.params.length === params.length) {
                 return value;
             }
-            console.error("lazy expression has wrong number of arguments: "+
+            cglLogError("lazy expression has wrong number of arguments: "+
                 `got: ${value.params.length} expected: ${params.length} (${params.map(p=>p['name']).join(",")})`
             );
             // TODO? add dummy parameter is given lazy does not have enough paramters
@@ -1466,7 +1484,7 @@ let CindyGL = function(api) {
     api.defineFunction("cglTryDetermineDegree",1,(args,modifs) => {
         let arg = api.evaluate(args[0]);
         if(arg['ctype'] !== 'cglLazy') {
-            console.error("expected cglLazy expression, if the first argument should be used as an expression add checked variables as second parameter");
+            cglLogError("expected cglLazy expression, if the first argument should be used as an expression add checked variables as second parameter");
             return nada;
         }
         const degreeData = tryDetermineDegree(arg.expr,arg.params.map(asName));
@@ -1487,8 +1505,26 @@ let CindyGL = function(api) {
         return toCjsNumber(degreeData.degree);
     });
 
+    // debugging helper, print expression before and after evalualtion
     api.defineFunction("cglDebugPrint", 1, (args, modifs) => {
         console.log(args[0],api.evaluate(args[0]),api.evaluateAndVal(args[0]));
+        return nada;
+    });
+    // functions for printing error/warning messages from within cindy-script code
+    // TODO cindy-script style printing for values
+    api.defineFunction("cglLogError", 1, (args, modifs) => {
+        let str = api.evaluateAndVal(args[0]);
+        cglLogError(str['value']!==undefined?str['value']:"___");
+        return nada;
+    });
+    api.defineFunction("cglLogWarning", 1, (args, modifs) => {
+        let str = api.evaluateAndVal(args[0]);
+        cglLogWarning(str['value']!==undefined?str['value']:"___");
+        return nada;
+    });
+    api.defineFunction("cglLogInfo", 1, (args, modifs) => {
+        let str = api.evaluateAndVal(args[0]);
+        cglLogInfo(str['value']!==undefined?str['value']:"___");
         return nada;
     });
 

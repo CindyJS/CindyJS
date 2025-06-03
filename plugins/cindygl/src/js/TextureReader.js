@@ -61,7 +61,7 @@ TextureReader.prototype.evaluateProperties = function() {
         repeat: modifs.hasOwnProperty("repeat") ? api.evaluateAndVal(modifs['repeat'])['value'] : false
     };
     if (this.properties && (this.properties.mipmap != properties.mipmap || this.properties.repeat != properties.repeat)) {
-        console.log("enfore recompilation because texture modifiers changed.");
+        cglLogDebug("enfore recompilation because texture modifiers changed.");
         requiredcompiletime++;
     }
     this.properties = properties;
@@ -94,7 +94,7 @@ TextureReader.prototype.returnCanvaswrapper = function() {
     let imageobject = (typeof nameorimageobject === "string") ? this.api.getImage(nameorimageobject, true) : nameorimageobject;
 
     if (imageobject == null) {
-        console.error(`Could not find image ${nameorimageobject}.`);
+        cglLogError(`Could not find image ${nameorimageobject}.`);
         return nada;
     }
     this.evaluateProperties();

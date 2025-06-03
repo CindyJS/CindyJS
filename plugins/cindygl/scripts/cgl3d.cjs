@@ -1180,7 +1180,7 @@ cgl3dSurfaceLayerShaderCode(direction) := (
 
 // maximum degree for interpolating surfaces
 // values of kind 4*n-1 are good values, as it means to use vectors of length 4*n.
-cglMaxDeg = 31;
+cglMaxDeg = 23; // for values above ~20 the root-computation becomes unstable
 cglMaxAutoDeg = 15;
 // cache for interpolation parameters to avoid repreated recomputation
 cglSurfaceRenderStateCache = {
@@ -1386,9 +1386,7 @@ cglMergeDicts(dict1,dict2):=(
 // -> zoom-dependent radius => sphere3d(center,r0,onZoom->update3d(obj,radius->r0*zoom))
 
 // TODO remove cglBegin3d, cglEnd3d functions (no longer neccessary)
-// TODO function for enabling/disabing debug output
-// ? cglLogLevel(0,1,2,3) -> nothing, only errors, errors&warnings, everything
-// cglLogError, cglLogWarning, cglLogDebug functions
+// TODO? cglLogLevel(...) built-in for setting log-level
 
 // bug TODO:
 // TODO handle radius <= 0
@@ -1948,7 +1946,7 @@ cglCheckSize(vData,vCount,msg,defVal) := (
   if(length(vData)==vCount,
     vData
   ,
-    print(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
+    cglLogError(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
     apply(1..vCount,defVal);
   )
 );
@@ -1956,7 +1954,7 @@ cglCheckSize(vData,vCount,msg) := (
   if(length(vData)==vCount,
     vData
   ,
-    print(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
+    cglLogError(msg+" expected: "+text(vCount)+" got: "+text(length(vData)));
   )
 );
 
@@ -1987,7 +1985,7 @@ cglTriangle3d(p1,p2,p3):=(
       vModifiers_"cglNormal" = normals;
       normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
     ,
-      print("Warning: modifier `normals` is ignored if `normalExpr` is given");
+      cglLogWarning(" modifier `normals` is ignored if `normalExpr` is given");
     );
   );
   if(!isundefined(normal),
@@ -1995,7 +1993,7 @@ cglTriangle3d(p1,p2,p3):=(
       modifiers_"cglNormal" = normal;
       normalExpr = cglLazy((spacePos,texturePos),cglNormal);
     ,
-      print("Warning: modifier `normal` is ignored if `normals` or `normalExpr` is given");
+      cglLogWarning("modifier `normal` is ignored if `normals` or `normalExpr` is given");
     );
   );
   if(isundefined(normalExpr),
@@ -2072,14 +2070,14 @@ cglPolygon3d(vertices):=(
       if(isundefined(normalType),
         normalType = CglNormalPerVertex;
       ,
-        print("Warning: modifier `normals` is ignored if `normalExpr` is given");
+        cglLogWarning("modifier `normals` is ignored if `normalExpr` is given");
       )
     );
     if(!isundefined(normal),
       if(isundefined(normalType),
         normalType = CglNormalPerFace;
       ,
-        print("Warning: modifier `normal` is ignored if `normalExpr` or `normals` is given");
+        cglLogWarning("modifier `normal` is ignored if `normalExpr` or `normals` is given");
       )
     );
     if(isundefined(normalType),
@@ -2088,7 +2086,7 @@ cglPolygon3d(vertices):=(
   );
   if(normalType == CglNormalPerPixel,
     if(isundefined(normalExpr),
-      print("modifier `normalExpr` has to be set when using per-pixel normals");
+      cglLogWarning("modifier `normalExpr` has to be set when using per-pixel normals");
       normals = cglUndefinedVal();
       normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
       normalType = CglNormalPerVertex;
@@ -2105,7 +2103,7 @@ cglPolygon3d(vertices):=(
     normals = normal; // for flat normal-type normals is a single normal
     normalExpr = cglLazy((spacePos,texturePos),cglNormal);
   ,
-    print("unknown normal-type: "+text(normalType));
+    cglLogError("unknown normal-type: "+text(normalType));
   ))));
   modifiers_"cglNormalExpr" = normalExpr;
   if(isundefined(uv),
@@ -2210,7 +2208,7 @@ cglMesh3d(grid):=(
       if(isundefined(normalType),
         normalType = CglNormalPerVertex;
       ,
-        print("Warning: modifier `normals` is ignored if `normalExpr` is given");
+        cglLogWarning("modifier `normals` is ignored if `normalExpr` is given");
       )
     );
     if(isundefined(normalType),
@@ -2218,7 +2216,7 @@ cglMesh3d(grid):=(
     );
   );
   if(normalType == CglNormalPerPixel & isundefined(normalExpr),
-      print("modifier `normalExpr` has to be set when using per-pixel normals");
+      cglLogWarning("modifier `normalExpr` has to be set when using per-pixel normals");
       normals = cglUndefinedVal();
       normalType = CglNormalPerVertex;
   );
@@ -2238,7 +2236,7 @@ cglMesh3d(grid):=(
     ,if(normalType == CglNormalPerVertex,
       normals = cglMeshSamplesToTriangles(normals,Nx,Ny,topology,cglSampleVertex);
     ,
-      print("unknown normal-type: "+text(normalType));
+      cglLogError("unknown normal-type: "+text(normalType));
     ))));
   );
   modifiers = {
@@ -2333,7 +2331,7 @@ cglSurface3d(fun) := (
     ,
       N = max(degree,1);
       if(N>cglMaxDeg,
-        print("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
+        cglLogInfo("exceeded maximum allowed degree, interpolating as "+text(cglMaxDeg)+" degree polynomial");
         N = cglMaxDeg;
       );
     ));
@@ -2378,7 +2376,7 @@ cglSurface3d(fun) := (
       ,if(bounds_"type" == "cuboid",
         colorplot3d(cgl3dSurfaceShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers,opaqueIf->opacityExpr)
       ,
-        print("unknown bounding box type: "+text(bounds_"type"));
+        cglLogError("unknown bounding box type: "+text(bounds_"type"));
       ))));
     ,
       if(layers<0,layers=N,layers=min(layers,N));
@@ -2393,7 +2391,7 @@ cglSurface3d(fun) := (
         ,if(bounds_"type" == "cuboid",
           colorplot3d(cgl3dSurfaceLayerShaderCode(#),bounds_"center",bounds_"v1",bounds_"v2",bounds_"v3",plotModifiers->modifiers,opaqueIf->opacityExpr)
         ,
-          print("unknown bounding box type: "+text(bounds_"type"));
+          cglLogError("unknown bounding box type: "+text(bounds_"type"));
         ))));
         layers=layers-1;
       );

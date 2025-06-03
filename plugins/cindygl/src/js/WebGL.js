@@ -363,7 +363,7 @@ webgl["_"] = args => {
             return {
                 args: args,
                 res: t.parameters,
-                generator: x => console.error(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
+                generator: x => cglLogError(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
             };
         }
     }

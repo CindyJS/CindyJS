@@ -14,7 +14,7 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
         });
 
         if (!imageobject.ready) {
-            console.log("Image is not ready yet.");
+            cglLogInfo("Image is not ready yet.");
         }
     }
     return imageobject['canvaswrapper'];

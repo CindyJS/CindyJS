@@ -30,7 +30,7 @@ Renderer.boundingCylinder = function(center,direction,radius,overhang){
  */
 Renderer.boundingTriangles = function(vertices,vModifiers){
     if(vertices.length%9 !== 0) {
-        console.error("the length of vertices should be a multiple of 9");
+        cglLogError("the length of vertices should be a multiple of 9");
     }
     // TODO optional additional parameter
     // triangles: array[ivec3] vertex indices (to reduce data consumption)
@@ -149,7 +149,7 @@ Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
     this.rebuild(true);
 }
 Renderer.prototype.recompile = function() {
-    console.log("recompile");
+    cglLogDebug("recompile");
     this.cb = new CodeBuilder(this.api);
     this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes,this.mode3D);
     this.activeModifierTypes = new Map();
@@ -163,12 +163,12 @@ Renderer.prototype.recompile = function() {
     this.compiletime = requiredcompiletime;
 }
 Renderer.prototype.rebuild = function(forceRecompile) {
-    console.log("rebuild");
+    cglLogDebug("rebuild");
     if(forceRecompile|| !this.iscompiled || this.compiletime < requiredcompiletime){
         this.recompile();
     }
     if(this.cpg===undefined){
-        console.error("cpg is undefined");
+        cglLogError("cpg is undefined");
         return;
     }
     // TODO? use different header for fshader depending on box type
@@ -182,7 +182,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         const typeSuffix = can_use_texture_float ? "" : "2I8";
         this.fragmentShaderCode = cgl_resources["fragHeaderOpaqueLayer"+typeSuffix]; // TODO better name for fShader? ('writeHeader')
     } else {
-        console.error("unexpected transparencyType ",this.transparencyType);
+        cglLogError("unexpected transparencyType ",this.transparencyType);
         return;
     }
     this.fragmentShaderCode += this.cb.generateShader(this.cpg,this.transparencyType === TransparencyType.Simple);
@@ -201,7 +201,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
                 // name given to this modifier by code-builder
                 let vname = this.modifierTypes.get(name).uniformName;
                 if(vname == undefined) {
-                    console.warn("unused vertex-modifier:",name);
+                    cglLogWarning("unused vertex-modifier:",name);
                     return;
                 }
                 value.aName = Renderer.vModifierPrefixV+index;
@@ -212,11 +212,11 @@ Renderer.prototype.rebuild = function(forceRecompile) {
             });
             this.vertexShaderCode = `${cgl_resources["vshader3dTrianglesHeader"]}${attributeVars}`+
             `void main(void){\n${attributeCopies}${cgl_resources["vshader3dTrianglesCode"]}}`;
-            console.log(this.vertexShaderCode);
+            cglLogDebug(this.vertexShaderCode);
         } else if(this.boundingBox.type==BoundingBoxType.cuboid) {
             this.vertexShaderCode = cgl_resources["vshader3dCuboid"];
         } else {
-            console.error("unsupported bounding box type: ",this.boundingBox.type);
+            cglLogError("unsupported bounding box type: ",this.boundingBox.type);
             this.vertexShaderCode = cgl_resources["vshader3d"];
         }
     }else{
@@ -249,7 +249,7 @@ Renderer.prototype.updateVertices = function() {
                 -1.0, 1.0, 1.0, 1.0, 1.0,-1.0, 1.0, 1.0, 1.0, 1.0,-1.0, 1.0
             ]);
         } else {
-            console.error("unsupported bounding box type: ",this.boundingBox.type);
+            cglLogError("unsupported bounding box type: ",this.boundingBox.type);
             this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         }
     } else {
@@ -286,7 +286,7 @@ Renderer.computeAttributeData = function (eltType,values){
                 } else if (val.ctype === 'list' && val['value'].length === 3) {
                     val['value'].forEach(x => elts.push(x['value']['real']));
                 }
-                console.error("unexpected value for geometry object: ",val);
+                cglLogError("unexpected value for geometry object: ",val);
             }
             break;
         default:
@@ -313,8 +313,7 @@ Renderer.computeAttributeData = function (eltType,values){
             break;
     }
     if(!eltConverter) {
-        console.error(`Don't know how to set vertex attribute array of type ${typeToString(eltType)}, to`);
-        console.log(values);
+        cglLogError(`Don't know how to set vertex attribute array of type ${typeToString(eltType)}, to`,values);
         return {aData: undefined, aSize: 0, aType: attributeType};
     }
     let data = [];
@@ -482,7 +481,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
             this.shaderProgram.uniform["uCenter"]
                 (this.boundingBox.center);
         }else{
-            console.error("uCenter is not supported for current bounding box type");
+            cglLogError("uCenter is not supported for current bounding box type");
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uRadius')){
@@ -490,7 +489,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
             this.shaderProgram.uniform["uRadius"]
                 ([this.boundingBox.radius]);
         }else{
-            console.error("uRadius is not supported for current bounding box type");
+            cglLogError("uRadius is not supported for current bounding box type");
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uBoxLengthScale')){
@@ -498,7 +497,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
             this.shaderProgram.uniform["uBoxLengthScale"]
                 ([this.boundingBox.boxLengthScale]);
         }else{
-            console.error("uBoxLengthScale is not supported for current bounding box type");
+            cglLogError("uBoxLengthScale is not supported for current bounding box type");
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uOrientation')){
@@ -506,7 +505,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
             this.shaderProgram.uniform["uOrientation"]
                 (this.boundingBox.direction);
         }else{
-            console.error("uOrientation is not supported for current bounding box type");
+            cglLogError("uOrientation is not supported for current bounding box type");
         }
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uCubeAxes')){
@@ -514,7 +513,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
             this.shaderProgram.uniform["uCubeAxes"] // TODO is this the rigth order?
                 (transpose3([this.boundingBox.v1,this.boundingBox.v2,this.boundingBox.v3].flat()));
         }else{
-            console.error("uCubeAxes is not supported for current bounding box type");
+            cglLogError("uCubeAxes is not supported for current bounding box type");
         }
     }
 }
@@ -588,8 +587,7 @@ Renderer.computeUniformValue = function (setter,uniformType,val){
         }
         return elts;
     }
-    console.error(`Don't know how to set uniform of type ${typeToString(uniformType)}, to`);
-    console.log(val);
+    cglLogError(`Don't know how to set uniform of type ${typeToString(uniformType)}, to`,val);
     return undefined;
 }
 Renderer.setUniformValue = function (setter,uniformValue){
@@ -621,7 +619,7 @@ Renderer.prototype.setModifierUniforms = function(plotModifiers){
             }
             Renderer.setUniformValue(uniformSetter,value.uniformValue);
         } else {
-            console.warn(`missing uniform ${uniformName} for modifier ${modifierName}`);
+            cglLogWarning(`missing uniform ${uniformName} for modifier ${modifierName}`);
         }
     });
 }
@@ -639,7 +637,7 @@ Renderer.prototype.setUniforms = function() {
         let t = this.cpg.uniforms[uname].type;
 
         if (!issubtypeof(constant(val), t)) {
-            console.log(`Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(t)}); forcing rebuild.`);
+            cglLogDebug(`Type of ${uname} changed (${typeToString(constant(val))} is no subtype of  ${typeToString(t)}); forcing rebuild.`);
             this.rebuild(true);
             this.shaderProgram.use(gl);
             this.setUniforms();
@@ -702,7 +700,7 @@ Renderer.prototype.loadTextures = function(initCount) {
 Renderer.prototype.functionGenerationsOk = function() {
     for (let fname in this.cpg.generations) {
         if (this.api.getMyfunction(fname).generation > this.cpg.generations[fname]) {
-            console.log(`${fname} is outdated; forcing rebuild.`);
+            cglLogDebug(`${fname} is outdated; forcing rebuild.`);
             return false;
         }
     }
@@ -744,7 +742,7 @@ Renderer.prototype.updateCoordinateUniforms = function() {
  */
 Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
     if(this.mode3D) {
-        console.warn("2D-render of 3D expression");
+        cglLogWarning("2D-render of 3D expression");
     }
     gl.disable(gl.DEPTH_TEST);
     Renderer.resetCachedState();
@@ -804,7 +802,7 @@ Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModi
  */
 Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers, targetLayer,targetBuffer) {
     if(!this.mode3D) {
-        console.warn("3D-render of 2D expression");
+        cglLogWarning("3D-render of 2D expression");
     }
     let shaderChanged = Renderer.prevShader !== this.shaderProgram;
     let needsRebuild = this.boundingBox.type !== boundingBox.type || (this.transparencyType !== Renderer.transparencyType);
@@ -1055,7 +1053,7 @@ CglSceneLayer.freeDepthTexture = function(texture) {
  */
 function Cgl3dLayeredSceneRenderer(iw,ih,layerCount) {
     if(!(layerCount >= 1)){ // negated condition to correctly handle NaN values
-        console.warn("invalid layerCount should be >= 1 got:",layerCount);
+        cglLogWarning("invalid layerCount should be >= 1 got:",layerCount);
         layerCount = 1;
     }
     CglSceneLayer.updateScreenSize(iw,ih);

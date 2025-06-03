@@ -25,7 +25,7 @@ CodeBuilder.prototype.sections;
 CodeBuilder.prototype.add = function(section, name, codegen) {
     this.mark(section, name);
     if (!this.sections[section].codes[name]) {
-        //console.log(`adding ${name} to ${section}: ${code}`);
+        //cglLogDebug(`adding ${name} to ${section}: ${code}`);
         this.sections[section].codes[name] = codegen();
         this.sections[section].marked[name] = true;
         this.sections[section].order.push(name);
@@ -121,14 +121,14 @@ CodeBuilder.prototype.castType = function(term, fromType, toType) {
     if (typesareequal(fromType, toType)) return term;
 
     if (!issubtypeof(fromType, toType)) {
-        console.error(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
+        cglLogError(`${typeToString(fromType)} is no subtype of ${typeToString(toType)} (trying to cast the term ${term})`);
         return term;
     } else if (fromType.type === "constant") {
         return pastevalue(fromType.value, toType, this);
     } else {
         let implementation = inclusionfunction(toType)([fromType]);
         if (!implementation) {
-            console.error(`cannot find an implementation for ${typeToString(fromType)} -> ${typeToString(toType)}, using identity`);
+            cglLogError(`cannot find an implementation for ${typeToString(fromType)} -> ${typeToString(toType)}, using identity`);
             return term;
         }
         let generator = implementation.generator;
@@ -167,7 +167,7 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             }
             return CodeBuilder.builtIns.get(name).valueType;
         }
-        console.error(`unsupported built-in ${JSON.stringify(expr)}`);
+        cglLogError(`unsupported built-in ${JSON.stringify(expr)}`);
         return false;
     } else if(expr['ismodifier']) {
         if (expr['ctype'] === 'variable') {
@@ -175,10 +175,10 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             if(this.modifierTypes.has(name)){
                 return this.modifierTypes.get(name).type;
             }else{
-                console.error(`could not find modifier ${JSON.stringify(expr)}`);
+                cglLogError(`could not find modifier ${JSON.stringify(expr)}`);
             }
         }
-        console.error(`unsupported modifier ${JSON.stringify(expr)}`);
+        cglLogError(`unsupported modifier ${JSON.stringify(expr)}`);
         return false;
     } else if (expr['ctype'] === 'variable') {
         let name = expr['name'];
@@ -233,16 +233,16 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
             }
             let implementation = webgl[f] ? webgl[f](argtypes) : false;
             if (!implementation && argtypes.every(a => finalparameter(a))) { //no implementation found and all args are set
-                console.error(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
-                console.log(expr);
+                cglLogError(`Could not find an implementation for ${f} with args (${argtypes.map(typeToString).join(', ')})`);
+                cglLogDebug(expr);
                 throw ("error");
 
             }
             return implementation ? implementation.res : false;
         }
     }
-    console.error("Don't know how to compute type of");
-    console.log(expr);
+    cglLogError("Don't know how to compute type of");
+    cglLogDebug(expr);
     return false;
 };
 
@@ -292,7 +292,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             let exprExpr = expr['args'][0];
             if(exprExpr['ctype'] !== 'variable'){
                 // TODO? allow other expressions
-                console.error(`unexpected argument for ${
+                cglLogError(`unexpected argument for ${
                     BUILTIN_EVAL_LAZY
                 } expected variable got`,exprExpr);
                 return;
@@ -304,7 +304,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 let modifierData = self.modifierTypes.get(exprName);
                 let exprType = modifierData.type;
                 if(!exprType.value || !exprType.value.ctype || exprType.value.ctype !== 'cglLazy'){
-                    console.error(`unexpected argument for ${
+                    cglLogError(`unexpected argument for ${
                         BUILTIN_EVAL_LAZY
                     } expected cglLazy got`,exprType, exprExpr);
                     return;
@@ -316,7 +316,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             } else {
                 let val = self.api.evaluate(exprExpr);
                 if(val['ctype'] !== 'cglLazy'){
-                    console.error(`unexpected argument for ${
+                    cglLogError(`unexpected argument for ${
                         BUILTIN_EVAL_LAZY
                     } expected cglLazy got`,val);
                     return;
@@ -325,7 +325,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             }
             if(argCount !== exprData.params.length){
                 // TODO? better message
-                console.error(`wrong number of arguments for lazy function expected ${
+                cglLogError(`wrong number of arguments for lazy function expected ${
                     exprData.params.length
                 } got ${argCount}`);
                 return;
@@ -410,7 +410,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             // TODO? special handling for built-in variables
             vname = bindings[vname] || vname;
             if (forceconstant && self.variables[vname]) {
-                //console.log(`mark ${vname} as constant iteration variable`);
+                //cglLogDebug(`mark ${vname} as constant iteration variable`);
                 self.variables[vname].forceconstant = true;
             }
         }
@@ -426,7 +426,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
             for (let i in expr['args']) {
                 let vname = expr['args'][i]['name'];
                 if(vname.startsWith(CodeBuilder.cindygl3dPrefix)){
-                    console.warn(`${vname}: identifiers starting with ${CodeBuilder.cindygl3dPrefix} are reserved for internal use`);
+                    cglLogWarning(`${vname}: identifiers starting with ${CodeBuilder.cindygl3dPrefix} are reserved for internal use`);
                 }
                 let iname = generateUniqueHelperString();
                 bindings[vname] = iname;
@@ -507,7 +507,7 @@ CodeBuilder.prototype.determineTypes = function() {
                         }
                         if (newtype && newtype !== oldtype) {
                             this.variables[v].T = newtype;
-                            //console.log(`variable ${v} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
+                            //cglLogDebug(`variable ${v} got type ${typeToString(newtype)} (oltype/othertype is ${typeToString(oldtype)}/${typeToString(othertype)})`);
                             this.typetime++;
                             changed = true;
                         }
@@ -705,12 +705,11 @@ CodeBuilder.prototype.determineUniformTypes = function() {
     for (let uname in this.uniforms) {
         let tval = this.api.evaluateAndVal(this.uniforms[uname].expr);
         if (!tval["ctype"] || tval["ctype"] === "undefined") {
-            console.error("can not evaluate:");
-            console.log(this.uniforms[uname].expr);
+            cglLogError("can not evaluate:",this.uniforms[uname].expr);
             return false;
         }
         this.uniforms[uname].type = this.uniforms[uname].forceconstant ? constant(tval) : guessTypeOfValue(tval);
-        //console.log(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
+        //cglLogDebug(`guessed type ${typeToString(this.uniforms[uname].type)} for ${(this.uniforms[uname].expr['name']) || (this.uniforms[uname].expr['oper'])}`);
     }
 };
 
@@ -919,7 +918,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
                 code: ''
             };
         }
-        console.error(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);
+        cglLogError(`dont know how to this.compile built-in ${JSON.stringify(expr)}`);
         return;
     } else if (expr['oper'] === ";") {
         let r = {
@@ -955,12 +954,12 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
     } else if (expr['oper'] === "=") {
         let r = this.compile(expr['args'][1], true);
         if(expr['args'][0]['ismodifier']) {
-            console.error(`assignment to immutable modifier "${expr['args'][0]['name']}"`);
+            cglLogError(`assignment to immutable modifier "${expr['args'][0]['name']}"`);
         } else if(expr['args'][0]['isbuiltin']){
             if(expr['args'][0]['ctype'] !== 'variable') {
-                console.error(`assignment to immutable built-in "${getPlainName(expr['args'][0]['oper'])}"`);
+                cglLogError(`assignment to immutable built-in "${getPlainName(expr['args'][0]['oper'])}"`);
             } else if(!CodeBuilder.builtIns.get(expr['args'][0]['name']).writable) {
-                console.error(`assignment to immutable built-in "${expr['args'][0]['name']}"`);
+                cglLogError(`assignment to immutable built-in "${expr['args'][0]['name']}"`);
             } else if(expr['args'][0]['name'] == BUILTIN_CGLDEPTH) {
                 this.writesDepth = true;
             }
@@ -981,7 +980,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let number = this.compile(expr['args'][0], true);
         let ntype = this.getType(expr['args'][0]);
         if (ntype.type !== 'constant') {
-            console.error('repeat possible only for fixed constant number in GLSL');
+            cglLogError('repeat possible only for fixed constant number in GLSL');
             return false;
         }
         let it = (expr['oper'] === "repeat$2") ? expr['args'][1].bindings['#'] : expr['args'][2].bindings[expr['args'][1]['name']];
@@ -1034,7 +1033,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let arraytype = this.getType(expr['args'][0]);
 
         if (!(arraytype.type === 'list' || (arraytype.type === 'constant' && arraytype.value['ctype'] === 'list'))) {
-            console.error(`${expr['oper']} only possible for lists`);
+            cglLogError(`${expr['oper']} only possible for lists`);
             return false;
         }
 
@@ -1061,7 +1060,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             for (let i = 0; i < n; i++) {
                 this.variables[it].T = constant(arrayval['value'][i]); //overwrites binding
                 this.typetime++;
-                //console.log(`current binding: ${it} -> ${typeToString(this.variables[it].T)}`);
+                //cglLogDebug(`current binding: ${it} -> ${typeToString(this.variables[it].T)}`);
                 r = this.compile(expr['args'][(expr['args'].length === 2) ? 1 : 2], generateTerm);
                 code += r.code;
 
@@ -1218,7 +1217,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
             let implementation = webgl[fname](currenttype);
             if (!implementation) {
-                console.error(`Could not find an implementation for ${fname}(${currenttype.map(typeToString).join(', ')}).\nReturning empty code`);
+                cglLogError(`Could not find an implementation for ${fname}(${currenttype.map(typeToString).join(', ')}).\nReturning empty code`);
                 return (generateTerm ? {
                     term: '',
                     code: ''
@@ -1238,9 +1237,9 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             argterms[i] = this.castType(r[i].term, currenttype[i], targettype[i]);
 
         }
-        //console.log("Running Term Generator with arguments" + JSON.stringify(argterms) + " and this: " + JSON.stringify(this));
+        //cglLogDebug("Running Term Generator with arguments" + JSON.stringify(argterms) + " and this: " + JSON.stringify(this));
         let term = termGenerator(argterms, expr['modifs'], this);
-        //console.log("generated the following term:" + term);
+        //cglLogDebug("generated the following term:" + term);
         if (generateTerm)
             return {
                 term: term,
@@ -1303,7 +1302,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
             });
         }
     }
-    console.error(`dont know how to this.compile ${JSON.stringify(expr)}`);
+    cglLogError(`dont know how to this.compile ${JSON.stringify(expr)}`);
 };
 
 
@@ -1391,7 +1390,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes,mod
 
     let colorterm;
     if (!issubtypeof(rtype, type.color)) {
-        console.error("expression does not generate a color");
+        cglLogError("expression does not generate a color");
         colorterm=`vec4(.5,.5,.5,1.);\n`; // replace broken shader with solid gray region
     }else{
         colorterm = this.castType(r.term, rtype, type.color);
@@ -1410,7 +1409,7 @@ CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes,mod
         }
 
     code += this.generateSection('compiledfunctions');
-    console.log(code,r);
+    cglLogDebug(code,r);
 
     let generations = {};
     if (this.sections['compiledfunctions'])

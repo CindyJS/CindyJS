@@ -289,7 +289,7 @@ function inclusionfunction(toType) {
             }
     }
 
-    console.log(`no inclusionfunction ->${typeToString(toType)} implemented yet; using identity...`);
+    cglLogWarning(`no inclusionfunction ->${typeToString(toType)} implemented yet; using identity...`);
     return args => ({
         args: args,
         res: toType,
@@ -342,7 +342,7 @@ function webgltype(ctype) {
         return `l${ctype.length}_${webgltype(ctype.parameters)}`;
     }
 
-    console.error(`No WebGL implementation for type ${typeToString(ctype)} found`);
+    cglLogError(`No WebGL implementation for type ${typeToString(ctype)} found`);
 }
 
 function pastevalue(val, toType, codebuilder) {
@@ -362,6 +362,6 @@ function pastevalue(val, toType, codebuilder) {
             if(toType.type === 'list' && toType.parameters) {
                 return uselist(toType)(val['value'].map(elt=>pastevalue(elt,toType.parameters,codebuilder)),{},codebuilder);
             }
-            console.error(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
+            cglLogError(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
     }
 };

@@ -40,7 +40,7 @@ function cloneExpression(obj) {
                         'body'
                     ].indexOf(attr) >= 0)
                     copy[attr] = cloneExpression(obj[attr]);
-                //else console.log("Did not clone " + attr);
+                //else cglLogDebug("Did not clone " + attr);
                 if (obj['modifs']) copy['modifs'] = obj['modifs']; //modifs cannot be handeled in recursion properly
             }
         }
@@ -175,8 +175,7 @@ function guessTypeOfValue(tval) {
     } else if (tval['ctype'] === 'cglLazy') {
         return type.cglLazy(tval);
     }
-    console.error(`Cannot guess type of the following type:`);
-    console.log(tval);
+    cglLogError(`Cannot guess type of the following type:`,tval);
     return false;
 }
 
@@ -452,7 +451,7 @@ function tryDetermineDegree(expr,vars) {
     }
     return {degree:0};
   }
-  console.log(expr);
+  cglLogDebug(expr);
   // TODO support cglEval expressions
   // TODO? support variables and if
   return {};

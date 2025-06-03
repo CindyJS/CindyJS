@@ -13,7 +13,7 @@ let computeidx = (k, n) => {
             second: k
         };
     }
-    console.error('Accessing index out of range');
+    cglLogError('Accessing index out of range');
 };
 
 //get childs of types that are formed from structs
