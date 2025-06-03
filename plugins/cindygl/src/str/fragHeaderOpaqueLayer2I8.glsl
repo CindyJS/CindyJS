@@ -21,6 +21,7 @@ uniform vec3 uOrientation;
 uniform mat3 uCubeAxes;
 uniform float uRadius;
 float cgl_depth;
+vec3 cgl_viewDirection0;
 
 // split depth into parts of 8-bits each
 vec2 cgl_splitDepth(float z) {

@@ -75,11 +75,13 @@ Renderer.resetCachedState = function(){
  * @param {CindyJS.anyval} expression for the Code that will be used for rendering
  * @param {{type: BoundingBoxType}} boundingBox
  * @param {Map<string,{type:type, isuniform: boolean, used: boolean}>} modifierTypes
+ * @param {boolean} mode3D
  * @constructor
  */
-function Renderer(api, expression,boundingBox,modifierTypes) {
+function Renderer(api, expression,boundingBox,modifierTypes,mode3D) {
     this.api = api;
     this.expression = expression;
+    this.mode3D = mode3D;
     this.modifierTypes = modifierTypes;
     this.activeModifierTypes = modifierTypes;
     this.boundingBox = boundingBox;
@@ -149,7 +151,7 @@ Renderer.prototype.updateModifierTypes = function(newModifierTypes) {
 Renderer.prototype.recompile = function() {
     console.log("recompile");
     this.cb = new CodeBuilder(this.api);
-    this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes);
+    this.cpg = this.cb.generateColorPlotProgram(this.expression,this.modifierTypes,this.mode3D);
     this.activeModifierTypes = new Map();
     this.modifierTypes.forEach((value,key)=>{
         if(!value.used||!value.isuniform||value.type.type == "cglLazy")
@@ -184,7 +186,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
         return;
     }
     this.fragmentShaderCode += this.cb.generateShader(this.cpg,this.transparencyType === TransparencyType.Simple);
-    if(CindyGL.mode3D){
+    if(this.mode3D){
         if(this.boundingBox.type == BoundingBoxType.none) {
             this.vertexShaderCode = cgl_resources["vshader3d"];
         } else if(this.boundingBox.type==BoundingBoxType.sphere) {
@@ -225,7 +227,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
 };
 Renderer.prototype.updateVertices = function() {
     // TODO? share vertex attributes between different shader objects
-    if(CindyGL.mode3D) {
+    if(this.mode3D) {
         let zoom = CindyGL.coordinateSystem.zoom;
         let x0=CindyGL.coordinateSystem.x0*zoom;
         let x1=CindyGL.coordinateSystem.x1*zoom;
@@ -741,6 +743,10 @@ Renderer.prototype.updateCoordinateUniforms = function() {
  * or if argument canvaswrapper is not given, then to glcanvas
  */
 Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModifiers, canvaswrapper) {
+    if(this.mode3D) {
+        console.warn("2D-render of 3D expression");
+    }
+    gl.disable(gl.DEPTH_TEST);
     Renderer.resetCachedState();
     Renderer.transparencyType = TransparencyType.Simple;
     this.boundingBox = boundingBox;
@@ -797,6 +803,9 @@ Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModi
  * @param {WebGLFramebuffer | null} targetBuffer current target frame buffer
  */
 Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers, targetLayer,targetBuffer) {
+    if(!this.mode3D) {
+        console.warn("3D-render of 2D expression");
+    }
     let shaderChanged = Renderer.prevShader !== this.shaderProgram;
     let needsRebuild = this.boundingBox.type !== boundingBox.type || (this.transparencyType !== Renderer.transparencyType);
     this.boundingBox = boundingBox;

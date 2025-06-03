@@ -101,6 +101,7 @@ CindyGL3D defines the following functions for drawing primitive objects:
 * `curve3d(expr:(t),from,to)` draw the curve specified by the given equation for `t` in the range `from` and `to`
     the modifier `samples` specifies how many sample-points should be used
 * `circle3d(center,orientation,radius)` draws a circle with the given center and radius, in the plane with normal-vector pointing in orientation
+* `torus3d(center,orientation,radius)` draws a torus with the given center, and orientation with major radius `radius`
 * `torus3d(center,orientation,radius1,radius2)` draws a torus with the given center, and orientation with major radius `radius1` and minor radius `radius2`
 
 * `draw3d(p1,p2,p3)` `triangle3d(p1,p2,p3)` draw a triangle with the given vertices

@@ -1385,7 +1385,15 @@ cglMergeDicts(dict1,dict2):=(
 // onZoom:(objId) -> runs whenever zoom-level changes
 // -> zoom-dependent radius => sphere3d(center,r0,onZoom->update3d(obj,radius->r0*zoom))
 
+// TODO remove cglBegin3d, cglEnd3d functions (no longer neccessary)
+// TODO function for enabling/disabing debug output
+// ? cglLogLevel(0,1,2,3) -> nothing, only errors, errors&warnings, everything
+// cglLogError, cglLogWarning, cglLogDebug functions
+
 // bug TODO:
+// TODO handle radius <= 0
+// * <0 -> use abs-value, (? use mirrored texture coordinates)
+// * torus with major radius 0 -> sphere with minor radius as radius
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
 // TODO? support interaction between translucent mesh and other objects
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
@@ -1927,6 +1935,10 @@ cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
   arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
+cglInterface("torus3d",cglCircle3d,(center,orientation,radius),(color,texture,
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
+  colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
 cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaultSizeTorus);
   cglTorus3d(center,orientation,radius,size);
@@ -2238,8 +2250,8 @@ cglMesh3d(grid):=(
   if(isundefined(uv),
     // map grid-positions to unit-square
     regional(nx,ny);
-    nx = if(topology_2==CglTopologyOpen,Ny-1,Ny);
-    ny = if(topology_1==CglTopologyOpen,Nx-1,Nx);
+    ny = if(topology_2==CglTopologyOpen,Ny-1,Ny);
+    nx = if(topology_1==CglTopologyOpen,Nx-1,Nx);
     uv=apply(0..ny,y,apply(0..nx,x,(x/nx,y/ny)));
   );
   modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
@@ -2313,7 +2325,9 @@ cglSurface3d(fun) := (
       N = min(cglTryDetermineDegree(fun),cglMaxAutoDeg);
       if(isundefined(N),
         N = min(cglGuessdeg(F),cglMaxAutoDeg);
-      );
+      ,if(N<0,
+        N=cglMaxAutoDeg
+      ));
     ,if(degree<0,
       N = cglMaxAutoDeg;
     ,
@@ -2337,7 +2351,6 @@ cglSurface3d(fun) := (
     repeatTexture = cglValOrDefault(repeatTexture,true); // repeat surface texture by default
     hasAlpha = true;
     exprData = cglResolveColorExpr(false); // do not use alpha-modifier directly in color-expression
-    cglDebugPrint(exprData);
     pixelExpr = exprData_"pixelExpr";
     usesAlpha = exprData_"usesAlpha";
     modifiers = cglMergeDicts(modifiers,exprData_"modifiers");

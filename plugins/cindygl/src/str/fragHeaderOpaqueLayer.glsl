@@ -21,6 +21,7 @@ uniform vec3 uOrientation;
 uniform mat3 uCubeAxes;
 uniform float uRadius;
 float cgl_depth;
+vec3 cgl_viewDirection0;
 
 void cgl_setColor(vec4 color) {
     if(color.a==0.0)discard;

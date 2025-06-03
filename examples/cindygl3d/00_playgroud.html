@@ -32,6 +32,8 @@
               if(zoom<0.2,zoom=0.2);
               zoom3d(zoom);
             );
+            preFrame():=();
+            postFrame():=();
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
@@ -41,7 +43,10 @@
             sx = mouse().x;
             sy = mouse().y;
 
+            colorplot((1,1,1)); // for some reason automatic screen clearing does not work
+            preFrame();
             cglRender3d();
+            postFrame();
         </script>
 
         <div class="container" style="display: flex;width: 100%;">

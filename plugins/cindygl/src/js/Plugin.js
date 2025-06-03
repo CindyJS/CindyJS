@@ -99,7 +99,7 @@ let CindyGL = function(api) {
         let expr = args[0];
         let cb = new CodeBuilder(api);
         let plotModifiers = get3DPlotModifiers(modifs);
-        let code = cb.generateColorPlotProgram(expr,plotModifiers);
+        let code = cb.generateColorPlotProgram(expr,plotModifiers,false);
         console.log(code);
         return {
             ctype: 'string',
@@ -119,7 +119,7 @@ let CindyGL = function(api) {
      * argument canvaswrapper is optional. If it is not given, it will render on glcanvas
      */
     function compileAndRender(prog,a, b, width, height,boundingBox, canvaswrapper) {
-        let renderer=compile(prog,boundingBox,new Map(),new Map());
+        let renderer=compile(prog,boundingBox,new Map(),new Map(),false);
         renderer.render2d(a, b, width, height, boundingBox, new Map(), canvaswrapper);
         if (canvaswrapper)
             canvaswrapper.generation = Math.max(canvaswrapper.generation, canvaswrapper.canvas.generation + 1);
@@ -129,9 +129,10 @@ let CindyGL = function(api) {
      * @param {boundingBox} boundingBox
      * @param {Map<string,*>} plotModifiers values of plot-modifier arguments
      * @param {Map<string,{values:Array<*>,eltType:type}>} vModifiers vertex modifiers
+     * @param {boolean} mode3D
      * @returns {Renderer}
      */
-    function compile(prog,boundingBox,plotModifiers,vModifiers) {
+    function compile(prog,boundingBox,plotModifiers,vModifiers,mode3D) {
         /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
         const modifierTypes = new Map();
         /**@type {Map<string,{type: type,isuniform: boolean,used: boolean}>} */
@@ -191,7 +192,7 @@ let CindyGL = function(api) {
         }
         if(!foundMatch){
             console.log("create new Renderer for modifiers: ",modifierTypes);
-            renderer = new Renderer(api, prog, boundingBox, modifierTypes);
+            renderer = new Renderer(api, prog, boundingBox, modifierTypes,mode3D);
             prog.renderers.push(renderer);
             // TODO? sort renderes by number of instances
             modifierTypes.forEach((value,key)=>{
@@ -253,19 +254,19 @@ let CindyGL = function(api) {
             let newArgs;
             if(expr['ctype'] === 'function' && ["repeat$2", "forall$2", "apply$2", "sum$2", "product$2"].includes(expr['oper'])) {
                 // treat loop-body as seperate scope
-                let argValues2 = new Map(argValues);
+                let argValues2 = /** @type {Map<string,CindyJS.anyval>}*/ (new Map(argValues));
                 argValues2.delete("#");
                 newArgs = [replaceVariables(expr['args'][0],argValues),replaceVariables(expr['args'][1],argValues2)];
             } else if(expr['ctype'] === 'function' && ["repeat$3", "forall$3", "apply$3", "sum$3", "product$3"].includes(expr['oper'])) {
                 const itrName = expr['args'][1]['name'];
                 // treat loop-body as seperate scope
-                let argValues2 = new Map(argValues);
+                let argValues2 = /** @type {Map<string,CindyJS.anyval>}*/ (new Map(argValues));
                 argValues2.delete(itrName);
                 newArgs = [replaceVariables(expr['args'][0],argValues),expr['args'][1],replaceVariables(expr['args'][2],argValues2)];
             } else if(expr['ctype'] === 'function' && expr['oper'] === "cgllazy$2") {
                 const params = cglLazyParams(expr['args'][0]);
                 // seperate scope within body -> create copy of argValues
-                let argValues2 = new Map(argValues);
+                let argValues2 = /** @type {Map<string,CindyJS.anyval>}*/ (new Map(argValues));
                 params.forEach(v=>{
                     argValues2.delete(v['name']);
                 });
@@ -284,7 +285,7 @@ let CindyGL = function(api) {
                 const rhs = expr['args'][1];
                 const params = lhs['args'] === undefined ? [] : lhs['args'];
                 // seperate scope for function body
-                let argValues2 = new Map(argValues);
+                let argValues2 = /** @type {Map<string,CindyJS.anyval>}*/ (new Map(argValues));
                 params.forEach(v=>{
                     argValues2.delete(v['name']);
                 });
@@ -622,7 +623,7 @@ let CindyGL = function(api) {
         initGLIfRequired();
         var prog = args[0];
         let plotModifiers=get3DPlotModifiers(modifs);
-        let compiledProg=compile(prog,Renderer.noBounds(),plotModifiers,new Map());
+        let compiledProg=compile(prog,Renderer.noBounds(),plotModifiers,new Map(),true);
         let obj3d=new CindyGL3DObject(compiledProg,Renderer.noBounds(),plotModifiers,get3DPlotTags(modifs));
         if(modifs.hasOwnProperty('opaqueIf')) {
             obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
@@ -707,7 +708,7 @@ let CindyGL = function(api) {
         }
         let vModifiers = get3DPlotVertexModifiers(modifs,vCount,plotModifiers);
         let boundingBox=Renderer.boundingTriangles(vertices,vModifiers);
-        let compiledProg=compile(prog,boundingBox,plotModifiers,vModifiers);
+        let compiledProg=compile(prog,boundingBox,plotModifiers,vModifiers,true);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         if(modifs.hasOwnProperty('opaqueIf')) {
             obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
@@ -728,7 +729,7 @@ let CindyGL = function(api) {
         var center = coerce.toDirection(api.evaluateAndVal(args[1]));
         var radius = api.evaluateAndVal(args[2])["value"]["real"];
         let boundingBox=Renderer.boundingSphere(center,radius);
-        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map(),true);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         if(modifs.hasOwnProperty('opaqueIf')) {
             obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
@@ -755,7 +756,7 @@ let CindyGL = function(api) {
             overhang = api.evaluateAndVal(modifs["overhang"])["value"]["real"];
         }
         let boundingBox=Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
-        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map(),true);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         if(modifs.hasOwnProperty('opaqueIf')) {
             obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
@@ -778,7 +779,7 @@ let CindyGL = function(api) {
         var v2 = coerce.toDirection(api.evaluateAndVal(args[3]));
         var v3 = coerce.toDirection(api.evaluateAndVal(args[4]));
         let boundingBox=Renderer.boundingCuboid(center,v1,v2,v3);
-        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map());
+        let compiledProg=compile(prog,boundingBox,plotModifiers,new Map(),true);
         let obj3d=new CindyGL3DObject(compiledProg,boundingBox,plotModifiers,get3DPlotTags(modifs));
         if(modifs.hasOwnProperty('opaqueIf')) {
             obj3d.opaqueIfExpr = tryEvaluate(modifs['opaqueIf'],api,modifs['opaqueIf']);
@@ -836,9 +837,11 @@ let CindyGL = function(api) {
         };
         recomputeProjMatrix();
     }
+    resetRotation();
+    updateCoordSytem({});
     api.defineFunction("cglBegin3d", 0, (args, modifs) => {
+        // TODO remove cglBegin3d and cglEnd3d: they are no longer needed
         initGLIfRequired();
-        CindyGL.mode3D=true;
         if(typeof(CindyGL.trafoMatrix) === "undefined"){
             resetRotation();
         }
@@ -1239,7 +1242,7 @@ let CindyGL = function(api) {
                 obj3d.boundingBox = Renderer.boundingTriangles(obj3d.boundingBox.vertices,vModifiers);
             }
             // update modifers types in renderer
-            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers);
+            obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers,true);
             if(obj3d.renderer.opaque !== wasOpaque){
                 // opacity changed
                 if(wasOpaque) {
@@ -1287,7 +1290,7 @@ let CindyGL = function(api) {
         initGLIfRequired();
         gl.disable(gl.DEPTH_TEST);
         gl.clear(gl.DEPTH_BUFFER_BIT);
-        CindyGL.mode3D=false;
+        // TODO remove cglBegin3d and cglEnd3d, they are no longer needed
         return nada;
     });
     var cglEvalSizes=new Set();
@@ -1520,7 +1523,7 @@ let CindyGL = function(api) {
         var prog = args[1];
 
         if (typeof(prog.renderer)=="undefined") {
-            prog.renderer = new Renderer(api, prog,Renderer.noBounds(),new Map());
+            prog.renderer = new Renderer(api, prog,Renderer.noBounds(),new Map(),false);
         }
         prog.renderer.renderXR(viewIndex);
 
@@ -1530,7 +1533,6 @@ let CindyGL = function(api) {
 
 // Exports for CindyXR
 CindyGL.gl = null;
-CindyGL.mode3D = false;
 /**@type {{opaque:Map<number,CindyGL3DObject>, translucent:Map<number,CindyGL3DObject>}} */
 CindyGL.objectBuffer={opaque:new Map(),translucent:new Map()};
 // initialize with dummy values to make type-resolving easier

@@ -99,7 +99,7 @@ CodeBuilder.builtIns=new Map([
     ["cglViewPos",{type:"uniform",code:"",expr:"cgl_viewPos",valueType:type.vec3,writable:false}],
     ["cglViewNormal",{type:"uniform",code:"",expr:"cgl_viewNormal",valueType:type.vec3,writable:false}],
     [BUILTIN_VIEW_RECT,{type:"function",code:"",expr:"cgl_viewRect",args:[],valueType:type.vec4,writable:false}],
-    ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection",valueType:type.vec3,writable:false}],
+    ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection0",valueType:type.vec3,writable:false}],
     [BUILTIN_CGLDEPTH,{type:"pixelAttribute",code:"",expr:"cgl_depth",valueType:type.float,writable:true}],
     // TODO? add a normalized version of viewDirection
     // TODO! make code/available constants dependent on bounding box type
@@ -532,7 +532,7 @@ CodeBuilder.prototype.determineUniforms = function(expr) {
         'cgl_pixel': true,
         'cgl_pixel.x': true,
         'cgl_pixel.y': true,
-        'normalize(cgl_viewDirection)': true,
+        'cgl_viewDirection0': true,
     }; //dict of this.variables being dependent on #
 
     //KISS-Fix: every variable appearing on left side of assigment is varying
@@ -769,12 +769,12 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
     this.initvariable('cgl_pixel', false);
     this.variables['cgl_pixel'].T = type.vec2;
     // TODO? should direction argument be normalized
-    this.initvariable('normalize(cgl_viewDirection)', false);
-    this.variables['normalize(cgl_viewDirection)'].T = type.vec3;
+    this.initvariable('cgl_viewDirection0', false);
+    this.variables['cgl_viewDirection0'].T = type.vec3;
     if (Object.keys(free).length == 1) {
-        bindings[Object.keys(free)[0]] = CindyGL.mode3D ? 'normalize(cgl_viewDirection)':'cgl_pixel';
+        bindings[Object.keys(free)[0]] = this.mode3D ? 'cgl_viewDirection0':'cgl_pixel';
     } else if (free['#']) {
-        bindings['#'] = CindyGL.mode3D ? 'normalize(cgl_viewDirection)':'cgl_pixel';
+        bindings['#'] = this.mode3D ? 'cgl_viewDirection0':'cgl_pixel';
     } else if (free['x'] && free['y']) {
         this.initvariable('cgl_pixel.x', false);
         this.variables['cgl_pixel.x'].T = type.float;
@@ -1369,9 +1369,11 @@ CodeBuilder.prototype.generateListOfUniforms = function() {
 
 /**
  * @param {Map} modifierTypes  map from names of modifier types to their types
+ * @param {boolean} mode3D
  */
-CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes) { //TODO add arguments for #
+CodeBuilder.prototype.generateColorPlotProgram = function(expr,modifierTypes,mode3D) { //TODO add arguments for #
     helpercnt = 0;
+    this.mode3D = mode3D;
     expr = cloneExpression(expr); //then we can write dirty things on expr...
 
     this.modifierTypes = modifierTypes;
@@ -1449,7 +1451,10 @@ CodeBuilder.prototype.generateShader = function(plotProgram, isSimple){
         randompatch="last_rnd=0.1231;\n"; //This must be included in "main"
     //////////////////////
 
-
+    let initDirection="";
+    if(this.mode3D) {
+        initDirection = "cgl_viewDirection0=normalize(cgl_viewDirection);\n";
+    }
     let setColor;
     if (isSimple) {
         setColor = `fragColor = ${colorTerm};\n`;
@@ -1469,7 +1474,7 @@ CodeBuilder.prototype.generateShader = function(plotProgram, isSimple){
         }
     }
 
-    code += `void main(void) {\n ${randompatch} ${initDepth} ${colorCode} ${setColor} ${setDepth}}\n`;
+    code += `void main(void) {\n ${randompatch} ${initDirection} ${initDepth} ${colorCode} ${setColor} ${setDepth}}\n`;
 
     return code
 }
