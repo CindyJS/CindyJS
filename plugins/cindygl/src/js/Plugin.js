@@ -959,8 +959,19 @@ let CindyGL = function(api) {
         return nada;
     });
     api.defineFunction("cglReset3d", 0, (args, modifs) => {
-        CindyGL.objectBuffer={opaque:new Map(),translucent:new Map()};
+        CindyGL.objectBuffer = {
+            opaque:new Map(),
+            translucent:new Map(),
+            callbacks:{
+                preRender:[]
+            }
+        };
         return nada;
+    });
+    api.defineFunction("cglEvalOnRender", 1, (args, modifs) => {
+        createCglEval(0);
+        // TODO? return a callback id, that can be removed later
+        CindyGL.objectBuffer.callbacks.preRender.push(wrapLazy(args[0],[],true));
     });
     api.defineFunction("cglRender3d", 0, (args, modifs) => {
         initGLIfRequired();
@@ -974,45 +985,46 @@ let CindyGL = function(api) {
             new Cgl3dSimpleSceneRenderer(iw,ih) :
             new Cgl3dLayeredSceneRenderer(iw,ih,layerCount);
         sceneRenderer.renderOpaque(CindyGL.objectBuffer.opaque);
-        if(CindyGL.objectBuffer.translucent.size>0){
-            // ? split mesh into seperate layers depending on view direction
-            CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
-                // sort triangles by depth
-                if(obj3d.boundingBox.type!=BoundingBoxType.triangles) return;
-                /**@type{Array<number>} */
-                const vertices = obj3d.boundingBox.vertices;
-                const triangleCount = vertices.length/9;
-                const viewNormal = CindyGL.coordinateSystem.transformedViewNormal;
-                // create an array of indices
-                const indices = Array.from({ length: triangleCount }, (_, index) => index);
-                // sort indices by distance of triangle midpoints from view-plane
-                indices.sort((i1,i2)=>{
-                    const m1x = (vertices[9*i1]+vertices[9*i1+3]+vertices[9*i1+6])/3;
-                    const m1y = (vertices[9*i1+1]+vertices[9*i1+4]+vertices[9*i1+7])/3;
-                    const m1z = (vertices[9*i1+2]+vertices[9*i1+5]+vertices[9*i1+8])/3;
-                    const m2x = (vertices[9*i2]+vertices[9*i2+3]+vertices[9*i2+6])/3;
-                    const m2y = (vertices[9*i2+1]+vertices[9*i2+4]+vertices[9*i2+7])/3;
-                    const m2z = (vertices[9*i2+2]+vertices[9*i2+5]+vertices[9*i2+8])/3;
-                    const d1 = dot3([m1x,m1y,m1z],viewNormal);
-                    const d2 = dot3([m2x,m2y,m2z],viewNormal);
-                    return (d1 < d2) - (d2 < d1);
-                });
-                obj3d.boundingBox.vertices = vertices.map((_,index)=>{
-                    const triIndex =  Math.floor(index/9);
-                    const coordIndex = index%9;
-                    return vertices[9*indices[triIndex]+coordIndex];
-                });
-                obj3d.boundingBox.vModifiers.forEach((vMod)=>{
-                    vMod.values = vMod.values.map((_,index)=>{
-                        const triIndex = Math.floor(index/3);
-                        const vIndex = index%3;
-                        return vMod.values[3*indices[triIndex]+vIndex];
-                    });
-                    vMod.aData = undefined; // remove cached attribute data
-                });
+        CindyGL.objectBuffer.callbacks.preRender.forEach((func)=>{
+            cglEvalImpl(func,[],{});
+        });
+        // ? split mesh into seperate layers depending on view direction
+        CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
+            // sort triangles by depth
+            if(obj3d.boundingBox.type!=BoundingBoxType.triangles) return;
+            /**@type{Array<number>} */
+            const vertices = obj3d.boundingBox.vertices;
+            const triangleCount = vertices.length/9;
+            const viewNormal = CindyGL.coordinateSystem.transformedViewNormal;
+            // create an array of indices
+            const indices = Array.from({ length: triangleCount }, (_, index) => index);
+            // sort indices by distance of triangle midpoints from view-plane
+            indices.sort((i1,i2)=>{
+                const m1x = (vertices[9*i1]+vertices[9*i1+3]+vertices[9*i1+6])/3;
+                const m1y = (vertices[9*i1+1]+vertices[9*i1+4]+vertices[9*i1+7])/3;
+                const m1z = (vertices[9*i1+2]+vertices[9*i1+5]+vertices[9*i1+8])/3;
+                const m2x = (vertices[9*i2]+vertices[9*i2+3]+vertices[9*i2+6])/3;
+                const m2y = (vertices[9*i2+1]+vertices[9*i2+4]+vertices[9*i2+7])/3;
+                const m2z = (vertices[9*i2+2]+vertices[9*i2+5]+vertices[9*i2+8])/3;
+                const d1 = dot3([m1x,m1y,m1z],viewNormal);
+                const d2 = dot3([m2x,m2y,m2z],viewNormal);
+                return (d1 < d2) - (d2 < d1);
             });
-            sceneRenderer.renderTranslucent(CindyGL.objectBuffer.translucent);
-        }
+            obj3d.boundingBox.vertices = vertices.map((_,index)=>{
+                const triIndex =  Math.floor(index/9);
+                const coordIndex = index%9;
+                return vertices[9*indices[triIndex]+coordIndex];
+            });
+            obj3d.boundingBox.vModifiers.forEach((vMod)=>{
+                vMod.values = vMod.values.map((_,index)=>{
+                    const triIndex = Math.floor(index/3);
+                    const vIndex = index%3;
+                    return vMod.values[3*indices[triIndex]+vIndex];
+                });
+                vMod.aData = undefined; // remove cached attribute data
+            });
+        });
+        sceneRenderer.renderTranslucent(CindyGL.objectBuffer.translucent);
         // TODO? extract to function on sceneRenderer
         let wrongOpacity = sceneRenderer.wrongOpacity;
         if(wrongOpacity.size>0){
@@ -1210,6 +1222,10 @@ let CindyGL = function(api) {
             var overhang = 0;
             if (modifs.hasOwnProperty("overhang")) {
                 overhang = modifs["overhang"]["value"]["real"];
+            } else if (obj3d.boundingBox.boxLengthScale !== undefined) {
+                // compute overhang from old length
+                let oldLength = Math.sqrt(dot3(obj3d.boundingBox.direction,obj3d.boundingBox.direction));
+                overhang = (obj3d.boundingBox.boxLengthScale*oldLength)-oldLength;
             }
             obj3d.boundingBox = Renderer.boundingCylinder(scalev3(0.5,addv3(pointA,pointB)),scalev3(0.5,subv3(pointB,pointA)),radius,overhang);
             return toCjsNumber(objId);
@@ -1406,17 +1422,23 @@ let CindyGL = function(api) {
             }
         ));
     }
-    function wrapLazy(expr,params) {
-        let value = tryEvaluate(expr,api,nada);
-        if(value['ctype'] === 'cglLazy') {
-            // TODO? warning if parameter names do not match
-            if(value.params.length === params.length) {
-                return value;
+    /**
+     * @param {Array<*>} params 
+     * @param {boolean} tryUnwrap don't wrap if expr is already a cglLazy
+     */
+    function wrapLazy(expr,params,tryUnwrap) {
+        if(tryUnwrap) {
+            let value = tryEvaluate(expr,api,nada);
+            if(value['ctype'] === 'cglLazy') {
+                // TODO? warning if parameter names do not match
+                if(value.params.length === params.length) {
+                    return value;
+                }
+                cglLogError("lazy expression has wrong number of arguments: "+
+                    `got: ${value.params.length} expected: ${params.length} (${params.map(p=>p['name']).join(",")})`
+                );
+                // TODO? add dummy parameter is given lazy does not have enough paramters
             }
-            cglLogError("lazy expression has wrong number of arguments: "+
-                `got: ${value.params.length} expected: ${params.length} (${params.map(p=>p['name']).join(",")})`
-            );
-            // TODO? add dummy parameter is given lazy does not have enough paramters
         }
         return {
             ctype: "cglLazy",
@@ -1437,13 +1459,16 @@ let CindyGL = function(api) {
         let fn_args = parseInterfaceArgs(args[2]);
         // list of expected modifiers
         let fn_modifs = parseInterfaceArgs(args[3]);
+        createCglEval(0); // create eval for argument wrappers
         // create wrapper-function with given signature
         api.defineFunction(fn_name,fn_args.length,(args,modifs) => {
+            let paramExprs={},modifExprs={};
             let callArgs = new Array(args.length);
             // convert function-arguments (marked with parameter-list as user-data) to cglLazy
             for(let i=0;i<fn_args.length;i++) {
+                paramExprs[fn_args[i].name]=wrapLazy(args[i],[],false);
                 if (fn_args[i].args != null) {
-                    callArgs[i] = wrapLazy(args[i],fn_args[i].args);
+                    callArgs[i] = wrapLazy(args[i],fn_args[i].args,true);
                     createCglEval(fn_args[i].args.length);
                 } else {
                     callArgs[i] = args[i];
@@ -1456,14 +1481,19 @@ let CindyGL = function(api) {
                 if(mod === undefined) {
                     // set missing modifiers to nada to avoid collision with global
                     callMods[modName]=nada;
+                    modifExprs[modName]=wrapLazy(nada,[],false);
                 } else if (fn_modifs[i].args != null) {
+                    modifExprs[modName]=wrapLazy(mod,[],false);
                     // convert function-arguments (marked with parameter-list as user-data) to cglLazy
-                    callMods[modName]=wrapLazy(mod,fn_modifs[i].args);
+                    callMods[modName]=wrapLazy(mod,fn_modifs[i].args,true);
                     createCglEval(fn_modifs[i].args.length);
                 } else {
                     callMods[modName]=mod;
+                    modifExprs[modName]=wrapLazy(mod,[],false);
                 }
             }
+            callMods["cglParamExprs"]={ctype:"JSON",value:paramExprs};
+            callMods["cglModifExprs"]={ctype:"JSON",value:modifExprs};
             // TODO? pass modifiers as seperate JSON object
             Object.entries(modifs).forEach(([name, value])=>{
                 if(callMods.hasOwnProperty(name))
@@ -1569,8 +1599,14 @@ let CindyGL = function(api) {
 
 // Exports for CindyXR
 CindyGL.gl = null;
-/**@type {{opaque:Map<number,CindyGL3DObject>, translucent:Map<number,CindyGL3DObject>}} */
-CindyGL.objectBuffer={opaque:new Map(),translucent:new Map()};
+/** @type {{opaque:Map<number,CindyGL3DObject>, translucent:Map<number,CindyGL3DObject>,callbacks:{preRender:Array<CindyJS.anyval>}}} */
+CindyGL.objectBuffer = {
+    opaque:new Map(),
+    translucent:new Map(),
+    callbacks:{
+        preRender:[]
+    }
+};
 // initialize with dummy values to make type-resolving easier
 CindyGL.coordinateSystem = {
     x0:0 , x1: 0, y0: 0, y1: 0,  z0: 0, z1:0, zoom: 1,

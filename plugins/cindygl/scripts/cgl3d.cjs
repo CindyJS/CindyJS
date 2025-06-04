@@ -73,21 +73,6 @@ cglDefaultLight=cglDefaultLight0;
 // internal state
 /////////////////////
 
-// empty list to hold mapping from top layer to list of layers in userdata
-cglLayerInfo = {};
-cglRememberLayers(layers):=(
-  cglLayerInfo_(layers_(length(layers))) = layers;
-  layers;
-);
-cglLayers(topLayer):=(
-  regional(layers);
-  layers =  cglLayerInfo_topLayer;
-  if(isundefined(layers),
-    [topLayer]
-  ,
-    layers;
-  );
-);
 
 // color constants
 cglBlack = (0,0,0);
@@ -1390,7 +1375,7 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? rename spacePos -> pos3d
 // TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level) ?
 // a) "dynamic(<expr>)": would need a check in the core-library for every parameter to catch dynamic values within expression
-// b) modifier for dynamic size value, harder to understand for users?, how to pass expressions through cindy-script functions
+// b) modifier for dynamic size value, how to pass expressions through cindy-script functions?
 // c) function that will be run when external system is updated
 // onFrame:(objId) -> runs at the start of each frame
 // onZoom:(objId) -> runs whenever zoom-level changes
@@ -1404,7 +1389,8 @@ cglMergeDicts(dict1,dict2):=(
 // * <0 -> use abs-value, (? use mirrored texture coordinates)
 // * torus with major radius 0 -> sphere with minor radius as radius
 // TODO ensure modifiers are correctly initialized when directly calling other implementation
-// TODO? support interaction between translucent mesh and other objects
+// TODO? support interaction between translucent mesh and other objects in multi-layer rendering mode
+// ? render each triangle as a seperate layer (too expensive?)
 // ? automatically split self-overlapping translucent meshes into multiple layers when rendering in layered mode
 // TODO translucent 3D-objects do not seem to work correctly on some mobile browsers
 // TODO curve3d is nummerically unstable if number of sample points gets large
@@ -1524,18 +1510,20 @@ cglNormalizeRange(range):=(
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
 cglInterface("sphere3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
 cglDraw3d(pos3d):=(
   size = cglValOrDefault(size,cglDefaultSizeSphere);
+  cglParamExprs_"center" = cglParamExprs_"pos3d";
+  cglParamExprs_"radius" = cglModifExprs_"size";
   cglSphere3d(pos3d,size);
 );
 
 cglInterface("sphere3d",cglSphere3d,(center,radius),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),projection:normal,plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),projection:normal,plotModifiers,tags,dynamic));
 cglSphere3d(center,radius):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,usesAlpha,exprData,pixelExpr,opacityExpr);
   color = cglValOrDefault(color,cglDefaultColorSphere);
@@ -1576,29 +1564,45 @@ cglSphere3d(center,radius):=(
   );
   topLayer = colorplot3d(cgl3dSphereShaderCode(#,false),center,radius,
     plotModifiers->modifiers,tags->["sphere"]++tags,opaqueIf->opacityExpr);
-  if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
+  ids=if(needBackFace,append(ids,topLayer),topLayer);
+  dynamic = cglValOrDefault(dynamic,false);
+  if(dynamic,
+    // TODO also update plot-modifiers (!in all uses of dynamic)
+    // TODO does not work when radius uses default value
+    // TODO add `dynamic` modifier to documentation
+    cglEvalOnRender(cglLazy(
+      regional(radius);
+      cglDebugPrint(cglParamExprs_"center");
+      radius = cglValOrDefault(cglEval(cglParamExprs_"radius"),cglDefaultSizeSphere);
+      cglUpdateBounds(ids,cglEval(cglParamExprs_"center"),radius);
+      ,ids->ids,cglParamExprs->cglParamExprs
+    ));
+  );
+  ids;
 );
 
 
 cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglDraw3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
   caps = cglValOrDefault(caps,cglDefaultCapsConnect);
+  cglParamExprs_"radius" = cglModifExprs_"size";
   cglCylinder3d(point1,point2,size);
 );
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2),(color,color1,color2,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglCylinder3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaultSizeCylinder);
+  cglParamExprs_"radius" = cglModifExprs_"size";
   cglCylinder3d(point1,point2,size);
 );
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
-  projection:(normal,height,orientation),direction1,plotModifiers,tags,renderBack));
+  projection:(normal,height,orientation),direction1,plotModifiers,tags,dynamic,renderBack));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,usesAlpha,pixelExpr,exprData,opacityExpr);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
@@ -1710,7 +1714,17 @@ cglCylinder3d(point1,point2,radius):=(
   );
   topLayer = colorplot3d(cgl3dCylinderShaderCode(#),point1,point2,radius,overhang->overhang,
     plotModifiers->modifiers,tags->["cylinder"]++tags,opaqueIf->opacityExpr);
-  if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
+  ids=if(needBackFace,append(ids,topLayer),topLayer);
+  dynamic = cglValOrDefault(dynamic,false);
+  if(dynamic,
+    cglEvalOnRender(cglLazy(
+      regional(radius);
+      radius = cglValOrDefault(cglEval(cglParamExprs_"radius"),cglDefaultSizeCylinder);
+      cglUpdateBounds(ids,cglEval(cglParamExprs_"point1"),cglEval(cglParamExprs_"point2"),radius);
+      ,ids->ids,cglParamExprs->cglParamExprs
+    ));
+  );
+  ids;
 );
 
 cglJoint(prev,current,next,jointType):=(
@@ -1726,7 +1740,7 @@ cglJoint(prev,current,next,jointType):=(
 // code TODO? create wrapper to correctly pass through modifiers
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
 cglConnect3d(points):=(
   regional(jointEnd,jointStart,totalLength,alpha0,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir,renderBack);
   closed = cglValOrDefault(closed,false);
@@ -1745,6 +1759,10 @@ cglConnect3d(points):=(
   jointEnd = joints;
   jointStart = joints;
   alpha0 = alpha;
+  dynamic = cglValOrDefault(dynamic,false);
+  if(dynamic,
+    cglLogWarning("`dynamic` is not supported on connect3d");
+  );
   if(length(points)>=3,
     // update projection if color is computed per pixel
     if(!isundefined(colorExpr) % !isundefined(texture),
@@ -1825,7 +1843,7 @@ cglConnect3d(points):=(
 );
 cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags));
+  colorExprRGBA:(texturePos,spacePos),size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
 cglCurve3d(expr,from,to):=(
   samples = cglValOrDefault(samples,cglDefaultCurveSamples)-1;
   if(from==to,
@@ -1841,7 +1859,7 @@ cglCurve3d(expr,from,to):=(
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglTorus3d(center,orientation,radius1,radius2):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,usesAlpha,exprData,pixelExpr,opacityExpr);
   orientation=normalize(orientation);
@@ -1937,19 +1955,35 @@ cglTorus3d(center,orientation,radius1,radius2):=(
   topLayer = colorplot3d(cgl3dTorusShaderCode(#,1),
     center-radius2*orientation, center+radius2*orientation, radius1+radius2,
     plotModifiers->modifiers,tags->["torus"]++tags,opaqueIf->opacityExpr);
-  if(needBackFace,cglRememberLayers(append(ids,topLayer)),topLayer);
+  ids=if(needBackFace,append(ids,topLayer),topLayer);
+  dynamic = cglValOrDefault(dynamic,false);
+  if(dynamic,
+    cglEvalOnRender(cglLazy(
+      regional(center,radius1,radius2,orientation,radii);
+      center = cglEval(cglParamExprs_"center");
+      radius1 = cglEval(cglParamExprs_"radius1");
+      radius2 = cglValOrDefault(cglEval(cglParamExprs_"radius2"),cglDefaultSizeTorus);
+      orientation = cglEval(cglParamExprs_"orientation");
+      cglUpdateBounds(ids,center-radius2*orientation, center+radius2*orientation, radius1+radius2);
+      cglUpdate(ids,UcglRadii -> [radius1,radius2]);
+      ,ids->ids,cglParamExprs->cglParamExprs
+    ));
+  );
+  ids;
 );
 // feature TODO? option to use aspect ratio instead of second radius
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglInterface("torus3d",cglCircle3d,(center,orientation,radius),(color,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags));
+  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaultSizeTorus);
+  cglParamExprs_"radius1" = cglParamExprs_"radius";
+  cglParamExprs_"radius2" = cglModifExprs_"size";
   cglTorus3d(center,orientation,radius,size);
 );
 
