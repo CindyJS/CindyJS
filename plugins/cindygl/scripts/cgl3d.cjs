@@ -1317,6 +1317,16 @@ CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
   r = min(|x1-x0|,|y1-y0|)/2.5;
   cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*cglBoxOrientation,r)),
   "bounds": CglBoundsUnbounded,"modifs":{"cglBoxOrientation":normalize(orientation)}};
+CglCutoffScreenCube = {"expr": cglLazy(direction,
+  regional(viewRect,x0,y0,x1,y1,r);
+  viewRect = cglViewRect(); // [x0,y0,x1,y1]
+  x0 = viewRect_1;
+  y0 = viewRect_2;
+  x1 = viewRect_3;
+  y1 = viewRect_4;
+  r = min(|x1-x0|,|y1-y0|)/3;
+  cglCuboidDepths(direction,(0,0,0),[r,0,0],[0,r,0],[0,0,r])
+),"bounds": CglBoundsUnbounded,"modifs":{}};
 
 CglCutoffSphere(center,radius) := {"expr":cglLazy(direction,
   cglSphereDepths(direction,cglCenter,cglRadius)
@@ -1341,6 +1351,7 @@ CglCutoffCuboid(center,v1,v2,v3) := {
 
 CutoffScreenSphere = CglCutoffScreenSphere;
 CutoffScreenCylinder = CglCutoffScreenCylinder;
+CutoffScreenCube = CglCutoffScreenCube;
 CutoffScreenCylinder(orientation) := CglCutoffScreenCylinder(orientation);
 CutoffSphere(center,radius) := CglCutoffSphere(center,radius);
 CutoffCylinder(point1,point2,radius) := CglCutoffCylinder(point1,point2,radius);
