@@ -323,6 +323,13 @@ let CindyGL = function(api) {
             // create copy of expression
             let newExpr = Object.assign({}, expr);
             newExpr['args'] = newArgs;
+            if(expr['modifs'] !== undefined) {
+                let newMods = {};
+                Object.entries(expr['modifs']).forEach(([key,oldMod])=>{
+                    newMods[key]=replaceVariables(oldMod,argValues);
+                });
+                newExpr['modifs'] = newMods;
+            }
             return newExpr;
         }
         // TODO is this enough to replace all lazy params
