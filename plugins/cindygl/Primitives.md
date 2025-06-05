@@ -34,10 +34,10 @@ For cylinders and lines there are additionall the following modifiers:
     - `CylinderCapOpen` cut orthagonal to cylinder axis, draw back face (if visible)
     - `CylinderCapFlat` cut orthagonal to cylinder axis, draw a flat surface
     - `CylinderCapRound` cut orthagonal to cylinder axis, draw a round cap
-    - `CylinderCapCutOpen(normal)` cut orthagonal to given normal vector, draw back face (if visible)
-    - `CylinderCapCutFlat(normal)` cut orthagonal to given normal vector, draw a flat surface
     additionally the following values are used internally:
     - `CglCylinderCapVoid` cut orthagonal to cylinder axis, draw nothing
+    - `CglCylinderCapCutOpen(normal)` cut orthagonal to given normal vector, draw back face (if visible)
+    - `CglCylinderCapCutFlat(normal)` cut orthagonal to given normal vector, draw a flat surface
     - `CglCylinderCapCutVoid(normal)` cut orthagonal to given normal vector, draw nothing (used internally for "flat" joints)
     - `CglCylinderCapCutVoidRound(normal)` add round end-cap then cut orthagonal to given normal vector (used internally for round joints)
 

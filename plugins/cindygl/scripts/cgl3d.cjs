@@ -401,8 +401,6 @@ CglCylinderCapCutVoidRound(normal) := {"name":"Cut-Round","cutDirection":normal,
 CylinderCapOpen=CglCylinderCapOpen;
 CylinderCapFlat=CglCylinderCapFlat;
 CylinderCapRound=CglCylinderCapRound;
-CylinderCapCutOpen(normal):=CglCylinderCapCutOpen(normal);
-CylinderCapCutFlat(normal):=CglCylinderCapCutFlat(normal);
 
 cglDefaultCapsCylinder = CglCylinderCapOpen;
 cglDefaultCapsConnect = CglCylinderCapRound;
@@ -2003,6 +2001,7 @@ cglCheckSize(vData,vCount,msg) := (
   )
 );
 
+// TODO support `dynamic` for triangles & surfaces
 // feature TODO? normalTexture modifier (texture of normal vectors)
 cglInterface("draw3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
   colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
