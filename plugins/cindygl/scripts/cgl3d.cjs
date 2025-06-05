@@ -2346,6 +2346,9 @@ cglMesh3d(grid):=(
 // feature TODO? quadric3d
 // feature TODO? cubic3d
 
+// TODO using modifiers in plotted expression leads to errors
+//  * evaluate plot-expr with all given plot-modifiers?
+
 // feature TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
 // feature TODO fully support texture dependent colorExpression
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,texture,textureRGB,textureRGBA,

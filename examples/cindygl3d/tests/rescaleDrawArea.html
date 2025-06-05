@@ -27,10 +27,9 @@
             t0 = seconds();
             normalize(v):=(v/|v|);
             prevN=0;
-            cglBegin3d();
             forall(-24..24,x,
               forall(-24..24,y,
-                sphere([2*x,2*y,0],1,[0,1,0]);
+                sphere3d([2*x,2*y,0],1,color->[0,1,0]);
               )
             )
         </script>
@@ -85,7 +84,7 @@
                     { name: "B", type: "Free", pos: [2.25, -1.0], color: [0, 0, 1], pinned: false,narrow: true, size: 4 },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
                 },
             });
         </script>

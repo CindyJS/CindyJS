@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -31,7 +31,6 @@
             rotating = false;
             phi=(1+sqrt(5))/2;
 
-            cglBegin3d();
             s=1.4;
             r0=.15;
             r1=.1;
@@ -47,21 +46,21 @@
 
             forall([-1,1],x,
               forall([-1,1],y,
-                cylinder([x,y,1],[x,y,-1],r2,cubeCol,cubeCol);
-                cylinder([x,1,y],[x,-1,y],r2,cubeCol,cubeCol);
-                cylinder([1,x,y],[-1,x,y],r2,cubeCol,cubeCol);
+                cylinder3d([x,y,1],[x,y,-1],r2,color->cubeCol);
+                cylinder3d([x,1,y],[x,-1,y],r2,color->cubeCol);
+                cylinder3d([1,x,y],[-1,x,y],r2,color->cubeCol);
                 forall([-1,1],z,
-                  sphere([x,y,z],r1,cubeCol);
+                  sphere3d([x,y,z],r1,color->cubeCol);
                 )
               )
             );
-            idsA = sphere([0.5,0,0],r0,col,tags->["movable"]);
-            idsB = sphere([0,0.5,0],r0,col,tags->["movable"]);
-            idsC = sphere([0,0,0.5],r0,col,tags->["movable"]);
-            xAxisIds = cylinder([-1,0,0],[1,0,0],r3,coordColInactive,coordColInactive);
-            yAxisIds = cylinder([0,-1,0],[0,1,0],r3,coordColInactive,coordColInactive);
-            zAxisIds = cylinder([0,0,-1],[0,0,1],r3,coordColInactive,coordColInactive);
-            planeId = polygon3d([[0.5,0,0],[0,0.5,0],[0,0,0.5]],planeColor);
+            idsA = sphere3d([0.5,0,0],r0,color->col,tags->["movable"]);
+            idsB = sphere3d([0,0.5,0],r0,color->col,tags->["movable"]);
+            idsC = sphere3d([0,0,0.5],r0,color->col,tags->["movable"]);
+            xAxisIds = cylinder3d([-1,0,0],[1,0,0],r3,color->coordColInactive);
+            yAxisIds = cylinder3d([0,-1,0],[0,1,0],r3,color->coordColInactive);
+            zAxisIds = cylinder3d([0,0,-1],[0,0,1],r3,color->coordColInactive);
+            planeId = polygon3d([[0.5,0,0],[0,0.5,0],[0,0,0.5]],color->planeColor);
             updatePlane():=(
               A = cglSpherePos(idsA_1);
               B = cglSpherePos(idsB_1);
@@ -83,7 +82,8 @@
               center = sum(vertices)/length(vertices);
               vertices=sort(vertices,v,arctan2((v-center)_1,(v-center)_2));
               // replace previous polygon
-              updatePolygon3d(planeId,vertices,planeColor,Ulight->light4);
+              cglDelete(planeId);
+              planeId=polygon3d(vertices,color->planeColor);
             );
             updatePlane();
 
@@ -119,13 +119,13 @@
               target = cglFindObject(sx,sy,tags->["movable"]);
               if(target!=prevTarget,
                 if(prevTarget >= 0,
-                  cglUpdate(prevTarget,UcglDrawColor->col);
-                  apply(xAxisIds,id,cglUpdate(id,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive));
-                  apply(yAxisIds,id,cglUpdate(id,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive));
-                  apply(zAxisIds,id,cglUpdate(id,UcglDrawColorA->coordColInactive,UcglDrawColorB->coordColInactive));
+                  cglUpdate(prevTarget,UcglColor->col);
+                  apply(xAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
+                  apply(yAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
+                  apply(zAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
                 );
                 if(target >= 0,
-                  cglUpdate(target,UcglDrawColor->colSelected);
+                  cglUpdate(target,UcglColor->colSelected);
                   axes=cglAxes();
                   viewPos = cglViewPos();
                   coordCols=[coordColXY,coordColXY,coordColXY];
@@ -143,9 +143,9 @@
                   targetPos = cglSpherePos(target);
                   movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
                   movePlaneOffset = movePlaneNormal*targetPos;
-                  apply(xAxisIds,id,cglUpdate(id,UcglDrawColorA->coordCols_1,UcglDrawColorB->coordCols_1));
-                  apply(yAxisIds,id,cglUpdate(id,UcglDrawColorA->coordCols_2,UcglDrawColorB->coordCols_2));
-                  apply(zAxisIds,id,cglUpdate(id,UcglDrawColorA->coordCols_3,UcglDrawColorB->coordCols_3));
+                  apply(xAxisIds,id,cglUpdate(id,UcglColor->coordCols_1));
+                  apply(yAxisIds,id,cglUpdate(id,UcglColor->coordCols_2));
+                  apply(zAxisIds,id,cglUpdate(id,UcglColor->coordCols_3));
                 );
                 prevTarget=target;
               );
@@ -176,7 +176,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>

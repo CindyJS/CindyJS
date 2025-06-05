@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -37,9 +37,7 @@
               if(y>P1.y,y=P1.y);
               P.xy=(P0.x,y);
               (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
-            );
-
-            cglBegin3d();            
+            );        
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
@@ -52,10 +50,10 @@
             alpha=getSlider(A0,A1,A,0,1);
 
             cglReset3d();
-            if(showBackground,background(gray(.7)));
-            sphere([2/3,-1/3,-1/3],1,[1,0,0,alpha]);
-            sphere([-1/3,2/3,-1/3],1,[0,1,0,alpha]);
-            sphere([-1/3,-1/3,2/3],1,[0,0,1,alpha]);
+            if(showBackground,colorplot(gray(.7)));
+            sphere3d([2/3,-1/3,-1/3],1,color->[1,0,0],alpha->alpha);
+            sphere3d([-1/3,2/3,-1/3],1,color->[0,1,0],alpha->alpha);
+            sphere3d([-1/3,-1/3,2/3],1,color->[0,0,1],alpha->alpha);
             cglRender3d(layers->layers);
 
             drawtext(R1+(-.2,.07),"layers");
@@ -94,14 +92,14 @@
                     { name: "R0", type: "Free", pos: [2.1, -1.75], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "R1", type: "Free", pos: [2.1, 1.75], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
-                    { name: "R", type: "Free", pos: [2.1, -1.0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "R", type: "Free", pos: [2.1, -0.5], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
                     { name: "A0", type: "Free", pos: [2.6, -1.75], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "A1", type: "Free", pos: [2.6, 1.75], color: [0, 0, 0], pinned: true, size: 4 },
                     { name: "l_1", type: "Segment", args: ["A0", "A1"], color: [0, 0, 0], pinned: false, size: 2 },
                     { name: "A", type: "Free", pos: [2.6, 0.0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>

@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <title>Cindy JS</title>
-        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
-        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
-        <link rel="stylesheet" href="../../../css/cindy.css" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
     </head>
 
     <body style="font-family: Arial">
@@ -25,7 +25,6 @@
             dragging = false;
             phi=(1+sqrt(5))/2;
 
-            cglBegin3d();
             s=1.4;
             r1=.3;
             r2=.2;
@@ -35,14 +34,14 @@
 
             drawOctahedron():=(
               forall((1,-1),x,
-                sphere([s*x,0,0],r1,col);
+                sphere3d([s*x,0,0],r1,color->col);
                 forall((1,-1),y,
-                  sphere([0,s*y,0],r1,col);
-                  cylinder([s*x,0,0],[0,s*y,0],r2,col,col);
+                  sphere3d([0,s*y,0],r1,color->col);
+                  cylinder3d([s*x,0,0],[0,s*y,0],r2,color->col);
                   forall((1,-1),z,
-                    sphere([0,0,s*z],r1,col);
-                    cylinder([s*x,0,0],[0,0,s*z],r2,col,col);
-                    cylinder([0,s*y,0],[0,0,s*z],r2,col,col);
+                    sphere3d([0,0,s*z],r1,color->col);
+                    cylinder3d([s*x,0,0],[0,0,s*z],r2,color->col);
+                    cylinder3d([0,s*y,0],[0,0,s*z],r2,color->col);
                   );
                 );
               );
@@ -61,15 +60,15 @@
 
             tagList=[];
             target = cglFindObject(sx,sy,tags->["sphere"]);
-            cglUpdate(target,UcglDrawColor->colSelectedS);
+            cglUpdate(target,UcglColor->colSelectedS);
             if(target!=prevTargetS,
-              cglUpdate(prevTargetS,UcglDrawColor->col);
+              cglUpdate(prevTargetS,UcglColor->col);
               prevTargetS=target;
             );
             target = cglFindObject(sx,sy,tags->["cylinder"]);
-            cglUpdate(target,UcglDrawColorA->colSelectedC,UcglDrawColorB->colSelectedC);
+            cglUpdate(target,UcglColor->colSelectedC);
             if(target!=prevTargetC,
-              cglUpdate(prevTargetC,UcglDrawColorA->col,UcglDrawColorB->col);
+              cglUpdate(prevTargetC,UcglColor->col);
               prevTargetC=target;
             );
 
@@ -92,7 +91,7 @@
                     },
                 ],
                 import: {
-                    "init": ["../../../plugins/cindygl/scripts/cglInit.cjs"]
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
                 }
             });
         </script>

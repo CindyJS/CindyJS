@@ -26,7 +26,6 @@
             t0 = seconds();
             zoom = 1.0;
 
-            cglBegin3d();
             fun = cglLazy((x,y),sin((x^2+y^2)-(seconds()-t0)));
             update():=(
                 cglReset3d();

@@ -864,15 +864,6 @@ let CindyGL = function(api) {
     }
     resetRotation();
     updateCoordSytem({});
-    api.defineFunction("cglBegin3d", 0, (args, modifs) => {
-        // TODO remove cglBegin3d and cglEnd3d: they are no longer needed
-        initGLIfRequired();
-        if(typeof(CindyGL.trafoMatrix) === "undefined"){
-            resetRotation();
-        }
-        updateCoordSytem(modifs);
-        return nada;
-    });
     api.defineFunction("cglCoordSystem", 0, (args, modifs) => {
         updateCoordSytem(modifs);
     });
@@ -1326,13 +1317,6 @@ let CindyGL = function(api) {
             ctype: 'list',
             value: obj3d.boundingBox.center.map(toCjsNumber)
         };
-    });
-    api.defineFunction("cglEnd3d", 0, (args, modifs) => {
-        initGLIfRequired();
-        gl.disable(gl.DEPTH_TEST);
-        gl.clear(gl.DEPTH_BUFFER_BIT);
-        // TODO remove cglBegin3d and cglEnd3d, they are no longer needed
-        return nada;
     });
     var cglEvalSizes=new Set();
     /**
