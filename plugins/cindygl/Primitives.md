@@ -28,7 +28,8 @@ All spheres and points additionally allow the modifiers:
 
 For cylinders and lines there are additionall the following modifiers:
 
-* `color1`, `color2`: the colors of the individual endpoints
+* `colors` the colors of the endpoints as a two element list
+* `color1`, `color2`: the colors of the individual endpoints (overwrite value in `colors` parameter)
 * `projection:(normal,height,orientation)` specifies how the 2D texture-coordinates of a point on the cylinder are computed
 * `caps`, `cap1`, `cap2`: the style(s) use for the end-caps of the cylinder possible values are:
     - `CylinderCapOpen` cut orthagonal to cylinder axis, draw back face (if visible)

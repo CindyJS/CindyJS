@@ -1579,7 +1579,7 @@ cglSphere3d(center,radius):=(
 );
 
 
-cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,texture,
+cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,colors,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglDraw3d(point1,point2):=(
@@ -1588,7 +1588,7 @@ cglDraw3d(point1,point2):=(
   cglParamExprs_"radius" = cglModifExprs_"size";
   cglCylinder3d(point1,point2,size);
 );
-cglInterface("cylinder3d",cglCylinder3d,(point1,point2),(color,color1,color2,texture,
+cglInterface("cylinder3d",cglCylinder3d,(point1,point2),(color,color1,color2,colors,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglCylinder3d(point1,point2):=(
@@ -1596,15 +1596,26 @@ cglCylinder3d(point1,point2):=(
   cglParamExprs_"radius" = cglModifExprs_"size";
   cglCylinder3d(point1,point2,size);
 );
-cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,texture,
+cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,colors,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
   projection:(normal,height,orientation),direction1,plotModifiers,tags,dynamic,renderBack));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,usesAlpha,pixelExpr,exprData,opacityExpr);
   color = cglValOrDefault(color,cglDefaultColorCylinder);
-  color1 = cglValOrDefault(color1,color);
-  color2 = cglValOrDefault(color2,color);
+  if(!isundefined(colors),
+    if(length(colors)!=2,
+      cglLogWarning("wrong length for colors expected 2 got: "+text(length(colors)));
+      if(length(colors)<2,
+        colors = colors ++ (color,color);
+      );
+    );
+    color1 = cglValOrDefault(color1,colors_1);
+    color2 = cglValOrDefault(color2,colors_2);
+  ,
+    color1 = cglValOrDefault(color1,color);
+    color2 = cglValOrDefault(color2,color);
+  );
   light = cglValOrDefault(light,cglDefaultLight);
   caps = cglValOrDefault(caps,cglDefaultCapsCylinder);
   cap1 = cglValOrDefault(cap1,caps);
