@@ -205,7 +205,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
                     return;
                 }
                 value.aName = Renderer.vModifierPrefixV+index;
-                // TODO? create structs for composite types
+                // TODO? create structs for composite vertex modifier types
                 attributeVars +=`in  ${webgltype(value.eltType)} ${value.aName};\nout ${webgltype(value.eltType)} ${vname};\n`;
                 attributeCopies += `${vname}=${value.aName};\n`;
                 index++;
@@ -329,7 +329,7 @@ Renderer.computeAttributeData = function (eltType,values){
 Renderer.prototype.updateAttributes = function() {
     Renderer.prevBoundingBoxType=this.boundingBox.type;
     if (this.boundingBox.type === BoundingBoxType.cylinder || this.boundingBox.type === BoundingBoxType.cuboid) {
-        gl.enable(gl.CULL_FACE); // FIXME orientation of cylinder in space changes how faces are culled
+        gl.enable(gl.CULL_FACE); // TODO? does orientation of cylinder in space change how faces are culled
         gl.cullFace(gl.FRONT); // cull front faces to allow view-pos inside cuboid
     } else {
         gl.disable(gl.CULL_FACE);
@@ -345,8 +345,9 @@ Renderer.prototype.updateAttributes = function() {
         if(this.boundingBox.texCoords){
             texCoords = this.boundingBox.texCoords;
         } else {
-            // texCoords is unsed by random operator
+            // texCoords is used by random() operator
             // -> TODO? generate unique coordinates for each pixel
+            // -> TODO? use uv-mapping vmodifier from cgl3d.cjs as source for values
             // TODO? compress using index table
             let baseCoords = [0, 0, 1, 0, 0, 1];
             texCoords = []; // ! no let here, this is the function-level variable
@@ -475,7 +476,6 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
     }
 }
 Renderer.prototype.setBoundingBoxUniforms = function() {
-    // TODO? check first box-type then uniform existence
     if (this.shaderProgram.uniform.hasOwnProperty('uCenter')){
         if(this.boundingBox.center !== undefined) {
             this.shaderProgram.uniform["uCenter"]
@@ -510,7 +510,7 @@ Renderer.prototype.setBoundingBoxUniforms = function() {
     }
     if (this.shaderProgram.uniform.hasOwnProperty('uCubeAxes')){
         if(this.boundingBox.type==BoundingBoxType.cuboid) {
-            this.shaderProgram.uniform["uCubeAxes"] // TODO is this the rigth order?
+            this.shaderProgram.uniform["uCubeAxes"]
                 (transpose3([this.boundingBox.v1,this.boundingBox.v2,this.boundingBox.v3].flat()));
         }else{
             cglLogError("uCubeAxes is not supported for current bounding box type");
@@ -1086,12 +1086,12 @@ function Cgl3dLayeredSceneRenderer(iw,ih,layerCount) {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT2, gl.TEXTURE_2D, this.tmpLayers[1].colorTexture, 0);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT3, gl.TEXTURE_2D, this.tmpLayers[1].depthTexture, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer);
-        // TODO check if framebuffer is complere
+        // TODO check if framebuffer is complete
     } else {
         this.tmpLayers = [];
     }
     this.renderLayer = new CglSceneLayer(iw,ih);
-    // TODO check if framebuffer is complere
+    // TODO check if framebuffer is complete
 };
 
 /** @param {CglSceneLayer} newRenderLayer */
@@ -1130,8 +1130,7 @@ Cgl3dLayeredSceneRenderer.prototype.renderOpaque = function(objects) {
 /**@param {Map<number,CindyGL3DObject>} objects */
 Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
     const layerCount = this.layers.length;
-    // TODO? seperate out opaque objects (objects between opaque object and top pixel in lowest transparent layer will get lost)
-    //  is this worth using an extra layer
+    // TODO? objects between opaque object and top pixel in lowest rendered transparent layer might get lost
     if (layerCount == 1) {
         // directly render objects to canvas
         objects.forEach((obj3d)=>{
@@ -1163,7 +1162,7 @@ Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
             // ensure all four drawBuffers are linked to framebuffer
             gl.drawBuffers([gl.COLOR_ATTACHMENT0,gl.COLOR_ATTACHMENT1,gl.COLOR_ATTACHMENT2,gl.COLOR_ATTACHMENT3]);
             /* TODO? sort/merge multiple layers in a single call
-                limits:
+                maximum input textures: limits:
                 output: 4: guaranteed ; 6: 96.74%  8: 95.19%
                     (source: https://web3dsurvey.com/webgl2/parameters/MAX_DRAW_BUFFERS)
                 input: 8: ~100% ; 16: 99.96%

@@ -85,11 +85,9 @@ const BUILTIN_TEXTURE3 = "cgltexturergb";
 const BUILTIN_EVAL_LAZY = "cgleval";
 const BUILTIN_VIEW_RECT = "cglviewrect";
 const BUILTIN_CGLDEPTH = "cglDepth";
-// TODO? add global constant cglNormal?
 /** @type {Map<string,{type:string,code:string,expr:string,valueType:type,writable:boolean}>} */
 CodeBuilder.builtIns=new Map([
     ["cglPixel",{type:"pixelAttribute",code:"",expr:"cgl_pixel",valueType:type.vec2,writable:false}],
-    // TODO prevent reading from discard
     [BUILTIN_DISCARD,{type:"operator",code:"discard;\n",expr:"",valueType:type.voidt,writable:false}],
     [BUILTIN_TEXTURE4,{type:"function",code:"",expr:"texture",valueType:type.vec4,args:[type.image,type.vec2],writable:false}],
     [BUILTIN_TEXTURE3,{type:"function",code:"",expr:"texture",valueType:type.vec3,args:[type.image,type.vec2],writable:false}],
@@ -101,8 +99,7 @@ CodeBuilder.builtIns=new Map([
     [BUILTIN_VIEW_RECT,{type:"function",code:"",expr:"cgl_viewRect",args:[],valueType:type.vec4,writable:false}],
     ["cglViewDirection",{type:"pixelAttribute",code:"",expr:"cgl_viewDirection0",valueType:type.vec3,writable:false}],
     [BUILTIN_CGLDEPTH,{type:"pixelAttribute",code:"",expr:"cgl_depth",valueType:type.float,writable:true}],
-    // TODO? add a normalized version of viewDirection
-    // TODO! make code/available constants dependent on bounding box type
+    // TODO? make available constants dependent on bounding box type
     // only for some bounding box types
     ["cglCenter",{type:"uniform",code:"",expr:"uCenter",valueType:type.vec3,writable:false}],
     ["cglRadius",{type:"uniform",code:"",expr:"uRadius",valueType:type.float,writable:false}],
@@ -324,7 +321,6 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 exprData = val;
             }
             if(argCount !== exprData.params.length){
-                // TODO? better message
                 cglLogError(`wrong number of arguments for lazy function expected ${
                     exprData.params.length
                 } got ${argCount}`);
@@ -351,7 +347,7 @@ CodeBuilder.prototype.determineVariables = function(expr, bindings) {
                 // !!! do not modify the original param, modifications can leak into different uses of the same lazy-expression
                 const param = Object.assign({}, param_);
                 let vname = param['name'];
-                // TODO? should modification to lazy-argument modifiy into passed in variable
+                // TODO? should modification to lazy-argument modifiy passed in variable
                 if(expr['args'][index+1]['ctype']==='variable') {
                     // resuse same variable if argument is variable
                     let argname = expr['args'][index+1]['name'];
@@ -767,7 +763,6 @@ CodeBuilder.prototype.generatePixelBindings = function(expr) {
 
     this.initvariable('cgl_pixel', false);
     this.variables['cgl_pixel'].T = type.vec2;
-    // TODO? should direction argument be normalized
     this.initvariable('cgl_viewDirection0', false);
     this.variables['cgl_viewDirection0'].T = type.vec3;
     if (Object.keys(free).length == 1) {

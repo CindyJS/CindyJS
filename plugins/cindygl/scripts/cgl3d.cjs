@@ -1379,7 +1379,6 @@ cglMergeDicts(dict1,dict2):=(
 // onZoom:(objId) -> runs whenever zoom-level changes
 // -> zoom-dependent radius => sphere3d(center,r0,onZoom->update3d(obj,radius->r0*zoom))
 
-// TODO remove cglBegin3d, cglEnd3d functions (no longer neccessary)
 // TODO? cglLogLevel(...) built-in for setting log-level
 
 // bug TODO:
@@ -2350,7 +2349,7 @@ cglMesh3d(grid):=(
 //  * evaluate plot-expr with all given plot-modifiers?
 
 // feature TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
-// feature TODO fully support texture dependent colorExpression
+// feature TODO custom projection/uv-mapping from surface to 2D space
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,texture,textureRGB,textureRGBA,
   interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
   colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),

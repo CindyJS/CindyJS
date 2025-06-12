@@ -1,5 +1,6 @@
 function mmult4(A,B){
   // TODO better algorithm, ? use cindyscript matrix multiplication built-in
+  // ? use matrix operations built-into Cindy3D
   let C=[
     [0,0,0,0],
     [0,0,0,0],
@@ -251,7 +252,7 @@ let CindyGL = function(api) {
     function replaceVariables(expr,argValues){
         if(expr['ctype'] === 'variable') {
             const name = expr['name'];
-            // TODO detect if parameters get shaddowed by local declaration/regional/loop
+            // TODO? are there any unhandled cases of variable shadowing
             if(argValues.has(name))
                 return argValues.get(name);
             // name not matched
@@ -834,7 +835,7 @@ let CindyGL = function(api) {
             mvmult4(CindyGL.invTrafoMatrix,CindyGL.coordinateSystem.viewPosition);
     };
     let resetRotation = function(){
-        CindyGL.trafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO is there a matrix type
+        CindyGL.trafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO? switch to Cindy3D matrix operations instead of writing library from scratch
         CindyGL.invTrafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         CindyGL.coordinateSystem.transformedViewPos = CindyGL.coordinateSystem.viewPosition;
         let zoom = CindyGL.coordinateSystem.zoom;
@@ -867,8 +868,7 @@ let CindyGL = function(api) {
     api.defineFunction("cglCoordSystem", 0, (args, modifs) => {
         updateCoordSytem(modifs);
     });
-    api.defineFunction("cglViewPos", 0, (args, modifs) => { // TODO? variable instead of function
-        // TODO? initialize coordinate-system if not existent
+    api.defineFunction("cglViewPos", 0, (args, modifs) => {
         let viewPos = CindyGL.coordinateSystem.transformedViewPos.slice(0,3);
         return { // convert to CindyJS list
             ctype: 'list',
@@ -887,7 +887,6 @@ let CindyGL = function(api) {
         };
     });
     api.defineFunction("cglAxes", 0, (args, modifs) => {
-        // TODO? initialize coordinate-system if not existent
         let unitPoints = [
             mvmult4(CindyGL.trafoMatrix,[1,0,0,1]),
             mvmult4(CindyGL.trafoMatrix,[0,1,0,1]),
@@ -944,13 +943,13 @@ let CindyGL = function(api) {
         }
         return nada;
     });
-    // TODO? directly set zoom or update previous value
+    // TODO? directly set zoom or update relative to previous value
     api.defineFunction("zoom3d", 1, (args, modifs) => {
         let zoom = api.evaluateAndVal(args[0])["value"]["real"];
         CindyGL.coordinateSystem.zoom = zoom;
         recomputeProjMatrix();
     });
-    // TODO? move position/canvas
+    // TODO? function to move view-position/canvas
     // TODO? combined reset for objects and coord-system
     api.defineFunction("cglResetRotation", 0, (args, modifs) => {
         resetRotation();
@@ -1109,7 +1108,7 @@ let CindyGL = function(api) {
                     pickedId = obj3d.id;
                 }
             } else if(obj3d.boundingBox.type == BoundingBoxType.cylinder) {
-                let radius = obj3d.boundingBox.radius; // TODO update
+                let radius = obj3d.boundingBox.radius;
                 let center = obj3d.boundingBox.center;
                 let orientation = obj3d.boundingBox.direction;
                 let direction0 = scalev3(1/Math.sqrt(dot3(direction,direction)),direction);
@@ -1151,10 +1150,10 @@ let CindyGL = function(api) {
         // TODO? parameter to select if translucent objects should be checked
         CindyGL.objectBuffer.translucent.forEach(searchObject);
         // TODO? convert picked 3D-object to CindyJS object
+        // TODO? add a way to group objects
         //   make name,position, readable, ? writable
         return toCjsNumber(pickedId);
     });
-    // TODO? allow taking multiple ids as input
     function objectsById(idVal) {
         idVal = api.evaluateAndVal(idVal);
         let ids;
@@ -1428,7 +1427,7 @@ let CindyGL = function(api) {
                 cglLogError("lazy expression has wrong number of arguments: "+
                     `got: ${value.params.length} expected: ${params.length} (${params.map(p=>p['name']).join(",")})`
                 );
-                // TODO? add dummy parameter is given lazy does not have enough paramters
+                // TODO? add dummy parameter if given lazy does not have enough paramters
             }
         }
         return {
