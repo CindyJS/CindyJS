@@ -38,6 +38,12 @@ webgl['meet'] = first([
     ]
 ]);
 
+webgl['cross'] = first([
+    [
+        [type.vec3, type.vec3], type.vec3, usefunction('cross')
+    ]
+]);
+
 webgl['gauss'] = first([
     [
         [type.complex], type.vec2, identity
@@ -334,7 +340,7 @@ webgl["_"] = args => {
             return {
                 args: args,
                 res: t.parameters,
-                generator: x => console.error(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
+                generator: x => cglLogError(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
             };
         }
     }
@@ -814,6 +820,7 @@ webgl["det"] = first([
         [type.point, type.point, type.point], type.float, useincludefunction('det3v')
     ]
 ]);
+
 Object.freeze(webgl);
 
 //depends on glsl-implementation

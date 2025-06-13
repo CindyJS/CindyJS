@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: direct access to internal uniforms through built-in variables</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            t0 = seconds();
+            normalize(v):=(v/|v|);
+            test():=(
+              direction=normalize(cglViewDirection);
+              // |v+l*d -c|=r
+              vc=cglViewPos-cglCenter;
+              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+              b2=(vc*direction); // 1/2 * b
+              c=vc*vc-cglRadius*cglRadius;
+              D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+              if(D4<0,
+                [0,0,0,0],
+                dst=-b2-re(sqrt(D4));// sqrt should always be real
+                pos3d = cglViewPos+ dst*direction;
+                normal = normalize(pos3d - cglCenter);
+                brigthness = 0.6 - 0.4*direction*normal; // 0.2 ... 1.0
+                color = brigthness*normalize((pos3d/(2*cglRadius))+[.5,.5,.5]);
+                cglDepth = dst*0.01;
+                [color_1,color_2,color_3,1]
+              )
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            time = seconds()-t0;
+            rho = re(time/5+mouse().y);
+            theta = re(mouse().x+time/3);
+            cglReset3d();
+            cglResetRotation();
+            rotate3d(theta,rho);
+            colorplot3d(test(),[0,0,0],1.5);
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+            });
+        </script>
+        You should see a rotating multi-colored sphere
+    </body>
+</html>

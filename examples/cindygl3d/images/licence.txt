@@ -1,0 +1,7 @@
+Maps:
+  source Lambert: https://en.wikipedia.org/wiki/File:Lambert_cylindrical_equal-area_projection_SW.jpg
+  source Equirectangular: https://en.wikipedia.org/wiki/File:Equirectangular_projection_SW.jpg
+  Licence: Creative Commons Attribution-Share Alike 3.0 Unported (https://creativecommons.org/licenses/by-sa/3.0/)
+  Author: Strebe (https://commons.wikimedia.org/wiki/User:Strebe)
+  
+

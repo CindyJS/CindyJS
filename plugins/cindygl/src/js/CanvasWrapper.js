@@ -14,7 +14,7 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
         });
 
         if (!imageobject.ready) {
-            console.log("Image is not ready yet.");
+            cglLogInfo("Image is not ready yet.");
         }
     }
     return imageobject['canvaswrapper'];
@@ -51,7 +51,7 @@ function CanvasWrapper(canvas, properties) {
         this.textures[j] = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         if (properties.mipmap)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_LINEAR); //always interpolate between 2 mipmap levels NEAREST_MIPMAP_LINEAR
         else
@@ -79,7 +79,6 @@ function CanvasWrapper(canvas, properties) {
     gl.enableVertexAttribArray(aPosLoc);
 
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
 
     var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
 
@@ -87,9 +86,12 @@ function CanvasWrapper(canvas, properties) {
 
     gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    if(aTexLoc != -1) {
+        gl.enableVertexAttribArray(aTexLoc);
+        gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+        gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
 
 };
 
@@ -222,7 +224,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
         for (let j = 0; j < 2; j++) {
             gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+            gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         }
     }
 

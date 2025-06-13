@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            print(cglTryDetermineDegree(1,"x"));
+            print(cglTryDetermineDegree(x^2+2*x+1,"x"));
+            print(cglTryDetermineDegree(x^2+2*x+1,"y"));
+            print(cglTryDetermineDegree(exp(x),"x"));
+            print(cglTryDetermineDegree(1/x,"x"));
+            print(cglTryDetermineDegree(x^(-2),("x","y")));
+            print(cglTryDetermineDegree((x^2+1)/(y^2-1),("x")));
+            print(cglTryDetermineDegree((x^2+1)/(y^2-1),("x","y")));
+            print(cglTryDetermineDegree(sin(x^2+y^2),("x","y")));
+            print(cglTryDetermineDegree(x^2+y^2+z^2+x*y*z-1,("x","y","z")));
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ]
+            });
+        </script>
+    </body>
+</html>

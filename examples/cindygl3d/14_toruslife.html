@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Game of Life on Torus</h1>
+
+        <script id="cskeydown" type="text/x-cindyscript">
+            print("pressed key" + keycode());
+            if(keycode()==32, colorplot(L, R, "gol", 0)); //space -> black
+            if(keycode()==82, colorplot(L, R, "gol", if(random()>.6,1,0))); //R -> random image
+            if(keycode()==71, //G -> create a glider at (0,0)
+              setpixel("gol", 0, 0, (1,1,1));
+              setpixel("gol", 1, 1, (1,1,1));
+              setpixel("gol", 1, 2, (1,1,1));
+              setpixel("gol", 2, 1, (1,1,1));
+              setpixel("gol", 0, 2, (1,1,1));
+            );
+        </script>
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = true;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+
+            L = [0, 0]; //bottom left corner
+            R = [128, 0]; //bottom right corner
+
+            createimage("gol", 128, 128);
+
+            colorplot(L, R, "gol", if(random()>.6,1,0)); //random stuff as starting image
+            get(x, y) :=  imagergb((0,0), (128,0), "gol", (mod(x,128),mod(y,128)), interpolate->false).r; //Tourus world
+
+            newstate(x, y) := (
+              regional(number);
+              number =
+                get(x-1, y+1) + get(x, y+1) + get(x+1, y+1) +
+                get(x-1, y) +                 get(x+1, y) +
+                get(x-1, y-1) + get(x, y-1) + get(x+1, y-1);
+              if(get(x,y)==1,
+
+                //if the cell lives then it will die if it has less than 2 neigbours or more than 3 neighbours
+                if((number < 2) % (number > 3), 0, 1),
+
+                //if cell was dead then 3 are required to be born
+                if(number==3, 1, 0)
+              )
+            );
+            k = 0;
+            cglCoordSystem(p0->[-1.6,-1.6],p1->[1.6,1.6]);
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = (mouse().x -sx)/64; dy = (mouse().y -sy)/64;
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+            // update gol every 4 frames
+            if(k>=4,
+              k=0;
+              colorplot(L, R, "gol", newstate(x, y));
+            );
+            k=k+1;
+            cglReset3d(); // reset 3D-scene
+            torus3d([0,0,0],[0,1,0],1,0.5,texture->"gol",interpolateTexture->false);
+            cglRender3d();
+        </script>
+
+        <ul>
+            <li>Press R to reset to some random configuration.</li>
+            <li>Press SPACE to reset to blank configuration.</li>
+            <li>Press G to create a glider a (0,0)</li>
+        </ul>
+        <div id="CSCanvas" style="position: relative; top: 10px"></div>
+
+        <script type="text/javascript">
+            cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                geometry: [],
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [0, 0, 128, 128] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                },
+            });
+        </script>
+    </body>
+</html>
