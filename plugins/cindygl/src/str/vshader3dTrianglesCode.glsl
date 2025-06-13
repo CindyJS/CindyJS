@@ -3,8 +3,6 @@
    cgl_spacePos = aPos;
    // transform to screen space
    gl_Position = projAndTrafoMatrix*vec4(aPos,1);
-   // use same z-coordinate as cglInit shaders
-   // TODO find better way to synchronize z-coords between surface and triangle renderers
    //   ? is distance from viewPosition constant?
    cgl_viewDirection = aPos - cgl_viewPos;
    // 2D coordinates
