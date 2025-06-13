@@ -228,12 +228,7 @@ Renderer.prototype.rebuild = function(forceRecompile) {
 Renderer.prototype.updateVertices = function() {
     // TODO? share vertex attributes between different shader objects
     if(this.mode3D) {
-        let zoom = CindyGL.coordinateSystem.zoom;
-        let x0=CindyGL.coordinateSystem.x0*zoom;
-        let x1=CindyGL.coordinateSystem.x1*zoom;
-        let y0=CindyGL.coordinateSystem.y0*zoom;
-        let y1=CindyGL.coordinateSystem.y1*zoom;
-        let z1=CindyGL.coordinateSystem.z1*zoom;
+        let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
         if(this.boundingBox.type == BoundingBoxType.none) {
             this.vertices = new Float32Array([x0,y0,z1, x1,y0,z1, x0,y1,z1, x1,y1,z1]);
         } else if(this.boundingBox.type==BoundingBoxType.sphere) {
@@ -467,11 +462,7 @@ Renderer.prototype.setCoordinateUniforms3D = function() {
         this.shaderProgram.uniform["cgl_viewNormal"]([viewNormal4[0]/viewNormal4[3],viewNormal4[1]/viewNormal4[3],viewNormal4[2]/viewNormal4[3]]);
     }
     if (this.shaderProgram.uniform.hasOwnProperty('cgl_viewRect')){
-        let zoom = CindyGL.coordinateSystem.zoom;
-        let x0=CindyGL.coordinateSystem.x0*zoom;
-        let x1=CindyGL.coordinateSystem.x1*zoom;
-        let y0=CindyGL.coordinateSystem.y0*zoom;
-        let y1=CindyGL.coordinateSystem.y1*zoom;
+        let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
         this.shaderProgram.uniform["cgl_viewRect"]([x0,y0,x1,y1]);
     }
 }

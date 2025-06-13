@@ -106,6 +106,21 @@ function cglLogDebug(...args){
     console.debug(...args);
 }
 
+function getZoomedViewPlane(){
+    // x0 = (x0+x1)/2 + (x0-x1)/2
+    // x0' = (x0+x1)/2 + zoom*(x0-x1)/2 = 0.5*(x0*(1+zoom)+x1*(1-zoom))
+    let zoom = CindyGL.coordinateSystem.zoom;
+    let x0=CindyGL.coordinateSystem.x0;
+    let x1=CindyGL.coordinateSystem.x1;
+    let y0=CindyGL.coordinateSystem.y0;
+    let y1=CindyGL.coordinateSystem.y1;
+    let z0=CindyGL.coordinateSystem.z0;
+    let z1=CindyGL.coordinateSystem.z1;
+    return [0.5*(x0*(1+zoom)+x1*(1-zoom)),0.5*(y0*(1+zoom)+y1*(1-zoom)),
+            0.5*(x1*(1+zoom)+x0*(1-zoom)),0.5*(y1*(1+zoom)+y0*(1-zoom)),
+            zoom*(z0-z1)+z1,z1];
+}
+
 let CindyGL = function(api) {
 
     //////////////////////////////////////////////////////////////////////
@@ -815,13 +830,7 @@ let CindyGL = function(api) {
         return toCjsNumber(obj3d.id);
     });
     let recomputeProjMatrix = function(){
-        let zoom = CindyGL.coordinateSystem.zoom;
-        let x0=CindyGL.coordinateSystem.x0*zoom;
-        let x1=CindyGL.coordinateSystem.x1*zoom;
-        let y0=CindyGL.coordinateSystem.y0*zoom;
-        let y1=CindyGL.coordinateSystem.y1*zoom;
-        let z0=CindyGL.coordinateSystem.z0*zoom;
-        let z1=CindyGL.coordinateSystem.z1*zoom;
+        let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
         // TODO this will break if z0 is near 0
         CindyGL.projectionMatrix=[
             [2/(x1-x0), 0, 0, - 2*x0/(x1-x0) -1],
@@ -838,9 +847,7 @@ let CindyGL = function(api) {
         CindyGL.trafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];// TODO? switch to Cindy3D matrix operations instead of writing library from scratch
         CindyGL.invTrafoMatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         CindyGL.coordinateSystem.transformedViewPos = CindyGL.coordinateSystem.viewPosition;
-        let zoom = CindyGL.coordinateSystem.zoom;
-        let z0=CindyGL.coordinateSystem.z0*zoom;
-        let z1=CindyGL.coordinateSystem.z1*zoom;
+        let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
         CindyGL.coordinateSystem.transformedViewNormal = [0,0,(z1-z0),1];
     };
     let updateCoordSytem = function(modifs) {
@@ -876,11 +883,7 @@ let CindyGL = function(api) {
         };
     });
     api.defineFunction("cglViewRect", 0, (args, modifs) => {
-        let zoom = CindyGL.coordinateSystem.zoom;
-        let x0=CindyGL.coordinateSystem.x0*zoom;
-        let x1=CindyGL.coordinateSystem.x1*zoom;
-        let y0=CindyGL.coordinateSystem.y0*zoom;
-        let y1=CindyGL.coordinateSystem.y1*zoom;
+        let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
         return { // convert to CindyJS list
             ctype: 'list',
             value: [x0,y0,x1,y1].map(toCjsNumber)
@@ -915,6 +918,7 @@ let CindyGL = function(api) {
         }else{
             trafoMatrix=[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
         }
+        // TODO? rotate relative to center of view-rect
         // TODO? are this the correct axes/directions
         let rotZ=[
           [1,0,0,0],
@@ -934,9 +938,7 @@ let CindyGL = function(api) {
         if(typeof(CindyGL.coordinateSystem)!== "undefined"){
             CindyGL.coordinateSystem.transformedViewPos =
                 mvmult4(CindyGL.invTrafoMatrix,CindyGL.coordinateSystem.viewPosition);
-            let zoom = CindyGL.coordinateSystem.zoom;
-            let z0=CindyGL.coordinateSystem.z0*zoom;
-            let z1=CindyGL.coordinateSystem.z1*zoom;
+            let [x0,y0,x1,y1,z0,z1] = getZoomedViewPlane();
             CindyGL.coordinateSystem.transformedViewNormal =
                 mvmult4(CindyGL.invTrafoMatrix,[0,0,(z1-z0),1]);
             return nada;
@@ -1051,6 +1053,7 @@ let CindyGL = function(api) {
      * Returns the current viewDirection for the pixel (args[0],args[1])
      */
     api.defineFunction("cglDirection", 2, (args, modifs) => {
+        // FIXME use correct coord-system for x,y position
         let zoom = CindyGL.coordinateSystem.zoom;
         let x = zoom*api.evaluateAndVal(args[0])["value"]["real"];
         let y = zoom*api.evaluateAndVal(args[1])["value"]["real"];
@@ -1068,6 +1071,7 @@ let CindyGL = function(api) {
      * If the `tags` modifier is set only objects that have at least one of the specified tags are considered
      */
     api.defineFunction("cglFindObject", 2, (args, modifs) => {
+        // FIXME use correct coord-system for x,y position
         let zoom = CindyGL.coordinateSystem.zoom;
         let x = zoom*api.evaluateAndVal(args[0])["value"]["real"];
         let y = zoom*api.evaluateAndVal(args[1])["value"]["real"];
