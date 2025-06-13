@@ -590,7 +590,8 @@ let CindyGL = function(api) {
      * @param {CindyGL3DObject} obj3d
      */
     function setObject(objId,obj3d){
-        if(obj3d.renderer.opaque) {
+        let isOpaque = obj3d.opaque !== undefined ? obj3d.opaque : obj3d.renderer.opaque;
+        if(isOpaque) {
             CindyGL.objectBuffer.opaque.set(objId,obj3d);
         } else {
             CindyGL.objectBuffer.translucent.set(objId,obj3d);
@@ -650,7 +651,7 @@ let CindyGL = function(api) {
         expr = replaceVariables(expr,obj3d.plotModifiers);
         const value = tryEvaluate(expr,api,nada);
         // TODO? allow non-boolean expressions
-        if(obj3d.opaqueIfExpr['ctype']!=='boolean'){
+        if(value['ctype']!=='boolean'){
             delete obj3d.opaque;
             return;
         }
@@ -1030,10 +1031,11 @@ let CindyGL = function(api) {
             cglLogDebug(`changing opacity of ${wrongOpacity.size} objects`);
             // update objects that had the wrong opacity
             wrongOpacity.forEach((obj3d)=>{
-                if(obj3d.renderer.opaque){
-                    CindyGL.objectBuffer.opaque.delete(obj3d.id);
-                }else{
+                let isOpaque = obj3d.opaque !== undefined ? obj3d.opaque : obj3d.renderer.opaque;
+                if(isOpaque){
                     CindyGL.objectBuffer.translucent.delete(obj3d.id);
+                }else{
+                    CindyGL.objectBuffer.opaque.delete(obj3d.id);
                 }
                 setObject(obj3d.id,obj3d);
             });
@@ -1278,7 +1280,8 @@ let CindyGL = function(api) {
             }
             // update modifers types in renderer
             obj3d.renderer = compile(obj3d.renderer.expression,obj3d.boundingBox,plotModifiers,vModifiers,true);
-            if(obj3d.renderer.opaque !== wasOpaque){
+            let isOpaque = obj3d.opaque !== undefined ? obj3d.opaque : obj3d.renderer.opaque;
+            if(isOpaque !== wasOpaque){
                 // opacity changed
                 if(wasOpaque) {
                     CindyGL.objectBuffer.opaque.delete(objId);

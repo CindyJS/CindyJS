@@ -939,7 +939,7 @@ Cgl3dSimpleSceneRenderer.prototype.renderTranslucent = function(objects) {
     gl.enable(gl.BLEND);
     objects.forEach((obj3d)=>{
         obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null);
-        if(obj3d.opaque === undefined ? obj3d.opaque : obj3d.renderer.opaque){
+        if(obj3d.opaque !== undefined ? obj3d.opaque : obj3d.renderer.opaque){
             this.wrongOpacity.add(obj3d);
         }
     });
