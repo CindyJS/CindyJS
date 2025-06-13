@@ -15,6 +15,8 @@ cglSetDepth(rawDepth,direction):=(
   cglRawDepth = rawDepth;
   v = 0.5*(cglViewNormal*cglViewNormal)/(cglViewNormal*direction);
   cglDepth = (rawDepth-v)/rawDepth;
+  if(cglDepth<0,cglDiscard());
+  cglDepth;
 );
 cglMod1plus(n,k):=(
   mod(n-1,k)+1;
