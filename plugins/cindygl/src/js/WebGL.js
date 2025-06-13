@@ -61,29 +61,6 @@ webgl['complex'] = first([
 
 
 webgl['if'] = (argtypes) => { //generator is not used yet
-    if(argtypes[0].type === 'constant' && argtypes[0].value.ctype === 'boolean') {
-        // TODO? don't compile false branch for if with constant condition
-        // if with constant condition
-        if(argtypes[0].value.value) {
-            return ({
-                args: argtypes,
-                res: argtypes[1],
-                generator: args => `${args[1]};`
-            });
-        } else if(argtypes.length > 2) {
-            return ({
-                args: argtypes,
-                res: argtypes[2],
-                generator: args => `${args[2]};`
-            });
-        } else {
-            return ({
-                args: argtypes,
-                res: type.voidt,
-                generator: args => ""
-            });
-        }
-    }
     if (!argtypes.every(a => a)) return false;
     if (argtypes.length === 2) {
         return ({

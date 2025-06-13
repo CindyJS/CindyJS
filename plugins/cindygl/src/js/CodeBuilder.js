@@ -205,6 +205,20 @@ CodeBuilder.prototype.computeType = function(expr) { //expression
     } else if (expr['ctype'] === 'cglLazy') {
         return type.cglLazy(expr);
     } else if (expr['ctype'] === 'function' || expr['ctype'] === 'infix') {
+        if(getPlainName(expr['oper'])=='if') {
+            let condType = this.getType(expr['args'][0]);
+            if(condType.type == 'constant' && condType.value.ctype == 'boolean') { // if with constant condition
+                if(condType.value["value"]){ // if(true,...)
+                    return this.getType(expr['args'][1]);
+                } else { // if(false,...)
+                    if(expr['args'].length>2) {
+                        return this.getType(expr['args'][2]);
+                    } else {
+                        return type.voidt;
+                    }
+                }
+            }
+        }
         var argtypes = new Array(expr['args'].length);
         let allconstant = true;
         for (let i = 0; i < expr['args'].length; i++) {
@@ -1114,9 +1128,6 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         let code = '';
         let ansvar = '';
 
-        let ifbranch = this.compile(expr['args'][1], generateTerm);
-
-
         if (generateTerm) {
             ansvar = generateUniqueHelperString();
             if (!this.variables[ansvar]) {
@@ -1133,6 +1144,7 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
 
 
         if (condt.type != 'constant' || (condt.type == 'constant' && condt.value["value"])) {
+            let ifbranch = this.compile(expr['args'][1], generateTerm);
             code += ifbranch.code;
             if (generateTerm) {
                 code += `${ansvar} = ${this.castType(ifbranch.term, this.getType(expr['args'][1]), ctype)};\n`;
@@ -1140,12 +1152,10 @@ CodeBuilder.prototype.compile = function(expr, generateTerm) {
         }
 
         if (expr['oper'] === "if$3") {
-            let elsebranch = this.compile(expr['args'][2], generateTerm);
             if (condt.type != 'constant')
                 code += '} else {\n';
-
-
             if (condt.type != 'constant' || (condt.type == 'constant' && !condt.value["value"])) {
+                let elsebranch = this.compile(expr['args'][2], generateTerm);
                 code += elsebranch.code;
                 if (generateTerm) {
                     code += `${ansvar} = ${this.castType(elsebranch.term, this.getType(expr['args'][2]), ctype)};\n`;
