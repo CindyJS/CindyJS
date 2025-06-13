@@ -123,3 +123,38 @@ for normals per triangle the top-left and bottom right corners are used. <!--TOD
 * `surface3d(expr:(x,y,z))` render the algebraic surface that is the zero-set of the given expression
 * `plot3d(f:(x,y))` plot a 2D-function
 * `complexplot3d(f:(z))` / `cplot3d(f:(z))` plot the magnitude of the given complex function, if no color is specified the points are colored using the phase of the function
+
+* `cglSaveDefaults()` save current default values
+* `cglRestoreDefaults()` restore saved default values
+* `cglResetDefaults()` reset defaults to initial values
+
+## Default values
+
+The default values for optional parameters are stored in the dictionary `cglDefaults`, currently the following values are used:
+
+  * `light` (default `cglDefaultLight`)
+
+  * `sphereColor` (default `cglRed`)
+  * `sphereSize` (default `0.5`)
+  * `sphereAlpha` (undefined by default)
+  * `sphereProjection` (default `cglSphereProjectionEquirect`)
+
+  * `cylinderColor` (default `cglBlack`)
+  * `cylinderSize` (default `0.4`)
+  * `cylinderAlpha` (undefined by default)
+  * `cylinderCaps` (default `CylinderCapOpen`)
+
+  * `curveSamples` (default `32`)
+  * `curveCaps` (default `CylinderCapRound`)
+  * `curveJoints` (default `ConnectRound`)
+
+  * `torusColor` (default `cglBlue`)
+  * `torusSize` (default `0.25`)
+  * `torusAlpha` (undefined by default)
+
+  * `triangleColor` (default `cglGreen`)
+  * `triangleAlpha` (undefined by default)
+
+  * `surfaceColor` (default `cglCyan`)
+  * `surfaceAlpha` (default `1`)
+  * `surfaceCutoff` (default `CutoffScreenSphere`)

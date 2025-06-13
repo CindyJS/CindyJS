@@ -40,7 +40,7 @@
               hue(im(z))*(.9+.1*re(sqrt(grey1*grey2)));
             );
             sphere3d([0,0,0],1,light->cglSimpleLight,
-                colorExpr->color(expr(texturePos)),projection->cglRiemannSphereProjection);
+                colorExpr->color(expr(texturePos)),projection->cglSphereProjectionStereographicC);
         </script>
         <script id="csdraw" type="text/x-cindyscript">
             if (dragging,
