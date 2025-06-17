@@ -149,7 +149,7 @@ cgl3dSphereShaderCode(direction,isBack):=(
   regional(normal,texturePos,color);
   normal = cglSphereNormal(direction,cglCenter,isBack);
   texturePos = cglEval(cglProjection,normal);
-  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction);
+  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction,normal);
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -464,7 +464,7 @@ cgl3dCylinderShaderCode(direction):=(
     normal = normalize(v1-delta*BA);
     texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
-  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction);
+  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction,normal);
   cglEval(cglLight,color,direction,normal);
 );
 cgl3dCylinderShaderCodeBack(direction):=(
@@ -529,7 +529,7 @@ cgl3dCylinderShaderCodeBack(direction):=(
     normal = normalize(v2-delta*BA);
     texturePos = cglEval(cglProjection,normal,max(-1,min(delta,1)),cglOrientation);
   ));
-  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction);
+  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction,normal);
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -717,7 +717,7 @@ cgl3dTorusShaderCode(direction,layer):=(
   texturePos = cglProjTorusToSquare(normal,arcDirection,orientation);
   cglEval(cglCheckAngle1,texturePos);
   cglEval(cglCheckAngle2,texturePos);
-  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction);
+  color = cglEval(cglPixelExpr,texturePos,cglViewPos + cglRawDepth*direction,normal);
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -729,8 +729,8 @@ cgl3dTriangleShaderCode(direction):=(
   regional(color,normal,texCoord);
   cglRawDepth = |cglViewPos-cglSpacePos|; // set raw depth to correct value (depth is handled by v-shader)
   texCoord = cglEval(cglTextureMapping,cglSpacePos,direction);
-  color = cglEval(cglPixelExpr,texCoord,cglSpacePos);
   normal = cglEval(cglNormalExpr,cglSpacePos,texCoord);
+  color = cglEval(cglPixelExpr,texCoord,cglSpacePos,normal);
   cglEval(cglLight,color,direction,normal);
 );
 
@@ -1019,7 +1019,7 @@ cglSurfaceUpdateColor(direction, dst, color) := (
   x = cglRay(direction, dst); // the intersection point in R^3
   normal = normalize(cglEval(cglNormalExpr,x));
   pos3d = cglViewPos+dst*direction;
-  pixelCol = cglEval(cglPixelExpr,cglSurfaceComputeTextureCoords(pos3d,normal),pos3d);
+  pixelCol = cglEval(cglPixelExpr,cglSurfaceComputeTextureCoords(pos3d,normal),pos3d,normal);
   color = (1 - cglAlpha) * color + cglAlpha * pixelCol;
   cglEval(cglLight,color,direction,normal);
 );
@@ -1402,6 +1402,7 @@ cglMergeDicts(dict1,dict2):=(
 // TODO function for updating/resetting defaults
 // ? use internal global variables (-> document names of default values)
 // ? always use cglAlpha even if explicitly not specified
+// TODO? add simple way to specify seperate color(s)/texture for back-side of rendered surface
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO? rename spacePos -> pos3d
@@ -1485,39 +1486,39 @@ cglResolveColorExpr(hasAlpha):=(
   if(!isundefined(textureRGBA),
     usesAlpha = true;
     pixelExpr = if(hasAlpha,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         regional(col);
         col=cglTexture(textureRGBA,texturePos,repeat->repeatTexture,interpolate->interpolateTexture);
         (col_1,col_2,col_3,col_4*cglAlpha)
       ,textureRGBA->textureRGBA,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     ,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         cglTexture(textureRGBA,texturePos,repeat->repeatTexture,interpolate->interpolateTexture)
       ,textureRGBA->textureRGBA,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     );
   );
   if(!isundefined(textureRGB),
     pixelExpr = if(hasAlpha,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         regional(col);
         col=cglTextureRGB(textureRGB,texturePos,repeat->repeatTexture,interpolate->interpolateTexture);
         (col_1,col_2,col_3,cglAlpha)
       ,textureRGB->textureRGB,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     ,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         cglTextureRGB(textureRGB,texturePos,repeat->repeatTexture,interpolate->interpolateTexture)
       ,textureRGB->textureRGB,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     );
   );
   if(!isundefined(texture),
     pixelExpr = if(hasAlpha,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         regional(col);
         col=cglTextureRGB(texture,texturePos,repeat->repeatTexture,interpolate->interpolateTexture);
         (col_1,col_2,col_3,cglAlpha)
       ,texture->texture,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     ,
-      cglLazy((texturePos,spacePos),
+      cglLazy((texturePos,spacePos,normal),
         cglTextureRGB(texture,texturePos,repeat->repeatTexture,interpolate->interpolateTexture)
       ,texture->texture,repeatTexture->repeatTexture,interpolateTexture->interpolateTexture);
     );
@@ -1540,11 +1541,11 @@ cglNormalizeRange(range):=(
 );
 
 cglInterface("draw3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
 cglInterface("sphere3d",cglDraw3d,(pos3d),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),size,alpha,light:(color,direction,normal),projection,plotModifiers,tags,dynamic));
 cglDraw3d(pos3d):=(
   size = cglValOrDefault(size,cglDefaults_"sphereSize");
   cglParamExprs_"center" = cglParamExprs_"pos3d";
@@ -1553,8 +1554,8 @@ cglDraw3d(pos3d):=(
 );
 
 cglInterface("sphere3d",cglSphere3d,(center,radius),(color,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),projection:normal,plotModifiers,tags,dynamic));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),alpha,light:(color,direction,normal),projection:normal,plotModifiers,tags,dynamic));
 cglSphere3d(center,radius):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,usesAlpha,exprData,pixelExpr,opacityExpr);
   color = cglValOrDefault(color,cglDefaults_"sphereColor");
@@ -1575,12 +1576,12 @@ cglSphere3d(center,radius):=(
     usesAlpha = length(color)==4;
     if(hasAlpha,
       if(length(color)==4,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
       );
     ,
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
     );
     modifiers_"cglColor" = color;
   ,
@@ -1614,8 +1615,9 @@ cglSphere3d(center,radius):=(
 
 
 cglInterface("draw3d",cglDraw3d,(point1,point2),(color,color1,color2,colors,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),size,alpha,
+  light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglDraw3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaults_"cylinderSize");
   caps = cglValOrDefault(caps,cglDefaults_"curveCaps");
@@ -1623,17 +1625,18 @@ cglDraw3d(point1,point2):=(
   cglCylinder3d(point1,point2,size);
 );
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2),(color,color1,color2,colors,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),size,alpha,
+  light:(color,direction,normal),caps,cap1,cap2,projection:(normal,height,orientation),plotModifiers,tags,dynamic));
 cglCylinder3d(point1,point2):=(
   size = cglValOrDefault(size,cglDefaults_"cylinderSize");
   cglParamExprs_"radius" = cglModifExprs_"size";
   cglCylinder3d(point1,point2,size);
 );
 cglInterface("cylinder3d",cglCylinder3d,(point1,point2,radius),(color,color1,color2,colors,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),cap1,cap2,caps,
-  projection:(normal,height,orientation),direction1,plotModifiers,tags,dynamic,renderBack));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),alpha,
+  light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation),direction1,plotModifiers,tags,dynamic,renderBack));
 cglCylinder3d(point1,point2,radius):=(
   regional(overhang,needBackFace,modifiers,n,ids,topLayer,hasAlpha,usesAlpha,pixelExpr,exprData,opacityExpr);
   color = cglValOrDefault(color,cglDefaults_"cylinderColor");
@@ -1687,30 +1690,30 @@ cglCylinder3d(point1,point2,radius):=(
       ));
       if(hasAlpha,
         if(length(color1)==4,
-          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),
+          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),
             regional(col);col = (1-texPos_2)*cglColor1 + texPos_2*cglColor2;
             (col_1,col_2,col_3,col_4*cglAlpha)
           );
         ,
-          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),
+          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),
             regional(col);col = (1-texPos_2)*cglColor1 + texPos_2*cglColor2;
             (col_1,col_2,col_3,cglAlpha)
           );
         );
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(1-texPos_2)*cglColor1 + texPos_2*cglColor2);
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(1-texPos_2)*cglColor1 + texPos_2*cglColor2);
       );
       modifiers_"cglColor1"=color1;
       modifiers_"cglColor2"=color2;
     ,
       if(hasAlpha,
         if(length(color1)==4,
-          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
         ,
-          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+          modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
         );
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
       );
       modifiers_"cglColor" = color1;
     );
@@ -1781,8 +1784,8 @@ cglJoint(prev,current,next,jointType):=(
 // ! calling cylinder3d can mess up modifiers
 // code TODO? create wrapper to correctly pass through modifiers
 cglInterface("connect3d",cglConnect3d,(points),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),size,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
 cglConnect3d(points):=(
   regional(jointEnd,jointStart,totalLength,alpha0,a,b,current1,current2,prev,next,projection,color1,color2,nextColor,direction1,cutDir,renderBack);
   closed = cglValOrDefault(closed,false);
@@ -1884,8 +1887,8 @@ cglConnect3d(points):=(
   )));
 );
 cglInterface("curve3d",cglCurve3d,(expr:(t),from,to),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),size,samples,alpha,light:(color,direction,normal),caps,cap1,cap2,joints,closed,plotModifiers,tags,dynamic));
 cglCurve3d(expr,from,to):=(
   samples = cglValOrDefault(samples,cglDefaults_"curveSamples")-1;
   if(from==to,
@@ -1899,9 +1902,9 @@ cglCurve3d(expr,from,to):=(
 );
 
 cglInterface("torus3d",cglTorus3d,(center,orientation,radius1,radius2),(color,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),alpha,
+  light:(color,direction,normal),arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglTorus3d(center,orientation,radius1,radius2):=(
   regional(needBackFace,modifiers,ids,topLayer,hasAlpha,usesAlpha,exprData,pixelExpr,opacityExpr);
   orientation=normalize(orientation);
@@ -1925,12 +1928,12 @@ cglTorus3d(center,orientation,radius1,radius2):=(
     usesAlpha = length(color)==4;
     if(hasAlpha,
       if(length(color)==4,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
       );
     ,
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
     );
     modifiers_"cglColor" = color;
   ,
@@ -2015,13 +2018,13 @@ cglTorus3d(center,orientation,radius1,radius2):=(
 );
 // feature TODO? option to use aspect ratio instead of second radius
 cglInterface("circle3d",cglCircle3d,(center,orientation,radius),(color,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),texturePos,size,alpha,
+  light:(color,direction,normal),arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglInterface("torus3d",cglCircle3d,(center,orientation,radius),(color,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),texturePos,size,alpha,light:(color,direction,normal),
-  arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),texturePos,size,alpha,
+  light:(color,direction,normal),arcRange,angle1range,angle2range,direction1,plotModifiers,tags,dynamic));
 cglCircle3d(center,orientation,radius):=(
   size = cglValOrDefault(size,cglDefaults_"torusSize");
   cglParamExprs_"radius1" = cglParamExprs_"radius";
@@ -2045,14 +2048,15 @@ cglCheckSize(vData,vCount,msg) := (
   )
 );
 
+// code TODO? consistent order of spacePos and texture pos
 // TODO support `dynamic` for triangles & surfaces
 // feature TODO? normalTexture modifier (texture of normal vectors)
 cglInterface("draw3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
 cglInterface("triangle3d",cglTriangle3d,(p1,p2,p3),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
 cglTriangle3d(p1,p2,p3):=(
   regional(modifiers,vModifiers,defNormal,hasAlpha,usesAlpha,exprData,pixelExpr,colLen,opacityExpr);
   color = cglValOrDefault(color,cglDefaults_"triangleColor");
@@ -2111,12 +2115,12 @@ cglTriangle3d(p1,p2,p3):=(
     usesAlpha = colLen == 4;
     if(hasAlpha,
       if(colLen == 4,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
       );
     ,
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
     );
     if(isundefined(colors),
       modifiers_"cglColor"=color;
@@ -2135,8 +2139,9 @@ cglTriangle3d(p1,p2,p3):=(
 // feature TODO? triangles3d
 
 cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,
-  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),normalType,plotModifiers,vertexModifiers,tags));
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,
+  light:(color,direction,normal),uv,normal,normals,normalExpr:(spacePos,texturePos),normalType,plotModifiers,vertexModifiers,tags));
 cglPolygon3d(vertices):=(
   regional(modifiers,vModifiers,triangulator,trianglesAndNormals,hasAlpha,usesAlpha,exprData,pixelExpr,colLen,opacityExpr);
   color = cglValOrDefault(color,cglDefaults_"triangleColor");
@@ -2237,12 +2242,12 @@ cglPolygon3d(vertices):=(
     usesAlpha = colLen == 4;
     if(hasAlpha,
       if(colLen == 4,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
       );
     ,
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
     );
     if(isundefined(colors),
       modifiers_"cglColor"=color;
@@ -2274,8 +2279,8 @@ cglPolygon3d(vertices):=(
 
 // feature TODO? adjust uv coordinates if side of grid-cell is collapsed
 cglInterface("mesh3d",cglMesh3d,(grid),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),normalType,topology,plotModifiers,vertexModifiers,tags));
 cglMesh3d(grid):=(
   regional(Ny,Nx,triangles,modifiers,vModifiers,exprData,pixelExpr,hasAlpha,usesAlpha,colLen,opacityExpr);
   color = cglValOrDefault(color,cglDefaults_"triangleColor");
@@ -2361,12 +2366,12 @@ cglMesh3d(grid):=(
     usesAlpha = colLen == 4;
     if(hasAlpha,
       if(colLen==4,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
       ,
-        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
       );
     ,
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
     );
     if(isundefined(colors),
       modifiers_"cglColor"=color;
@@ -2396,8 +2401,8 @@ cglMesh3d(grid):=(
 // feature TODO? allow equation as expression: transform `f == g` to  `f-g` in last top-level expression
 // feature TODO custom projection/uv-mapping from surface to 2D space
 cglInterface("surface3d",cglSurface3d,(expr:(x,y,z)),(color,texture,textureRGB,textureRGBA,
-  interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),
+  interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),
   texture,uv,dF:(x,y,z),cutoffRegion,degree,layers,plotModifiers,tags));
 cglSurface3d(fun) := (
     regional(N,nodes,F,normalExpr,N,B,modifiers,viewRect,bounds,usesAlpha,opacityExpr,exprData,pixelExpr);
@@ -2447,7 +2452,7 @@ cglSurface3d(fun) := (
     ,
       color = cglNormalColor(color);
       usesAlpha = length(color) == 4;
-      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d),cglColor);
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
       modifiers_"cglColor" = color;
     );
     modifiers_"cglColor0" = if(usesAlpha,(0,0,0,0),(0,0,0));
@@ -2490,7 +2495,7 @@ cglSurface3d(fun) := (
 
 // feature TODO? add ability to scale axes independently from CindyJS coordinate system
 cglInterface("plot3d",cglPlot3d,(f:(x,y)),(colortexture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
-  colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),colorExprRGBA:(texturePos,spacePos),
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),
   thickness,alpha,light:(color,direction,normal),texture,uv,df:(x,y),cutoffRegion,degree,plotModifiers,tags));
 cglPlot3d(f/*f(x,y)*/):=(
   if(isundefined(degree),
@@ -2499,14 +2504,14 @@ cglPlot3d(f/*f(x,y)*/):=(
   cglSurface3d(cglLazy((x,y,z),cglEval(f,x,y)-z,f->f),degree->degree);
 );
 cglInterface("complexplot3d",cglCPlot3d,(f:(z)),(color,texture,textureRGB,textureRGBA,interpolateTexture,
-  repeatTexture, colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+  repeatTexture, colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglInterface("cplot3d",cglCPlot3d,(f:(z)),(color,texture,textureRGB,textureRGBA,interpolateTexture,
-  repeatTexture,colorExpr:(texturePos,spacePos),colorExprRGB:(texturePos,spacePos),
-  colorExprRGBA:(texturePos,spacePos),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
+  repeatTexture,colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),texture,uv,df:(z),cutoffRegion,degree,plotModifiers,tags));
 cglCPlot3d(f/*f(z)*/):=(
   if(isundefined(color) & isundefined(colorExpr), // TODO find better condition for choosing phase-coloring
-    colorExpr = cglLazy((texturePos,spacePos),
+    colorExpr = cglLazy((texturePos,spacePos,normal),
       regional(z);
       z=cglEval(f,spacePos_1+i*spacePos_2);
       hue((arctan2(re(z),im(z))+pi)/(2*pi))
