@@ -34,7 +34,8 @@
 
             forall(points,p,sphere3d(p,0.05));
             f = interpolateSurface(points,degree->maxDegree);
-            surface3d(f,alpha->0.75,degree->maxDegree);
+            surfaceDegree = min(maxDegree,maxDegreeForLen(sampleCount));
+            surface3d(f,alpha->0.75,degree->surfaceDegree);
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.4,zoom=0.4);
@@ -50,8 +51,8 @@
             sy = mouse().y;
 
             cglRender3d();
-            drawText((-2.9,-2.9),"samples: "+sampleCount);
-            drawText((-2.9,-2.7),"maxDegree: "+maxDegree);
+            drawText((-2.9,-2.9),"samples: "+sampleCount+"/"+((surfaceDegree+1)*(surfaceDegree+2)*(surfaceDegree+3)/6-1));
+            drawText((-2.9,-2.7),"degree: "+surfaceDegree);
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>

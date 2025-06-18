@@ -190,6 +190,7 @@ hom(p):=(
   )
 );
 
+// TODO? return degree (? and derivative)
 // the limiting factor seems to be the computation of matrix-kernel
 interpolateSurface(points):=(
   regional(maxDegree,samples,M,MM,K,coordPFct);
