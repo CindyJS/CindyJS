@@ -36,7 +36,7 @@
             f = interpolateSurface(points,degree->maxDegree);
             surfaceDegree = f_"degree";
             surface3d(f_"f",alpha->0.75,dF->f_"df",degree->surfaceDegree,plotModifiers->f_"plotModifiers",
-              colorExpr->if(normal*cglViewDirection>0,cglRed,cglCyan));
+              colorExpr->if(normal*cglViewDirection>0,cglRed,cglCyan),layers->if(drawLayered,4,0));
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.4,zoom=0.4);
@@ -57,6 +57,11 @@
         </script>
 
         <div id="CSCanvas" style="border: 0px"></div>
+        <input
+            id="layered"
+            onclick="cdy.evokeCS('drawLayered = ' + this.checked+';update();');"
+            type="checkbox"
+        /> multi-layer
 
         <script type="text/javascript">
             // zoom using mouse wheel, inverted direction for compatability with old raycaster script
@@ -80,6 +85,7 @@
                        "../../../plugins/cindygl/scripts/surfaceInterpolate.cjs"]
                 },
             });
+            cdy.evokeCS('drawLayered = ' + layered.checked+';');
         </script>
     </body>
 </html>
