@@ -215,5 +215,33 @@ interpolateSurface(points):=(
   print(K);
   // TODO 4. simplify resulting equation
   // 5. create surface function from kernel vector
-  cglLazy((x,y,z),cglEval(coordP,(x,y,z,1))*K,coordP->coordPFct,K->K);
+  {
+    "degree": degree,
+    "f": cglLazy((x,y,z),cglEval(coordP,(x,y,z,1))*cglCoeffVec,coordP->coordPFct),
+    "df":  cglLazy((x,y,z),
+      regional(p,n,kx,ky,kz);
+      p = cglEval(coordP,(x,y,z,1));
+      n = (0,0,0);
+      // kx, ky, kz count how often does x/y/z appear in the coordinates of the current term
+      // coordsP... returns the coefficients sorted in lexicographical order, 
+      //   which allows to compute these factors iteratives using a relatively simple algorithm
+      kx=D;ky=0;kz=0;
+      repeat(length(cglCoeffVec),i,
+        // TODO is there a way to avoid the rendering artifacts close to the coordinate axes
+        n = n + cglCoeffVec_i * p_i * (kx/x,ky/y,kz/z);
+        if(kz>0,
+          kz = kz-1;
+        ,if(ky>0,
+          ky = ky-1;
+          kz = D - (kx+ky);
+        ,
+          kx = kx-1;
+          ky = D - kx;
+        ));
+      );
+      normalize(n);
+    ,coordP->coordPFct,D->(degree+1)),
+    "plotModifiers":{"cglCoeffVec": K}
+  }
+  
 );

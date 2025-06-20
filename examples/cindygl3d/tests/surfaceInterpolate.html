@@ -34,8 +34,9 @@
 
             forall(points,p,sphere3d(p,0.05));
             f = interpolateSurface(points,degree->maxDegree);
-            surfaceDegree = min(maxDegree,maxDegreeForLen(sampleCount));
-            surface3d(f,alpha->0.75,degree->surfaceDegree);
+            surfaceDegree = f_"degree";
+            surface3d(f_"f",alpha->0.75,dF->f_"df",degree->surfaceDegree,plotModifiers->f_"plotModifiers",
+              colorExpr->if(normal*cglViewDirection>0,cglRed,cglCyan));
             updateZoom():=(
               if(zoom>2.5,zoom=2.5);
               if(zoom<0.4,zoom=0.4);

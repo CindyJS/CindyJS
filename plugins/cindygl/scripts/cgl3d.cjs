@@ -2413,7 +2413,7 @@ cglSurface3d(fun) := (
     layers = cglValOrDefault(layers,0);
     // convert function to form taking vector insteads of 3 arguments
     F = cglLazy(p,cglEval(fun, p.x, p.y, p.z),fun->fun);
-    normalExpr = if(isundefined(dF),cglGuessDerivative(F),dF);
+    normalExpr = if(isundefined(dF),cglGuessDerivative(F),cglLazy(p,cglEval(dF,p_1,p_2,p_3)));
     if(isundefined(degree),
       N = min(cglTryDetermineDegree(fun),cglMaxAutoDeg);
       if(isundefined(N),
