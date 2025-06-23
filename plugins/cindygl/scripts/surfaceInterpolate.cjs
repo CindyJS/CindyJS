@@ -310,6 +310,9 @@ hom(p):=(
   )
 );
 
+// TODO? surface render mode that interpolates surface once along view-ray and uses interpolation polynomail for all futher function values
+//  and use interpolated curve for all further evaluations
+
 // TODO find limiting factor of WEBGL code
 // for degree >10 code spends more than 99% of each frame waiting for GPU to finish rendering
 interpolateSurface(points):=(
@@ -360,7 +363,7 @@ interpolateSurface(points):=(
         ));
       );
       normalize(n);
-    ,coordP->coordPFct,D->(degree+1)),
+    ,coordP->coordPFct,D->degree),
     "plotModifiers":{"cglCoeffVec": K}
   }
   
