@@ -13,3 +13,4 @@
 .package-lock.json
 package-lock.json
 /.eslintcache
+.DS_Store

@@ -1,7 +1,7 @@
 var requires = {};
 
 function includefunction(name, modifs, codebuilder) { //includes functions and does DFS on all required functions.
-    //console.log("Runnining includefunction with args" + JSON.stringify([name,codebuilder]));
+    //cglLogDebug("Runnining includefunction with args" + JSON.stringify([name,codebuilder]));
     // we can assume we have a DAG
     if (codebuilder.mark('includedfunctions', name)) return;
 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
+            g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));
+            regionalInLazy = cglLazy(v,regional(c);c=v;c);
+            f3 = cglLazy((x,y,z),x^2+y^2-z^2);
+            g3 = cglLazy((x,y,z),x^2+y^2+z^2);
+            shaderCode(direction):=(
+              if(length(color)==3,
+                [color_1,color_2,color_3,0.5]
+              ,
+                color
+              );
+            );
+            shaderCode2(direction):=(
+              dColor = color;
+              repeat(length(color)-1,k,dColor_k = k*color_(k+1));
+              dColor_(length(color)) = 0;
+              dColor/3;
+            );
+            colorplot3d(shaderCode(#),[1,1,0],1,Ucolor->[1,0,0]);
+            colorplot3d(shaderCode(#),[-1,-1,0],1,Ucolor->[0,1,0,0.5]);
+            colorplot3d(shaderCode2(#),[1,-1,0],1,Ucolor->[1,2,1]);
+            colorplot3d(shaderCode2(#),[-1,1,0],1,Ucolor->[1,3,3,1]);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            cglRender3d(layers->0);
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ]
+            });
+        </script>
+    </body>
+</html>

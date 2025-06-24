@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: N*N*N grid of spheres</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            oo = 1000; //"infinity"
+            t0 = seconds();
+            normalize(v):=(v/|v|);// TODO? direct access to glsl normalize
+            sphere(direction):=(
+              // |v+l*d -c|=r
+              vc=cglViewPos-cglCenter;
+              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+              b2=(vc*direction); // 1/2 * b
+              c=vc*vc-cglRadius*cglRadius;
+              D4=b2*b2-c; // 1/4* ( b*b - 4 *a*c)
+              if(D4<0,cglDiscard());
+              dst=-b2-re(sqrt(D4));// sqrt should always be real
+              pos3d = cglViewPos+ dst*direction;
+              normal = normalize(pos3d - cglCenter);
+              brigthness = 0.4 - 0.1*direction*normal; // 0.3 ... 0.5
+              color = brigthness*(cglCenter+[1,1,1]);
+              cglDepth = dst*0.05;
+              [color_1,color_2,color_3]
+            );
+            prevN=0;
+            updateImage(N):=(
+              r=1/N;
+              cglReset3d();
+              forall(0..N,x,forall(0..N,y,forall(0..N,z,
+                colorplot3d(sphere(#),[2*x/N-1,2*y/N-1,2*z/N-1],r*1.05);
+              )));
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            time = seconds()-t0;
+            alpha = .5+mouse().x;
+
+            y=A.y;
+            if(y<N0.y,y=N0.y);
+            if(y>N1.y,y=N1.y);
+            N=floor(47*(y-N0.y)/(N1.y-N0.y)+2);// 2 .. 49 -> side length: 3 ... 50
+            A.xy=(N0.x,y);
+            drawtext(A+(.03,.03),(N+1));
+            if(N!=prevN,prevN=N;updateImage(N));
+
+            rho = re(time/5+mouse().y);
+            theta = re(mouse().x+time/10);
+
+            cglResetRotation();
+            rotate3d(theta,rho);
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 544,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2.25, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "N0", type: "Free", pos: [2, -1.5], color: [0, 1, 0], pinned: true, size: 4 },
+                    { name: "N1", type: "Free", pos: [2, 1.5], color: [1, 0, 0], pinned: true, size: 4 },
+                    { name: "l", type: "Segment", args: ["N0", "N1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "A", type: "Free", pos: [2, -1.0], color: [0, 0, 1], pinned: false,narrow: true, size: 4 },
+                ],
+            });
+        </script>
+    </body>
+</html>

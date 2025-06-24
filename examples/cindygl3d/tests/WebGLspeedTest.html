@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: test-cases to find the limiting factor of WebGL in Safari</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            t0 = seconds();
+            // no longer smooth: safari: ~5000 firefox: ~10000
+            testLinearSpeed():=(
+              delta = color_3;
+              repeat(10000,t,
+                delta = delta + sin(t);
+              );
+              (color_1,color_2,delta)
+            );
+            // no significant difference between browsers, safari seems to load a little faster, runs smooth until reaching maximum uniform size
+            N = 30;
+            dataMatrix = apply(1..N,x,apply(1..N,y,
+                (sin(x/N),cos(y/N),(arctan2(x,y)+pi)/(2*pi))
+            ));
+            testDataMatrix(dir):=(
+                regional(pos2d,D,row,elt);
+                pos2d = ((dir_1,dir_2)*4+(1,1))/2;
+                row = matrix_1;
+                D=length(matrix);
+                forall(1..length(matrix),i,
+                    if(i/D<pos2d_1,row=matrix_i);
+                );
+                elt = row_1;
+                forall(1..length(matrix),i,
+                    if(i/D<pos2d_2,elt=row_i);
+                );
+                0.5*(color+elt);
+            );
+            // both browsers seem to use 23-bit precission (~float32)
+            testFloatPrecission(dir):=(
+                pos2d = ((dir_1,dir_2)*4+(1,1))/2;
+                x= floor(8*pos2d_1)/8;
+                y= floor(8*pos2d_2)/8;
+                eps = re(2^(-8*(x+8*y)));
+                (1+eps>1,x,y);
+            );
+            // firefox: smooth until ~10000 safari: ~5000
+            testConversions():=(
+                col3 = color;
+                repeat(10000,t,
+                    col4 = mat*(col3_1,col3_2,col3_3,1);
+                    col3 = (col4_1,col4_2,col4_3);
+                );
+                col3
+            );
+            // TODO write simple pixel-wise root-finding algorithm (? raytracer examples seem to be most affected by switching to safari)
+            //colorplot3d(testLinearSpeed(),Ucolor->[0.5,0,0]);
+            //colorplot3d(testDataMatrix(#),Umatrix->dataMatrix,Ucolor->[0.5,0,0]);
+            //colorplot3d(testFloatPrecission(#));
+            colorplot3d(testConversions(),Ucolor->[0.5,0,0],
+                Umat->[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]);
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            t = seconds()-t0;
+            // update value of color
+            cglUpdate(0,Ucolor->[sin(t),cos(t),0]);
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ]
+            });
+        </script>
+        You should see a square with smoothly changing colors
+    </body>
+</html>

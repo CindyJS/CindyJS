@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            f = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1+rgb_2)+(0.5,0.5,0.5));
+            g = cglLazy((rgb), 0.5*(rgb_1,rgb_2,rgb_1*rgb_2)+(0.5,0.5,0.5));
+            regionalInLazy = cglLazy(v,regional(c);c=v;c);
+            f3 = cglLazy((x,y,z),x^2+y^2-z^2);
+            g3 = cglLazy((x,y,z),x^2+y^2+z^2);
+            shaderCode(direction):=(
+              cglEval(regionalInLazy,direction);
+              // |v+l*d -c|=r
+              vc=cglViewPos-cglCenter;
+              // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
+              b2=(vc*direction); // 1/2 * b
+              c=vc*vc-cglRadius*cglRadius;
+              if(b2*b2-c<0,cglDiscard()); // 1/4* ( b*b - 4 *a*c)              
+              cglEval(f,direction);
+            );
+            test(f,x,y):=(
+              cglDebugPrint(f);
+              print(((x,y),cglEval(f,(x,y))));
+              cglDebugPrint(f);
+              colorplot3d(shaderCode(#),[x,y,0],1,Uf->f);
+            );
+            test(f,-1.5,-1.5);
+            test(g,-1.5,1.5);
+            test(cglLazy([a],[1,0,0]),1.5,-1.5);
+            test(cglLazy([a],[0,1,0]),1.5,1.5);
+            test(f,0,0);
+            test2(f,x,y,z):=(
+              print(((x,y,z),cglEval(f,x,y,z)));
+            );
+            modifInExpr = cglLazy((localX,localY,z),localX:"x"*localX:localY);
+            modifVal = [];
+            modifVal:"test"=f3;
+            modifVal:"x"=6;
+            modifVal:"localKey"=7;
+            test2(f3,1,2,3);
+            test2(g3,1,2,3);
+            test2(modifVal:"test",0,0,-1);
+            test2(g3,0,0,-1);
+            test2(modifInExpr,modifVal,"localKey",0);
+            
+            f1 = cglLazy((x,y),x+y);
+            testLazyModifiers = cglLazy((y),cglEval(f,x,y),f->f1,x->3);
+            testLazyModifiers2 = cglLazy((p),(r,cglEval(f,p_1,p_2),b),f->f1,r->0.25,b->0.75);
+            f1 = cglLazy((x,y),x*y);
+            print((2,cglEval(testLazyModifiers,2)));
+            print((5,cglEval(testLazyModifiers,5)));
+            test(testLazyModifiers2,2.5,0);
+            regionalInLazy = cglLazy(p,
+              regional(f);
+              f=[0,0.25,0.35];
+              cglEval(nestedLazy,0);
+              f
+            ,nestedLazy->cglLazy(x,regional(f);f=x));
+            test(regionalInLazy,-2.5,0);
+            scopeTest=cglLazy((x,y),
+              regional(y);
+              y = x + 1;
+              repeat(3,x,print(x));
+              y = y + forall([1,2,3],x,x);
+              z = product([4,5,6],x,x^2);
+              print([x,y,z]);
+              f(x,y):=(
+                regional(x);
+                x = 5;
+                x+y;
+              );
+              a=cglLazy(t,regional(x);x=t*t+1;);
+              print(x);
+              print([f(3,x)==8,cglEval(a,x),x]);
+            );
+            cglEval(scopeTest,1,2);
+            curry = cglLazy(x,cglLazy(y,x+y));
+            print(cglEval(cglEval(curry,2),3));
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            cglRender3d();            
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ]
+            });
+        </script>
+    </body>
+</html>
