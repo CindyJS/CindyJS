@@ -85,6 +85,9 @@ Surfaces and plots allow specifing:
   - `CutoffCube(center,sideLength)` an axis-aligned cube with the given center and sideLengths
   - `CutoffCube(center,sideLength,up,front)` a cube with the given center and sidelength with axes pointing in directions `up` and `front`
   - `CutoffCuboid(center,v1,v2,v3)` a cuboid with the given center and axes
+  The functon `cutoffAddPlane(cutoff,normal,depth)` can be used to intersect a cutoff region with the half-space `{P ; P*normal <= depth}`, the result will be another cutoff-region.
+  The expressions `normal` and `depth` are reevaulated every frame, the modifier plot-modifiers `plotModifiers` can be used to define plot-modifiers used in the normal and depth expressions.
+
 * `degree` the degree of the rendered surface (may be smaller than the actual degree), use a value of `-1` to specify a degree of infinity.
 * `layers` number of rendered layers, if layers is set to `0` all layers will be merged into the top layer, otherwise the top `layers` roots for each pixel are rendered on seperate textures and merged afterwards (to allow rendering of objects between the different parts of the surface). When layers is negative the degree will be used as layer count.
 

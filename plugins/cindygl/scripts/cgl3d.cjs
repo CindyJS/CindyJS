@@ -1329,6 +1329,30 @@ CutoffCube(center,sideLength) := CglCutoffCube(center,sideLength);
 CutoffCube(center,sideLength,up,front) := CglCutoffCube(center,sideLength,up,front);
 CutoffCuboid(center,v1,v2,v3) := CglCutoffCuboid(center,v1,v2,v3);
 
+// intersect cutoff-region with the half-space {P ; P*normal <= depth} // code TODO? better name
+cglInterface("cutoffAddPlane",cglCutoffAddPlane,(oldCutoff,normal:(),depth:()),(plotModifiers));
+cglCutoffAddPlane(oldCutoff,normal,depth):=(
+  {
+    "expr":cglLazy(direction,
+      regional(depths,l,n);
+      depths = cglEval(baseExpr,direction);
+      // <v + l*d , n> <= x
+      // <v,n> + l<d , n> <= x
+      // l <= (x-<v,n>)/<d,n>
+      n = cglEval(normal); // current compiler does not support direct multplication with constant vector
+      l = (cglEval(depth)-(cglViewPos*n))/(direction*n);
+      if(n*direction>0,
+        depths_2 = min(depths_2,l);
+      ,
+        depths_1 = max(depths_1,l);
+      );
+      if(depths_1>depths_2,cglDiscard());
+      depths;
+    ,baseExpr->oldCutoff_"expr",normal->normal,depth->depth),
+    "bounds":oldCutoff_"bounds",
+    "modifs":cglMergeDicts(oldCutoff_"modifs",cglValOrDefault(plotModifiers,{}))
+  };
+);
 
 cglDefaultStack = [];
 cglResetDefaults() := (
