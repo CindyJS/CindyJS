@@ -973,11 +973,49 @@ let CindyGL = function(api) {
         // TODO? return a callback id, that can be removed later
         CindyGL.objectBuffer.callbacks.preRender.push(wrapLazy(args[0],[],true));
     });
+    // TODO support all draw modes supported by original colorplot:
+    // * <expr>
+    // * <expr> <(x0,y0)> <(x1,y1)> // draw to region bounded by rectangle
+    // * <lower-left> <lower-right> <image-name> <expr> // draw to image, draw image at screen region with given lower corners
+    // * <image-name> <expr> // draw to image, draw image at screen region with same lower corners as main canvas
+    // ? allow store/restore of coordinate system
+    // ?  automatic update of coordinate system to match render region of screen (if coordinates have to been explicitly set)
+    // move image information to render function:
+    // ✔ cglRender3d() -> render to main canvas
+    // ✔ cglRender3d(p0,p1) -> render to sub-rectangle of main canvas
+    // cglRender3d(name) -> render to image
+    // ? cglRender3d(ll,lr,name) -> render to image at screen pos ll,lr
     api.defineFunction("cglRender3d", 0, (args, modifs) => {
-        initGLIfRequired();
         // internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let iw = api.instance['canvas']['width'];
         let ih = api.instance['canvas']['height'];
+        render3d(0,0,iw,ih,iw,ih,modifs)
+    });
+    api.defineFunction("cglRender3d", 2, (args, modifs) => {
+        var a = api.extractPoint(api.evaluateAndVal(args[0]));
+        var b = api.extractPoint(api.evaluateAndVal(args[1]));
+
+        var ul = {
+            x: Math.min(a.x, b.x),
+            y: Math.max(a.y, b.y)
+        }; //upper left pt
+
+        let iw = api.instance['canvas']['width']; //internal measures. (works also on HiDPI-Displays)
+        let ih = api.instance['canvas']['height'];
+
+        let cul = computeUpperLeftCorner(api);
+        let clr = computeLowerRightCorner(api);
+
+        let fx = Math.abs((a.x - b.x) / (clr.x - cul.x)); //x-ratio of screen that is used
+        let fy = Math.abs((a.y - b.y) / (clr.y - cul.y)); //y-ratio of screen that is used
+
+        var xx = iw * (ul.x - cul.x) / (clr.x - cul.x);
+        var yy = ih * (ul.y - cul.y) / (clr.y - cul.y);
+        console.log(xx, yy, iw*fx, ih*fy, iw*fx, ih*fy);
+        render3d(xx, yy, iw*fx, ih*fy, iw*fx, ih*fy, modifs);
+    });
+    function render3d(x0,y0,x1,y1,iw,ih,modifs){
+        initGLIfRequired();
         let layerCount = getRealModifier(modifs,"layers",CindyGL.objectBuffer.translucent.size<2 ? 0 : 2);
         Renderer.resetCachedState();
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
@@ -1047,10 +1085,10 @@ let CindyGL = function(api) {
         let csctx = api.instance['canvas'].getContext('2d');
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
-        csctx.drawImage(glcanvas, 0, 0, iw, ih, 0, 0, iw, ih);
+        csctx.drawImage(glcanvas, 0, 0, iw, ih, x0, y0, x1, y1);
         csctx.restore();
         return nada;
-    });
+    };
     /**
      * Returns the current viewDirection for the pixel (args[0],args[1])
      */
