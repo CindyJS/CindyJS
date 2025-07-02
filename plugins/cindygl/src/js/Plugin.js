@@ -973,23 +973,18 @@ let CindyGL = function(api) {
         // TODO? return a callback id, that can be removed later
         CindyGL.objectBuffer.callbacks.preRender.push(wrapLazy(args[0],[],true));
     });
-    // TODO support all draw modes supported by original colorplot:
-    // * <expr>
-    // * <expr> <(x0,y0)> <(x1,y1)> // draw to region bounded by rectangle
-    // * <lower-left> <lower-right> <image-name> <expr> // draw to image, draw image at screen region with given lower corners
-    // * <image-name> <expr> // draw to image, draw image at screen region with same lower corners as main canvas
+    // TODO? automatic update of coordinate system to match render region of screen
+    // ?  no auto-update if coordinates have to been explicitly set
     // ? allow store/restore of coordinate system
-    // ?  automatic update of coordinate system to match render region of screen (if coordinates have to been explicitly set)
+    // ? support rotated coordinate-plane
     // move image information to render function:
-    // ✔ cglRender3d() -> render to main canvas
-    // ✔ cglRender3d(p0,p1) -> render to sub-rectangle of main canvas
-    // cglRender3d(name) -> render to image
-    // ? cglRender3d(ll,lr,name) -> render to image at screen pos ll,lr
+    // ? cglRender3d(ll,lr,name) -> render to image at screen pos ll,lr (always update coordinates)
     api.defineFunction("cglRender3d", 0, (args, modifs) => {
         // internal measures. might be multiple of api.instance['canvas']['clientWidth'] on HiDPI-Displays
         let iw = api.instance['canvas']['width'];
         let ih = api.instance['canvas']['height'];
-        render3d(0,0,iw,ih,iw,ih,modifs)
+        render3d(0,0,iw,ih,iw,ih,null,modifs);
+        return nada;
     });
     api.defineFunction("cglRender3d", 2, (args, modifs) => {
         var a = api.extractPoint(api.evaluateAndVal(args[0]));
@@ -1011,21 +1006,34 @@ let CindyGL = function(api) {
 
         var xx = iw * (ul.x - cul.x) / (clr.x - cul.x);
         var yy = ih * (ul.y - cul.y) / (clr.y - cul.y);
-        console.log(xx, yy, iw*fx, ih*fy, iw*fx, ih*fy);
-        render3d(xx, yy, iw*fx, ih*fy, iw*fx, ih*fy, modifs);
+        render3d(xx, yy, iw*fx, ih*fy, iw*fx, ih*fy, null, modifs);
+        return nada;
     });
-    function render3d(x0,y0,x1,y1,iw,ih,modifs){
+    api.defineFunction("cglRender3d", 1, (args, modifs) => {
+        initGLIfRequired();
+        var name = api.evaluateAndVal(args[0]);
+        if (name.ctype !== 'string') {
+            return nada;
+        }
+        let imageobject = api.getImage(name['value'], true);
+        //let canvaswrapper = generateWriteCanvasWrapperIfRequired(imageobject, api);
+        let canvaswrapper = generateCanvasWrapperIfRequired(imageobject, api, false);
+        var cw = imageobject.width;
+        var ch = imageobject.height;
+        render3d(0, 0, cw, ch, cw, ch, canvaswrapper, modifs);
+        return nada;
+    });
+    function render3d(x0,y0,x1,y1,iw,ih,canvaswrapper,modifs){
         initGLIfRequired();
         let layerCount = getRealModifier(modifs,"layers",CindyGL.objectBuffer.translucent.size<2 ? 0 : 2);
         Renderer.resetCachedState();
         gl.clear(gl.DEPTH_BUFFER_BIT|gl.COLOR_BUFFER_BIT);
-        const sceneRenderer = (layerCount == 0) ?
-            new Cgl3dSimpleSceneRenderer(iw,ih) :
-            new Cgl3dLayeredSceneRenderer(iw,ih,layerCount);
-        sceneRenderer.renderOpaque(CindyGL.objectBuffer.opaque);
         CindyGL.objectBuffer.callbacks.preRender.forEach((func)=>{
             cglEvalImpl(func,[],{});
         });
+        const sceneRenderer = (layerCount == 0) ?
+            new Cgl3dSimpleSceneRenderer(iw,ih,canvaswrapper) :
+            new Cgl3dLayeredSceneRenderer(iw,ih,canvaswrapper,layerCount);
         // ? split mesh into seperate layers depending on view direction
         CindyGL.objectBuffer.translucent.forEach((obj3d)=>{
             // sort triangles by depth
@@ -1062,6 +1070,8 @@ let CindyGL = function(api) {
                 vMod.aData = undefined; // remove cached attribute data
             });
         });
+        sceneRenderer.renderOpaque(CindyGL.objectBuffer.opaque);
+        // TODO? split cleanup& rendering of translucent objects
         sceneRenderer.renderTranslucent(CindyGL.objectBuffer.translucent);
         // TODO? extract to function on sceneRenderer
         let wrongOpacity = sceneRenderer.wrongOpacity;
@@ -1078,16 +1088,18 @@ let CindyGL = function(api) {
                 setObject(obj3d.id,obj3d);
             });
         }
-        //  gl.flush(); //renders stuff to canvaswrapper
-        // TODO? support for canvasWrapper in 3d mode
-        //    ? seperate object structure for each canvas-wrapper
+        if(canvaswrapper!=null) {
+          gl.flush(); //renders stuff to canvaswrapper
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          canvaswrapper.swap(); // swap textures after rendering
+          return;
+        }
         //  finish rendering
         let csctx = api.instance['canvas'].getContext('2d');
         csctx.save();
         csctx.setTransform(1, 0, 0, 1, 0, 0);
         csctx.drawImage(glcanvas, 0, 0, iw, ih, x0, y0, x1, y1);
         csctx.restore();
-        return nada;
     };
     /**
      * Returns the current viewDirection for the pixel (args[0],args[1])

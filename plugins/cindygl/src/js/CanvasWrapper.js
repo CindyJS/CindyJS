@@ -70,8 +70,13 @@ function CanvasWrapper(canvas, properties) {
     }
 
     this.shaderProgram = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["copytexture_f"]);
-    var posBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    this.prepareRender();
+};
+/**ensure vertex-buffer of WebGL context is set up for rendering canvas */
+CanvasWrapper.prototype.prepareRender = function() {
+    // TODO? reuse array-buffer instead of recreating on every use
+    this.posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuffer);
 
     var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
 
@@ -183,6 +188,19 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
     this.it ^= 1;
 };
+// For 3D-Renderer it is more convenient to seperate binding framebuffer and swapping textures
+/**
+ * runs a gl.bindFramebuffer on the framebuffer of the output texture
+ */
+CanvasWrapper.prototype.bindOutputFramebuffer = function() {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
+};
+/**
+ * swap inout and output textures
+ */
+CanvasWrapper.prototype.swap = function() {
+    this.it ^= 1;
+};
 
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
@@ -263,6 +281,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
     enlargeCanvasIfRequired(this.sizeXP, this.sizeYP);
+    this.prepareRender(); // ensure vertex buffer contains correct values
     gl.viewport(0, 0, this.sizeXP, this.sizeYP);
 
     this.shaderProgram.use(gl);

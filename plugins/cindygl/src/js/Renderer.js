@@ -20,7 +20,7 @@ Renderer.boundingSphere = function(center,radius){
 Renderer.boundingCylinder = function(center,direction,radius,overhang){
     let length=Math.sqrt(dot3(direction,direction));
     return {
-        type: BoundingBoxType.cylinder,center: center,direction: direction, radius: radius, 
+        type: BoundingBoxType.cylinder,center: center,direction: direction, radius: radius,
         boxLengthScale: (length+overhang)/length
     };
 }
@@ -790,8 +790,9 @@ Renderer.prototype.render2d = function(a, b, sizeX, sizeY, boundingBox, plotModi
  * or if argument targetBuffer is not given, then to glcanvas
  * @param {CglSceneLayer | null} targetLayer current rendering layer of null for simple rendering
  * @param {WebGLFramebuffer | null} targetBuffer current target frame buffer
+ * @param {boolean} imageCanvas is current canvas an image
  */
-Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers, targetLayer,targetBuffer) {
+Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers, targetLayer,targetBuffer,imageCanvas) {
     if(!this.mode3D) {
         cglLogWarning("3D-render of 2D expression");
     }
@@ -816,7 +817,7 @@ Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers,
     if( Renderer.prevSize[0] !== sizeX || Renderer.prevSize[1] !== sizeY ) {
         Renderer.prevSize=[sizeX,sizeY];
         enlargeCanvasIfRequired(sizeX, sizeY);
-        if (targetBuffer)
+        if (imageCanvas || targetBuffer)
             gl.viewport(0, 0, sizeX, sizeY);
         else
             gl.viewport(0, glcanvas.height - sizeY, sizeX, sizeY);
@@ -839,7 +840,7 @@ Renderer.prototype.render3d = function(sizeX, sizeY, boundingBox, plotModifiers,
     } else {
         gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length/3);
     }
-    if(targetBuffer) {
+    if(imageCanvas || targetBuffer) {
         gl.flush(); //renders stuff to targetBuffer
     }
 }
@@ -911,15 +912,28 @@ Renderer.prototype.resetAttribLocations = function() {
 /**
  * @param {number} iw screen width
  * @param {number} ih screen height
+ * @param {CanvasWrapper|null} canvaswrapper
  * @constructor
  */
-function Cgl3dSimpleSceneRenderer(iw,ih) {
+function Cgl3dSimpleSceneRenderer(iw,ih,canvaswrapper) {
     Renderer.transparencyType = TransparencyType.Simple;
     this.iw = iw;
     this.ih = ih;
+    this.imageCanvas = canvaswrapper != null;
     /** @type {Set<CindyGL3DObject>} */
     this.wrongOpacity = new Set();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind previous frame-buffer
+    if(canvaswrapper!=null) {
+        canvaswrapper.bindOutputFramebuffer(); //render to texture stored in canvaswrapper
+        canvaswrapper.generation = ++canvaswrapper.canvas.generation;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        // TODO? make depth-texture part of canvaswrapper
+        // canvaswrapper does not support depth-textures -> store depth in seperate texture
+        this.renderDepthBuffer =  createDepthBuffer(canvaswrapper.sizeXP,canvaswrapper.sizeYP);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, this.renderDepthBuffer, 0);
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind previous frame-buffer
+        this.renderDepthBuffer = null;
+    }
 };
 
 /**@param {Map<number,CindyGL3DObject>} objects */
@@ -927,7 +941,7 @@ Cgl3dSimpleSceneRenderer.prototype.renderOpaque = function(objects) {
     gl.enable(gl.DEPTH_TEST);
     gl.disable(gl.BLEND); // no need to blend opaque objects
     objects.forEach((obj3d)=>{
-        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null);
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null,this.imageCanvas);
         if(obj3d.opaque !== undefined ? !obj3d.opaque : !obj3d.renderer.opaque){
             this.wrongOpacity.add(obj3d);
         }
@@ -938,11 +952,14 @@ Cgl3dSimpleSceneRenderer.prototype.renderTranslucent = function(objects) {
     // reenable blending
     gl.enable(gl.BLEND);
     objects.forEach((obj3d)=>{
-        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null);
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, null,this.imageCanvas);
         if(obj3d.opaque !== undefined ? obj3d.opaque : obj3d.renderer.opaque){
             this.wrongOpacity.add(obj3d);
         }
     });
+    if (this.renderDepthBuffer !== null) {
+        gl.deleteTexture(this.renderDepthBuffer);
+    }
 };
 
 /**
@@ -1039,10 +1056,11 @@ CglSceneLayer.freeDepthTexture = function(texture) {
 /**
  * @param {number} iw screen width
  * @param {number} ih screen height
+ * @param {CanvasWrapper|null} canvaswrapper
  * @param {number} layerCount
  * @constructor
  */
-function Cgl3dLayeredSceneRenderer(iw,ih,layerCount) {
+function Cgl3dLayeredSceneRenderer(iw,ih,canvaswrapper,layerCount) {
     if(!(layerCount >= 1)){ // negated condition to correctly handle NaN values
         cglLogWarning("invalid layerCount should be >= 1 got:",layerCount);
         layerCount = 1;
@@ -1052,6 +1070,7 @@ function Cgl3dLayeredSceneRenderer(iw,ih,layerCount) {
     Renderer.transparencyType = layerCount == 1 ? TransparencyType.SingleLayer : TransparencyType.MultiLayer;
     this.iw = iw;
     this.ih = ih;
+    this.canvaswrapper = canvaswrapper;
     /** @type {Set<CindyGL3DObject>} */
     this.wrongOpacity = new Set();
     this.mergeBuffer = gl.createFramebuffer();
@@ -1109,7 +1128,7 @@ Cgl3dLayeredSceneRenderer.prototype.swapTmpLayer = function(tmpSlot,newTmpLayer)
 /**@param {Map<number,CindyGL3DObject>} objects */
 Cgl3dLayeredSceneRenderer.prototype.renderOpaque = function(objects) {
     objects.forEach((obj3d)=>{
-        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers, null, this.renderBuffer);
+        obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers, null, this.renderBuffer, this.canvaswrapper != null);
         if(obj3d.opaque !== undefined ? !obj3d.opaque : !obj3d.renderer.opaque){
             this.wrongOpacity.add(obj3d);
         }
@@ -1131,7 +1150,7 @@ Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
             // cannot read and write to same texture in one shader call
             // 1. render to renderLayer with layers[0] as input
             Renderer.prevShader = undefined; // clear cached shader data
-            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,this.layers[0], this.renderBuffer);
+            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,this.layers[0], this.renderBuffer, this.canvaswrapper != null);
             // 2. swap rendered layer with layer[0]
             gl.disable(gl.CULL_FACE);// don't cull faces while swapping layers
             this.layers[0] = this.swapRenderLayer(this.layers[0]);
@@ -1146,7 +1165,7 @@ Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
             gl.clearBufferfv(gl.COLOR, 0, [0, 0, 0, 0]);
             gl.clearBufferfv(gl.COLOR, 1, [1, 0, 0, 0]); // clear depth-texture to 1
             Renderer.prevShader = undefined; // clear cached shader data
-            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, this.renderBuffer);
+            obj3d.renderer.render3d(this.iw, this.ih,obj3d.boundingBox,obj3d.plotModifiers,null, this.renderBuffer, this.canvaswrapper != null);
             gl.bindFramebuffer(gl.FRAMEBUFFER, this.mergeBuffer);
             gl.disable(gl.DEPTH_TEST); // no depth-testing during texture sorting
             gl.disable(gl.CULL_FACE); // don't cull faces while sorting layers
@@ -1175,7 +1194,13 @@ Cgl3dLayeredSceneRenderer.prototype.renderTranslucent = function(objects) {
         });
     }
     // TODO? render multiple layers in a single call
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+    if(this.canvaswrapper!=null) {
+        this.canvaswrapper.bindOutputFramebuffer(); //render to texture stored in canvaswrapper
+        this.canvaswrapper.generation = ++this.canvaswrapper.canvas.generation;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null); // unbind previous frame-buffer
+    }
     gl.depthMask(true); // reset depth masking
     gl.enable(gl.BLEND);
     for(let layerId = layerCount-1;layerId>=0;layerId--) {

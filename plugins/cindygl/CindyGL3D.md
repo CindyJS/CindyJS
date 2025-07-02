@@ -29,6 +29,8 @@ The corners of the view-plane can be set using the modifiers `x0`, `y0`, `x1`, `
 * `cglReset3d` reset 3D scene
 * `cglRender3d` render 3D scene, the `layers` modifier can be used to change how translucent objects are rendered, setting `layers` to `0` will render all objects in the order they are declared, if layers is `N` larger that `0` the renderer will try to sort the non-opaque objects at each pixel by their depth value using textures to store the top `N-1` objects at each pixel as well as the remaining objects merged by depth.
 By default `layers` is `0` is there is at most one non-opaque object and `2` otherwise, where an object is considered opaque if its pixel-color has (at most) 3 components
+* `cglRender3d(<p0>,<p1>)` render 3D-scene to screen-rectangle bounded by the points `p0` and `p1`
+* `cglRender3d(<image>)` render 3D-scene to image (given as a string)
 * `colorPlot3d(<expr>)` prepares color-plot with depth the expression should return a vector of five values z,r,g,b,a where rgba are the color for the current pixel and z is a depth value between 0 and 1, returns the id of the created 3D-object
 * `colorPlot3d(<expr>,<center>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) sphere around `<center>` with the given radius
 * `colorPlot3d(<expr>,<pointA>,<pointB>,<radius>)` like colorplot3d, but restricts the drawing area to a (bounding rectangle of a) cylinder with end-points `<pointA>` and `<pointB>` and the given radius
