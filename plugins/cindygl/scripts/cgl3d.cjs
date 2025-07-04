@@ -1441,6 +1441,8 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? cglLogLevel(...) built-in for setting log-level
 
 // bug TODO:
+// TODO multi-part in cgl-lazy can lead to wrong result in expression
+// * surface3d(p=trafo(x,y,z);f(x,y,z)) leads to invalid normal vectors
 // TODO handle radius <= 0
 // * <0 -> use abs-value, (? use mirrored texture coordinates)
 // * torus with major radius 0 -> sphere with minor radius as radius

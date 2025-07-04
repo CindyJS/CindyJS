@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 3;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            zoom = 1.0;
+
+            cglDefaults_"cylinderCaps"=CylinderCapRound;
+            a = 0.25;
+            b = -0.25;
+            c = 0.25;
+            pointSize = 0.01;
+            trafo = ((1,0,0,0),(0,1,0,0),(0,0,1,0),(a,b,c,1));
+            itrafo = inverse(trafo);
+
+            pts1=(
+              (1,-1,0,0,0),
+              (1,0,-1,0,0),
+              (1,0,0,-1,0),
+              (1,0,0,0,-1),
+              (0,1,-1,0,0),
+              (0,1,0,-1,0),
+              (0,1,0,0,-1),
+              (0,0,1,-1,0),
+              (0,0,1,0,-1),
+              (0,0,0,1,-1)
+            );
+            lns1 = remove(flatten(
+              apply(pts1,p,apply(pts1,q,
+                if(p*q != 0 % text(q)<text(p),0,
+                  (p,q)
+                )
+              ))
+            ),0);
+            r = exp(i*(2*pi)/5);
+            pts2=(
+              (1,r,r^2,r^3,r^4),
+              (1,r,r^3,r^2,r^4),
+              (1,r^2,r,r^3,r^4),
+              (1,r^2,r^3,r,r^4),
+              (1,r^3,r,r^2,r^4),
+              (1,r^3,r^2,r,r^4),
+              (1,r,r^2,r^4,r^3),
+              (1,r,r^4,r^2,r^3),
+              (1,r^2,r,r^4,r^3),
+              (1,r^2,r^4,r,r^3),
+              (1,r^4,r,r^2,r^3),
+              (1,r^4,r^2,r,r^3)
+            );
+            lns2 = apply(pts2,p,
+              (p+conjugate(p),i*(p-conjugate(p)))
+            );
+            radius = 4.5;
+            point5d(p,color):=(
+              p = trafo * (p_1,p_2,p_3,p_4);
+              if(p_4!= 0,
+                p = (p_1,p_2,p_3)/p_4;
+                if(p*p<radius*radius,
+                  sphere3d(p,pointSize,color->color);
+                );
+              );
+            );
+            line5d(l,color):=(
+              regional(p,q,isFinite,m,v,b,c,r);
+              p = l_1; q = l_2;
+              p = trafo * (p_1,p_2,p_3,p_4);
+              q = trafo * (q_1,q_2,q_3,q_4);
+              isFinite = false;
+              if(p_4!=0 & q_4 != 0,
+                p = (p_1,p_2,p_3)/p_4;
+                q = (q_1,q_2,q_3)/q_4;
+                m = (p+q)/2;
+                v = normalize(p-q);
+                isFinite = true;
+              ,if(p_4!=0 % q_4 != 0,
+                if(p_4==0,tmp=p;p=q;q=tmp;);
+                m = (p_1,p_2,p_3)/p_4;
+                v = normalize((q_1,q_2,q_3));
+                isFinite = true;
+              ));
+              if(isFinite,
+                // (m+t*v,m+t*v) = (m,m)+2*t*(m,v)+t*t*(v,v) = radius*radius
+                c = m*m - radius*radius;
+                b = m*v;
+                r = sqrt(b*b-c);
+                if(r>0,
+                  cylinder3d(m-(b+r)*v,m-(b-r)*v,0.5*pointSize,color->color);
+                );
+              );
+            );
+            clebsh(x,y,z):=(
+              regional(p);
+              p=itrafo*(x,y,z,1);
+              (p_1)^3+(p_2)^3+(p_3)^3+(p_4)^3-(p_1+p_2+p_3+p_4)^3;
+            );
+            update():=(
+                viewRect = cglViewRect(); // [x0,y0,x1,y1]
+                x0 = viewRect_1;
+                y0 = viewRect_2;
+                x1 = viewRect_3;
+                y1 = viewRect_4;
+                radius = min(|x1-x0|,|y1-y0|)/2;
+                cglReset3d();
+                if(alpha>0,
+                  surface3d(clebsh(x,y,z),alpha->alpha,colorExpr->if(normal*cglViewDirection>0,cglYellow,cglCyan),layers->3);
+                );
+                if(pointSize>0,
+                  forall(lns1,l,line5d(l,cglRed));
+                  forall(lns2,l,line5d(l,cglBlue));
+                  forall(pts1,p,point5d(p,cglWhite));
+                );
+                // TODO? draw blue+blue and blue+red intersections
+            );
+            update();
+            updateZoom():=(
+              if(zoom>2.5,zoom=2.5);
+              if(zoom<0.4,zoom=0.4);
+              zoom3d(zoom);
+              update();
+            );
+            getSlider(P0,P1,P,min,max):=(
+              regional(y);
+              y=P.y;
+              if(y<P0.y,y=P0.y);
+              if(y>P1.y,y=P1.y);
+              P.xy=(P0.x,y);
+              (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 0.5*(mouse().x -sx); dy = 0.5*(mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+            oldA = a; oldB = b; oldC = c; oldAlpha = alpha; oldPSize = pointSize;
+            a = getSlider(A0,A1,A,-1,1);
+            b = getSlider(B0,B1,B,-1,1);
+            c = getSlider(C0,C1,C,-1,1);
+            alpha = getSlider(D0,D1,D,0,1);
+            pointSize = getSlider(E0,E1,E,0,0.2);
+            trafo = ((1,0,0,0),(0,1,0,0),(0,0,1,0),(a,b,c,1));
+            itrafo = inverse(trafo);
+            if(a!=oldA % b!=oldB % c!=oldC % alpha != oldAlpha % oldPSize != pointSize,
+              update();
+            );
+            cglRender3d();
+            drawtext(A1+(-.07,.07),"a");
+            drawtext(B1+(-.07,.07),"b");
+            drawtext(C1+(-.07,.07),"c");
+            drawtext(D1+(-.05,.07),"𝛼");
+            drawtext(E1+(-.05,.07),"r");
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 683,
+                        height: 512,
+                        transform: [{ visibleRect: [-4, -3, 4, 3] }],
+                    },
+                ],
+                geometry: [
+                    { name: "A0", type: "Free", pos: [3.1, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "A1", type: "Free", pos: [3.1, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["A0", "A1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "A", type: "Free", pos: [3.1, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "B0", type: "Free", pos: [3.3, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "B1", type: "Free", pos: [3.3, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["B0", "B1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "B", type: "Free", pos: [3.3, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "C0", type: "Free", pos: [3.5, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "C1", type: "Free", pos: [3.5, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_2", type: "Segment", args: ["C0", "C1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "C", type: "Free", pos: [3.5, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "D0", type: "Free", pos: [3.75, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "D1", type: "Free", pos: [3.75, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_3", type: "Segment", args: ["D0", "D1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "D", type: "Free", pos: [3.75, 2.75], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "E0", type: "Free", pos: [3.9, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "E1", type: "Free", pos: [3.9, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_4", type: "Segment", args: ["E0", "E1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "E", type: "Free", pos: [3.9, 0], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                },
+            });
+        </script>
+    </body>
+</html>

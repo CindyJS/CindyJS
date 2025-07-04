@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        Rolling a tetrahedron over the plane
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            rotating = true;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            drawCutoff = true;
+            zoom = 1.0;
+
+            points = (
+              (2*sqrt(2)/3,0,-1/3),
+              (-sqrt(2)/3,sqrt(2/3),-1/3),
+              (-sqrt(2)/3,-sqrt(2/3),-1/3),
+              (0,0,1)
+            );
+            vColors = ((1,0,0),(0,1,0),(0,0,1),(0.5,0.5,0.5));
+            faceColors = apply(1..4,k,apply(remove(1..4,k),i,vColors_i));
+            rotate3d(0,5*pi/4);
+
+            steps = 32;
+            delay = 16;
+            first = true;
+            maxImprints = 32;
+            remaining = 0;
+            p=0;
+            targetPoints = points;
+            imprints = targetImprints = [];
+
+            updateZoom():=(
+              if(zoom>5,zoom=5);
+              if(zoom<0.5,zoom=0.5);
+              zoom3d(zoom);
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 2 * (mouse().x -sx); dy = 2 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            if(remaining==0,
+              points = targetPoints;
+              oldPoints = points;
+              imprints = targetImprints;
+              oldImprints = imprints;
+              if(first,
+                first=false;
+                fixedCorners = (3,1);
+                nextCorner=2;
+                freeCorners = (4,3);
+              ,
+                p = mod(p+1,8);
+                if(p>3&p<7,
+                  fixedCorners = (fixedCorners_2,fixedCorners_1);
+                );
+                // rotate fixed corners by one
+                if((points_(freeCorners_2))_3 < (points_(freeCorners_1))_3,
+                  nextCorner = freeCorners_2;
+                  freeCorners = (freeCorners_1,fixedCorners_1);
+                ,
+                  nextCorner = freeCorners_1;
+                  freeCorners = (freeCorners_2,fixedCorners_1);
+                );
+              );
+              nextImprint=(apply(sort(append(fixedCorners,nextCorner)),i,points_i), faceColors_(freeCorners_1));
+              if(length(imprints)<maxImprints,
+                imprints = append(imprints,nextImprint);
+              ,
+                imprints = append(apply(2..length(imprints),i,imprints_i),nextImprint);
+              );
+              oldImprints = imprints;
+              fixedCorners = (fixedCorners_2,nextCorner);
+              axis = points_(fixedCorners_2)-points_(fixedCorners_1);
+              normal = normalize(cross(axis,(0,0,1)));
+              targetPoints = apply(points,p,p-2*(p*normal)*normal);
+              targetImprints = apply(imprints,fc,(apply(fc_1,p,p-2*(points_(fixedCorners_1)*normal)*normal),fc_2));
+              tmp = targetPoints_(freeCorners_1);
+              targetPoints_(freeCorners_1) = targetPoints_(freeCorners_2);
+              targetPoints_(freeCorners_2) = tmp;
+              remaining = steps + delay;
+            ,
+              if(remaining<=steps,
+                t = remaining/steps;
+                points = apply(1..(length(points)),i,t*oldPoints_i+(1-t)*targetPoints_i);
+                pivot = 0.5*(points_(fixedCorners_1)+points_(fixedCorners_2));
+                forall(freeCorners,i,
+                  delta = points_i-pivot;
+                  points_i = pivot + sqrt(2)*normalize(delta);
+                );
+                imprints = apply(1..length(imprints),i,
+                  (apply(1..3,j,t*(oldImprints_i)_1_j+(1-t)*(targetImprints_i)_1_j),(oldImprints_i)_2)
+                );
+              );
+              remaining = remaining-1;
+            );
+            faces = apply(1..4,k,apply(remove(1..4,k),i,points_i));
+            cglReset3d();
+            forall(1..length(faces),i,polygon3d(faces_i,colors-> faceColors_i,normal->normalize(sum(faces_i))));
+            forall(imprints,fc,polygon3d(fc_1, colors->fc_2,normal->(0,0,1)));
+
+            cglRender3d();
+
+            // TODO? support other different shapes that leave regular pattern when rolled over the plane
+            // 3gon
+            // 4gon
+            // ! 6gon
+            // tetrahedron ✔
+            // ! cube
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+
+        <script type="text/javascript">
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
