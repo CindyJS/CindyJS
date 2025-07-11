@@ -57,7 +57,7 @@ cglComputeLight(direction,normal,col,pos):=(
 // default light computation
 cglDefaultLight = cglLazy((color,direction,normal),
   regional(col3,lightCol);
-  // apply calcnextcolor only to first 3 components
+  // apply light calculation only to first 3 components
   // this code should work for both colors of size 3 and 4
   col3=(color_1,color_2,color_3)*0.75;
   lightCol = 0.75*color; // ensure that lightCol is a float array
@@ -1427,6 +1427,7 @@ cglMergeDicts(dict1,dict2):=(
 // ? use internal global variables (-> document names of default values)
 // ? always use cglAlpha even if explicitly not specified
 // TODO? add simple way to specify seperate color(s)/texture for back-side of rendered surface
+// * support orthogonal projection, smooth moving between linear and orth projection
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
 // TODO? rename spacePos -> pos3d
@@ -1441,6 +1442,7 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? cglLogLevel(...) built-in for setting log-level
 
 // bug TODO:
+// FIXME rendering of mesh with overlapping transparent textures is partially broken
 // TODO multi-part in cgl-lazy can lead to wrong result in expression
 // * surface3d(p=trafo(x,y,z);f(x,y,z)) leads to invalid normal vectors
 // TODO handle radius <= 0
@@ -1454,6 +1456,7 @@ cglMergeDicts(dict1,dict2):=(
 // TODO curve3d is nummerically unstable if number of sample points gets large
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
 // TODO? connect3d: angled caps for might cut into next segment
+// * spheres&surfaces break if view distance is moved far out (? use trick of "moving view closer to object" from cylinder/torus also for spheres/surfaces)
 
 // opt TODO:
 // TODO? store texture-name in plotModifier instead of lambda-modifier
@@ -2162,7 +2165,132 @@ cglTriangle3d(p1,p2,p3):=(
     plotModifiers->modifiers,vModifiers->vModifiers,tags->["triangle"]++tags,opaqueIf->opacityExpr);
 );
 
-// feature TODO? triangles3d
+// TODO improve triangle rendering
+// TODO? support rendering multiple polygons in single call (should be possible with minimal extension of the triangles function)
+// TODO? auto-merge rendered triangles with similar parameters into single render-call
+
+// render multiple triangles in a single call
+cglInterface("triangles3d",cglTriangles3d,(triangles),(color,colors,texture,textureRGB,textureRGBA,interpolateTexture,repeatTexture,
+  colorExpr:(texturePos,spacePos,normal),colorExprRGB:(texturePos,spacePos,normal),
+  colorExprRGBA:(texturePos,spacePos,normal),thickness,alpha,light:(color,direction,normal),uv,normals,normalExpr:(spacePos,texturePos),plotModifiers,vertexModifiers,tags));
+cglTriangles3d(triangles):=(
+  regional(modifiers,vModifiers,defNormal,hasAlpha,usesAlpha,exprData,pixelExpr,colLen,opacityExpr,tri,n,cols);
+  color = cglValOrDefault(color,cglDefaults_"triangleColor");
+  light = cglValOrDefault(light,cglDefaults_"light");
+  uv = if(isundefined(uv),
+    flatten(apply(1..(length(triangles)),[(0,0),(1,0),(0,1)]))
+  ,
+    cglCheckSize(uv,length(triangles),"uv should contain one element for each triangle");
+    flatten(apply(1..(length(triangles)),i,
+      if(i<length(uv),
+        triuv = uv_i;
+        if(length(triuv)==3,
+          triuv
+        ,
+          cglCheckSize(triuv,3,"wrong length for triangle uv",defNormal);
+          if(length(triuv)>3,
+            [triuv_1,triuv_2,triuv_3]
+          ,
+            [(0,0),(1,0),(0,1)]
+          )
+        );
+      ,
+        [(0,0),(1,0),(0,1)]
+      );
+    ))
+  );
+  alpha = cglValOrDefault(alpha,cglDefaults_"triangleAlpha");
+  hasAlpha = !isundefined(alpha);
+  alpha = cglValOrDefault(alpha,1);
+  modifiers = {
+    "cglLight": light
+  };
+  modifiers = cglMergeDicts(modifiers,cglValOrDefault(plotModifiers,{}));
+  vModifiers = cglValOrDefault(vertexModifiers,{});
+  if(isundefined(normalExpr),
+    if(isundefined(normals),
+      normals = [];
+    ,
+      cglCheckSize(normals,length(triangles),"normals should contain one element for each triangle");
+    );
+    normals = flatten(apply(1..(length(triangles)),i,
+      tri = triangles_i;
+      defNormal = normalize(cross(tri_2-tri_1,tri_3-tri_1));
+      if(i<length(normals),
+        n = normals_i;
+        if(islist(n_1),
+          cglCheckSize(n,3,"wrong length for triangle normals",defNormal);
+        ,
+          [n,n,n]
+        )
+      ,
+        [defNormal,defNormal,defNormal]
+      );
+    ));
+    vModifiers_"cglNormal" = normals;
+    normalExpr = cglLazy((spacePos,texturePos),normalize(cglNormal));
+  ,
+    if(!isundefined(normals),
+      cglLogWarning(" modifier `normals` is ignored if `normalExpr` is given");
+    );
+    modifiers_"cglNormal" = defNormal;
+    normalExpr = cglLazy((spacePos,texturePos),cglNormal);
+  );
+  modifiers_"cglNormalExpr" = normalExpr;
+  modifiers_"cglTextureMapping" = cglLazy((pos3d,direction),cglTexCoords);
+  vModifiers_"cglTexCoords" = uv;
+  exprData = cglResolveColorExpr(hasAlpha);
+  pixelExpr = exprData_"pixelExpr";
+  usesAlpha = exprData_"usesAlpha";
+  modifiers = cglMergeDicts(modifiers,exprData_"modifiers");
+  if(hasAlpha, modifiers_"cglAlpha" = alpha);
+  if(isundefined(pixelExpr),
+    if(isundefined(colors),
+      color = cglNormalColor(color);
+      colLen = length(color)
+    ,
+      cglCheckSize(colors,length(triangles),"colors should contain one element for each triangle");
+      colors = flatten(apply(1..(length(triangles)),i,
+        if(i<length(normals),
+          cols = colors_i;
+          if(islist(cols_1),
+            cglCheckSize(cols,3,"wrong length for triangle colors",color);
+          ,
+            [cols,cols,cols]
+          )
+        ,
+          [color,color,color]
+        );
+      ));
+      colors = apply(colors,col,cglNormalColor(col));
+      colLen = max(apply(colors,col,length(col)));
+      colors = apply(colors,col,
+        if(colLen > length(col),(col_1,col_2,col_3,1),col);
+      );
+    );
+    usesAlpha = colLen == 4;
+    if(hasAlpha,
+      if(colLen == 4,
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglColor_4*cglAlpha));
+      ,
+        modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),(cglColor_1,cglColor_2,cglColor_3,cglAlpha));
+      );
+    ,
+      modifiers_"cglPixelExpr" = cglLazy((texPos,pos3d,normal),cglColor);
+    );
+    if(isundefined(colors),
+      modifiers_"cglColor"=color;
+    ,
+      vModifiers_"cglColor"=colors;
+    );
+  ,
+    modifiers_"cglPixelExpr" = pixelExpr;
+  );
+  tags = cglValOrDefault(tags,[]);
+  opacityExpr = if(usesAlpha,false,if(hasAlpha,cglLazy(cglAlpha>=1),true));
+  colorplot3d(cgl3dTriangleShaderCode(#),flatten(triangles),
+    plotModifiers->modifiers,vModifiers->vModifiers,tags->["triangles"]++tags,opaqueIf->opacityExpr);
+);
 
 cglInterface("polygon3d",cglPolygon3d,(vertices),(triangulationMode,color,colors,texture,
   textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),

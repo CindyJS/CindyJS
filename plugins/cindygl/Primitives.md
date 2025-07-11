@@ -114,6 +114,9 @@ CindyGL3D defines the following functions for drawing primitive objects:
   - `TriangulateCenter` connect all vertices to additional vertex in center of polygon (mean of vertcies)
   - `TriangulateSpiral` cut of every second vertex until only 3-vertices are left
 
+* `triangles3d(triangles)` draw multiple (independent) triangles
+  triangles should be a list of vertex triples, the modifiers `normals`, `colors` and `uv` should have an element (potentially a list) for each triangles
+
 * `mesh3d(grid)` draws the rectangual mesh with the given sample points in grid, given as a rectangual matrix with in the form `grid_y_x`. It is expected that vertex data is given as retangual grids of the same shape. The modifier `topology` can be used to specify how the gird should be closed, possible values are:
   - `TopologyOpen` don't close shape
   - `TopologyCloseX` close shape in x-direction
