@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        Quadric through 9 free points
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            if(target < 0,
+              rotating = true;
+            ,
+              dragging = true;
+            );
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            zoom = 1.0;
+
+            s=2.5;
+            r0=.15; // radius spheres
+            r1=.05; // radius axes
+            r2= 0.7; // length axes
+            cglDefaults_"cylinderSize" = 0.1;
+
+            col=[1,0,0];
+            colSelected=[0,1,0];
+            coordColXY = [0,1,0,0.5];
+            coordColZ = [1,0,0,0.5];
+            coordColInactive = [0,0,0,0];
+            quadricColor = [0,0.5,0.5,0.5];
+            planeColor = [0.5,0,0.5,0.5];
+
+            quadricPoints = [
+              sphere3d([1,1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,-1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,-1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,-1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,-1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([0,0,sqrt(3)],r0,color->col,tags->["movable"])_1
+            ];
+            planePoints = [
+              sphere3d([1,0,0],r0,color->col,tags->["movable"])_1,
+              sphere3d([0,1,0],r0,color->col,tags->["movable"])_1,
+              sphere3d([0,0,1],r0,color->col,tags->["movable"])_1
+            ];
+            xAxisIds = cylinder3d([-s,0,0],[s,0,0],r1,color->coordColInactive);
+            yAxisIds = cylinder3d([0,-s,0],[0,s,0],r1,color->coordColInactive);
+            zAxisIds = cylinder3d([0,0,-s],[0,0,s],r1,color->coordColInactive);
+            surfaceIds = [];
+            planeId = -1;
+            curveIds = [];
+            // draw quadric curve through 9 points
+            updateSurface():=(
+              regional(pts,pos3,pts2,M);
+              // homogeneous coordinates
+              pts = apply(quadricPoints,pId,pos3=cglSpherePos(pId);[pos3_1,pos3_2,pos3_3,1]);
+              // squared coordinates
+              pts2 = apply(pts,p,[p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4]);
+              // pad to square matrix
+              quadric = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
+              M = [[2*quadric_1,quadric_2,quadric_3,quadric_4],
+                   [quadric_2,2*quadric_5,quadric_6,quadric_7],
+                   [quadric_3,quadric_6,2*quadric_8,quadric_9],
+                   [quadric_4,quadric_7,quadric_9,2*quadric_10]];
+              if(length(surfaceIds) == 0,
+                surfaceExpr = cglLazy((x,y,z),
+                  (x,y,z,1)*(coeffMat*(x,y,z,1));
+                );
+                surfaceIds = surface3d(surfaceExpr,alpha->0.75,plotModifiers->{"coeffMat":M},degree->2,color->quadricColor);
+              ,
+                cglUpdate(surfaceIds,UcoeffMat->M);
+              );
+            );
+            updatePlane():=(
+              pts = apply(planePoints,pId,cglSpherePos(pId));
+              planeNormal = cross(pts_2-pts_1,pts_3-pts_1);
+              planeOffset = pts_1;
+              planeCoeffs = (planeNormal_1,planeNormal_2,planeNormal_3,-planeNormal*pts_1);
+              if(planeId == -1,
+                planeId = surface3d(planeCoeffs*(x,y,z,1),alpha->0.75,plotModifiers->{"planeCoeffs":planeCoeffs},degree->1,color->planeColor);
+              ,
+                cglUpdate(planeId,UplaneCoeffs->planeCoeffs);
+              );
+            );
+            redrawConic(coeffs):=(
+              // TODO improve drawing in special cases
+              // * handle conics without y
+              // * bound y range (only draw curve in given rectangle (x0,y0)...(x1,y1))
+              // * swap x and y if yy != 0 and xx = 0
+              // * scale sample distance depending on curvature
+              // TODO? move to cgl3d.cjs
+              regional(xx,xy,xz,yy,yz,zz,w,x0,x1,a,b,c,D,r0,r1,t,r);
+              xx=coeffs_1;
+              xy=coeffs_2;
+              xz=coeffs_3;
+              yy=coeffs_4;
+              yz=coeffs_5;
+              zz=coeffs_6;
+              bounds = cglViewRect();
+              w = max(bounds_3-bounds_1,bounds_4-bounds_2);
+              x0 = ((bounds_1+bounds_3)-w)/2;
+              x1 = ((bounds_1+bounds_3)+w)/2;
+              // a x^2 + b xy + c x + d y^2 + e y + f = 0
+              sampleCount = 64;
+              cglDelete(curveIds);
+              curveIds = if(yy!=0,
+                // root changes sign if: (xy*xy-4*yy*xx)*t*t+(2*xy*yz-4*yy*xz)*t+yz*yz-4*yy*zz = 0
+                a = (xy*xy-4*yy*xx);
+                b = (xy*yz-2*yy*xz);
+                c = (yz*yz-4*yy*zz);
+                D = b*b-a*c;
+                ranges = if(D>0, // sign changes
+                  r0 = -b/a-sqrt(D)/abs(a);
+                  r1 = -b/a+sqrt(D)/abs(a);
+                  if(a<0,
+                    if(r0 > x1 % r1 < x0, // negative in range
+                      []
+                    ,if(r0>x0,
+                      [(r0,min(x1,r1))]
+                    ,
+                      [(x0,min(x1,r1))]
+                    ));
+                  ,
+                    if(r0 > x1 % r1 < x0, // positive in range
+                      [(x0,x1)]
+                    ,if(r0>x0,
+                      if(r1>x1,
+                        [(x0,r0)]
+                      ,
+                        [(x0,r0),(r1,x1)]
+                      )
+                    ,
+                      if(r1>x1,
+                        [(r1,x1)]
+                      ,
+                        []
+                      )
+                    ));
+                  );
+                ,if(a<0, // always negative
+                  []
+                , // always positive
+                  [(x0,x1)]
+                ));
+                K = sampleCount/2;
+                samples = flatten(apply(ranges,t12,
+                  (remove(apply(0..K,k,
+                    t = t12_1+(t12_2-t12_1)*(k/K);
+                    b = (xy*t+yz)/2;
+                    c = xx*t*t+xz*t+zz;
+                    r = sqrt(b^2-yy*c);
+                    y = (-b +re(r))/yy;
+                    t*v1+y*v2+planeOffset
+                  ),0),
+                  remove(apply(0..K,k,
+                    t = t12_1+(t12_2-t12_1)*(k/K);
+                    b = (xy*t+yz)/2;
+                    c = xx*t*t+xz*t+zz;
+                    r = sqrt(b^2-yy*c);
+                    y = (-b -re(r))/yy;
+                    t*v1+y*v2+planeOffset
+                  ),0))
+                ));
+                flatten(apply(samples,s,connect3d(s)));
+              ,
+                r = if(xy==0,x1+1,
+                -yz/xy
+                );
+                if(r > x0 & r < x1,
+                  // TODO? find good value for distance for singularity
+                  flatten((
+                    curve3d(
+                      t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                    ,x0,r-((x1-x0)/(5*sampleCount)),samples->sampleCount/2),
+                    curve3d(
+                      t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                    ,r+((x1-x0)/(5*sampleCount)),x1,samples->sampleCount/2)
+                  ));
+                ,
+                  curve3d(
+                    t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                  ,x0,x1,samples->64);
+                );
+              );
+            );
+            computePlaneCut():=(
+              v1 = normalize(cross(planeNormal,if(planeNormal_1<planeNormal_2,(1,0,0),(0,1,0))));
+              v2 = normalize(cross(planeNormal,v1));
+              // coefficients of (x*v1+y*v2+planeOffset) plugged into quadric
+              [
+                  // x^2
+                  quadric_1*v1_1^2+quadric_2*v1_1*v1_2+quadric_5*v1_2^2+quadric_3*v1_1*v1_3+quadric_6*v1_2*v1_3+quadric_8*v1_3^2,
+                  // xy
+                  2*quadric_1*v1_1*v2_1+quadric_2*v1_2*v2_1+quadric_3*v1_3*v2_1+quadric_2*v1_1*v2_2+2*quadric_5*v1_2*v2_2+quadric_6*v1_3*v2_2+
+                  quadric_3*v1_1*v2_3+quadric_6*v1_2*v2_3+2*quadric_8*v1_3*v2_3,
+                  // xz
+                  2*planeOffset_1*quadric_1*v1_1+planeOffset_2*quadric_2*v1_1+planeOffset_3*quadric_3*v1_1+quadric_4*v1_1+planeOffset_1*quadric_2*v1_2+
+                  2*planeOffset_2*quadric_5*v1_2+planeOffset_3*quadric_6*v1_2+quadric_7*v1_2+planeOffset_1*quadric_3*v1_3+planeOffset_2*quadric_6*v1_3+
+                  2*planeOffset_3*quadric_8*v1_3+quadric_9*v1_3,
+                  // y^2
+                  quadric_1*v2_1^2+quadric_2*v2_1*v2_2+quadric_5*v2_2^2+quadric_3*v2_1*v2_3+quadric_6*v2_2*v2_3+quadric_8*v2_3^2,
+                  // yz
+                  2*planeOffset_1*quadric_1*v2_1+planeOffset_2*quadric_2*v2_1+planeOffset_3*quadric_3*v2_1+quadric_4*v2_1+planeOffset_1*quadric_2*v2_2+
+                  2*planeOffset_2*quadric_5*v2_2+planeOffset_3*quadric_6*v2_2+quadric_7*v2_2+planeOffset_1*quadric_3*v2_3+planeOffset_2*quadric_6*v2_3+
+                  2*planeOffset_3*quadric_8*v2_3+quadric_9*v2_3,
+                  // z^2
+                  planeOffset_1^2*quadric_1+quadric_10+planeOffset_1*planeOffset_2*quadric_2+planeOffset_1*planeOffset_3*quadric_3+planeOffset_1*quadric_4+
+                  planeOffset_2^2*quadric_5+planeOffset_2*planeOffset_3*quadric_6+planeOffset_2*quadric_7+planeOffset_3^2*quadric_8+planeOffset_3*quadric_9
+              ];
+            );
+            updateSurface();
+            updatePlane();
+            coeffs=computePlaneCut();
+            redrawConic(coeffs);
+            prevTarget=-1;
+            target = -1;
+            updateZoom():=(
+              if(zoom>5,zoom=5);
+              if(zoom<0.5,zoom=0.5);
+              zoom3d(zoom);
+              redrawConic(coeffs);
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            if (dragging,
+              viewPos = cglViewPos();
+              // view direction for given screen pixel
+              oldDirection = cglDirection(sx,sy);
+              newDirection = cglDirection(mouse().x,mouse().y);
+              // movePlaneNormal * (viewPos+ t*direction) = movePlaneOffset
+              // t * movePlaneNormal * direction =  movePlaneOffset - movePlaneNormal* viewPos;
+              oldT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * oldDirection);
+              newT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * newDirection);
+              oldPos = viewPos + oldT*oldDirection;
+              newPos = viewPos + newT*newDirection;
+              truePos = cglSpherePos(target);
+              newPos = newPos+(truePos-oldPos);
+              cglUpdateBounds(target,newPos,r0);
+              updateSurface();
+              updatePlane();
+              coeffs=computePlaneCut();
+              redrawConic(coeffs);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            tagList=[];
+            if(!dragging,
+              target = cglFindObject(sx,sy,tags->["movable"]);
+              if(target!=prevTarget,
+                if(prevTarget >= 0,
+                  cglUpdate(prevTarget,UcglColor->col);
+                  cglUpdate(xAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(yAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(zAxisIds,UcglColor->coordColInactive);
+                );
+                if(target >= 0,
+                  cglUpdate(target,UcglColor->colSelected);
+                  axes=cglAxes();
+                  viewPos = cglViewPos();
+                  coordCols=[coordColXY,coordColXY,coordColXY];
+                  maxDot = abs(axes_1_3);
+                  maxIndex = 1;
+                  if(abs(axes_2_3) > maxDot,
+                    maxDot = abs(axes_2_3);
+                    maxIndex = 2;
+                  );
+                  if(abs(axes_3_3) > maxDot,
+                    maxDot = abs(axes_3_3);
+                    maxIndex = 3;
+                  );
+                  coordCols_maxIndex = coordColZ;
+                  targetPos = cglSpherePos(target);
+                  movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
+                  movePlaneOffset = movePlaneNormal*targetPos;
+                  cglUpdate(xAxisIds,UcglColor->coordCols_1);
+                  cglUpdate(yAxisIds,UcglColor->coordCols_2);
+                  cglUpdate(zAxisIds,UcglColor->coordCols_3);
+                );
+                prevTarget=target;
+              );
+            );
+            if(target != -1,
+              targetPos = cglSpherePos(target);
+              cglUpdateBounds(xAxisIds,[targetPos_1-r2,targetPos_2,targetPos_3],
+                [targetPos_1+r2,targetPos_2,targetPos_3],r1);
+              cglUpdateBounds(yAxisIds,[targetPos_1,targetPos_2-r2,targetPos_3],
+                [targetPos_1,targetPos_2+r2,targetPos_3],r1);
+              cglUpdateBounds(zAxisIds,[targetPos_1,targetPos_2,targetPos_3-r2],
+                [targetPos_1,targetPos_2,targetPos_3+r2],r1);
+            );
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
