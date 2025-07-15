@@ -1837,6 +1837,14 @@ cglConnect3d(points):=(
   if(dynamic,
     cglLogWarning("`dynamic` is not supported on connect3d");
   );
+  // remove all points before last point that are equal to last point
+  if(!isundefined(colors),
+    // feature TODO? sync up colors with used vertices
+    // a:col1 b:col2 b:col3 b:col4 c:col5 -> a:col1 b:col2 ; b:col4 c:col5
+    colors = remove(apply(1..length(points),i,if(if(i>1,points_(i-1)==points_i,false),-1,colors_i)),-1);
+  );
+  prev = -1;
+  points = remove(apply(points,p,if(p == prev,-1,prev=p;p)),-1);
   if(length(points)>=3,
     // update projection if color is computed per pixel
     if(!isundefined(colorExpr) % !isundefined(texture),
@@ -1859,6 +1867,7 @@ cglConnect3d(points):=(
       color1 = if(isundefined(colors),color,colors_(length(points)-1));
       color2 = if(isundefined(colors),color,colors_(length(points)));
       nextColor = if(isundefined(colors),color,colors_1);
+      ids = [];
     ,
       current1 = points_1;
       current2 = points_2;
@@ -1872,10 +1881,10 @@ cglConnect3d(points):=(
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
       alpha = alpha0;
-      cglCylinder3d(current1,current2,size,cap1->cap1,
-        cap2->cglJoint(current1,current2,next,jointEnd));
+      ids = [cglCylinder3d(current1,current2,size,cap1->cap1,colors->(color1,color2),
+        cap2->cglJoint(current1,current2,next,jointEnd))];
     );
-    forall(if(closed,2,4)..length(points),i,
+    ids = ids ++ apply(if(closed,2,4)..length(points),i,
       prev = current1;
       current1 = current2;
       current2 = next;
@@ -1890,7 +1899,7 @@ cglConnect3d(points):=(
       plotModifiers_"cglSegmentStart"=a;
       plotModifiers_"cglSegmentEnd"=b;
       alpha = alpha0;
-      cglCylinder3d(current1,current2,size,
+      cglCylinder3d(current1,current2,size,colors->(color1,color2),
         cap1->cglJoint(prev,current1,current2,jointStart),cap2->cglJoint(current1,current2,next,jointEnd));
     );
     color1 = color2;
@@ -1902,8 +1911,9 @@ cglConnect3d(points):=(
     direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
     direction1 = direction1 - ((direction1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
     alpha = alpha0;
-    cglCylinder3d(current2,next,size,cap1->cglJoint(current1,current2,next,jointStart),
-        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2));
+    flatten(append(ids,cglCylinder3d(current2,next,size,colors->(color2,nextColor),
+        cap1->cglJoint(current1,current2,next,jointStart),
+        cap2->if(closed,cglJoint(current2,next,points_1,jointEnd),cap2))));
   ,if(length(points)==2,
     color1 = if(isundefined(colors),color,colors_1);
     color2 = if(isundefined(colors),color,colors_2);
