@@ -9,7 +9,7 @@
     </head>
 
     <body style="font-family: Arial">
-        Quadric through 9 free points
+        Intersection of Quadric with plane
         <script id="csmousedown" type="text/x-cindyscript">
             sx = mouse().x;
             sy = mouse().y;
@@ -93,8 +93,8 @@
             updatePlane():=(
               pts = apply(planePoints,pId,cglSpherePos(pId));
               planeNormal = cross(pts_2-pts_1,pts_3-pts_1);
-              planeOffset = pts_1;
               planeCoeffs = (planeNormal_1,planeNormal_2,planeNormal_3,-planeNormal*pts_1);
+              planeOffset = -(planeCoeffs_4/(planeNormal*planeNormal))*planeNormal;
               if(planeId == -1,
                 planeId = surface3d(planeCoeffs*(x,y,z,1),alpha->0.75,plotModifiers->{"planeCoeffs":planeCoeffs},degree->1,color->planeColor);
               ,
@@ -103,22 +103,39 @@
             );
             redrawConic(coeffs):=(
               // TODO improve drawing in special cases
-              // * handle conics without y
               // * bound y range (only draw curve in given rectangle (x0,y0)...(x1,y1))
-              // * swap x and y if yy != 0 and xx = 0
+              // * find out why in some cases large range is needed to draw values close to center
               // * scale sample distance depending on curvature
               // TODO? move to cgl3d.cjs
-              regional(xx,xy,xz,yy,yz,zz,w,x0,x1,a,b,c,D,r0,r1,t,r);
+              regional(xx,xy,xz,yy,yz,zz,vx,vy,w,x0,x1,a,b,c,D,r0,r1,t,r,tmp);
               xx=coeffs_1;
               xy=coeffs_2;
               xz=coeffs_3;
               yy=coeffs_4;
               yz=coeffs_5;
               zz=coeffs_6;
+              vx=v1;
+              vy=v2;
+              // swap x and y such that leading term in y as small as possible
+              // ensure that after swap at least one term contains y (if posible)
+              if((abs(xx)+abs(xy)+abs(xz) > 0) & (abs(yy)+abs(xy)+abs(yz) == 0 %
+                 abs(xx) < abs(yy) % (abs(xx)==abs(yy) & (abs(xz) < abs(yz)))),
+                tmp = vx;
+                vx = vy;
+                vy = tmp;
+                tmp = xx;
+                xx = yy;
+                yy = tmp;
+                tmp = xz;
+                xz = yz;
+                yz = tmp;
+              );
               bounds = cglViewRect();
               w = max(bounds_3-bounds_1,bounds_4-bounds_2);
               x0 = ((bounds_1+bounds_3)-w)/2;
               x1 = ((bounds_1+bounds_3)+w)/2;
+              y0 = ((bounds_2+bounds_4)-w)/2;
+              y1 = ((bounds_2+bounds_4)+w)/2;
               // a x^2 + b xy + c x + d y^2 + e y + f = 0
               sampleCount = 64;
               cglDelete(curveIds);
@@ -169,7 +186,7 @@
                     c = xx*t*t+xz*t+zz;
                     r = sqrt(b^2-yy*c);
                     y = (-b +re(r))/yy;
-                    t*v1+y*v2+planeOffset
+                    t*vx+y*vy+planeOffset
                   ),0),
                   remove(apply(0..K,k,
                     t = t12_1+(t12_2-t12_1)*(k/K);
@@ -177,7 +194,7 @@
                     c = xx*t*t+xz*t+zz;
                     r = sqrt(b^2-yy*c);
                     y = (-b -re(r))/yy;
-                    t*v1+y*v2+planeOffset
+                    t*vx+y*vy+planeOffset
                   ),0))
                 ));
                 flatten(apply(samples,s,connect3d(s)));
@@ -189,15 +206,15 @@
                   // TODO? find good value for distance for singularity
                   flatten((
                     curve3d(
-                      t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                      t*vx-((xx*t*t+xz*t+zz)/(xy*t+yz))*vy+planeOffset
                     ,x0,r-((x1-x0)/(5*sampleCount)),samples->sampleCount/2),
                     curve3d(
-                      t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                      t*vx-((xx*t*t+xz*t+zz)/(xy*t+yz))*vy+planeOffset
                     ,r+((x1-x0)/(5*sampleCount)),x1,samples->sampleCount/2)
                   ));
                 ,
                   curve3d(
-                    t*v1-((xx*t*t+xz*t+zz)/(xy*t+yz))*v2+planeOffset
+                    t*vx-((xx*t*t+xz*t+zz)/(xy*t+yz))*vy+planeOffset
                   ,x0,x1,samples->64);
                 );
               );
