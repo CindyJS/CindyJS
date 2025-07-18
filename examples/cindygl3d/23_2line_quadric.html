@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        Quadric containing two given lines
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            if(target < 0,
+              rotating = true;
+            ,
+              dragging = true;
+            );
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            zoom = 1.0;
+
+            s=2.5;
+            r0=.15; // radius spheres
+            r1=.05; // radius axes
+            r2= 0.7; // length axes
+            cglDefaults_"cylinderSize" = 0.05;
+            lineRadius = 0.05;
+
+            col=[1,0,0];
+            colSelected=[0,1,0];
+            coordColXY = [0,1,0,0.5];
+            coordColZ = [1,0,0,0.5];
+            coordColInactive = [0,0,0,0];
+            quadricColor = [0,0.5,0.5,0.5];
+
+            A = [1,0,0];
+            B = [0,1,0];
+            C = [0,0,1];
+            D = [1,1,1];
+            idA = sphere3d(A,r0,color->col,tags->["movable"])_1;
+            idB = sphere3d(B,r0,color->col,tags->["movable"])_1;
+            idC = sphere3d(C,r0,color->col,tags->["movable"])_1;
+            idD = sphere3d(D,r0,color->col,tags->["movable"])_1;
+            xAxisIds = cylinder3d([-s,0,0],[s,0,0],r1,color->coordColInactive);
+            yAxisIds = cylinder3d([0,-s,0],[0,s,0],r1,color->coordColInactive);
+            zAxisIds = cylinder3d([0,0,-s],[0,0,s],r1,color->coordColInactive);
+            surface = -1;
+            line1 = draw3d(A,B);
+            line2 = draw3d(C,D);
+            // draw quadric curve through 9 points
+            updateSurface():=(
+              regional(pts,pos3,pts2,M);
+              // sample points on lines
+              // ! better way to go from two lines to quadric
+              pts = flatten(apply(0..2,n,a=n/3;apply(0..2,m,b=m/3;
+                 P=(a*A+(1-a)*B);
+                 Q=(a*C+(1-a)*D);
+                 b*P+(1-b)*Q;
+              )));
+              // homogeneous coordinates
+              pts = apply(pts,p,(p_1,p_2,p_3,1));
+              // squared coordinates
+              pts2 = apply(pts,p,[p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4]);
+              // pad to square matrix
+              quadric = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0]])); // ignore additionl solutions in degenerate case
+              quadric = quadric_1;
+              M = [[2*quadric_1,quadric_2,quadric_3,quadric_4],
+                   [quadric_2,2*quadric_5,quadric_6,quadric_7],
+                   [quadric_3,quadric_6,2*quadric_8,quadric_9],
+                   [quadric_4,quadric_7,quadric_9,2*quadric_10]];
+              if(surface == -1,
+                surfaceExpr = cglLazy((x,y,z),
+                  (x,y,z,1)*(coeffMat*(x,y,z,1));
+                );
+                surface = surface3d(surfaceExpr,alpha->0.75,plotModifiers->{"coeffMat":M},degree->2,color->quadricColor);
+              ,
+                cglUpdate(surface,UcoeffMat->M);
+              );
+            );
+            updateLines():=(
+              A = cglSpherePos(idA);
+              B = cglSpherePos(idB);
+              C = cglSpherePos(idC);
+              D = cglSpherePos(idD);
+              viewRect = cglViewRect(); // [x0,y0,x1,y1]
+              x0 = viewRect_1;
+              y0 = viewRect_2;
+              x1 = viewRect_3;
+              y1 = viewRect_4;
+              radius = min(|x1-x0|,|y1-y0|)/2;
+              // (m+t*v,m+t*v) = (m,m)+2*t*(m,v)+t*t*(v,v) = radius*radius
+              V = normalize(B-A);
+              c = A*A - radius*radius;
+              b = A*V;
+              r = sqrt(b*b-c);
+              if(r>0,
+                cglUpdateBounds(line1,A-(b+r)*V,A-(b-r)*V,lineRadius);
+              );
+              V = normalize(D-C);
+              c = C*C - radius*radius;
+              b = C*V;
+              r = sqrt(b*b-c);
+              if(r>0,
+                cglUpdateBounds(line2,C-(b+r)*V,C-(b-r)*V,lineRadius);
+              );
+            );
+            updateLines();
+            updateSurface();
+            prevTarget=-1;
+            target = -1;
+            updateZoom():=(
+              if(zoom>5,zoom=5);
+              if(zoom<0.5,zoom=0.5);
+              zoom3d(zoom);
+              updateLines();
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            if (dragging,
+              viewPos = cglViewPos();
+              // view direction for given screen pixel
+              oldDirection = cglDirection(sx,sy);
+              newDirection = cglDirection(mouse().x,mouse().y);
+              // movePlaneNormal * (viewPos+ t*direction) = movePlaneOffset
+              // t * movePlaneNormal * direction =  movePlaneOffset - movePlaneNormal* viewPos;
+              oldT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * oldDirection);
+              newT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * newDirection);
+              oldPos = viewPos + oldT*oldDirection;
+              newPos = viewPos + newT*newDirection;
+              truePos = cglSpherePos(target);
+              newPos = newPos+(truePos-oldPos);
+              cglUpdateBounds(target,newPos,r0);
+              updateLines();
+              updateSurface();
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            tagList=[];
+            if(!dragging,
+              target = cglFindObject(sx,sy,tags->["movable"]);
+              if(target!=prevTarget,
+                if(prevTarget >= 0,
+                  cglUpdate(prevTarget,UcglColor->col);
+                  cglUpdate(xAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(yAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(zAxisIds,UcglColor->coordColInactive);
+                );
+                if(target >= 0,
+                  cglUpdate(target,UcglColor->colSelected);
+                  dir = -cglViewPos();
+                  coordCols=[coordColXY,coordColXY,coordColXY];
+                  v = if(target == idA % target == idB,B-A,D-C);
+                  v2 = cross(v,if(v_1<v_2,(1,0,0),(0,1,0)));
+                  axes = (normalize(v),normalize(v2),normalize(cross(v,v2)));
+                  maxDot = abs(axes_1*dir);
+                  maxIndex = 1;
+                  if(abs(axes_2*dir) > maxDot,
+                    maxDot = abs(axes_2*dir);
+                    maxIndex = 2;
+                  );
+                  if(abs(axes_3*dir) > maxDot,
+                    maxDot = abs(axes_3*dir);
+                    maxIndex = 3;
+                  );
+                  coordCols_maxIndex = coordColZ;
+                  targetPos = cglSpherePos(target);
+                  movePlaneNormal = axes_maxIndex;
+                  movePlaneOffset = movePlaneNormal*targetPos;
+                  cglUpdate(xAxisIds,UcglColor->coordCols_1);
+                  cglUpdate(yAxisIds,UcglColor->coordCols_2);
+                  cglUpdate(zAxisIds,UcglColor->coordCols_3);
+                );
+                prevTarget=target;
+              );
+            );
+            if(target != -1,
+              targetPos = cglSpherePos(target);
+              cglUpdateBounds(xAxisIds,targetPos-r2*axes_1,
+                targetPos+r2*axes_1,r1);
+              cglUpdateBounds(yAxisIds,targetPos-r2*axes_2,
+                targetPos+r2*axes_2,r1);
+              cglUpdateBounds(zAxisIds,targetPos-r2*axes_3,
+                targetPos+r2*axes_3,r1);
+            );
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>
