@@ -58,8 +58,8 @@
             yAxisIds = cylinder3d([0,-s,0],[0,s,0],r1,color->coordColInactive);
             zAxisIds = cylinder3d([0,0,-s],[0,0,s],r1,color->coordColInactive);
             surface = -1;
-            line1 = draw3d(A,B);
-            line2 = draw3d(C,D);
+            line1 = line3d(A,B,dynamic->true);
+            line2 = line3d(C,D,dynamic->true);
             // draw quadric curve through 9 points
             updateSurface():=(
               regional(pts,pos3,pts2,M);
@@ -90,34 +90,6 @@
                 cglUpdate(surface,UcoeffMat->M);
               );
             );
-            updateLines():=(
-              A = cglSpherePos(idA);
-              B = cglSpherePos(idB);
-              C = cglSpherePos(idC);
-              D = cglSpherePos(idD);
-              viewRect = cglViewRect(); // [x0,y0,x1,y1]
-              x0 = viewRect_1;
-              y0 = viewRect_2;
-              x1 = viewRect_3;
-              y1 = viewRect_4;
-              radius = min(|x1-x0|,|y1-y0|)/2;
-              // (m+t*v,m+t*v) = (m,m)+2*t*(m,v)+t*t*(v,v) = radius*radius
-              V = normalize(B-A);
-              c = A*A - radius*radius;
-              b = A*V;
-              r = sqrt(b*b-c);
-              if(r>0,
-                cglUpdateBounds(line1,A-(b+r)*V,A-(b-r)*V,lineRadius);
-              );
-              V = normalize(D-C);
-              c = C*C - radius*radius;
-              b = C*V;
-              r = sqrt(b*b-c);
-              if(r>0,
-                cglUpdateBounds(line2,C-(b+r)*V,C-(b-r)*V,lineRadius);
-              );
-            );
-            updateLines();
             updateSurface();
             prevTarget=-1;
             target = -1;
@@ -125,7 +97,6 @@
               if(zoom>5,zoom=5);
               if(zoom<0.5,zoom=0.5);
               zoom3d(zoom);
-              updateLines();
             );
         </script>
         <script id="csdraw" type="text/x-cindyscript">
@@ -147,7 +118,15 @@
               truePos = cglSpherePos(target);
               newPos = newPos+(truePos-oldPos);
               cglUpdateBounds(target,newPos,r0);
-              updateLines();
+              if(target==idA,
+                A = newPos;
+              ,if(target==idB,
+                B = newPos;
+              ,if(target==idC,
+                C = newPos;
+              ,if(target==idD,
+                D = newPos;
+              ))));
               updateSurface();
             );
             sx = mouse().x;

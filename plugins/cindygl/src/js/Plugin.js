@@ -85,6 +85,7 @@ function CindyGL3DObject(renderer,boundingBox,plotModifiers,tags) {
     this.boundingBox = boundingBox;
     this.plotModifiers = plotModifiers;
     this.tags = tags;
+    this.visible = true;
 }
 CindyGL3DObject.NEXT_ID=0;
 
@@ -972,6 +973,7 @@ let CindyGL = function(api) {
         createCglEval(0);
         // TODO? return a callback id, that can be removed later
         CindyGL.objectBuffer.callbacks.preRender.push(wrapLazy(args[0],[],true));
+        return nada;
     });
     // TODO? automatic update of coordinate system to match render region of screen
     // ?  no auto-update if coordinates have to been explicitly set
@@ -1349,14 +1351,27 @@ let CindyGL = function(api) {
             return toCjsNumber(objId);
         });
     });
+    api.defineFunction("cglSetVisible", 2, (args, modifs) => {
+        let isVisible = api.evaluateAndVal(args[1]);
+        if(isVisible["ctype"]!="boolean"){
+            cglLogWarning("the second parameter of cglSetVisible should be a boolean");
+            return nada;
+        }
+        isVisible = isVisible["value"];
+        objectsById(args[0]).forEach(([obj3d,_,__])=>{
+            obj3d.visible = isVisible;
+        });
+        return nada;
+    });
     api.defineFunction("cglDelete", 1, (args, modifs) => {
-        return objectsById(args[0]).forEach(([_,objId,wasOpaque])=>{
+        objectsById(args[0]).forEach(([_,objId,wasOpaque])=>{
             if(wasOpaque) {
                 CindyGL.objectBuffer.opaque.delete(objId);
             } else {
                 CindyGL.objectBuffer.translucent.delete(objId);
             }
         });
+        return nada;
     });
     // TODO? cglObjectInfo()
     api.defineFunction("cglSpherePos", 1, (args, modifs) => {
@@ -1373,6 +1388,40 @@ let CindyGL = function(api) {
             ctype: 'list',
             value: obj3d.boundingBox.center.map(toCjsNumber)
         };
+    });
+    // custom error class for errors produced by calling cglDiscard
+    class CglDiscardError extends Error {
+        constructor(message) {
+            super(message);
+            this.name = this.constructor.name;
+            Error.captureStackTrace(this, this.constructor);
+        }
+    }
+    api.defineFunction("cglDiscard", 0, (args, modifs) => {
+        // stop of current code-branch when hitting cglDiscard() outside compiled code
+        throw new CglDiscardError("unexpected `cglDiscard()` statement outside compiled code");
+    });
+    // catch error created by calling cglDiscard and return default value
+    api.defineFunction("cglEvalOrDiscard", 1, (args, modifs) => {
+        let defValue = modifs['default'];
+        if(defValue === undefined) {
+            defValue = nada;
+        }
+        try{
+            let value = api.evaluate(args[0]);
+            if(value['ctype'] === 'cglLazy'){
+                if(value.params.length>0) {
+                    cglLogWarning("cglTryEval expression should not take parameters");
+                }
+                value = value.expr;
+            }
+            return api.evaluateAndVal(value);
+        } catch(error) {
+            if (error instanceof CglDiscardError) {
+                return defValue;
+            }
+            throw error;
+        }
     });
     var cglEvalSizes=new Set();
     /**

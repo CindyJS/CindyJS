@@ -101,6 +101,7 @@ CindyGL3D defines the following functions for drawing primitive objects:
 * `sphere3d(center,radius)` draw a sphere with the given center and radius
 * `cylinder3d(point1,point2)` draw a cylinder with the endpoints `point1` and `point2`
 * `cylinder3d(point1,point2,radius)` draw a cylinder with radius `radius` between the endpoints `point1` and `point2` 
+* `line3d(point1,point2)` `line3d(point1,point2,radius)` draw the line through the points `point1` and `points2` (optionally with radius `radius`). The cutoff-region can be set with the modifier `cutoffRegion` (like for to surface3d).
 * `connect3d(points)` connect the given points by lines
 * `curve3d(expr:(t),from,to)` draw the curve specified by the given equation for `t` in the range `from` and `to`
     the modifier `samples` specifies how many sample-points should be used
@@ -149,6 +150,8 @@ The default values for optional parameters are stored in the dictionary `cglDefa
   * `cylinderSize` (default `0.4`)
   * `cylinderAlpha` (undefined by default)
   * `cylinderCaps` (default `CylinderCapOpen`)
+
+  * `lineCutoff` (default `CutoffScreenSphere`)
 
   * `curveSamples` (default `32`)
   * `curveCaps` (default `CylinderCapRound`)

@@ -111,10 +111,10 @@ cglSphereNormal(direction,center,isBack):=(
   cglSetDepth(dst,direction);
   normalize(pos3d - center);
 );
-cglSphereDepths(direction,center,radius):=(
+cglSphereDepths(rayStart,direction,center,radius):=(
   regional(vc,b2,c,D4,r);
   // |v+l*d -c|=r
-  vc=cglViewPos-center;
+  vc=rayStart-center;
   // -> l*l <d,d> + l * 2<v-c,d> + <v-c,v-c> - r*r
   b2=(vc*direction); // 1/2 * b
   c=vc*vc-radius*radius;
@@ -187,10 +187,10 @@ cglCylinderDepths(direction):=(
 );
 // intersections of ray in given direction with cylinder with circular end-caps
 // needed for bounding box computations
-cglCappedCylinderDepths(direction,center,orientation,radius):=(
+cglCappedCylinderDepths(rayStart,direction,center,orientation,radius):=(
   regional(w,W,BA,U,VA,S,T,a,b,c,o,D,r,l,v,d,m0t,m1t,m0,m1,low,hi);
-  w = |cglViewPos-center|;
-  W = cglViewPos + w*direction;
+  w = |rayStart-center|;
+  W = rayStart + w*direction;
   BA = orientation;
   U = BA/(BA*BA);
   VA = (W-center);
@@ -1133,7 +1133,7 @@ cglSurfaceKthRoot(direction,l,u,K):=(
 cgl3dSurfaceShaderCode(direction) := (
   regional(depths,u,l);
   // discard points outside bounding sphere
-  depths = cglEval(cglCutoffRegion,direction);
+  depths = cglEval(cglCutoffRegion,cglViewPos,direction);
   l = depths_1;
   u = depths_2;
   cglSurfaceIterateRoots(direction,l,u);
@@ -1142,7 +1142,7 @@ cgl3dSurfaceShaderCode(direction) := (
 cgl3dSurfaceLayerShaderCode(direction) := (
   regional(depths,u,l);
   // discard points outside bounding sphere
-  depths = cglEval(cglCutoffRegion,direction);
+  depths = cglEval(cglCutoffRegion,cglViewPos,direction);
   l = depths_1;
   u = depths_2;
   cglSurfaceKthRoot(direction,l,u,K);
@@ -1224,10 +1224,10 @@ CglBoundsSphere(center,radius) := {"type":"sphere","center":center,"radius":radi
 CglBoundsCylinder(point1,point2,radius) := {"type":"cylinder","point1":point1,"point2":point2,"radius":radius};
 CglBoundsCuboid(center,v1,v2,v3) := {"type":"cuboid","center":center,"v1":v1,"v2":v2,"v3":v3};
 
-// get intersections of view-ray with cobius given by center point and (scaled) directions of the three axes
-cglCuboidDepths(direction,center,up,left,front):=(
+// get intersections of view-ray with cuboid given by center point and (scaled) directions of the three axes
+cglCuboidDepths(rayStart,direction,center,up,left,front):=(
   regional(relCenter,l1,l2,l1t,l2t,d1,d2,d);
-  relCenter = center-cglViewPos;
+  relCenter = center-rayStart;
   // + up, - up
   d1 = up*(relCenter-up);
   d2 = up*(relCenter+up);
@@ -1258,16 +1258,16 @@ cglCuboidDepths(direction,center,up,left,front):=(
 );
 
 // bug TODO support coordinate systems where view-plane is not at z = 0
-CglCutoffScreenSphere = {"expr": cglLazy(direction,
+CglCutoffScreenSphere = {"expr": cglLazy((rayStart,direction),
   regional(viewRect,x0,y0,x1,y1);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
   x0 = viewRect_1;
   y0 = viewRect_2;
   x1 = viewRect_3;
   y1 = viewRect_4;
-  cglSphereDepths(direction,(x0+x1,y0+y1,0)/2,min(|x1-x0|,|y1-y0|)/2)
+  cglSphereDepths(rayStart,direction,(x0+x1,y0+y1,0)/2,min(|x1-x0|,|y1-y0|)/2)
 ),"bounds": CglBoundsUnbounded,"modifs":{}};
-CglCutoffScreenCylinder = {"expr": cglLazy(direction,
+CglCutoffScreenCylinder = {"expr": cglLazy((rayStart,direction),
   regional(viewRect,x0,y0,x1,y1,r);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
   x0 = viewRect_1;
@@ -1275,9 +1275,9 @@ CglCutoffScreenCylinder = {"expr": cglLazy(direction,
   x1 = viewRect_3;
   y1 = viewRect_4;
   r = min(|x1-x0|,|y1-y0|)/2.5;
-  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,[0,r,0],r)
+  cglCappedCylinderDepths(rayStart,direction,(x0+x1,y0+y1,0)/2,[0,r,0],r)
 ),"bounds": CglBoundsUnbounded,"modifs":{}};
-CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
+CglCutoffScreenCylinder(orientation) := {"expr": cglLazy((rayStart,direction),
   regional(viewRect,x0,y0,x1,y1,r);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
   x0 = viewRect_1;
@@ -1285,9 +1285,9 @@ CglCutoffScreenCylinder(orientation) := {"expr": cglLazy(direction,
   x1 = viewRect_3;
   y1 = viewRect_4;
   r = min(|x1-x0|,|y1-y0|)/2.5;
-  cglCappedCylinderDepths(direction,(x0+x1,y0+y1,0)/2,r*cglBoxOrientation,r)),
+  cglCappedCylinderDepths(rayStart,direction,(x0+x1,y0+y1,0)/2,r*cglBoxOrientation,r)),
   "bounds": CglBoundsUnbounded,"modifs":{"cglBoxOrientation":normalize(orientation)}};
-CglCutoffScreenCube = {"expr": cglLazy(direction,
+CglCutoffScreenCube = {"expr": cglLazy((rayStart,direction),
   regional(viewRect,x0,y0,x1,y1,r);
   viewRect = cglViewRect(); // [x0,y0,x1,y1]
   x0 = viewRect_1;
@@ -1295,27 +1295,27 @@ CglCutoffScreenCube = {"expr": cglLazy(direction,
   x1 = viewRect_3;
   y1 = viewRect_4;
   r = min(|x1-x0|,|y1-y0|)/3;
-  cglCuboidDepths(direction,(0,0,0),[r,0,0],[0,r,0],[0,0,r])
+  cglCuboidDepths(rayStart,direction,(0,0,0),[r,0,0],[0,r,0],[0,0,r])
 ),"bounds": CglBoundsUnbounded,"modifs":{}};
 
-CglCutoffSphere(center,radius) := {"expr":cglLazy(direction,
-  cglSphereDepths(direction,cglCenter,cglRadius)
+CglCutoffSphere(center,radius) := {"expr":cglLazy((rayStart,direction),
+  cglSphereDepths(rayStart,direction,cglCenter,cglRadius)
 ),"bounds":CglBoundsSphere(center,radius),"modifs":{}};
-CglCutoffCylinder(point1,point2,radius) := {"expr":cglLazy(direction,
-  cglCappedCylinderDepths(direction,cglCenter,cglOrientation,cglRadius)
+CglCutoffCylinder(point1,point2,radius) := {"expr":cglLazy((rayStart,direction),
+  cglCappedCylinderDepths(rayStart,direction,cglCenter,cglOrientation,cglRadius)
 ),"bounds":CglBoundsCylinder(point1,point2,radius),"modifs":{}};
-CglCutoffCube(center,sideLength) := {"expr":cglLazy(direction,
-  cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)
+CglCutoffCube(center,sideLength) := {"expr":cglLazy((rayStart,direction),
+  cglCuboidDepths(rayStart,direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)
 ),"bounds":CglBoundsCuboid(center,[sideLength,0,0],[0,sideLength,0],[0,0,sideLength]),"modifs":{}};
 CglCutoffCube(center,sideLength,up,front) := {
-  "expr":cglLazy(direction,
-    cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
+  "expr":cglLazy((rayStart,direction),
+    cglCuboidDepths(rayStart,direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
   "bounds":CglBoundsCuboid(center,sideLength*normalize(up),sideLength*normalize(front),
     sideLength*normalize(cross(up,front))),"modifs":{}
 };
 CglCutoffCuboid(center,v1,v2,v3) := {
-  "expr":cglLazy(direction,
-    cglCuboidDepths(direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
+  "expr":cglLazy((rayStart,direction),
+    cglCuboidDepths(rayStart,direction,cglCenter,cglCubeAxes_1,cglCubeAxes_2,cglCubeAxes_3)),
   "bounds":CglBoundsCuboid(center,v1,v2,v3),"modifs":{}
 };
 
@@ -1333,14 +1333,14 @@ CutoffCuboid(center,v1,v2,v3) := CglCutoffCuboid(center,v1,v2,v3);
 cglInterface("cutoffAddPlane",cglCutoffAddPlane,(oldCutoff,normal:(),depth:()),(plotModifiers));
 cglCutoffAddPlane(oldCutoff,normal,depth):=(
   {
-    "expr":cglLazy(direction,
+    "expr":cglLazy((rayStart,direction),
       regional(depths,l,n);
-      depths = cglEval(baseExpr,direction);
+      depths = cglEval(baseExpr,rayStart,direction);
       // <v + l*d , n> <= x
       // <v,n> + l<d , n> <= x
       // l <= (x-<v,n>)/<d,n>
       n = cglEval(normal); // current compiler does not support direct multplication with constant vector
-      l = (cglEval(depth)-(cglViewPos*n))/(direction*n);
+      l = (cglEval(depth)-(rayStart*n))/(direction*n);
       if(n*direction>0,
         depths_2 = min(depths_2,l);
       ,
@@ -1368,6 +1368,8 @@ cglResetDefaults() := (
   cglDefaults_"cylinderSize" = 0.4;
   cglDefaults_"cylinderAlpha" = cglUndefinedVal();
   cglDefaults_"cylinderCaps" = CglCylinderCapOpen;
+
+  cglDefaults_"lineCutoff" = CglCutoffScreenSphere;
 
   cglDefaults_"curveSamples" = 32;
   cglDefaults_"curveCaps" = CglCylinderCapRound;
@@ -1796,6 +1798,57 @@ cglCylinder3d(point1,point2,radius):=(
       radius = cglValOrDefault(cglEval(cglParamExprs_"radius"),cglDefaults_"cylinderSize");
       cglUpdateBounds(ids,cglEval(cglParamExprs_"point1"),cglEval(cglParamExprs_"point2"),radius);
       ,ids->ids,cglParamExprs->cglParamExprs
+    ));
+  );
+  ids;
+);
+cglInterface("line3d",cglLine3d,(point1,point2),(color,color1,color2,colors,texture,
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),alpha,size,
+  light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation),direction1,
+  plotModifiers,tags,dynamic,renderBack,cutoffRegion));
+cglLine3d(point1,point2):=(
+  size = cglValOrDefault(size,cglDefaults_"cylinderSize");
+  cglParamExprs_"radius" = cglModifExprs_"size";
+  cglLine3d(point1,point2,size);
+);
+cglInterface("line3d",cglLine3d,(point1,point2,radius),(color,color1,color2,colors,texture,
+  textureRGB,textureRGBA,interpolateTexture,repeatTexture,colorExpr:(texturePos,spacePos,normal),
+  colorExprRGB:(texturePos,spacePos,normal),colorExprRGBA:(texturePos,spacePos,normal),alpha,
+  light:(color,direction,normal),cap1,cap2,caps,projection:(normal,height,orientation),direction1,
+  plotModifiers,tags,dynamic,renderBack,cutoffRegion));
+cglLine3d(point1,point2,radius):=(
+  caps = cglValOrDefault(caps,cglDefaults_"curveCaps");
+  cutoffRegion = cglValOrDefault(cutoffRegion,cglDefaults_"lineCutoff");
+  cutoffExpr = cutoffRegion_"expr";
+  V = point2-point1;
+  bounds = cglEval(cutoffExpr,point1,V);
+  ids = cglCylinder3d(point1+bounds_1*V,point1+bounds_2*V,radius);
+  if(dynamic,
+    cglEvalOnRender(cglLazy(
+      regional(radius,point1,point2,V,bounds);
+      radius = cglValOrDefault(cglEval(cglParamExprs_"radius"),cglDefaults_"cylinderSize");
+      point1 = cglEval(cglParamExprs_"point1");
+      point2 = cglEval(cglParamExprs_"point2");
+      V = normalize(point2-point1);
+      bounds = cglEvalOrDiscard(cglEval(cutoffExpr,point1,V));
+      cglSetVisible(ids,!isundefined(bounds));
+      if(!isundefined(bounds),
+        cglUpdateBounds(ids,point1+bounds_1*V,point1+bounds_2*V,radius);
+      );
+      ,ids->ids,cglParamExprs->cglParamExprs,cutoffExpr->cutoffExpr
+    ));
+  ,
+    // TODO? evalOnResize (evaluate when displayed screen region changes)
+    cglEvalOnRender(cglLazy(
+      regional(V,bounds);
+      V = normalize(point2-point1);
+      bounds = cglEvalOrDiscard(cglEval(cutoffExpr,point1,V));
+      cglSetVisible(ids,!isundefined(bounds));
+      if(!isundefined(bounds),
+        cglUpdateBounds(ids,point1+bounds_1*V,point1+bounds_2*V,radius);
+      );
+      ,ids->ids,radius->radius,point1->point1,point2->point2,cutoffExpr->cutoffExpr
     ));
   );
   ids;
