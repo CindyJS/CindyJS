@@ -44,11 +44,13 @@ By default `layers` is `0` is there is at most one non-opaque object and `2` oth
 * `cglSetVisible(<objId>,<bool>)` sets objects visibility, (true -> visible, false -> invisible). Invisible objects are not drawn/updated but remember their previous state
 * `cglDelete(<objId>)` deletes the object with the given id
 * `cglFindObject(<x>,<y>)` finds the id of the object closest to the camera on the ray at screen-position `(x,y)`
-* `cglEvalOrDiscard(<expr>)` evaluates the given expression, if `cglDiscard()` is called during the evalution a default value (that can be set with the modifier `default`) is returned
+* `cglEvalOrDiscard(<expr>)` evaluates the given expression, if `cglDiscard()` is called during the evaluation a default value (that can be set with the modifier `default`) is returned
 * `cglLazy(<args>,<expr>)` converts and expression into a value that can be stored and passed through functions, the expression can later be evaluated by calling `cglEval()`. All modifiers passed to `cglLazy` can be used as named constants within the expression.
 * `cglEval(<cglLazy>,<arg1>,...,<argN>)` evaluates the lazy expression (wrapped by `cglLazy()`) in the first argument with the values in the remaining arguments passed to the corresponding parameters of the expression
 * `cglIsLazy(<val>)` checks if val is a cglLazy expression
 `<args>` is a list of parameters that should be passed to the expression.
+* `cglWith(<expr>)` evaluate the given expression. All modifiers passed to `cglWith` can be used as named constants within the expression.
+The intended use of this function is a way to "freeze" the iteration variable of loops when used in expression passed to lazy functions
 * `cglInterface(<name>:name,<implName>:name,<args>:list<name>,<modifs>:list<name>)` can be used to wrap CindyScript functions in a more convenient user-interface:
     - missing modifiers are set to nada (even if there is a global with the same name)
     - adding a parameter list as user-data to the name of an argument or modifier will wrap the expression given to that argument in a `cglLazy` function with that parameter list

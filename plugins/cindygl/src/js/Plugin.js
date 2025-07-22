@@ -1496,6 +1496,17 @@ let CindyGL = function(api) {
             value: val['ctype'] === 'cglLazy'
         };
     });
+    // evaluate expression
+    // use modifiers to replace some variables in the expression with a constant
+    // equivalent to cglEval(cglLazy(<expr>,<modifs>))
+    api.defineFunction("cglWith", 1, (args, modifs) => {
+        cglEvalImpl({
+            ctype: "cglLazy",
+            params: [],
+            expr: cloneExpression(args[0]),
+            modifs: Object.entries(modifs).map(([key,value])=>[key,api.evaluate(value)])
+        },[],{});
+    });
     function asName(csVal) {
         if(csVal['ctype'] === 'variable') {
             return csVal['name'];
