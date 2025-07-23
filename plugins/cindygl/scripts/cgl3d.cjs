@@ -1421,6 +1421,7 @@ cglMergeDicts(dict1,dict2):=(
 );
 
 // feature TODO:
+// TODO port code for movable codes to library
 // TODO find good list of default modifiers‚
 // function->f(#pos,#norm,#kmin,#kmax....) (colorplot on drawn surface)
 // thickness -> give rendered surfaces a thinkness (needed for conversion to 3d-printer file)
@@ -1432,6 +1433,7 @@ cglMergeDicts(dict1,dict2):=(
 // * support orthogonal projection, smooth moving between linear and orth projection
 
 // TODO? is the `tags` modifier usefull (currently used by "find object at point" built-in)
+// ? replace with explicit "moveable" modifier
 // TODO? rename spacePos -> pos3d
 // TODO support for zoom-level dependent objects (update bounding-box depending on zoom-level) ?
 // a) "dynamic(<expr>)": would need a check in the core-library for every parameter to catch dynamic values within expression
@@ -1444,7 +1446,9 @@ cglMergeDicts(dict1,dict2):=(
 // TODO? cglLogLevel(...) built-in for setting log-level
 
 // bug TODO:
-// FIXME rendering of mesh with overlapping transparent textures is partially broken
+// TODO rendering of mesh with overlapping transparent textures is partially broken
+//    (when multiple transparent triangles are rendered in single call WebGL ignores lower ones)
+//    ? add texture mode to automatically ignore pixels belows certain alpha value
 // TODO multi-part in cgl-lazy can lead to wrong result in expression
 // * surface3d(p=trafo(x,y,z);f(x,y,z)) leads to invalid normal vectors
 // TODO handle radius <= 0
@@ -1457,8 +1461,8 @@ cglMergeDicts(dict1,dict2):=(
 // TODO translucent 3D-objects do not seem to work correctly on some mobile browsers
 // TODO curve3d is nummerically unstable if number of sample points gets large
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
-// TODO? connect3d: angled caps for might cut into next segment
-// * spheres&surfaces break if view distance is moved far out (? use trick of "moving view closer to object" from cylinder/torus also for spheres/surfaces)
+// TODO? connect3d: angled caps might cut into next segment
+// TODO spheres&surfaces break if view distance is moved far out (? use trick of "moving view closer to object" from cylinder/torus also for spheres/surfaces)
 
 // opt TODO:
 // TODO? store texture-name in plotModifier instead of lambda-modifier
