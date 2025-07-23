@@ -1,10 +1,10 @@
-#ifdef GL_ES
+#version 300 es
 precision highp float;
-#endif
 
 uniform sampler2D sampler;
-varying vec2 cgl_pixel;
+out vec4 fragColor;
+in vec2 cgl_pixel;
 
 void main(void) {
-	gl_FragColor = texture2D(sampler, cgl_pixel);
+	fragColor = texture(sampler, cgl_pixel);
 }

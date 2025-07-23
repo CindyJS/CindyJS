@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        Quadric through 9 free points
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            if(target < 0,
+              rotating = true;
+            ,
+              dragging = true;
+            );
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            drawCutoff = true;
+            zoom = 1.0;
+
+            s=2.5;
+            r0=.15; // radius spheres
+            r1=.05; // radius axes
+            r2= 0.7; // length axes
+            CUTsPHERE = 0;
+            CUTcYLINDER = 1;
+            CUTcUBE = 2;
+            cutoff = CUTsPHERE;
+            prevCutoff = cutoff;
+
+            col=[1,0,0];
+            colSelected=[0,1,0];
+            coordColXY = [0,1,0,0.5];
+            coordColZ = [1,0,0,0.5];
+            coordColInactive = [0,0,0,0];
+            surfaceColor = [0,0.5,0.5,0.5];
+            cutoffColor = [1,0,0,0.5];
+
+            pointIds = [
+              sphere3d([1,1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,-1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([1,-1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,-1,1],r0,color->col,tags->["movable"])_1,
+              sphere3d([-1,-1,-1],r0,color->col,tags->["movable"])_1,
+              sphere3d([0,0,sqrt(3)],r0,color->col,tags->["movable"])_1
+            ];
+            xAxisIds = cylinder3d([-s,0,0],[s,0,0],r1,color->coordColInactive);
+            yAxisIds = cylinder3d([0,-s,0],[0,s,0],r1,color->coordColInactive);
+            zAxisIds = cylinder3d([0,0,-s],[0,0,s],r1,color->coordColInactive);
+            surfaceIds = [];
+            // draw quadric curve through 9 points
+            updateSurface():=(
+              regional(pts,pos3,pts2,args,M);
+              // homogeneous coordinates
+              pts = apply(pointIds,pId,pos3=cglSpherePos(pId);[pos3_1,pos3_2,pos3_3,1]);
+              // squared coordinates
+              pts2 = apply(pts,p,[p_1*p_1,p_1*p_2,p_1*p_3,p_1*p_4,p_2*p_2,p_2*p_3,p_2*p_4,p_3*p_3,p_3*p_4,p_4*p_4]);
+              // pad to square matrix
+              args = transpose(kernel(pts2++[[0,0,0,0,0,0,0,0,0,0]]))_1; // ignore additionl solutions in degenerate case
+              M = [[2*args_1,args_2,args_3,args_4],
+                   [args_2,2*args_5,args_6,args_7],
+                   [args_3,args_6,2*args_8,args_9],
+                   [args_4,args_7,args_9,2*args_10]];
+              if(cutoff != prevCutoff,
+                cglDelete(surfaceIds);
+                surfaceIds = [];
+                prevCutoff = cutoff;
+              );
+              if(length(surfaceIds) == 0,
+                surfaceExpr = cglLazy((x,y,z),
+                  (x,y,z,1)*(coeffMat*(x,y,z,1));
+                );
+                if(cutoff == CUTsPHERE,
+                  surfaceIds = surface3d(surfaceExpr,alpha->0.75,cutoffRegion->CutoffScreenSphere,
+                    plotModifiers->{"coeffMat":M},degree->2);
+                ,if(cutoff == CUTcYLINDER,
+                  surfaceIds = surface3d(surfaceExpr,alpha->0.75,cutoffRegion->CutoffScreenCylinder,
+                    plotModifiers->{"coeffMat":M},degree->2);
+                  ,
+                  surfaceIds = surface3d(surfaceExpr,alpha->0.75,cutoffRegion->CutoffScreenCube,
+                    plotModifiers->{"coeffMat":M},degree->2);
+                ));
+              ,
+                cglUpdate(surfaceIds,UcoeffMat->M);
+              );
+            );
+            updateSurface();
+            prevTarget=-1;
+            target = -1;
+            updateZoom():=(
+              if(zoom>5,zoom=5);
+              if(zoom<0.5,zoom=0.5);
+              zoom3d(zoom);
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            if (dragging,
+              viewPos = cglViewPos();
+              // view direction for given screen pixel
+              oldDirection = cglDirection(sx,sy);
+              newDirection = cglDirection(mouse().x,mouse().y);
+              // movePlaneNormal * (viewPos+ t*direction) = movePlaneOffset
+              // t * movePlaneNormal * direction =  movePlaneOffset - movePlaneNormal* viewPos;
+              oldT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * oldDirection);
+              newT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * newDirection);
+              oldPos = viewPos + oldT*oldDirection;
+              newPos = viewPos + newT*newDirection;
+              truePos = cglSpherePos(target);
+              newPos = newPos+(truePos-oldPos);
+              cglUpdateBounds(target,newPos,r0);
+              updateSurface();
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            tagList=[];
+            if(!dragging,
+              target = cglFindObject(sx,sy,tags->["movable"]);
+              if(target!=prevTarget,
+                if(prevTarget >= 0,
+                  cglUpdate(prevTarget,UcglColor->col);
+                  cglUpdate(xAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(yAxisIds,UcglColor->coordColInactive);
+                  cglUpdate(zAxisIds,UcglColor->coordColInactive);
+                );
+                if(target >= 0,
+                  cglUpdate(target,UcglColor->colSelected);
+                  axes=cglAxes();
+                  viewPos = cglViewPos();
+                  coordCols=[coordColXY,coordColXY,coordColXY];
+                  maxDot = abs(axes_1_3);
+                  maxIndex = 1;
+                  if(abs(axes_2_3) > maxDot,
+                    maxDot = abs(axes_2_3);
+                    maxIndex = 2;
+                  );
+                  if(abs(axes_3_3) > maxDot,
+                    maxDot = abs(axes_3_3);
+                    maxIndex = 3;
+                  );
+                  coordCols_maxIndex = coordColZ;
+                  targetPos = cglSpherePos(target);
+                  movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
+                  movePlaneOffset = movePlaneNormal*targetPos;
+                  cglUpdate(xAxisIds,UcglColor->coordCols_1);
+                  cglUpdate(yAxisIds,UcglColor->coordCols_2);
+                  cglUpdate(zAxisIds,UcglColor->coordCols_3);
+                );
+                prevTarget=target;
+              );
+            );
+            if(target != -1,
+              targetPos = cglSpherePos(target);
+              cglUpdateBounds(xAxisIds,[targetPos_1-r2,targetPos_2,targetPos_3],
+                [targetPos_1+r2,targetPos_2,targetPos_3],r1);
+              cglUpdateBounds(yAxisIds,[targetPos_1,targetPos_2-r2,targetPos_3],
+                [targetPos_1,targetPos_2+r2,targetPos_3],r1);
+              cglUpdateBounds(zAxisIds,[targetPos_1,targetPos_2,targetPos_3-r2],
+                [targetPos_1,targetPos_2,targetPos_3+r2],r1);
+            );
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <div>
+          Cutoff:
+          <input id="cutoffSphere" type="radio" name="cutoffType" value="sphere" checked onchange="cutOffChanged()"> Sphere
+          <input id="cutoffCylinder" type="radio" name="cutoffType" value="cylinder" onchange="cutOffChanged()"> Cylinder
+          <input id="cutoffCube" type="radio" name="cutoffType" value="cube" onchange="cutOffChanged()"> Cube
+        </div>
+
+        <script type="text/javascript">
+            function cutOffChanged() {
+              switch(document.querySelector('input[name=cutoffType]:checked').value){
+                case "sphere":cdy.evokeCS("cutoff=CUTsPHERE;updateSurface();");break;
+                case "cylinder":cdy.evokeCS("cutoff=CUTcYLINDER;updateSurface();");break;
+                case "cube":cdy.evokeCS("cutoff=CUTcUBE;updateSurface();");break;
+              }
+            }
+            // zoom using mouse wheel
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(1.05,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-3, -3, 3, 3] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>

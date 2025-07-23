@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Raycasting Surfaces</h1>
+
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = sx < .5;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+
+        <script id="csinit" type="text/x-cindyscript">
+            //initialize some variables
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            zoom = 1.0;
+            alpha = .7;
+            drawAxes = true;
+            drawLayered = true;
+            gridColor = [.25,.25,.25];
+
+            updateZoom():=(
+              if(zoom>exp(2.2),zoom=exp(2.2));
+              if(zoom<exp(-0.2),zoom=exp(-0.2));
+              PC.y = (1 - log(zoom))/1.5;
+              zoom3d(zoom);
+              update();
+            );
+
+            //fun is the user defined trivariate polynomial
+            fun(x, y, z) := (x ^ 2 + y ^ 2 + z ^ 2 - (0.5 + a) ^ 2) ^ 2 - (3.0 * ((0.5 + a) ^ 2) - 1.0) / (3.0 - ((0.5 + a) ^ 2)) * (1 - z - sqrt(2) * x) * (1 - z + sqrt(2) * x) * (1 + z + sqrt(2) * y) * (1 + z - sqrt(2) * y);
+            update():=(
+              cglReset3d();
+              // TODO? customizable bounding box
+              if(drawLayered,
+                surface3d(fun(x,y,z),alpha->alpha,layers->4); // render up to 4 roots of the surface
+                // rendering time grows at leas lineary with number of layeres
+              ,
+                surface3d(fun(x,y,z),alpha->alpha); // draw all layeres of surface in same draw-call
+              );
+              if(drawAxes,
+                sphere3d([0,0,0],size->0.075,color->gridColor);
+                draw3d([-zoom,0,0],[zoom,0,0],size->0.025,color->gridColor);
+                draw3d([0,-zoom,0],[0,zoom,0],size->0.025,color->gridColor);
+                draw3d([0,0,-zoom],[0,0,zoom],size->0.025,color->gridColor);
+              );
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            //the following is executed for every rendered frame
+            if (dragging,
+                dx = 3 * (mouse().x - sx); dy = 3 * (mouse().y - sy);,
+                dx = .005 * cos(seconds() * .1); dy = .003 * sin(seconds() * .1);
+            );
+
+            sx = mouse().x;
+            sy = mouse().y;
+
+            rotate3d(dx,dy);
+
+            // remember old values to detect change
+            oldAlpha = alpha;
+            oldZoom = zoom;
+
+            //the 3 sliders at the left.
+            PA.x = 1.1;
+            if (PA.y > .8, PA.y = .8);
+            if (PA.y < -.8, PA.y = -.8);
+            a = (.8 + PA.y) / 1.6 * 1.1; // global variable a updates automatically
+
+            PB.x = 1.2;
+            if (PB.y > .8, PB.y = .8);
+            if (PB.y < -.8, PB.y = -.8);
+            alpha = ((.8 + PB.y) / 1.6) * .7 + .3;
+
+            PC.x = 1.3;
+            if (PC.y > .8, PC.y = .8);
+            if (PC.y < -.8, PC.y = -.8);
+            zoom = exp(1 -  1.5*PC.y);
+
+            if(alpha!=oldAlpha % zoom != oldZoom,
+              update();
+              zoom3d(zoom);
+            );
+
+            cglRender3d(layers->0); // all translucent objects are sorted
+
+            //lines for the sliders
+            draw((1.1, .8), (1.1, -.8), color -> (0, 0, 0));
+            draw((1.2, .8), (1.2, -.8), color -> (0, 0, 0));
+            draw((1.3, .8), (1.3, -.8), color -> (0, 0, 0));
+        </script>
+
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            var cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                use: ["CindyGL", "katex"],
+                geometry: [
+                    {
+                        name: "PA",
+                        kind: "P",
+                        type: "Free",
+                        pos: [1, 0.6, 1],
+                        narrow: true,
+                        color: [1, 1, 1],
+                        size: 8,
+                    },
+                    {
+                        name: "PB",
+                        kind: "P",
+                        type: "Free",
+                        pos: [1, 0.4, 1],
+                        narrow: true,
+                        color: [1, 1, 1],
+                        size: 8,
+                    },
+                    {
+                        name: "PC",
+                        kind: "P",
+                        type: "Free",
+                        pos: [1, 0.2, 1],
+                        narrow: true,
+                        color: [1, 1, 1],
+                        size: 8,
+                    },
+                ],
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 700,
+                        height: 500,
+                        transform: [{ visibleRect: [-1.4, -1, 1.4, 1] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                },
+            });
+        </script>
+
+        <div>
+            <input
+                type="text"
+                id="inp"
+                value="(x^2+y^2+z^2-(0.5+a)^2)^2-(3*((0.5+a)^2)-1)/(3-((0.5+a)^2))*(1-z-sqrt(2)*x)*(1-z+sqrt(2)*x)*(1+z+sqrt(2)*y)*(1+z-sqrt(2)*y)"
+                onkeypress="if((event.which ? event.which : event.keyCode)==13) { cdy.evokeCS('fun(x,y,z) := (' + this.value + '); update();'); }"
+                size="80"
+                style="font-size: 18px"
+            />
+            <select
+                id="sel"
+                onchange="document.getElementById('inp').value = this.value; cdy.evokeCS('fun(x,y,z) := (' + this.value + '); update();');"
+                style="width: 20em"
+            >
+                <option
+                    value="(x^2+y^2+z^2-(0.5+a)^2)^2-(3*((0.5+a)^2)-1)/(3-((0.5+a)^2))*(1-z-sqrt(2)*x)*(1-z+sqrt(2)*x)*(1+z+sqrt(2)*y)*(1+z-sqrt(2)*y)"
+                >
+                    Kummer Quartic
+                </option>
+                <option
+                    value="4*((a*(1+sqrt(5))/2)^2*x^2-y^2)*((a*(1+sqrt(5))/2)^2*y^2-z^2)*((a*(1+sqrt(5))/2)^2*z^2-x^2)-1*(1+2*(a*(1+sqrt(5))/2))*(x^2+y^2+z^2-1)^2"
+                >
+                    Barth Sextic
+                </option>
+                <option
+                    value="-2*a/125+x^8+y^8+z^8-2*x^6-2*y^6-2*z^6+1.25*x^4+1.25*y^4+1.25*z^4-0.25*x^2-0.25*y^2-0.25*z^2+0.03125"
+                >
+                    Chmutov Octic
+                </option>
+                <option
+                    value="a*(-1/4*(1-sqrt(2))*(x^2+y^2)^2+(x^2+y^2)*((1-1/sqrt(2))*z^2+1/8*(2-7*sqrt(2)))-z^4+(0.5+sqrt(2))*z^2-1/16*(1-12*sqrt(2)))^2-(cos(0*pi/4)*x+sin(0*pi/4)*y-1)*(cos(pi/4)*x+sin(pi/4)*y-1)*(cos(2*pi/4)*x+sin(2*pi/4)*y-1)*(cos(3*pi/4)*x+sin(3*pi/4)*y-1)*(cos(4*pi/4)*x+sin(4*pi/4)*y-1)*(cos(5*pi/4)*x+sin(5*pi/4)*y-1)*(cos(6*pi/4)*x+sin(6*pi/4)*y-1)*(cos(7*pi/4)*x+sin(7*pi/4)*y-1)"
+                >
+                    Endraß Octic
+                </option>
+                <option value="x^2+y^2+z^2-1">Ball</option>
+                <option value="k = 6; x^k+y^k+z^k-1">Cube</option>
+                <option value="x^2+z^2-1/3*(1+y)^3*(1-y)^3">Citric</option>
+                <option value="x^2+y^2+z^3-z^2">Ding Dong</option>
+                <option value="x^3+x^2*z^2-y^2">Hummingbird</option>
+                <option value="x^2-x^3+y^2+y^4+z^3-z^4">Vis a Vis</option>
+                <option value="(x^2+9/4*y^2+z^2-1)^3-x^2*z^3-9/80*y^2*z^3">Sweet</option>
+                <option value="k=a*2;(x+(k/2-1))*(x^2+y^2+z^2-k^2/4)+z^2">Parabolic Ring Cyclide</option>
+                <option value="cos(x)*sin(y) + cos(y)*sin(z) + cos(z)*sin(x)+a">Gyroid</option>
+                <option value="cos(2*x)+cos(2*y)+cos(2*z)+a">Schwarz P</option>
+            </select>
+        </div>
+        <div>
+            <input
+                id="axes"
+                onclick="cdy.evokeCS('drawAxes = ' + this.checked+';update();');"
+                checked
+                type="checkbox"
+            /> axes
+            <input
+                id="layered"
+                onclick="cdy.evokeCS('drawLayered = ' + this.checked+';update();');"
+                checked
+                type="checkbox"
+            /> multi-layer
+        </div>
+        Non-algebraic functions are approximated by polynomials. Roots are isolated by Descartes Method in Bernstein
+        basis.
+    </body>
+</html>
