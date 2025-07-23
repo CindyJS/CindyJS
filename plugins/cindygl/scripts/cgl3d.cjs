@@ -1,8 +1,8 @@
-// intialization containing implementation for CindyGL3D functions
+// initialization script containing implementation for CindyGL3D functions
 // opt TODO? would creating minified version to speed up import time
 
 use("CindyGL");
-// normalize if non-zero, map (0,0,0) to inself
+// normalize if non-zero, map (0,0,0) to itself
 normalize(v):=(
   regional(l);
   l = |v|;
@@ -123,7 +123,7 @@ cglSphereDepths(rayStart,direction,center,radius):=(
   r=re(sqrt(D4)); // sqrt should always be real
   (-b2-r,-b2+r);
 );
-// stereographic projection from sphere onto C using normal verctor as input
+// stereographic projection from sphere onto C using normal vector as input
 // assumes normal is normalized
 cglProjSphereToC(normal):=(
   // A = l (x,y,z) + (1-l) (0,0,1)
@@ -203,7 +203,7 @@ cglCappedCylinderDepths(rayStart,direction,center,orientation,radius):=(
   if(D<0,cglDiscard()); // discard rays that do not intersect the cylinder
   r = re(sqrt(D));
   l = (- (b + r)/a, - (b - r)/a);
-  // intersections with cutof planes
+  // intersections with cutoff planes
   // normal: U, values at ends: <A,B-A>, <B,B-A>
   // <view + m * dir,(B-A)> = <view,B-A> + m * <dir,B-A>
   d = direction * U;
@@ -399,7 +399,7 @@ ConnectOpen = CglConnectOpen;
 ConnectRound = CglConnectRound;
 ConnectFlat = CglConnectFlat;
 
-// feature TODO? seperate projection for for end-caps
+// feature TODO? separate projection for end-caps
 cgl3dCylinderShaderCode(direction):=(
   regional(l,BA,U,v1,delta,normalAndHeight,v2,normal,texturePos,color,pos3d);
   l = cglCylinderDepths(direction);
@@ -436,7 +436,7 @@ cgl3dCylinderShaderCode(direction):=(
     ,
       normalAndHeight = cglEval(cglCap1front,direction,l,-1,U,cglEval(cglGetCutVector1,U));
       v2 = cglViewPos + cglRawDepth*direction - cglCenter;
-      // opt TODO? ommit check for second cap if both caps are cut orthogonal to cylinder
+      // opt TODO? omit check for second cap if both caps are cut orthogonal to cylinder
       if(cglEval(cglCapCut2,v2,U), // cap1 and cap2
         normalAndHeight = cglEval(cglCap2front,direction,l,1,U,cglEval(cglGetCutVector2,U));
         v2 = cglViewPos + cglRawDepth*direction - cglCenter;
@@ -537,8 +537,8 @@ cgl3dCylinderShaderCodeBack(direction):=(
 // simple surface-renderer: common
 /////////////////////
 
-// simple algrithm for small degree surfaces:
-// bisection using rolles theorem
+// simple algorithm for small degree surfaces:
+// bisection using Rolles theorem
 // between any two roots of p there has to be a root of p'
 //     l   u
 //      \ /
@@ -577,7 +577,7 @@ cglBinSearchP = cglLazy((poly, x0, x1, def),
     def
   )
 );
-// wrapper function for cglBinSearchP instanciated for each commonly used degree
+// wrapper function for cglBinSearchP instantiated for each commonly used degree
 cglBinSearchP4(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
 cglBinSearchP3(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
 cglBinSearchP2(poly, x0, x1, def) := cglEval(cglBinSearchP,poly, x0, x1, def);
@@ -803,8 +803,8 @@ cglTriangulatePolygon(triangulator,vertices,vNormals,vModifiers,normalType):=(
 );
 
 CglTriangulateCorner = 0; // connect all vertices to first vertex
-CglTriangulateCenter = 1; // connect all vertices to additional vertex in center of polygon (mean of vertcies)
-CglTriangulateSpiral = 2; // cut of all vertices with even index, repest recursively on remaining vertices
+CglTriangulateCenter = 1; // connect all vertices to additional vertex in center of polygon (mean of vertices)
+CglTriangulateSpiral = 2; // cut of all vertices with even index, repeats recursively on remaining vertices
 TriangulateCorner = CglTriangulateCorner;
 TriangulateCenter = CglTriangulateCenter;
 TriangulateSpiral = CglTriangulateSpiral;
@@ -825,7 +825,7 @@ cglSampleTriangle = 2;
 
 cglMeshSamplesToTriangles(samples,Nx,Ny,topology,sampleType):=(
   regional(p00,p01,p10,p11);
-  // opt TODO? is handling closure by computing missing elements on demand more efficent
+  // opt TODO? is handling closure by computing missing elements on demand more efficient
   if(topology_1 == CglTopologyClose,//close X
     if(length(samples_1)<Nx+1,
       samples = apply(samples,row,append(row,row_1));
@@ -914,7 +914,7 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
     vNormals=apply(1..Ny,ny,apply(1..Nx,nx,
       p00 = samples_ny_nx;
       n = (0,0,0);
-      // normals orineted to point "up" when grid is flat
+      // normals oriented to point "up" when grid is flat
       if(nx>1 & ny > 1,
         n = n + cross(samples_(ny-1)_nx-p00,samples_ny_(nx-1)-p00);
       );
@@ -935,7 +935,7 @@ cglMeshGuessNormals(samples,Nx,Ny,normalType,topology):=(
 );
 
 /////////////////////
-// general algebraric surfaces
+// general algebraic surfaces
 /////////////////////
 
 // ray(direction, t) is the point in R^3 that lies at position t on the ray in direction direction
@@ -989,7 +989,7 @@ cglSurfaceBisectf(direction, x0, x1) := (
 );
 
 // temporary algorithm for texture computation on surfaces
-// decomposes postion into normal part and tangential part, then combine the corresponding texture coordinates
+// decomposes position into normal part and tangential part, then combine the corresponding texture coordinates
 // ! local texture coordinates do not approximate euclidean plane on some flat surfaces (e.g. cylinder)
 // map does not seem to be injective
 // Feature TODO find better algorithm ; make algorithm customizable
@@ -1067,7 +1067,7 @@ cglSurfaceIterateRoots(direction,l,u):=(
     if(id>0,
       s = cglSurfaceRootItrGetS(id); // s = floor(log_2(id))
 
-      // the intervals [a,b] are chossen such that (id in binary notation)
+      // the intervals [a,b] are chosen such that (id in binary notation)
       // id = 1   => [a,b]=[l,u]
       // id = 10  => [a,b]=[l,(u+l)/2]
       // id = 101 => [a,b]=[l,(u+3*l)/4]
@@ -1152,7 +1152,7 @@ cgl3dSurfaceLayerShaderCode(direction) := (
 // values of kind 4*n-1 are good values, as it means to use vectors of length 4*n.
 cglMaxDeg = 23; // for values above ~20 the root-computation becomes unstable
 cglMaxAutoDeg = 15;
-// cache for interpolation parameters to avoid repreated recomputation
+// cache for interpolation parameters to avoid repeated recomputation
 cglSurfaceRenderStateCache = {
   "interpMap":{},
   "chebNodes":{}
