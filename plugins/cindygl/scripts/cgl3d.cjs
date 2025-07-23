@@ -1463,6 +1463,7 @@ cglMergeDicts(dict1,dict2):=(
 //  ? special case: use round cylinder-caps if all elements are opaque and curve is closed or ends are round
 // TODO? connect3d: angled caps might cut into next segment
 // TODO spheres&surfaces break if view distance is moved far out (? use trick of "moving view closer to object" from cylinder/torus also for spheres/surfaces)
+// TODO connect3d -> textures do not match for closed curves in connect3d (is this even possible if angle direction is constant along cylinders?)
 
 // opt TODO:
 // TODO? store texture-name in plotModifier instead of lambda-modifier
@@ -1946,9 +1947,8 @@ cglConnect3d(points):=(
       current1 = current2;
       current2 = next;
       next = points_i;
-      cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
-      direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
-      direction1 = ((direction1*normalize(current2-current1))/(cutDir*normalize(current2-current1)))*cutDir-direction1;
+      cutDir = normalize((normalize(current2-current1)+normalize(current1-prev)));
+      direction1 = direction1-2*(direction1*cutDir)*cutDir; // mirror direction at cut-plane
       color1 = color2;
       color2 = nextColor;
       nextColor = if(isundefined(colors),color,colors_i);
@@ -1965,8 +1965,7 @@ cglConnect3d(points):=(
     plotModifiers_"cglSegmentStart"=a;
     plotModifiers_"cglSegmentEnd"=b;
     cutDir = normalize((normalize(next-current2)+normalize(current2-current1)));
-    direction1 = direction1-(direction1*cutDir)*cutDir; // project angle onto cut-plane
-    direction1 = direction1 - ((direction1*normalize(next-current2))/(cutDir*normalize(next-current2)))*cutDir;
+    direction1 = direction1-2*(direction1*cutDir)*cutDir; // mirror direction at cut-plane
     alpha = alpha0;
     flatten(append(ids,cglCylinder3d(current2,next,size,colors->(color2,nextColor),
         cap1->cglJoint(current1,current2,next,jointStart),
