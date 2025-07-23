@@ -40,7 +40,7 @@ function cloneExpression(obj) {
                         'body'
                     ].indexOf(attr) >= 0)
                     copy[attr] = cloneExpression(obj[attr]);
-                //else console.log("Did not clone " + attr);
+                //else cglLogDebug("Did not clone " + attr);
                 if (obj['modifs']) copy['modifs'] = obj['modifs']; //modifs cannot be handeled in recursion properly
             }
         }
@@ -48,11 +48,27 @@ function cloneExpression(obj) {
     }
 }
 
+// checks if all elements of arrays a and b are equal (wrt. == operator)
+function arraysAreEqual(a,b,eltEqual=(a,b)=>(a===b)) {
+    if(a==b)
+        return true;
+    if(!(a instanceof Array && b instanceof Array))
+        return false;
+    if(a.length!=b.length)
+        return false;
+    for (let i = 0, len = a.length; i < len; i++) {
+        if (!eltEqual(a[i],b[i])) return false;
+    }
+    return true;
+}
+
 /**
  * checks recursively whether two expressions are equal
  */
 function expressionsAreEqual(a, b) {
     if (null == a || "object" != typeof a) return a === b;
+    if(a === b) // identical expressions are equal
+        return true;
     if (a instanceof Array && b instanceof Array) {
         if (a.length != b.length) return false;
         for (var i = 0, len = a.length; i < len; i++) {
@@ -156,9 +172,10 @@ function guessTypeOfValue(tval) {
         return type.image;
     } else if (tval['ctype'] === 'geo' && tval['value']['kind'] === 'L') {
         return type.line;
+    } else if (tval['ctype'] === 'cglLazy') {
+        return type.cglLazy(tval);
     }
-    console.error(`Cannot guess type of the following type:`);
-    console.log(tval);
+    cglLogError(`Cannot guess type of the following type:`,tval);
     return false;
 }
 
@@ -319,9 +336,33 @@ function createPixelArray(size) {
 }
 
 
+function getPixelFormat() {
+    if (can_use_texture_float) return gl.RGBA32F;
+    if (can_use_texture_half_float) return gl.RGBA16F;
+    else return gl.RGBA;
+}
+
+/** storage color format for depth-textures:
+    store depth as colors
+    if 32bit-textures are not available use two color-chanels to represet depth information */
+function getDepthPixelFormat() {
+    if (can_use_texture_float) return gl.R32F;
+    else return gl.RG8; // int16 stored as two int8
+}
+/** the underlying base-type used to encide a depth-pixel (RED/RG depending on precission of individual components)*/
+function getDepthPixelBaseFormat() {
+    if (can_use_texture_float) return gl.RED;
+    else return gl.RG; // int16 stored as two int8
+}
+/** number of components used to encode a depth-pixel */
+function getDepthPixelSize() {
+    if (can_use_texture_float) return 1;
+    else return 2; // int16 stored as two int8
+}
+
 function getPixelType() {
     if (can_use_texture_float) return gl.FLOAT;
-    if (can_use_texture_half_float) return halfFloat.HALF_FLOAT_OES
+    if (can_use_texture_half_float) return gl.HALF_FLOAT;
     else return gl.UNSIGNED_BYTE;
 }
 
@@ -340,3 +381,78 @@ function smallestPowerOfTwoGreaterOrEqual(a) {
     while (ans < a) ans <<= 1;
     return ans;
 };
+
+const UNARY_DEG_INF_FUNCTIONS = ['abs','exp','log','sin','cos','tan','arcsin','arccos','arctan'];
+/**
+ * try to determine the degree of `expr` in the given variables returns:
+ *  1) a positive integer N if the expression is a degree N polynomial
+ *  2) -1 if the degree is infinite
+ *  3) null if the degree could not be determined
+ * @param {Array<String>} vars variables that should be checked
+ */
+function tryDetermineDegree(expr,vars) {
+  if(expr['ctype']==='variable') {
+    if(vars.includes(expr['name']))
+        return {degree:1};
+    // TODO? check for variables declared in expression
+    return {degree:0};
+  } else if(expr['ctype']==='number') {
+    if(expr['value']['imag'] === 0 && Number.isInteger(expr['value']['real'])){
+        return {value:expr['value']['real'],degree:0};
+    }
+    return {degree:0};
+  } else if(expr['ctype']==='void') {
+    return {value:0,degree:0};
+  } else if(expr['ctype']==='infix' && ['+','-','*','/'].includes(expr['oper'])) {
+    const arg1=tryDetermineDegree(expr['args'][0],vars);
+    const arg2=tryDetermineDegree(expr['args'][1],vars);
+    if(arg1.degree === undefined || arg2.degree === undefined) return {};
+    if(arg1.degree < 0 || arg2.degree  < 0) return {degree:-1};
+    let degree = 0;
+    let hasValue = (arg1.value !== undefined) && (arg2.value !== undefined);
+    let value;
+    switch(expr['oper']){
+        case '+':
+            degree=Math.max(arg1.degree,arg2.degree);
+            if(hasValue) value = arg1.value + arg2.value;
+            break;
+        case '-':
+            degree=Math.max(arg1.degree,arg2.degree);
+            if(hasValue) value = arg1.value - arg2.value;
+            break;
+        case '*':
+            degree=arg1.degree+arg2.degree;
+            if(hasValue) value = arg1.value * arg2.value;
+            break;
+        case '/':
+            degree=arg2.degree==0?arg1.degree:-1;
+            if(hasValue) value = arg1.value / arg2.value;
+            break;
+    }
+    return hasValue ? {degree:degree,value:value} : {degree:degree};
+  } else if(expr['ctype']==='infix' && expr['oper'] === '^') {
+    const arg2=tryDetermineDegree(expr['args'][1],vars);
+    if(arg2.degree === undefined) return {};
+    if(arg2.value !== undefined && arg2.value >= 0) {
+        const arg1=tryDetermineDegree(expr['args'][0],vars);
+        if(arg1.degree === undefined) return {};
+        const degree = arg1.degree * arg2.value;
+        return arg2.value !== undefined ? {degree: degree, value: Math.pow(arg1.value,arg2.value)}: {degree: degree};
+    }
+    return {degree:-1};
+  } else if(expr['ctype']==='function' && expr['args'].length == 1 && UNARY_DEG_INF_FUNCTIONS.includes(getPlainName(expr['oper']))) {
+    const arg=tryDetermineDegree(expr['args'][0],vars);
+    if(arg.degree === undefined) return {};
+    if(arg.degree != 0) {
+        return {degree:-1};
+    }
+    if (arg.value !== "undefined" && getPlainName(expr['oper']) === "abs") {
+        return {degree: 0, value: Math.abs(arg.value)};
+    }
+    return {degree:0};
+  }
+  cglLogDebug(expr);
+  // TODO support cglEval expressions
+  // TODO? support variables and if
+  return {};
+}

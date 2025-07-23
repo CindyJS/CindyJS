@@ -38,6 +38,12 @@ webgl['meet'] = first([
     ]
 ]);
 
+webgl['cross'] = first([
+    [
+        [type.vec3, type.vec3], type.vec3, usefunction('cross')
+    ]
+]);
+
 webgl['gauss'] = first([
     [
         [type.complex], type.vec2, identity
@@ -114,6 +120,37 @@ webgl['apply'] = argtypes => (argtypes.length == 2 || argtypes.length == 3) && (
     res: list(generalize(argtypes[0]).length, argtypes[argtypes.length - 1]),
     generator: args => ''
 }) : false;
+
+// TODO? add append & preprend functions
+// TODO figure out if this code evaluates vector-arguments once of each element
+// if yes, write arguments to temporary variables before concatenating list
+webgl['++'] = argtypes => {
+    if(generalize(argtypes[0]).type !== 'list')
+        return false;
+    let eltType = argtypes[0].parameters;
+    let eltCount = argtypes[0].length;
+    for(let i=1;i<argtypes.length;i++) {
+        if(generalize(argtypes[i]).type !== 'list'){
+            eltType = false;
+            return false;
+        }
+        eltType = lca(eltType,argtypes[i].parameters);
+        eltCount += argtypes[i].length;
+    }
+    let resType = list(eltCount,eltType);
+    argtypes = argtypes.map(t=>list(t.length,eltType));
+    return eltType ? {
+        args: argtypes,
+        res: resType,
+        generator: (args, modifs, codebuilder) => {
+            // TODO? store argument vectors in tmp-variables to prevent recomputation
+            return uselist(resType)(
+            args.map((l,argIndex)=>Array.from({ length: argtypes[argIndex].length }, 
+                (_, eltIndex) => accesslist(argtypes[argIndex], eltIndex)([l],{},codebuilder))).flat()
+            ,{},codebuilder);
+        }
+    } : false;
+};
 
 webgl['sum'] = argtypes => (argtypes.length == 1) && (isrvectorspace(argtypes[0]) || iscvectorspace(argtypes[0])) ? ({
     args: argtypes,
@@ -334,7 +371,7 @@ webgl["_"] = args => {
             return {
                 args: args,
                 res: t.parameters,
-                generator: x => console.error(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
+                generator: x => cglLogError(`try to access ${k}-th Element of ${t.length}-list ${JSON.stringify(args[0])}`)
             };
         }
     }
@@ -814,6 +851,7 @@ webgl["det"] = first([
         [type.point, type.point, type.point], type.float, useincludefunction('det3v')
     ]
 ]);
+
 Object.freeze(webgl);
 
 //depends on glsl-implementation

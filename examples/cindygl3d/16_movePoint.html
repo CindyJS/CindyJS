@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            if(target < 0,
+              rotating = sx < 2;
+            ,
+              dragging = sx < 2;
+            );
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+            rotating = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            rotating = false;
+            phi=(1+sqrt(5))/2;
+
+            s=1.4;
+            r0=.15;
+            r1=.1;
+            r2=.05;
+            r3=.04;
+            cubeCol=[0,0,0];
+            col=[1,0,0];
+            colSelected=[0,1,0];
+            coordColXY = [0,1,0,0.5];
+            coordColZ = [1,0,0,0.5];
+            coordColInactive = [0,0,0,0];
+            planeColor = [0,0.5,0.5,0.5];
+
+            forall([-1,1],x,
+              forall([-1,1],y,
+                cylinder3d([x,y,1],[x,y,-1],r2,color->cubeCol);
+                cylinder3d([x,1,y],[x,-1,y],r2,color->cubeCol);
+                cylinder3d([1,x,y],[-1,x,y],r2,color->cubeCol);
+                forall([-1,1],z,
+                  sphere3d([x,y,z],r1,color->cubeCol);
+                )
+              )
+            );
+            idsA = sphere3d([0.5,0,0],r0,color->col,tags->["movable"]);
+            idsB = sphere3d([0,0.5,0],r0,color->col,tags->["movable"]);
+            idsC = sphere3d([0,0,0.5],r0,color->col,tags->["movable"]);
+            xAxisIds = cylinder3d([-1,0,0],[1,0,0],r3,color->coordColInactive);
+            yAxisIds = cylinder3d([0,-1,0],[0,1,0],r3,color->coordColInactive);
+            zAxisIds = cylinder3d([0,0,-1],[0,0,1],r3,color->coordColInactive);
+            planeId = polygon3d([[0.5,0,0],[0,0.5,0],[0,0,0.5]],color->planeColor);
+            updatePlane():=(
+              A = cglSpherePos(idsA_1);
+              B = cglSpherePos(idsB_1);
+              C = cglSpherePos(idsC_1);
+              N = cross(A-C,B-C);
+              o = N*A;
+              vertices=[];
+              forall([-1,1],x,
+                forall([-1,1],y,
+                  hx =(o-N_2*x-N_3*y)/N_1;
+                  hy =(o-N_1*x-N_3*y)/N_2;
+                  hz =(o-N_1*x-N_2*y)/N_3;
+                  if(hx >= -1 & hx <= 1, vertices = vertices ++ [[hx,x,y]]);
+                  if(hy >= -1 & hy <= 1, vertices = vertices ++ [[x,hy,y]]);
+                  if(hz >= -1 & hz <= 1, vertices = vertices ++ [[x,y,hz]]);
+                )
+              );
+              // sort vertices by angle seen from barycenter to ensure resulting polygon is convex 
+              center = sum(vertices)/length(vertices);
+              vertices=sort(vertices,v,arctan2((v-center)_1,(v-center)_2));
+              // replace previous polygon
+              cglDelete(planeId);
+              planeId=polygon3d(vertices,color->planeColor);
+            );
+            updatePlane();
+
+            prevTarget=-1;
+            target = -1;
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if(rotating,
+              dx = 4 * (mouse().x -sx); dy = 4 * (mouse().y -sy);
+              rotate3d(dx,dy)
+            );
+            if (dragging,
+              viewPos = cglViewPos();
+              // view direction for given screen pixel
+              oldDirection = cglDirection(sx,sy);
+              newDirection = cglDirection(mouse().x,mouse().y);
+              // movePlaneNormal * (viewPos+ t*direction) = movePlaneOffset              
+              // t * movePlaneNormal * direction =  movePlaneOffset - movePlaneNormal* viewPos;
+              oldT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * oldDirection);
+              newT = (movePlaneOffset - movePlaneNormal * viewPos) / (movePlaneNormal * newDirection);
+              oldPos = viewPos + oldT*oldDirection;
+              newPos = viewPos + newT*newDirection;
+              truePos = cglSpherePos(target);
+              newPos = apply(newPos+(truePos-oldPos),p,max(-1,min(p,1)));
+              cglUpdateBounds(target,newPos,r0);
+              updatePlane();
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            tagList=[];
+            if(!dragging,
+              target = cglFindObject(sx,sy,tags->["movable"]);
+              if(target!=prevTarget,
+                if(prevTarget >= 0,
+                  cglUpdate(prevTarget,UcglColor->col);
+                  apply(xAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
+                  apply(yAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
+                  apply(zAxisIds,id,cglUpdate(id,UcglColor->coordColInactive));
+                );
+                if(target >= 0,
+                  cglUpdate(target,UcglColor->colSelected);
+                  axes=cglAxes();
+                  viewPos = cglViewPos();
+                  coordCols=[coordColXY,coordColXY,coordColXY];
+                  maxDot = abs(axes_1_3);
+                  maxIndex = 1;
+                  if(abs(axes_2_3) > maxDot,
+                    maxDot = abs(axes_2_3);
+                    maxIndex = 2;
+                  );
+                  if(abs(axes_3_3) > maxDot,
+                    maxDot = abs(axes_3_3);
+                    maxIndex = 3;
+                  );
+                  coordCols_maxIndex = coordColZ;
+                  targetPos = cglSpherePos(target);
+                  movePlaneNormal = [[1,0,0],[0,1,0],[0,0,1]]_maxIndex;
+                  movePlaneOffset = movePlaneNormal*targetPos;
+                  apply(xAxisIds,id,cglUpdate(id,UcglColor->coordCols_1));
+                  apply(yAxisIds,id,cglUpdate(id,UcglColor->coordCols_2));
+                  apply(zAxisIds,id,cglUpdate(id,UcglColor->coordCols_3));
+                );
+                prevTarget=target;
+              );
+            );
+            if(target != -1,
+              targetPos = cglSpherePos(target);
+              apply(xAxisIds,id,cglUpdateBounds(id,[-1,targetPos_2,targetPos_3],[1,targetPos_2,targetPos_3],r3));
+              apply(yAxisIds,id,cglUpdateBounds(id,[targetPos_1,-1,targetPos_3],[targetPos_1,1,targetPos_3],r3));
+              apply(zAxisIds,id,cglUpdateBounds(id,[targetPos_1,targetPos_2,-1],[targetPos_1,targetPos_2,1],r3));
+            );
+
+            cglRender3d();
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>

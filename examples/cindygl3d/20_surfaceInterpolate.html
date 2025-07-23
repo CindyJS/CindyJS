@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 3;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            zoom = 1.0;
+            randElt(l):=(
+                l_(1+floor(random()*length(l)));
+            );
+            maxDegree = -1;
+            pointsForDegree(degree):=(((degree+1)*(degree+2)*(degree+3))/6-1);
+            sampleCount = -1;
+            update():=(
+                cglReset3d();
+                if(sampleCount!=oldSampleCount,
+                  points = apply(1..sampleCount,2*(random()-0.5,random()-0.5,random()-0.5));
+                );
+                forall(points,p,sphere3d(p,0.05));
+                f = interpolateSurface(points,degree->maxDegree);
+                surfaceDegree = f_"degree";
+                surface3d(f_"f",alpha->0.75,dF->f_"df",degree->surfaceDegree,plotModifiers->f_"plotModifiers",
+                colorExpr->if(normal*cglViewDirection>0,cglRed,cglCyan),layers->if(drawLayered,4,0));
+            );
+            updateZoom():=(
+              if(zoom>2.5,zoom=2.5);
+              if(zoom<0.4,zoom=0.4);
+              zoom3d(zoom);
+            );
+            getSlider(P0,P1,P,min,max):=(
+              regional(y);
+              y=P.y;
+              if(y<P0.y,y=P0.y);
+              if(y>P1.y,y=P1.y);
+              P.xy=(P0.x,y);
+              (max-min)*((y-P0.y)/(P1.y-P0.y))+min;
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 0.5*(mouse().x -sx); dy = 0.5*(mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+            oldDegree = maxDegree;
+            oldSampleCount = sampleCount;
+            maxDegree=floor(getSlider(D0,D1,D,2,10));
+            sampleCount = 2^getSlider(N0,N1,N,1.5,8.25);
+            sampleCount = round(sampleCount);
+            if(oldDegree != maxDegree % oldSampleCount != sampleCount,update());
+
+            cglRender3d();
+            drawText((-3.9,-2.9),"samples: "+sampleCount+"/"+((surfaceDegree+1)*(surfaceDegree+2)*(surfaceDegree+3)/6-1));
+            drawText((-3.9,-2.7),"degree: "+surfaceDegree);
+            drawtext(D1+(-.2,.07),"D");
+            drawtext(D+(.03,.03),text(maxDegree));
+            drawtext(N1+(-.2,.07),"S");
+            drawtext(N+(.03,.03),text(sampleCount));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        <input
+            id="layered"
+            onclick="cdy.evokeCS('drawLayered = ' + this.checked+';update();');"
+            type="checkbox"
+        /> multi-layer
+
+        <script type="text/javascript">
+            // zoom using mouse wheel, inverted direction for compatability with old raycaster script
+            window.addEventListener("wheel", // use only sign as value range may differ depending on browser
+              event => cdy.evokeCS(`zoom=zoom*${Math.pow(0.95,Math.sign(event.deltaY))};updateZoom();`)
+            );
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-4, -3, 4, 3] }],
+                    },
+                ],
+                geometry: [
+                    { name: "D0", type: "Free", pos: [3.1, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "D1", type: "Free", pos: [3.1, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["D0", "D1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "D", type: "Free", pos: [3.1, -1.25], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                    { name: "N0", type: "Free", pos: [3.5, -2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "N1", type: "Free", pos: [3.5, 2.75], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_1", type: "Segment", args: ["N0", "N1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "N", type: "Free", pos: [3.5, 0.175], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs",
+                       "../../plugins/cindygl/scripts/surfaceInterpolate.cjs"]
+                },
+            });
+            cdy.evokeCS('drawLayered = ' + layered.checked+';');
+        </script>
+    </body>
+</html>

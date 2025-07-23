@@ -10,6 +10,10 @@ let constant = (value) => ({ /* variables that are constant in GLSL */
     value: value
 });
 
+let lazyExprType = (value) =>({ /* cglLazy expressions */
+    type: 'cglLazy',
+    value: value
+});
 
 let constint = n => constant({
     "ctype": "number",
@@ -35,12 +39,14 @@ const type = { //assert all indices are different
     vec4: list(4, 3),
     vec: n => list(n, 3),
     cvec: n => list(n, 4),
+    ivec: n => list(n, 2),
 
     mat2: list(2, list(2, 3)),
     mat3: list(3, list(3, 3)),
     mat4: list(4, list(4, 3)),
     // positivefloat: 14 //@TODO: positive int < int, positive real < real. positivefloat+ positivefloat = positivefloat...
     // nonnegativefloat: 15 //@TODO: negative float...
+    cglLazy: val => lazyExprType(val),
 };
 Object.freeze(type);
 
@@ -62,6 +68,7 @@ function typeToString(t) {
     } else {
         if (t.type === 'list') return `${typeToString(t.parameters)}[${t.length}]`;
         if (t.type === 'constant') return `const[${JSON.stringify(t.value['value'])}]`;
+        if (t.type === 'cglLazy') return `cglLazy((${t.value.params.map(v=>v['name']).join(',')}),...)`;
         return JSON.stringify(t); //TODO
     }
 }
@@ -103,19 +110,28 @@ let replaceCbyR = t => t === type.complex ? type.float : {
     parameters: replaceCbyR(t.parameters)
 };
 
+let replaceIntbyFloat = t => t === type.int ? type.float : t.type === 'list' ? {
+    type: 'list',
+    length: t.length,
+    parameters: replaceIntbyFloat(t.parameters)
+} : t;
+
 /* is t implementented in native glsl, as bool, float, int, vec2, vec3, vec4, mat2, mat3, mat4 */
 let isnativeglsl = t =>
     (t.type === 'constant' && isnativeglsl(generalize(t))) ||
     t === type.bool || t === type.int || t === type.float || t === type.complex || t === type.point || t === type.line ||
-    (t.type === 'list' && t.parameters === type.float && 1 <= t.length && t.length <= 4) ||
+    (t.type === 'list' && (t.parameters === type.float || t.parameters === type.int) && 1 <= t.length && t.length <= 4) ||
     (t.type === 'list' && t.parameters.type === 'list' && t.parameters.parameters === type.float && t.length === t.parameters.length && 2 <= t.length && t.length <= 4);
 
 let isprimitive = a => [type.bool, type.int, type.float, type.complex].indexOf(a) !== -1;
 
 let typesareequal = (a, b) => (a === b) ||
     (a.type === 'constant' && b.type === 'constant' && expressionsAreEqual(a.value, b.value)) ||
-    (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters));
-
+    (a.type === 'list' && b.type === 'list' && a.length === b.length && typesareequal(a.parameters, b.parameters)) ||
+    (a.type === 'cglLazy' && b.type === 'cglLazy' && arraysAreEqual(a.value.params,b.value.params)
+        && expressionsAreEqual(a.value.expr,b.value.expr) && arraysAreEqual(a.value.modifs, b.value.modifs,([a,b])=>(
+            a[0] === b[0] && expressionsAreEqual(a[1], b[1]) // same name and value
+    )));
 
 function issubtypeof(a, b) {
     if (typesareequal(a, b)) return true;
@@ -257,6 +273,7 @@ function inclusionfunction(toType) {
                 let fp = finalparameter(toType);
 
                 return args => {
+                    // TODO? use direct conversions vecN()<->ivecN()
                     let fromType = args[0];
                     let rec = inclusionfunction(toType.parameters)([fromType.parameters]).generator;
                     return {
@@ -272,7 +289,7 @@ function inclusionfunction(toType) {
             }
     }
 
-    console.log(`no inclusionfunction ->${typeToString(toType)} implemented yet; using identity...`);
+    cglLogWarning(`no inclusionfunction ->${typeToString(toType)} implemented yet; using identity...`);
     return args => ({
         args: args,
         res: toType,
@@ -305,6 +322,10 @@ function webgltype(ctype) {
         if (ctype.length == 1) return 'float';
         else
             return `vec${ctype.length}`;
+    } else if (ctype.type === 'list' && ctype.parameters === type.int) {
+        if (ctype.length == 1) return 'int';
+        else
+            return `ivec${ctype.length}`;
     } else if (ctype.type === 'list' && ctype.parameters === type.complex) {
         return `cvec${ctype.length}`;
     } else if (ctype.type === 'list' && ctype.parameters.type === 'list' && ctype.length === ctype.parameters.length && ctype.parameters.parameters === type.float) {
@@ -321,10 +342,10 @@ function webgltype(ctype) {
         return `l${ctype.length}_${webgltype(ctype.parameters)}`;
     }
 
-    console.error(`No WebGL implementation for type ${typeToString(ctype)} found`);
+    cglLogError(`No WebGL implementation for type ${typeToString(ctype)} found`);
 }
 
-function pastevalue(val, toType) {
+function pastevalue(val, toType, codebuilder) {
     switch (toType) {
         case type.bool:
             return `${webgltype(toType)}(${val['value']})`;
@@ -338,6 +359,9 @@ function pastevalue(val, toType) {
             let f = val['value']['real'];
             return `vec4(${f},${f},${f},1.)`;
         default:
-            console.error(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
+            if(toType.type === 'list' && toType.parameters) {
+                return uselist(toType)(val['value'].map(elt=>pastevalue(elt,toType.parameters,codebuilder)),{},codebuilder);
+            }
+            cglLogError(`Dont know how to paste values of Type ${typeToString(toType)} yet.`);
     }
 };

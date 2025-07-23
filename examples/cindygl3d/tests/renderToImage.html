@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../../css/cindy.css" />
+    </head>
+    <script id="csmousedown" type="text/x-cindyscript">
+        x0 = mouse().x;
+        y0 = mouse().y;
+        dragging = x0 < 2;
+    </script>
+    <script id="csmouseup" type="text/x-cindyscript">
+        dragging = false;
+    </script>
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: render image to sides of cube</h1>
+
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL");
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            oo = 1000; //"infinity"
+            normalize(v):=(v/|v|);
+            createimage("plot",512,512);
+
+            faces = flatten(apply([-1,1],t,
+              (
+                ((t,1,1),(t,1,-1),(t,-1,-1),(t,-1,1)),
+                ((1,t,1),(1,t,-1),(-1,t,-1),(-1,t,1)),
+                ((1,1,t),(1,-1,t),(-1,-1,t),(-1,1,t))
+              )
+            ));
+            print(faces);
+            forall(1..length(faces),i,polygon3d(faces_i,texture->"plot"));
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = 2 * (mouse().x -sx); dy = 2 * (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+            sx = mouse().x;
+            sy = mouse().y;
+
+            cglRender3d("plot");
+            drawimage((-2,-2), (2,-2), "plot");
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+
+        <script type="text/javascript">
+            CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 512,
+                        height: 512,
+                        transform: [{ visibleRect: [-2, -2, 2, 2] }],
+                    },
+                ],
+                geometry: [ ],
+                import: {
+                    "init": ["../../../plugins/cindygl/scripts/cgl3d.cjs"]
+                },
+            });
+        </script>
+    </body>
+</html>

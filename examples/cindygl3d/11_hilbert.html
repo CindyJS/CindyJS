@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Cindy JS</title>
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript" src="../../build/js/CindyGL.js"></script>
+        <link rel="stylesheet" href="../../css/cindy.css" />
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyGL3D: 3D Hilbert curve</h1>
+
+        <script id="csmousedown" type="text/x-cindyscript">
+            x0 = mouse().x;
+            y0 = mouse().y;
+            dragging = x0 < 2;
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            dragging = false;
+        </script>
+        <script id="csinit" type="text/x-cindyscript">
+            use("CindyGL3D");
+
+            sx = mouse().x;
+            sy = mouse().y;
+            dragging = false;
+            N = -1;
+            prevN = -1;
+            isClosed = false;
+
+            scaleBy(p,q) := (
+              [p_1*q_1,p_2*q_2,p_3*q_3] // TODO is there a built-in for this
+            );
+            // rules for building the curve
+            //  * "_",[dx,dy,dz] -> step in direction dx,dy,dz
+            //  *  i ,[mx,my,mz] -> insert subcurve_i mirrored in directions with negative sign
+            // closed version
+            LOOP=[["_",[0,0,1]],[1,[1,1,1]],["_",[0,1,0]],[1,[1,-1,-1]],["_",[1,0,0]],
+              [1,[-1,-1,1]],["_",[0,-1,0]],[1,[-1,1,-1]],["_",[0,0,-1]],[1,[-1,1,-1]],["_",[0,1,0]],
+              [1,[-1,-1,1]],["_",[-1,0,0]],[1,[1,-1,-1]],["_",[0,-1,0]],[1,[1,1,1]]];
+            SUBCURVES=[
+              [[2,[1,1,1]],["_",[0,-1,0]],[3,[1,1,1]],["_",[-1,0,0]],[3,[1,1,1]],["_",[0,1,0]],
+                [4,[1,1,1]],["_",[0,0,1]],[4,[1,1,1]],["_",[0,-1,0]],[3,[-1,1,-1]],["_",[1,0,0]],
+                [3,[-1,1,-1]],["_",[0,1,0]],[2,[1,-1,-1]]], // A
+              [[5,[1,1,1]],["_",[-1,0,0]],[4,[-1,-1,1]],["_",[0,0,1]],[4,[-1,-1,1]],["_",[1,0,0]],
+                [6,[1,1,1]],["_",[0,-1,0]],[6,[1,1,1]],["_",[-1,0,0]],[4,[-1,1,-1]],["_",[0,0,-1]],
+                [4,[-1,1,-1]],["_",[1,0,0]],[5,[-1,-1,1]]], // A -> B: (D->L U->R L->B R->F B->D F->U )
+              [[6,[-1,1,-1]],["_",[0,-1,0]],[1,[1,1,1]],["_",[0,0,1]],[1,[1,1,1]],["_",[0,1,0]],
+                [5,[1,-1,-1]],["_",[-1,0,0]],[5,[1,-1,-1]],["_",[0,-1,0]],[1,[-1,1,-1]],["_",[0,0,-1]],
+                [1,[-1,1,-1]],["_",[0,1,0]],[6,[1,-1,-1]]], // A -> C: (L<->B F<->R)
+              [[3,[-1,-1,1]],["_",[1,0,0]],[2,[-1,-1,1]],["_",[0,1,0]],[2,[-1,-1,1]],["_",[-1,0,0]],
+                [1,[1,1,1]],["_",[0,0,1]],[1,[1,1,1]],["_",[1,0,0]],[2,[-1,1,-1]],["_",[0,-1,0]],
+                [2,[-1,1,-1]],["_",[-1,0,0]],[3,[1,-1,-1]]], // A -> D: (D<->R L<->U)
+              [[1,[1,1,1]],["_",[0,0,1]],[6,[-1,1,-1]],["_",[0,-1,0]],[6,[-1,1,-1]],["_",[0,0,-1]],
+                [3,[1,-1,-1]],["_",[-1,0,0]],[3,[1,-1,-1]],["_",[0,0,1]],[6,[1,-1,-1]],["_",[0,1,0]],
+                [6,[1,-1,-1]],["_",[0,0,-1]],[1,[-1,1,-1]]], // A -> E: D->B L->D U->F B->L R->U  F->R
+              [[4,[1,-1,-1]],["_",[0,0,-1]],[5,[-1,1,-1]],["_",[1,0,0]],[5,[-1,1,-1]],["_",[0,0,1]],
+                [2,[1,1,1]],["_",[0,-1,0]],[2,[1,1,1]],["_",[0,0,-1]],[5,[1,-1,-1]],["_",[-1,0,0]],
+                [5,[1,-1,-1]],["_",[0,0,1]],[4,[1,1,1]]], // A -> F: D->F L<->R U->B B->D F->U
+                []
+            ];
+            buildCurve(depth):=(
+              scale = 2^(-depth);
+              p0 = [1-0.5*scale,1-0.5*scale,-1+0.5*scale];
+              r1 = 0.3*scale;
+              r2 = 0.2*scale;
+              points=[p0];
+              buildCurveRec(SUBCURVES_3,[1,1,1],depth);
+            );
+            buildLoop(depth):=(
+              scale = 2^(-depth);
+              p0 = [-0.5*scale,-0.5*scale,-0.5*scale];
+              r1 = 0.3*scale;
+              r2 = 0.2*scale;
+              points=[p0];
+              buildCurveRec(LOOP,[1,1,1],depth);
+            );
+            buildCurveRec(seq,orientation,depth):=(
+              forall(seq,s,
+                if(s_1 == "_",
+                  p0 = p0 + scale * scaleBy(orientation,s_2);
+                  points=append(points,p0);,
+                  if(depth>0,buildCurveRec(SUBCURVES_(s_1),scaleBy(orientation,s_2),depth-1))
+                )
+              )
+            );
+            redrawCurve():=(
+              if(isClosed,buildLoop(N),buildCurve(N));
+              cglReset3d();
+              forall(points,p,
+                sphere3d(p,r1,colorExpr->(spacePos+(1,1,1))/2)
+              );
+              forall(consecutive(points),l,
+                cylinder3d(l_1,l_2,r2,colorExpr->(spacePos+(1,1,1))/2)
+              )
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            if (dragging,
+                dx = (mouse().x -sx); dy = (mouse().y -sy);
+                rotate3d(dx,dy);
+            );
+
+            sx = mouse().x;
+            sy = mouse().y;
+
+            y=R.y;
+            if(y<R0.y,y=R0.y);
+            if(y>R1.y,y=R1.y);
+            N=floor((4*(y-R0.y)/(R1.y-R0.y)));// 0 .. 4
+            R.xy=(R0.x,y);
+            if(N!=prevN,
+              prevN=N;
+              redrawCurve();
+            );
+
+            cglRender3d();
+
+            drawtext(R1+(-.04,.1),"N");
+            drawtext(R+(.03,.03),text(N));
+        </script>
+
+        <div id="CSCanvas" style="border: 0px"></div>
+        <div>
+            <input
+                id="isClosed"
+                onclick="cdy.evokeCS('isClosed = ' + this.checked+';redrawCurve()');"
+                type="checkbox"
+            /> closed
+        </div>
+        <script type="text/javascript">
+            isClosed.checked=false;// reset checkbox on reload
+            let cdy = CindyJS({
+                canvasname: "CSCanvas",
+                scripts: "cs*",
+                animation: { autoplay: true },
+                ports: [
+                    {
+                        id: "CSCanvas",
+                        width: 912,
+                        height: 768,
+                        background: "#808080",
+                        transform: [{ visibleRect: [-2, -2, 2.5, 2] }],
+                    },
+                ],
+                geometry: [
+                    { name: "R0", type: "Free", pos: [2, -1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "R1", type: "Free", pos: [2, 1.5], color: [0, 0, 0], pinned: true, size: 4 },
+                    { name: "l_0", type: "Segment", args: ["R0", "R1"], color: [0, 0, 0], pinned: false, size: 2 },
+                    { name: "R", type: "Free", pos: [2, -0.75], color: [0, 0, 1], narrow: true,pinned: false, size: 4 },
+                ],
+                import: {
+                    "init": ["../../plugins/cindygl/scripts/cgl3d.cjs"]
+                }
+            });
+        </script>
+    </body>
+</html>

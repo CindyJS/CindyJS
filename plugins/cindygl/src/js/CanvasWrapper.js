@@ -14,7 +14,7 @@ function generateCanvasWrapperIfRequired(imageobject, api, properties) {
         });
 
         if (!imageobject.ready) {
-            console.log("Image is not ready yet.");
+            cglLogInfo("Image is not ready yet.");
         }
     }
     return imageobject['canvaswrapper'];
@@ -51,7 +51,7 @@ function CanvasWrapper(canvas, properties) {
         this.textures[j] = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+        gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         if (properties.mipmap)
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, properties.interpolate ? gl.LINEAR_MIPMAP_LINEAR : gl.NEAREST_MIPMAP_LINEAR); //always interpolate between 2 mipmap levels NEAREST_MIPMAP_LINEAR
         else
@@ -70,8 +70,13 @@ function CanvasWrapper(canvas, properties) {
     }
 
     this.shaderProgram = new ShaderProgram(gl, cgl_resources["copytexture_v"], cgl_resources["copytexture_f"]);
-    var posBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    this.prepareRender();
+};
+/**ensure vertex-buffer of WebGL context is set up for rendering canvas */
+CanvasWrapper.prototype.prepareRender = function() {
+    // TODO? reuse array-buffer instead of recreating on every use
+    this.posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuffer);
 
     var vertices = new Float32Array([-1, -1, 0, 1, -1, 0, -1, 1, 0, 1, 1, 0]);
 
@@ -79,7 +84,6 @@ function CanvasWrapper(canvas, properties) {
     gl.enableVertexAttribArray(aPosLoc);
 
     var aTexLoc = gl.getAttribLocation(this.shaderProgram.handle, "aTexCoord");
-    gl.enableVertexAttribArray(aTexLoc);
 
     var texCoords = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]);
 
@@ -87,9 +91,12 @@ function CanvasWrapper(canvas, properties) {
 
     gl.bufferData(gl.ARRAY_BUFFER, texCoordOffset + texCoords.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
-    gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
     gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0);
-    gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    if(aTexLoc != -1) {
+        gl.enableVertexAttribArray(aTexLoc);
+        gl.bufferSubData(gl.ARRAY_BUFFER, texCoordOffset, texCoords);
+        gl.vertexAttribPointer(aTexLoc, 2, gl.FLOAT, false, 0, texCoordOffset);
+    }
 
 };
 
@@ -181,6 +188,19 @@ CanvasWrapper.prototype.bindFramebuffer = function() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
     this.it ^= 1;
 };
+// For 3D-Renderer it is more convenient to seperate binding framebuffer and swapping textures
+/**
+ * runs a gl.bindFramebuffer on the framebuffer of the output texture
+ */
+CanvasWrapper.prototype.bindOutputFramebuffer = function() {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.it ^ 1]);
+};
+/**
+ * swap inout and output textures
+ */
+CanvasWrapper.prototype.swap = function() {
+    this.it ^= 1;
+};
 
 
 CanvasWrapper.prototype.copyTextureToCanvas = function() {
@@ -222,7 +242,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
         for (let j = 0; j < 2; j++) {
             gl.bindTexture(gl.TEXTURE_2D, this.textures[j]);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
+            gl.texImage2D(gl.TEXTURE_2D, 0, getPixelFormat(), this.sizeXP, this.sizeYP, 0, gl.RGBA, getPixelType(), rawData);
         }
     }
 
@@ -261,6 +281,7 @@ CanvasWrapper.prototype.reloadIfRequired = function() {
 
 CanvasWrapper.prototype.drawTo = function(context, x, y) {
     enlargeCanvasIfRequired(this.sizeXP, this.sizeYP);
+    this.prepareRender(); // ensure vertex buffer contains correct values
     gl.viewport(0, 0, this.sizeXP, this.sizeYP);
 
     this.shaderProgram.use(gl);

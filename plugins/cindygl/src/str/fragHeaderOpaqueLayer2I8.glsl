@@ -1,0 +1,39 @@
+#version 300 es
+precision highp float;
+precision highp int;
+
+#define pi 3.141592653589793
+
+in vec2 cgl_pixel;
+in vec2 plain_pixel;
+in vec3 cgl_viewDirection;
+in vec3 cgl_spacePos;
+
+layout(location=0) out vec4 fragColor;
+layout(location=1) out vec2 fragDepth;
+uniform vec2 screenSize;
+
+uniform vec3 cgl_viewPos;
+uniform vec3 cgl_viewNormal;
+uniform vec4 cgl_viewRect;
+uniform vec3 uCenter;
+uniform vec3 uOrientation;
+uniform mat3 uCubeAxes;
+uniform float uRadius;
+float cgl_depth;
+vec3 cgl_viewDirection0;
+
+// split depth into parts of 8-bits each
+vec2 cgl_splitDepth(float z) {
+  float hi = floor(z*256.0)/256.0;
+  float low = 256.0*(z-hi);
+  return vec2(hi,low);
+}
+void cgl_setColor(vec4 color) {
+    if(color.a==0.0)discard;
+    fragColor = color;
+    fragDepth = cgl_splitDepth(cgl_depth);
+}
+void cgl_setDepth(float depth) {
+    gl_FragDepth = depth;
+}
