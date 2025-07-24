@@ -195,14 +195,15 @@ function evalmyfunctions(name, args, modifs) {
         set[i] = evaluate(args[i]);
     }
     //  evaluate modifiers in caller-scope
+    let modValues = {};
     Object.entries(modifs).forEach(function ([key, value]) {
-        modifs[key] = evaluate(value);
+        modValues[key] = evaluate(value);
     });
     for (i = 0; i < tt.arglist.length; i++) {
         namespace.newvar(tt.arglist[i].name);
         namespace.setvar(tt.arglist[i].name, set[i]);
     }
-    Object.entries(modifs).forEach(function ([key, value]) {
+    Object.entries(modValues).forEach(function ([key, value]) {
         namespace.newvar(key);
         namespace.setvar(key, value);
     });
