@@ -194,7 +194,7 @@ function evalmyfunctions(name, args, modifs) {
     for (i = 0; i < tt.arglist.length; i++) {
         set[i] = evaluate(args[i]);
     }
-    //  evaluate modifiers in callerå-scope
+    //  evaluate modifiers in caller-scope
     Object.entries(modifs).forEach(function ([key, value]) {
         modifs[key] = evaluate(value);
     });
