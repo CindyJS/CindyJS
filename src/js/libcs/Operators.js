@@ -27,7 +27,7 @@ import { List } from "libcs/List";
 import { Json } from "libcs/Json";
 import { Dict } from "libcs/Dict";
 import { General } from "libcs/General";
-import { evaluator, niceprint, eval_helper, myfunctions } from "libcs/Essentials";
+import { evaluator, niceprint, eval_helper, myfunctions, evalfunction } from "libcs/Essentials";
 import { namespace } from "libcs/Namespace";
 import { Accessor } from "libcs/Accessors";
 import {
@@ -4769,6 +4769,7 @@ evaluator.self$0 = function (args, modifs) {
 };
 
 evaluator.eval$1 = function (args, modifs) {
+    if (args[0].ctype === "lambda") return evaluator.eval(args, modifs);
     Object.entries(modifs).forEach(function ([key, value]) {
         let val = evaluate(value);
         namespace.newvar(key);
@@ -4783,6 +4784,68 @@ evaluator.eval$1 = function (args, modifs) {
     });
     return erg;
     //                    return tt(args,modifs);
+};
+
+///////////////////////////////
+//      LAMBDA FUNCTIONS     //
+///////////////////////////////
+
+evaluator.lambda = function (args, modifs) {
+    //VARIADIC!
+    if (args.length == 0) return nada;
+    let paramCount = args.length - 1;
+    for (let i = 0; i < paramCount; i++) {
+        if (args[i].ctype !== "variable") {
+            console.error("lambda parameter should be variable got: " + args[i].ctype);
+            return nada;
+        }
+    }
+    // evaluate modifiers when creating lambda
+    let modValues = {};
+    Object.entries(modifs).forEach(function ([key, value]) {
+        modValues[key] = evaluate(value);
+    });
+    return {
+        ctype: "lambda",
+        body: args[paramCount],
+        params: args.slice(0, paramCount),
+        modifs: modValues,
+    };
+};
+evaluator.eval = function (args, modifs) {
+    //VARIADIC!
+    if (args.length == 0) return nada;
+    args[0] = evaluate(args[0]);
+    if (args[0].ctype !== "lambda") return nada; // TODO? handle eval for non-lambda argument
+    if (args[0].params.length != args.length - 1) {
+        console.warn("wrong number of arguments for lambda expression");
+        // pad arguments to correct length
+        while (args.length < args[0].params.length + 1) {
+            args.push(nada);
+        }
+    }
+    let callModifs = {};
+    Object.entries(modifs).forEach(function ([key, value]) {
+        callModifs[key] = value;
+    });
+    // prefer lambda modifiers over modifiers passed to eval
+    Object.entries(args[0].modifs).forEach(function ([key, value]) {
+        callModifs[key] = value;
+    });
+    return evalfunction(args[0].params, args[0].body, args.slice(1, args.length), callModifs);
+};
+evaluator.islambda$1 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype === "lambda") {
+        return {
+            ctype: "boolean",
+            value: true,
+        };
+    }
+    return {
+        ctype: "boolean",
+        value: false,
+    };
 };
 
 ///////////////////////////////
