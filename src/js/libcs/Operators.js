@@ -4815,12 +4815,12 @@ evaluator.lambda = function (args, modifs) {
 evaluator.eval = function (args, modifs) {
     //VARIADIC!
     if (args.length == 0) return nada;
-    args[0] = evaluate(args[0]);
-    if (args[0].ctype !== "lambda") return nada; // TODO? handle eval for non-lambda argument
-    if (args[0].params.length != args.length - 1) {
+    let lambda = evaluate(args[0]);
+    if (lambda.ctype !== "lambda") return nada; // TODO? handle eval for non-lambda argument
+    if (lambda.params.length != args.length - 1) {
         console.warn("wrong number of arguments for lambda expression");
         // pad arguments to correct length
-        while (args.length < args[0].params.length + 1) {
+        while (args.length < lambda.params.length + 1) {
             args.push(nada);
         }
     }
@@ -4829,10 +4829,10 @@ evaluator.eval = function (args, modifs) {
         callModifs[key] = value;
     });
     // prefer lambda modifiers over modifiers passed to eval
-    Object.entries(args[0].modifs).forEach(function ([key, value]) {
+    Object.entries(lambda.modifs).forEach(function ([key, value]) {
         callModifs[key] = value;
     });
-    return evalfunction(args[0].params, args[0].body, args.slice(1, args.length), callModifs);
+    return evalfunction(lambda.params, lambda.body, args.slice(1, args.length), callModifs);
 };
 evaluator.islambda$1 = function (args, modifs) {
     const v0 = evaluate(args[0]);
