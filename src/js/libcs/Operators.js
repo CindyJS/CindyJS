@@ -937,7 +937,7 @@ evaluator.if$3 = function (args, modifs) {
         } else if (args.length === 3) {
             return evaluate(args[2]);
         }
-    } else if (v0.ctype !== "undefined") {
+    } else {
         printStackTrace("Condition for if is not boolean");
     }
 
