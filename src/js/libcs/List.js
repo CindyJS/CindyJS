@@ -322,6 +322,15 @@ List.remove = function (a, b) {
         value: erg,
     };
 };
+List.removeAt = function (a, index) {
+    if (index < 1 || index > a.value.length) return a; // index out of range
+    // remove element index-1 from JS list (JS is 0 indexed while CindyScript is 1 indexed)
+    const erg = a.value.slice(0, index - 1).concat(a.value.slice(index));
+    return {
+        ctype: "list",
+        value: erg,
+    };
+};
 
 List.sort1 = function (a) {
     const erg = a.value.slice();

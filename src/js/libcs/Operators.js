@@ -3114,6 +3114,41 @@ function infix_remove(args, modifs) {
     return nada;
 }
 
+evaluator.removeat$2 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    const ind = evaluateAndVal(args[1]);
+    if (v0.ctype === "list" || v0.ctype === "string") {
+        if (ind.ctype !== "number") return v0; // index is not a real number
+        let ind1 = Math.floor(ind.value.real);
+        if (ind1 < 0) {
+            ind1 = v0.value.length + ind1 + 1;
+        }
+        if (ind1 > 0 && ind1 <= v0.value.length) {
+            if (v0.ctype === "list") {
+                return List.removeAt(v0, ind1);
+            } else {
+                // string
+                let str = v0.value;
+                str = str.substring(0, ind1 - 1) + str.substring(ind1, str.length);
+                return General.string(str);
+            }
+        }
+    }
+    if (v0.ctype === "JSON") {
+        const key = niceprint(ind);
+        if (!niceprint.errorTypes.includes(key)) {
+            let elts = { ...v0.value };
+            delete elts[key];
+            return {
+                ctype: "JSON",
+                value: elts,
+            };
+        }
+    }
+    // TODO? handle user-data?, handle dictionaries
+    return v0;
+};
+
 evaluator.append$2 = infix_append;
 
 function infix_append(args, modifs) {
