@@ -3118,7 +3118,10 @@ evaluator.removeat$2 = function (args, modifs) {
             };
         }
     }
-    // TODO? handle user-data?, handle dictionaries
+    if (v0.ctype === "dict") {
+        return Dict.without(v0, ind);
+    }
+    // TODO? support removing user-data?
     return v0;
 };
 
