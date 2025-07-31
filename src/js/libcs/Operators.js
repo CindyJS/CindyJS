@@ -3076,6 +3076,20 @@ function infix_concat(args, modifs) {
     if (v0.ctype === "shape" && v1.ctype === "shape") {
         return eval_helper.shapeconcat(v0, v1);
     }
+    if (v0.ctype === "JSON" && v1.ctype === "JSON") {
+        let elts = { ...v0.value };
+        // for duplicate keys use second argument
+        Object.entries(v1.value).forEach(function ([key, value]) {
+            elts[key] = value;
+        });
+        return {
+            ctype: "JSON",
+            value: elts,
+        };
+    }
+    if (v0.ctype === "dict" && v1.ctype === "dict") {
+        return Dict.union(v0, v1);
+    }
     const l0 = List.asList(v0);
     const l1 = List.asList(v1);
     if (l0.ctype === "list" && l1.ctype === "list") {
