@@ -20,6 +20,7 @@ namespace.vars = (function () {
         true: General.bool(true),
         false: General.bool(false),
         "#": nada,
+        nada: nada,
         nil: List.turnIntoCSList([]),
         newline: General.string("\n"),
         tab: General.string("\t"),
