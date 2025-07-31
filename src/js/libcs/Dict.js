@@ -61,6 +61,18 @@ Dict.get = function (dict, key, dflt) {
     return dflt;
 };
 
+// returns copy of dictionary without the given key, or the original dictionary if the key does not exist
+Dict.without = function (dict, key) {
+    const keyName = Dict.key(key);
+    const kv = dict.value[keyName];
+    if (kv) {
+        let copy = Dict.clone(dict);
+        delete copy.value[keyName];
+        return copy;
+    }
+    return dict;
+};
+
 Dict.niceprint = function (dict) {
     return (
         "{" +
