@@ -1040,6 +1040,22 @@ function infix_or(args, modifs) {
 
     return nada;
 }
+function infix_and_shortcircuit(args, modifs) {
+    const v0 = evaluateAndVal(args[0]);
+    if (v0.ctype !== "boolean") return nada;
+    if (!v0.value) return v0;
+    const v1 = evaluateAndVal(args[1]);
+    if (v0.ctype !== "boolean") return nada;
+    return v1;
+}
+function infix_or_shortcircuit(args, modifs) {
+    const v0 = evaluateAndVal(args[0]);
+    if (v0.ctype !== "boolean") return nada;
+    if (v0.value) return v0;
+    const v1 = evaluateAndVal(args[1]);
+    if (v0.ctype !== "boolean") return nada;
+    return v1;
+}
 
 evaluator.xor$2 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
@@ -5848,6 +5864,8 @@ export {
     infix_nin,
     infix_and,
     infix_or,
+    infix_and_shortcircuit,
+    infix_or_shortcircuit,
     comp_notalmostequals,
     infix_sequence,
     infix_concat,

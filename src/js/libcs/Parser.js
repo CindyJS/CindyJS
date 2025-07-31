@@ -60,6 +60,10 @@ const operatorLevels = [
         or: ["%", "∨"],
     },
     {
+        shortand: ["&&"],
+        shortor: ["%%"],
+    },
+    {
         rassoc: true,
         prepend: ["<:"],
     },

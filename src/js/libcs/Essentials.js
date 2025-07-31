@@ -31,6 +31,8 @@ import {
     infix_nin,
     infix_and,
     infix_or,
+    infix_and_shortcircuit,
+    infix_or_shortcircuit,
     comp_notalmostequals,
     infix_sequence,
     infix_concat,
@@ -76,6 +78,8 @@ infixmap["∈"] = infix_in;
 infixmap["∉"] = infix_nin;
 infixmap["&"] = infix_and;
 infixmap["%"] = infix_or;
+infixmap["&&"] = infix_and_shortcircuit;
+infixmap["%%"] = infix_or_shortcircuit;
 infixmap["!="] = comp_notequals;
 infixmap["~!="] = comp_notalmostequals;
 infixmap[".."] = infix_sequence;
