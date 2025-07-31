@@ -101,6 +101,17 @@ evaluator.println$1 = function (args, modifs) {
     csconsole.out(niceprint(evaluate(args[0], modifs)));
     return nada;
 };
+// variadic print functions
+evaluator.print = function (args, modifs) {
+    //VARIADIC!
+    csconsole.out(args.map((arg) => niceprint(evaluate(arg), modifs)).join(" "), true);
+    return nada;
+};
+evaluator.println = function (args, modifs) {
+    //VARIADIC!
+    csconsole.out(args.map((arg) => niceprint(evaluate(arg, modifs))).join(" "));
+    return nada;
+};
 
 evaluator.assert$2 = function (args, modifs) {
     const v0 = evaluate(args[0]);
