@@ -38,7 +38,15 @@ import {
     setTextRendererHtml,
 } from "libcs/OpDrawing";
 import { imageFromValue } from "libcs/OpImageDrawing";
-import { evaluate, printStackTrace, evaluateAndVal, evaluateAndHomog, analyse } from "libcs/Evaluator";
+import {
+    evaluate,
+    printStackTrace,
+    evaluateAndVal,
+    evaluateAndHomog,
+    analyse,
+    evaluateR,
+    CindyScriptReturn,
+} from "libcs/Evaluator";
 import { CSad } from "libcs/CSad";
 import { tools, setActiveTool } from "libcs/Tools";
 import { csport, csgstorage } from "libgeo/GeoState";
@@ -1606,6 +1614,10 @@ function infix_pow(args, modifs) {
     }
     return nada;
 }
+
+evaluator.return$1 = function (args, modifs) {
+    throw new CindyScriptReturn(evaluate(args[0]));
+};
 
 ///////////////////////////////
 //     UNARY MATH OPS        //
@@ -4776,7 +4788,7 @@ evaluator.eval$1 = function (args, modifs) {
     });
 
     namespace.pushVstack("*");
-    const erg = evaluate(args[0]);
+    const erg = evaluateR(args[0]);
     namespace.cleanVstack();
     Object.entries(modifs).forEach(function ([key, value]) {
         namespace.removevar(key);

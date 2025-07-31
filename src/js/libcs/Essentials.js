@@ -43,7 +43,7 @@ import {
     postfix_undefine,
     infix_semicolon,
 } from "libcs/Operators";
-import { evaluate } from "libcs/Evaluator";
+import { evaluate, evaluateR } from "libcs/Evaluator";
 
 const myfunctions = {};
 
@@ -209,7 +209,7 @@ function evalmyfunctions(name, args, modifs) {
     });
 
     namespace.pushVstack("*");
-    const erg = evaluate(tt.body);
+    const erg = evaluateR(tt.body);
     namespace.cleanVstack();
 
     // remove modifiers again
