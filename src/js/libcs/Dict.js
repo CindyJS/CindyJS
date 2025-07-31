@@ -61,6 +61,19 @@ Dict.get = function (dict, key, dflt) {
     return dflt;
 };
 
+// returns a directory containing all elements appearing in at least one of the arguments,
+//   for duplicate keys the value from the second directory will be used
+// if one of the directories is empty the other one will be returned, otherwise a new directory is created
+Dict.union = function (a, b) {
+    if (Object.keys(b.value).length === 0) return a;
+    if (Object.keys(a.value).length === 0) return b;
+    let c = Dict.clone(a);
+    Object.entries(b.value).forEach(function ([key, value]) {
+        c.value[key] = value;
+    });
+    return c;
+};
+
 Dict.niceprint = function (dict) {
     return (
         "{" +
