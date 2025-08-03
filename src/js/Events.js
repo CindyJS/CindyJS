@@ -777,6 +777,14 @@ function updateCindy() {
 }
 
 function keyEvent(e, script) {
+    e = e || window.event;
+    cskey = e.key || String.fromCharCode(e.keyCode || e.charCode || 0);
+    cskeycode = e.keyCode || e.charCode || 0;
+    if (script) {
+        evaluate(script);
+    }
+    scheduleUpdate();
+    /*
     const evtobj = window.event ? event : e;
     const unicode = evtobj.charCode ? evtobj.charCode : evtobj.keyCode;
     const actualkey = String.fromCharCode(unicode);
@@ -784,6 +792,7 @@ function keyEvent(e, script) {
     cskeycode = unicode;
     evaluate(script);
     scheduleUpdate();
+    */
 }
 
 function cs_keydown(e) {
