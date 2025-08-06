@@ -9,7 +9,7 @@ import { window, nada, document, instanceInvocationArguments } from "expose";
 import { General } from "libcs/General";
 import { niceprint, evaluator } from "libcs/Essentials";
 import { setStatusBar } from "libcs/Operators";
-import { evaluate, analyse, labelCode, usedFunctions } from "libcs/Evaluator";
+import { evaluateR, analyse, labelCode, usedFunctions } from "libcs/Evaluator";
 import { csport } from "libgeo/GeoState";
 import { csinit } from "libgeo/GeoBasics";
 import { stateArrays, stateIn, recalcAll } from "libgeo/Tracing";
@@ -90,13 +90,13 @@ function dumpcs(a) {
 
 function evalcs(a) {
     const prog = evaluator.parse$1([General.wrap(a)], []);
-    const erg = evaluate(prog);
+    const erg = evaluateR(prog);
     dumpcs(erg);
 }
 
 function evokeCS(code) {
     const parsed = analyse(code, false);
-    evaluate(parsed);
+    evaluateR(parsed);
     scheduleUpdate();
 }
 
@@ -920,7 +920,7 @@ function doneLoadingModule(skipInit) {
 
     if (!skipInit) {
         //Evaluate Init script
-        evaluate(cscompiled.init);
+        evaluateR(cscompiled.init);
 
         if ((instanceInvocationArguments.animation || instanceInvocationArguments).autoplay) csplay();
 
@@ -1054,7 +1054,7 @@ var globalInstance = {
     pause: cspause,
     stop: csstop,
     evalcs: function (code) {
-        return evaluate(analyse(code, false));
+        return evaluateR(analyse(code, false));
     },
     parse: function (code) {
         return analyse(code);

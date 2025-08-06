@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Modifier Evaluation Context</title>
+    <style type="text/css">
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        #CSConsole {
+            background-color: #FAFAFA;
+            border-top: 1px solid #333333;
+            bottom: 0px;
+            height: 200px;
+            overflow-y: scroll;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <link rel="stylesheet" href="../css/cindy.css" />
+        
+<script id="csinit" type="text/x-cindyscript">
+    // ensure each draw-statement uses a separate line
+    reset():=(h=7);
+    dh = -0.6;
+    iota():=(
+        regional(res);
+        res = h;
+        h = h + dh;
+        res;
+    );
+    reset();
+    printRes(value) := (
+        drawtext((0,iota()),"returned "+text(value),size->10);
+    );
+    // define functions with return statements
+    test(a,b):=(
+        drawtext((0,iota()),"called test "+text(a),size->10);
+        if(a,return(b));
+        drawtext((0,iota()),"reached end of function body",size->10);
+        -1;
+    );
+    d = {};
+    d:"retTest" := (
+        drawtext((0,iota()),"called test "+text(a),size->10);
+        if(a,return(b));
+        drawtext((0,iota()),"reached end of function body",size->10);
+        -1;
+    );
+</script>
+<script id="csdraw" type="text/x-cindyscript">
+    reset();
+    printRes(test(false,0));
+    printRes(test(true,3));
+    printRes(eval(d:"retTest",a->false,b->4));
+    printRes(eval(d:"retTest",a->true,b->6));
+    a = true; b = 8;
+    printRes(d:"retTest"); // exceptions should not leak out of user-modifiers
+    a = false; b = 10;
+    printRes(d:"retTest"); // exceptions should not leak out of user-modifiers
+    return(0); // this should terminate the current script, but not produce any visible exceptions
+    drawtext((0,iota()),"this line is never reached!",size->10);
+</script>
+    <script type="text/javascript">
+var cdy = CindyJS({
+  scripts: "cs*",
+  defaultAppearance: {
+    dimDependent: 0.7,
+    fontFamily: "sans-serif",
+    lineSize: 1,
+    pointSize: 5.0,
+    textsize: 12.0
+  },
+  angleUnit: "°",
+  ports: [{
+    width: 680,
+    height: 333,
+    id: "CSCanvas",
+    transform: [{visibleRect: [-9.06, 9.34, 18.14, -3.98]}],
+    background: "rgb(168,176,192)"
+  }],
+  csconsole: false,
+  cinderella: {build: 2088, version: [3, 0, 2088]}
+});
+    </script>
+</head>
+<body>
+    <div id="CSCanvas"></div>
+</body>
+</html>

@@ -5,7 +5,7 @@ import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
 import { minCostMatching } from "libcs/Operators";
-import { evaluate } from "libcs/Evaluator";
+import { evaluateR } from "libcs/Evaluator";
 import { getGeoDependants, isShowing } from "libgeo/GeoBasics";
 import { geoOps } from "libgeo/GeoOps";
 
@@ -139,8 +139,8 @@ function traceMouseAndScripts() {
         move.prev.x = mouse.x;
         move.prev.y = mouse.y;
     }
-    evaluate(cscompiled.move);
-    evaluate(cscompiled.draw);
+    evaluateR(cscompiled.move);
+    evaluateR(cscompiled.draw);
     if (!tracingFailed) {
         stateContinueFromHere();
     }

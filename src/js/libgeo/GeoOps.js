@@ -18,7 +18,7 @@ import { CSNumber, TWOPI } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
 import { eval_helper, niceprint } from "libcs/Essentials";
-import { analyse, evaluate } from "libcs/Evaluator";
+import { analyse, evaluateR } from "libcs/Evaluator";
 import { Render2D } from "libcs/Render2D";
 import { csport } from "libgeo/GeoState";
 import { onSegment } from "libgeo/GeoBasics";
@@ -3121,7 +3121,7 @@ geoOps.Calculation.initialize = function (el) {
     el.calculation = analyse(el.text);
 };
 geoOps.Calculation.getText = function (el) {
-    return niceprint(evaluate(el.calculation));
+    return niceprint(evaluateR(el.calculation));
 };
 geoOps.Calculation.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.Calculation.getParamFromState = geoOps.Text.getParamFromState;
@@ -3137,7 +3137,7 @@ geoOps.Equation.initialize = function (el) {
     el.calculation = analyse(el.text);
 };
 geoOps.Equation.getText = function (el) {
-    return el.text + " = " + niceprint(evaluate(el.calculation));
+    return el.text + " = " + niceprint(evaluateR(el.calculation));
 };
 geoOps.Equation.getParamForInput = geoOps.Text.getParamForInput;
 geoOps.Equation.getParamFromState = geoOps.Text.getParamFromState;
@@ -3153,7 +3153,7 @@ geoOps.Evaluate.initialize = function (el) {
     el.calculation = analyse(el.text);
 };
 geoOps.Evaluate.getText = function (el) {
-    evaluate(el.calculation); // ugly: side effects in draw
+    evaluateR(el.calculation); // ugly: side effects in draw
     return el.text;
 };
 geoOps.Evaluate.getParamForInput = geoOps.Text.getParamForInput;
@@ -3171,7 +3171,7 @@ geoOps.Plot.initialize = function (el) {
     el.calculation = analyse("plot((" + el.text + "))");
 };
 geoOps.Plot.getText = function (el) {
-    evaluate(el.calculation);
+    evaluateR(el.calculation);
     return el.text;
 };
 geoOps.Plot.getParamForInput = geoOps.Text.getParamForInput;
@@ -3205,7 +3205,7 @@ function commonButton(el, event, button) {
     if (el.script) {
         const code = analyse(el.script);
         onEvent = function () {
-            evaluate(code);
+            evaluateR(code);
             scheduleUpdate();
         };
     }

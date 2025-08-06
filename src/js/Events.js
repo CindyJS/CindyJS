@@ -27,7 +27,7 @@ import { document, nada, window, instanceInvocationArguments } from "expose";
 import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
-import { evaluate } from "libcs/Evaluator";
+import { evaluateR } from "libcs/Evaluator";
 import { manage } from "libcs/Tools";
 import { csport } from "libgeo/GeoState";
 import { draw_traces, render } from "libgeo/GeoRender";
@@ -790,7 +790,7 @@ function keyEvent(e, script) {
     const actualkey = String.fromCharCode(unicode);
     cskey = actualkey;
     cskeycode = unicode;
-    evaluate(script);
+    evaluateR(script);
     scheduleUpdate();
     */
 }
@@ -808,43 +808,43 @@ function cs_keytyped(e) {
 }
 
 function cs_mousedown(e) {
-    evaluate(cscompiled.mousedown);
+    evaluateR(cscompiled.mousedown);
 }
 
 function cs_mouseup(e) {
-    evaluate(cscompiled.mouseup);
+    evaluateR(cscompiled.mouseup);
 }
 
 function cs_mousedrag(e) {
-    evaluate(cscompiled.mousedrag);
+    evaluateR(cscompiled.mousedrag);
 }
 
 function cs_multidown(id) {
     multiid = id;
     if (id === 0) multipos[0] = csmouse;
-    evaluate(cscompiled.multidown);
+    evaluateR(cscompiled.multidown);
     multiid = 0;
 }
 
 function cs_multiup(id) {
     multiid = id;
-    evaluate(cscompiled.multiup);
+    evaluateR(cscompiled.multiup);
     delete multipos[id];
     multiid = 0;
 }
 
 function cs_multidrag(id) {
     multiid = id;
-    evaluate(cscompiled.multidrag);
+    evaluateR(cscompiled.multidrag);
     multiid = 0;
 }
 
 function cs_mousemove(e) {
-    evaluate(cscompiled.mousemove);
+    evaluateR(cscompiled.mousemove);
 }
 
 function cs_mouseclick(e) {
-    evaluate(cscompiled.mouseclick);
+    evaluateR(cscompiled.mouseclick);
 }
 
 function cs_tick(e) {
@@ -857,26 +857,26 @@ function cs_tick(e) {
     }
     setSimTime(time);
     if (csanimating) {
-        evaluate(cscompiled.tick);
+        evaluateR(cscompiled.tick);
     }
 }
 
 function cs_simulationstep(e) {
-    evaluate(cscompiled.simulationstep);
+    evaluateR(cscompiled.simulationstep);
 }
 
 function cs_simulationstart(e) {
-    evaluate(cscompiled.simulationstart);
+    evaluateR(cscompiled.simulationstart);
 }
 
 function cs_simulationstop(e) {
-    evaluate(cscompiled.simulationstop);
+    evaluateR(cscompiled.simulationstop);
 }
 
 function cs_onDrop(lst, pos) {
     setDropped(List.turnIntoCSList(lst));
     setDropPoint(pos);
-    evaluate(cscompiled.ondrop);
+    evaluateR(cscompiled.ondrop);
     setDropped(nada);
     setDropPoint(nada);
     scheduleUpdate();

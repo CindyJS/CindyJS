@@ -57,19 +57,19 @@ function evaluate(a) {
         if (obj.ctype === "geo") {
             let oldobject = Json._helper.self;
             Json._helper.self = obj;
-            let result = evaluate(Accessor.getuserData(obj.value, key));
+            let result = evaluateR(Accessor.getuserData(obj.value, key));
             Json._helper.self = oldobject;
             return result;
         } else if (obj.ctype === "list" || obj.ctype === "string") {
             let oldobject = Json._helper.self;
             Json._helper.self = obj;
-            let result = evaluate(Accessor.getuserData(obj, key));
+            let result = evaluateR(Accessor.getuserData(obj, key));
             Json._helper.self = oldobject;
             return result;
         } else if (obj.ctype === "JSON") {
             let oldobject = Json._helper.self;
             Json._helper.self = obj;
-            let result = evaluate(Json.getField(obj, key.value));
+            let result = evaluateR(Json.getField(obj, key.value));
             Json._helper.self = oldobject;
             return result;
         } else return nada;
@@ -114,6 +114,26 @@ function evaluateAndHomog(a) {
     }
 
     return nada;
+}
+
+// exception representing a returned CindyScript value, should be caught when interpreting a function body
+class CindyScriptReturn extends Error {
+    constructor(value) {
+        super("unexpected return");
+        this.name = this.constructor.name;
+        this.value = value;
+        Error.captureStackTrace(this, this.constructor);
+    }
+}
+// evaluate expression, catch return statements
+function evaluateR(expr) {
+    // TODO better name
+    try {
+        return evaluate(expr);
+    } catch (errOrReturn) {
+        if (!(errOrReturn instanceof CindyScriptReturn)) throw errOrReturn;
+        return errOrReturn.value;
+    }
 }
 
 //*******************************************************
