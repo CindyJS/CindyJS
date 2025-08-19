@@ -172,6 +172,9 @@ function niceprint(a, modifs) {
     if (a.ctype === "image") {
         return "IMAGE";
     }
+    if (a.ctype === "lambda") {
+        return "lambda(" + a.params.map((v) => v.name).join(",") + ",...)";
+    }
 
     return "_?_";
 }
@@ -182,16 +185,11 @@ niceprint.errorTypes = ["_?_", "_??_", "_???_", "___"];
 //this is the container for self-defined functions
 //Distinct form evaluator for code clearness :-)
 //*******************************************************
-function evalmyfunctions(name, args, modifs) {
-    const tt = myfunctions[name];
-    if (tt === undefined) {
-        return nada;
-    }
-
+function evalfunction(params, body, args, modifs) {
     const set = [];
     let i;
 
-    for (i = 0; i < tt.arglist.length; i++) {
+    for (i = 0; i < params.length; i++) {
         set[i] = evaluate(args[i]);
     }
     //  evaluate modifiers in caller-scope
@@ -199,9 +197,9 @@ function evalmyfunctions(name, args, modifs) {
     Object.entries(modifs).forEach(function ([key, value]) {
         modValues[key] = evaluate(value);
     });
-    for (i = 0; i < tt.arglist.length; i++) {
-        namespace.newvar(tt.arglist[i].name);
-        namespace.setvar(tt.arglist[i].name, set[i]);
+    for (i = 0; i < params.length; i++) {
+        namespace.newvar(params[i].name);
+        namespace.setvar(params[i].name, set[i]);
     }
     Object.entries(modValues).forEach(function ([key, value]) {
         namespace.newvar(key);
@@ -209,7 +207,7 @@ function evalmyfunctions(name, args, modifs) {
     });
 
     namespace.pushVstack("*");
-    const erg = evaluate(tt.body);
+    const erg = evaluate(body);
     namespace.cleanVstack();
 
     // remove modifiers again
@@ -217,11 +215,17 @@ function evalmyfunctions(name, args, modifs) {
         namespace.removevar(key);
     });
 
-    for (i = 0; i < tt.arglist.length; i++) {
-        namespace.removevar(tt.arglist[i].name);
+    for (i = 0; i < params.length; i++) {
+        namespace.removevar(params[i].name);
     }
     return erg;
-    //                    return tt(args,modifs);
+}
+function evalmyfunctions(name, args, modifs) {
+    const tt = myfunctions[name];
+    if (tt === undefined) {
+        return nada;
+    }
+    return evalfunction(tt.arglist, tt.body, args, modifs);
 }
 
 //*******************************************************
