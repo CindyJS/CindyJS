@@ -14,67 +14,93 @@ import { Parser } from "libcs/Parser";
 //*******************************************
 
 function evaluate(a) {
-    if (a === undefined) {
-        return nada;
-    } else if (a.ctype === "infix") {
-        return a.impl(a.args, {}, a);
-    } else if (a.ctype === "variable") {
-        return evaluate(namespace.getvar(a.name));
-    } else if (a.ctype === "function") {
-        callStack.push(a);
-        a = eval_helper.evaluate(a.oper, a.args, a.modifs);
-        callStack.pop();
-        return a;
-    } else if (a.ctype === "void") {
-        return nada;
-    } else if (a.ctype === "field") {
-        const obj = evaluate(a.obj);
-        if (obj.ctype === "geo") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = evaluate(Accessor.getField(obj.value, a.key));
-            Json._helper.self = oldobject;
-            return result;
-        } else if (obj.ctype === "list") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = List.getField(obj, a.key);
-            Json._helper.self = oldobject;
-            return result;
-        } else if (obj.ctype === "JSON") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = evaluate(Json.getField(obj, a.key));
-            Json._helper.self = oldobject;
-            return result;
-        } else {
-            return nada;
+    if (a === undefined || a === null) return nada;
+
+    switch (a.ctype) {
+        case "infix":
+            return a.impl(a.args, {}, a);
+
+        case "variable": {
+            const v = namespace.getvar(a.name);
+            return evaluate(v);
         }
-    } else if (a.ctype === "userdata") {
-        const obj = evaluate(a.obj);
-        let key = General.string(niceprint(evaluate(a.key)));
-        if (key.value === "_?_") key = nada;
+
+        case "function": {
+            callStack.push(a);
+            const res = eval_helper.evaluate(a.oper, a.args, a.modifs);
+            callStack.pop();
+            return res;
+        }
+
+        case "void":
+            return nada;
+
+        case "field": {
+            const obj = evaluate(a.obj);
+            return evaluateField(obj, a.key);
+        }
+
+        case "userdata": {
+            const obj = evaluate(a.obj);
+            let key = General.string(niceprint(evaluate(a.key)));
+            if (key.value === "_?_") key = nada;
+            return evaluateUserdata(obj, key);
+        }
+
+        default:
+            return a;
+    }
+
+    function withSelfContext(obj, fn) {
+        const old = Json._helper.self;
+        Json._helper.self = obj;
+        try {
+            return fn();
+        } finally {
+            Json._helper.self = old;
+        }
+    }
+
+    function evaluateField(obj, key) {
+        if (!obj || !obj.ctype) return nada;
+
         if (obj.ctype === "geo") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = evaluate(Accessor.getuserData(obj.value, key));
-            Json._helper.self = oldobject;
-            return result;
-        } else if (obj.ctype === "list" || obj.ctype === "string") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = evaluate(Accessor.getuserData(obj, key));
-            Json._helper.self = oldobject;
-            return result;
-        } else if (obj.ctype === "JSON") {
-            let oldobject = Json._helper.self;
-            Json._helper.self = obj;
-            let result = evaluate(Json.getField(obj, key.value));
-            Json._helper.self = oldobject;
-            return result;
-        } else return nada;
-    } else {
-        return a;
+            return withSelfContext(obj, function () {
+                return evaluate(Accessor.getField(obj.value, key));
+            });
+        }
+        if (obj.ctype === "list") {
+            return withSelfContext(obj, function () {
+                return List.getField(obj, key);
+            });
+        }
+        if (obj.ctype === "JSON") {
+            return withSelfContext(obj, function () {
+                return evaluate(Json.getField(obj, key));
+            });
+        }
+        return nada;
+    }
+
+    function evaluateUserdata(obj, key) {
+        if (!obj || !obj.ctype) return nada;
+
+        if (obj.ctype === "geo") {
+            return withSelfContext(obj, function () {
+                return evaluate(Accessor.getuserData(obj.value, key));
+            });
+        }
+        if (obj.ctype === "list" || obj.ctype === "string") {
+            return withSelfContext(obj, function () {
+                return evaluate(Accessor.getuserData(obj, key));
+            });
+        }
+        if (obj.ctype === "JSON") {
+            return withSelfContext(obj, function () {
+                return evaluate(Json.getField(obj, key.value));
+            });
+        }
+        return nada;
     }
 }
 
