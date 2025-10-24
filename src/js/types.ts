@@ -108,7 +108,7 @@ export interface CSMath {
 export interface CSJsonValue {
     ctype: string;
     value: Record<string, any>;
-    printing: boolean;
+    printing: number;
 }
 
 export interface CSJsonKey {
