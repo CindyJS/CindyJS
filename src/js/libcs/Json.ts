@@ -18,6 +18,7 @@ const Json: CSJson = {
                     key: General.string(key),
                     value: val,
                 },
+                printing: false,
             };
         },
 
@@ -69,6 +70,7 @@ const Json: CSJson = {
         return {
             ctype: "JSON",
             value: a,
+            printing: false,
         };
     },
 
@@ -127,6 +129,17 @@ const Json: CSJson = {
         visitedMap.newLevel = true;
         visitedMap.level += 1;
 
+        if (el.printing) {
+            if (niceprintOptions && !niceprintOptions.printedWarning) {
+                console.log(
+                    "Warning: We visited a value that is currently being printed, the dictionary is probably cyclic. Output will be probably incomplete."
+                );
+                niceprintOptions.printedWarning = true;
+            }
+            return "{...}";
+        }
+        el.printing = true; // mark JSON as currently printing (directly marking object only works if interpreter is single-threaded)
+
         const keys = Object.keys(el.value).sort();
         const jsonString =
             "{" +
@@ -155,7 +168,8 @@ const Json: CSJson = {
                 })
                 .join(", ") +
             "}";
-
+        // finished printing
+        el.printing = false;
         return jsonString;
     },
 };

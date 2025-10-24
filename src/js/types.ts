@@ -108,6 +108,7 @@ export interface CSMath {
 export interface CSJsonValue {
     ctype: string;
     value: Record<string, any>;
+    printing: boolean;
 }
 
 export interface CSJsonKey {
@@ -153,7 +154,7 @@ export interface CSJson {
     getField(obj: CSJsonValue, key: string): CSType;
     setField(where: Record<string, CSType>, field: string, what: CSJsonValue): void;
     GenFromUserDataEl(el: {
-        key: CSJsonValue;
+        key: CSJsonKey;
         value: CSJsonValue;
     }): Nada | { key: Nada | CSJsonValue; val: Nada | CSType };
     niceprint(el: CSJsonValue, modifs: any, options: CSJsonNicePrintOptions): string;
