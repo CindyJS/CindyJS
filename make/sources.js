@@ -10,6 +10,7 @@ exports.libcs = [
     "src/js/libcs/Namespace.js",
     "build/js/Compiled.js",
     "src/js/libcs/Accessors.js",
+    "src/js/libcs/Inspect.js",
     "src/js/libcs/Operators.js",
     "src/js/libcs/OpDrawing.js",
     "src/js/libcs/OpImageDrawing.js",
