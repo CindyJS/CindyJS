@@ -3947,6 +3947,27 @@ evaluator.import$1 = async function (args, modifs) {
     return nada;
 };
 
+evaluator.inspect$1 = function (args, modifs) {
+    const obj = evaluate(args[0]);
+    console.log(obj);
+    return CSNumber.real(1);
+};
+
+evaluator.inspect$2 = function (args, modifs) {
+    const obj = evaluate(args[0]);
+    const key = evaluate(args[1]); // Attribute name
+    console.log(obj, key);
+    return CSNumber.real(2);
+};
+
+evaluator.inspect$3 = function (args, modifs) {
+    const obj = evaluate(args[0]);
+    const key = evaluate(args[1]); // Attribute name
+    const val = evaluate(args[2]); // Attribute value to set
+    console.log(obj, key, val);
+    return CSNumber.real(3);
+};
+
 evaluator.unicode$1 = function (args, modifs) {
     let codepoint, str;
     const arg = evaluate(args[0]);
