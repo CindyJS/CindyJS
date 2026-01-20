@@ -181,6 +181,12 @@ const registry = {
         type: "string", // String in Cinderella, is this correct? Could be number.
         ownerTypes: ["port"],
     },
+    "port.background.media": {
+        get: (el) => el.portBackgroundMedia,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
     "precision.angle": {
         get: (el) => el.precision.angle,
         set: null,
@@ -189,6 +195,18 @@ const registry = {
     },
     "precision.angle.int": {
         get: (el) => el.precision.angleInt,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    "precision.measure": {
+        get: (el) => el.precision.measure,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    "precision.measure.int": {
+        get: (el) => el.precision.measureInt,
         set: null,
         type: "string",
         ownerTypes: ["port"],

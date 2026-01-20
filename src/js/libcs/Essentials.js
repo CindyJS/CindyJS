@@ -172,6 +172,10 @@ function niceprint(a, modifs) {
     if (a.ctype === "image") {
         return "IMAGE";
     }
+    if (a.ctype === "port") {
+        const vt = a.value && a.value.viewtype;
+        return vt ? `CindyJS (${vt} view)` : "CindyJS (view)";
+    }
 
     return "_?_";
 }

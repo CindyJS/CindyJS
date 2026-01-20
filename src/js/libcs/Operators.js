@@ -5872,10 +5872,13 @@ evaluator.curview$0 = function (args, modifs) {
             precision: {
                 angle: "precision.1", // @TODO not supported yet
                 angleInt: "1", // @TODO not supported yet
+                measure: "precision.2", // @TODO not supported yet
+                measureInt: "2", // @TODO not supported yet
             },
             printscale: "1:1", // @TODO not supported yet
             printscaleInt: "1:1", // @TODO not supported yet
             snap: cssnap,
+            viewtype: "euclidean", // not in Cinderella, used for niceprint right now
         },
     };
 };
