@@ -6,6 +6,8 @@ import { nada } from "expose";
 import { csport } from "libgeo/GeoState";
 import { csw, csh } from "Setup";
 
+const GEO_KINDS = ["P", "L", "S", "C", "G", "T"]; // known geo kinds
+
 // Registry: maps inspect keys to a getter/setter and a declared value type.
 // The optional ownerKinds limits a key to specific geo element kinds.
 const registry = {
@@ -16,6 +18,8 @@ const registry = {
             el.name = v;
         },
         type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     printname: {
         // ATT: "printname" -> el.printname
@@ -24,6 +28,8 @@ const registry = {
             el.printname = v;
         },
         type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     color: {
         // ATT: "color" -> el.color
@@ -32,6 +38,8 @@ const registry = {
             el.color = v;
         },
         type: "color",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     alpha: {
         // ATT: "alpha" -> el.alpha
@@ -40,6 +48,8 @@ const registry = {
             el.alpha = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     ptsize: {
         // ATT: "ptsize" -> el.size
@@ -48,6 +58,7 @@ const registry = {
             el.size = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
         ownerKinds: ["P"],
     },
     linesize: {
@@ -57,6 +68,7 @@ const registry = {
             el.size = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
         ownerKinds: ["L", "S", "C", "G"],
     },
     dashType: {
@@ -66,6 +78,8 @@ const registry = {
             el.dashtype = v;
         },
         type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     colorfill: {
         // ATT: "colorfill" -> el.fillcolor
@@ -74,6 +88,8 @@ const registry = {
             el.fillcolor = v;
         },
         type: "color",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     fillalpha: {
         // ATT: "fillalpha" -> el.fillalpha
@@ -82,6 +98,8 @@ const registry = {
             el.fillalpha = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     isvisible: {
         // ATT: "isvisible" -> el.visible
@@ -90,6 +108,8 @@ const registry = {
             el.visible = v;
         },
         type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     drawtrace: {
         // ATT: "drawtrace" -> el.drawtrace
@@ -98,6 +118,8 @@ const registry = {
             el.drawtrace = v;
         },
         type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     tracelength: {
         // ATT: "tracelength" -> el.tracelength
@@ -106,6 +128,8 @@ const registry = {
             el.tracelength = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     traceskip: {
         // ATT: "traceskip" -> el.traceskip
@@ -114,6 +138,8 @@ const registry = {
             el.traceskip = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     tracedim: {
         // ATT: "tracedim" -> el.tracedim
@@ -122,149 +148,228 @@ const registry = {
             el.tracedim = v;
         },
         type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
 
-    // Minimal curview/viewport attributes (read-only for now).
+    // Minimal curview/viewport attributes (read-only for now, @TODO).
     portwidth: {
         // ATT: "portwidth" -> csw (read-only)
-        get: () => csw,
+        get: (el) => el.csw,
         set: null,
         type: "number",
-        owner: "port",
+        ownerTypes: ["port"],
     },
     portheight: {
         // ATT: "portheight" -> csh (read-only)
-        get: () => csh,
+        get: (el) => el.csh,
         set: null,
         type: "number",
-        owner: "port",
+        ownerTypes: ["port"],
     },
     "euclideanport.scale": {
         // ATT: "euclideanport.scale" -> csport.drawingstate.matrix.a (read-only)
-        get: () => csport.drawingstate.matrix.a,
+        get: (el) => el.drawingstate.matrix.a,
         set: null,
         type: "number",
-        owner: "port",
+        ownerTypes: ["port"],
     },
     "euclideanport.origin.x": {
         // ATT: "euclideanport.origin.x" -> csport.drawingstate.matrix.tx (read-only)
-        get: () => csport.drawingstate.matrix.tx,
+        get: (el) => el.drawingstate.matrix.tx,
         set: null,
         type: "number",
-        owner: "port",
+        ownerTypes: ["port"],
     },
     "euclideanport.origin.y": {
         // ATT: "euclideanport.origin.y" -> csport.drawingstate.matrix.ty (read-only)
-        get: () => csport.drawingstate.matrix.ty,
+        get: (el) => el.drawingstate.matrix.ty,
         set: null,
         type: "number",
-        owner: "port",
+        ownerTypes: ["port"],
     },
 };
 
-// Lightweight duck-typing check for CindyJS geo objects.
-function isInspectable(obj) {
-    const el = obj && obj.ctype === "geo" ? obj.value : obj;
-    return el && typeof el === "object" && (el.kind || el.isGeo);
-}
-
 // Placeholder for recursive traversal (Cinderella has algorithm/behavior/arrow children).
 function getChildren(obj) {
-    // minimal: none for now; later: algorithm/behavior/arrow analogs
+    // @TODO minimal: none for now; later: algorithm/behavior/arrow analogs
     return [];
 }
 
 // Convert plain JS values to CindyScript values.
 function toCindyValue(type, value) {
     if (value === undefined || value === null) return nada;
+
+    // 1) If it already is a CindyScript value, return as is
+    if (value.ctype) return value;
+
+    // 2) Otherwise convert JS primitives
     switch (type) {
         case "string":
             return { ctype: "string", value: String(value) };
         case "number":
-            return CSNumber.real(+value);
+            return CSNumber.real(+value); // force numeric conversion
         case "bool":
-            return General.bool(value) ? { ctype: "boolean", value: true } : { ctype: "boolean", value: false };
+            return General.bool(!!value); // force boolean conversion
         case "color":
-            return List.realVector(value);
+            return List.realVector(value); // expects JS array [r,g,b]
         default:
             return nada;
     }
 }
 
-function unwrapGeo(obj) {
-    return obj && obj.ctype === "geo" ? obj.value : obj;
-}
-
 // Convert CindyScript values back to plain JS values for setters.
 function fromCindyValue(type, cindyVal) {
     if (!cindyVal || cindyVal === nada) return null;
+
+    // 1) Use CindyScript value as is if possible (ctype present)
+    if (cindyVal.ctype) return cindyVal;
+
+    // 2) Fallback: convert JS primitives to CindyScript values
     switch (type) {
         case "string":
-            return cindyVal.ctype === "string" ? cindyVal.value : niceprint(cindyVal);
+            return General.string(String(cindyVal));
         case "number":
-            if (cindyVal.ctype === "number") return cindyVal.value.real;
-            if (cindyVal.ctype === "string") {
-                const n = Number(cindyVal.value);
-                return Number.isNaN(n) ? null : n;
-            }
-            return null;
+            return CSNumber.real(Number(cindyVal));
         case "bool":
-            if (cindyVal.ctype === "boolean") return cindyVal.value;
-            if (cindyVal.ctype === "number") return cindyVal.value.real !== 0;
-            return !!niceprint(cindyVal);
+            return General.bool(!!cindyVal);
         case "color":
-            if (cindyVal.ctype === "list") {
-                return cindyVal.value.map((v) => (v.ctype === "number" ? v.value.real : Number(niceprint(v)) || 0));
-            }
-            return null;
+            return List.realVector(cindyVal);
         default:
             return null;
     }
 }
 
+// Unwrap CindyJS inspectable object to get underlying element.
+function unwrapInspectable(obj) {
+    if (!obj || typeof obj !== "object") return obj;
+    if ("value" in obj) {
+        switch (obj.ctype) {
+            case "geo":
+                return obj.value;
+            case "port":
+                return obj.value;
+        }
+    }
+    return obj;
+}
+
+// Unwrap CindyJS geo object to get underlying element.
+function unwrapGeo(obj) {
+    return obj && obj.ctype === "geo" ? obj.value : obj;
+}
+
+// Check whether object is a CindyJS geo object of known kind.
+function isGeoKind(el) {
+    return el && typeof el === "object" && GEO_KINDS.includes(el.kind);
+}
+
+// Determine owner type of object for inspection purposes.
+function getOwnerType(obj) {
+    if (obj && obj.ctype === "geo") return "geo";
+    if (obj && obj.ctype === "port") return "port"; // does this even exist?
+
+    // Fallback: Function failed to determine type; try duck-typing instead
+    const el = unwrapInspectable(obj);
+    if (el && typeof el === "object" && isGeoKind(el)) return "geo";
+    if (obj && obj.__inspectOwner === "port") return "port";
+    return "unknown";
+}
+
+// Check whether entry matches owner type (strict).
+function matchesOwner(entry, ownerType) {
+    // Require explicit ownerTypes for every entry
+    if (!entry.ownerTypes || !Array.isArray(entry.ownerTypes)) return false;
+    return entry.ownerTypes.includes(ownerType);
+}
+
+// Lightweight duck-typing check for CindyJS geo objects.
+function isInspectable(obj) {
+    const el = obj && obj.ctype === "geo" ? obj.value : obj;
+    return isGeoKind(el);
+}
+
 // inspect(obj): return list of available keys for this object, including children.
 function inspectEval1(obj) {
-    const el = unwrapGeo(obj); // unwrap geo object if needed
-    if (el === nada || !isInspectable(el)) return nada;
-    const keys = [];
-    for (const k in registry) {
-        const entry = registry[k];
+    const el = unwrapInspectable(obj); // unwrap inspectable object if needed
+    const ownerType = getOwnerType(obj);
+
+    // Fast fail for unknown owner types
+    if (ownerType === "unknown") return nada;
+
+    // Collect keys
+    const keys = []; // Storage for valid keys
+    for (const key in registry) {
+        const entry = registry[key];
+
+        // Check owner type restrictions
+        if (!matchesOwner(entry, ownerType)) continue;
+
+        // For geo objects, check kind restrictions
         if (entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) continue;
-        keys.push({ ctype: "string", value: k });
+
+        // Key is valid
+        keys.push({ ctype: "string", value: key });
     }
-    // children recursively
+
+    // Handle children recursively
     for (const child of getChildren(el)) {
         const ckeys = inspectEval1(child);
         if (ckeys !== nada) keys.push(...ckeys.value);
     }
+
+    // Return as CindyScript list
     return { ctype: "list", value: keys };
 }
 
 // inspect(obj, key): resolve key on object (or its children) and return value.
 function inspectEval2(obj, keyCindy) {
-    const el = unwrapGeo(obj); // unwrap geo object if needed
-    if (el === nada || !isInspectable(el)) return nada;
+    const el = unwrapInspectable(obj); // unwrap inspectable object if needed
+    const ownerType = getOwnerType(obj);
+
+    // Fast fail for unknown owner types
+    if (ownerType === "unknown") return nada;
+
+    // Get registry entry
     const key = niceprint(keyCindy);
     const entry = registry[key];
     if (entry) {
-        if (entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) return nada;
+        // Check owner type restrictions
+        if (!matchesOwner(entry, ownerType)) return nada;
+
+        // For geo objects, check kind restrictions
+        if (ownerType === "geo" && entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) return nada;
+
+        // Key is valid; get value
         const v = entry.get(el);
+
+        // Convert to CindyScript value and return
         return toCindyValue(entry.type, v);
     }
+
+    // Handle children recursively if not found
     for (const child of getChildren(el)) {
         const v = inspectEval2(child, keyCindy);
         if (v !== nada) return v;
     }
+
+    // Key not found; return nada
     return nada;
 }
 
 // inspect(obj, key, val): set key on object (or its children) and return nada.
 function inspectEval3(obj, keyCindy, valCindy) {
-    const el = unwrapGeo(obj); // unwrap geo object if needed
-    if (el === nada || !isInspectable(el)) return nada;
+    const el = unwrapInspectable(obj); // unwrap inspectable object if needed
+    const ownerType = getOwnerType(obj);
+
+    // Fast fail for unknown owner types
+    if (ownerType === "unknown") return nada;
+
     const key = niceprint(keyCindy);
     const entry = registry[key];
     if (entry && entry.set) {
+        if (!matchesOwner(entry, ownerType)) return nada;
+        if (ownerType === "geo" && entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) return nada;
         const v = fromCindyValue(entry.type, valCindy);
         entry.set(el, v);
         return nada;

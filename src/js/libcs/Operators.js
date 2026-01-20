@@ -5839,6 +5839,17 @@ evaluator.guess$1 = function (args, modifs) {
     return nada;
 };
 
+evaluator.curview$0 = function (args, modifs) {
+    return {
+        ctype: "port",
+        value: {
+            csw,
+            csh,
+            drawingstate: csport.drawingstate,
+        },
+    };
+};
+
 export {
     statusbar,
     setStatusBar,
