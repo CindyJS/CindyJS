@@ -3,46 +3,13 @@ import { niceprint } from "libcs/Essentials";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
 import { nada } from "expose";
-import { csport } from "libgeo/GeoState";
-import { csw, csh } from "Setup";
 
 const GEO_KINDS = ["P", "L", "S", "C", "G", "T"]; // known geo kinds
 
 // Registry: maps inspect keys to a getter/setter and a declared value type.
 // The optional ownerKinds limits a key to specific geo element kinds.
 const registry = {
-    name: {
-        // ATT: "name" -> el.name
-        get: (el) => el.name,
-        set: (el, v) => {
-            el.name = v;
-        },
-        type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
-    printname: {
-        // ATT: "printname" -> el.printname
-        get: (el) => el.printname,
-        set: (el, v) => {
-            el.printname = v;
-        },
-        type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
-    color: {
-        // ATT: "color" -> el.color
-        get: (el) => el.color,
-        set: (el, v) => {
-            el.color = v;
-        },
-        type: "color",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
     alpha: {
-        // ATT: "alpha" -> el.alpha
         get: (el) => el.alpha,
         set: (el, v) => {
             el.alpha = v;
@@ -51,38 +18,35 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
-    ptsize: {
-        // ATT: "ptsize" -> el.size
-        get: (el) => el.size,
-        set: (el, v) => {
-            el.size = v;
-        },
-        type: "number",
-        ownerTypes: ["geo"],
-        ownerKinds: ["P"],
-    },
-    linesize: {
-        // ATT: "linesize" -> el.size
-        get: (el) => el.size,
-        set: (el, v) => {
-            el.size = v;
-        },
-        type: "number",
-        ownerTypes: ["geo"],
-        ownerKinds: ["L", "S", "C", "G"],
-    },
-    dashType: {
-        // ATT: "dashType" -> el.dashtype
-        get: (el) => el.dashtype,
-        set: (el, v) => {
-            el.dashtype = v;
-        },
+
+    anglemodulo: {
+        get: (el) => el.anglemodulo,
+        set: null,
         type: "string",
+        ownerTypes: ["port"],
+    },
+    "axes.show": {
+        get: (el) => el.axes && el.axes.show,
+        set: null, // @TODO implement setter
+        type: "bool",
+        ownerTypes: ["port"],
+    },
+    backgroundimage: {
+        get: (el) => el.backgroundimage,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    color: {
+        get: (el) => el.color,
+        set: (el, v) => {
+            el.color = v;
+        },
+        type: "color",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
     colorfill: {
-        // ATT: "colorfill" -> el.fillcolor
         get: (el) => el.fillcolor,
         set: (el, v) => {
             el.fillcolor = v;
@@ -91,28 +55,22 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
-    fillalpha: {
-        // ATT: "fillalpha" -> el.fillalpha
-        get: (el) => el.fillalpha,
-        set: (el, v) => {
-            el.fillalpha = v;
-        },
-        type: "number",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
-    isvisible: {
-        // ATT: "isvisible" -> el.visible
-        get: (el) => el.visible,
-        set: (el, v) => {
-            el.visible = v;
-        },
+    darkenDependent: {
+        get: (el) => el.darkenDependent,
+        set: null,
         type: "bool",
+        ownerTypes: ["port"],
+    },
+    dashType: {
+        get: (el) => el.dashtype,
+        set: (el, v) => {
+            el.dashtype = v;
+        },
+        type: "string",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
     drawtrace: {
-        // ATT: "drawtrace" -> el.drawtrace
         get: (el) => el.drawtrace,
         set: (el, v) => {
             el.drawtrace = v;
@@ -121,8 +79,166 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    "euclideanport.origin.x": {
+        get: (el) => el.euclideanport.origin.x,
+        set: null,
+        type: "number",
+        ownerTypes: ["port"],
+    },
+    "euclideanport.origin.y": {
+        get: (el) => el.euclideanport.origin.y,
+        set: null,
+        type: "number",
+        ownerTypes: ["port"],
+    },
+    "euclideanport.scale": {
+        get: (el) => el.euclideanport.scale,
+        set: null,
+        type: "number",
+        ownerTypes: ["port"],
+    },
+    fillalpha: {
+        get: (el) => el.fillalpha,
+        set: (el, v) => {
+            el.fillalpha = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
+    imagealpha: {
+        get: (el) => el.imagealpha,
+        set: null,
+        type: "number",
+        ownerTypes: ["port"],
+    },
+    imagescalemode: {
+        get: (el) => el.imagescalemode,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    imagescalemodeint: {
+        get: (el) => el.imagescalemodeint,
+        set: null,
+        type: "string", // String in Cinderella, is this correct? Could be number.
+        ownerTypes: ["port"],
+    },
+    isvisible: {
+        get: (el) => el.visible,
+        set: (el, v) => {
+            el.visible = v;
+        },
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
+    linesize: {
+        get: (el) => el.size,
+        set: (el, v) => {
+            el.size = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S", "C", "G"],
+    },
+    "mesh.density": {
+        get: (el) => el.mesh.density,
+        set: null,
+        type: "number",
+        ownerTypes: ["port"],
+    },
+    "mesh.rectangular": {
+        get: (el) => el.mesh.rectangular,
+        set: null,
+        type: "bool",
+        ownerTypes: ["port"],
+    },
+    "mesh.triangular": {
+        get: (el) => el.mesh.triangular,
+        set: null,
+        type: "bool",
+        ownerTypes: ["port"],
+    },
+    name: {
+        get: (el) => el.name,
+        set: (el, v) => {
+            el.name = v;
+        },
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
+    portheight: {
+        get: (el) => el.portheight,
+        set: null,
+        type: "string", // String in Cinderella, is this correct? Could be number.
+        ownerTypes: ["port"],
+    },
+    portwidth: {
+        get: (el) => el.portwidth,
+        set: null,
+        type: "string", // String in Cinderella, is this correct? Could be number.
+        ownerTypes: ["port"],
+    },
+    "precision.angle": {
+        get: (el) => el.precision.angle,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    "precision.angle.int": {
+        get: (el) => el.precision.angleInt,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    printname: {
+        get: (el) => el.printname,
+        set: (el, v) => {
+            el.printname = v;
+        },
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
+    printscale: {
+        get: (el) => el.printscale,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    "printscale.int": {
+        get: (el) => el.printscaleInt,
+        set: null,
+        type: "string",
+        ownerTypes: ["port"],
+    },
+    ptsize: {
+        get: (el) => el.size,
+        set: (el, v) => {
+            el.size = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["P"],
+    },
+    snap: {
+        get: (el) => el.snap,
+        set: null,
+        type: "bool",
+        ownerTypes: ["port"],
+    },
+    tracedim: {
+        get: (el) => el.tracedim,
+        set: (el, v) => {
+            el.tracedim = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
     tracelength: {
-        // ATT: "tracelength" -> el.tracelength
         get: (el) => el.tracelength,
         set: (el, v) => {
             el.tracelength = v;
@@ -132,7 +248,6 @@ const registry = {
         ownerKinds: GEO_KINDS,
     },
     traceskip: {
-        // ATT: "traceskip" -> el.traceskip
         get: (el) => el.traceskip,
         set: (el, v) => {
             el.traceskip = v;
@@ -140,53 +255,6 @@ const registry = {
         type: "number",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
-    },
-    tracedim: {
-        // ATT: "tracedim" -> el.tracedim
-        get: (el) => el.tracedim,
-        set: (el, v) => {
-            el.tracedim = v;
-        },
-        type: "number",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
-
-    // Minimal curview/viewport attributes (read-only for now, @TODO).
-    portwidth: {
-        // ATT: "portwidth" -> csw (read-only)
-        get: (el) => el.csw,
-        set: null,
-        type: "number",
-        ownerTypes: ["port"],
-    },
-    portheight: {
-        // ATT: "portheight" -> csh (read-only)
-        get: (el) => el.csh,
-        set: null,
-        type: "number",
-        ownerTypes: ["port"],
-    },
-    "euclideanport.scale": {
-        // ATT: "euclideanport.scale" -> csport.drawingstate.matrix.a (read-only)
-        get: (el) => el.drawingstate.matrix.a,
-        set: null,
-        type: "number",
-        ownerTypes: ["port"],
-    },
-    "euclideanport.origin.x": {
-        // ATT: "euclideanport.origin.x" -> csport.drawingstate.matrix.tx (read-only)
-        get: (el) => el.drawingstate.matrix.tx,
-        set: null,
-        type: "number",
-        ownerTypes: ["port"],
-    },
-    "euclideanport.origin.y": {
-        // ATT: "euclideanport.origin.y" -> csport.drawingstate.matrix.ty (read-only)
-        get: (el) => el.drawingstate.matrix.ty,
-        set: null,
-        type: "number",
-        ownerTypes: ["port"],
     },
 };
 

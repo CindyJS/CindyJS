@@ -1,12 +1,16 @@
 import {
+    csaxes,
     csconsole,
     dump,
     csgeo,
+    csgridsize,
     csmouse,
     csctx,
     csplay,
     cspause,
+    cssnap,
     csstop,
+    cstgrid,
     csw,
     csh,
     globalInstance,
@@ -5843,9 +5847,35 @@ evaluator.curview$0 = function (args, modifs) {
     return {
         ctype: "port",
         value: {
-            csw,
-            csh,
-            drawingstate: csport.drawingstate,
+            anglemodulo: "modulo.0", // @TODO not supported yet
+            axes: { show: csaxes },
+            backgroundimage: undefined, // deprecated in Cinderella, should be base64 String?
+            darkenDependent: true, // @TODO not supported yet
+            euclideanport: {
+                scale: csport.drawingstate.matrix.a,
+                origin: {
+                    x: csport.drawingstate.matrix.tx,
+                    y: csport.drawingstate.matrix.ty,
+                },
+            },
+            imagealpha: 1.0, // @TODO not supported yet
+            imagescalemode: "scalemode.center", // @TODO not supported yet
+            imagescalemodeint: "1", // @TODO not supported yet
+            mesh: {
+                density: csgridsize,
+                rectangular: csgridsize !== 0,
+                triangular: cstgrid !== 0,
+            },
+            portBackgroundMedia: "", // @TODO not supported yet, should be filename
+            portwidth: String(csw),
+            portheight: String(csh),
+            precision: {
+                angle: "precision.1", // @TODO not supported yet
+                angleInt: "1", // @TODO not supported yet
+            },
+            printscale: "1:1", // @TODO not supported yet
+            printscaleInt: "1:1", // @TODO not supported yet
+            snap: cssnap,
         },
     };
 };
