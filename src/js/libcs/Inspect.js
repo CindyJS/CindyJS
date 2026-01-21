@@ -105,6 +105,15 @@ const registry = {
         type: "string",
         ownerTypes: ["port"],
     },
+    "button.script": {
+        get: (el) => (el.script ? String(el.script) : ""),
+        set: (el, v) => {
+            el.script = v;
+        },
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
+    },
     clipline: {
         get: (el) => cliplineFromClip(el), // map, since Cinderella uses numbers 0,1,2
         set: null, // @TODO implement setter
@@ -577,6 +586,15 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    "text.minwidth": {
+        get: (el) => (el.minwidth !== undefined && el.minwidth !== null ? el.minwidth : CSNumber.real(0)),
+        set: (el, v) => {
+            el.minwidth = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
+    },
     "text.text": {
         get: (el) => (el.text !== undefined && el.text !== null ? String(el.text) : ""),
         set: (el, v) => {
@@ -630,6 +648,13 @@ const registry = {
         type: "number",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
+    },
+    texttoggle: {
+        get: (el) => el.type === "ToggleButton",
+        set: null,
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
     },
     tracedim: {
         // field missing in CindyJS geo elements, default to 1
