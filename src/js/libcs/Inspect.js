@@ -190,7 +190,7 @@ const registry = {
         },
         type: "color",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
     darkenDependent: {
         get: (el) => el.darkenDependent,
@@ -267,7 +267,7 @@ const registry = {
         set: null, // @TODO implement setter
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
     "fillcolor.green": {
         get: (el) => {
@@ -277,7 +277,7 @@ const registry = {
         set: null, // @TODO implement setter
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
     "fillcolor.blue": {
         get: (el) => {
@@ -287,7 +287,7 @@ const registry = {
         set: null, // @TODO implement setter
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
 
     imagealpha: {
@@ -386,7 +386,7 @@ const registry = {
         set: null,
         type: "bool",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
     "mesh.density": {
         get: (el) => el.mesh.density,
@@ -577,6 +577,15 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    "text.text": {
+        get: (el) => (el.text !== undefined && el.text !== null ? String(el.text) : ""),
+        set: (el, v) => {
+            el.text = v;
+        },
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
+    },
     textbold: {
         // field missing in CindyJS geo elements, default to false
         get: (el) => !!el.textbold,
@@ -586,6 +595,21 @@ const registry = {
         type: "bool",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
+    },
+    textborder: {
+        // field missing in CindyJS geo elements, default to false
+        get: () => false,
+        set: null,
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
+    },
+    textbutton: {
+        get: (el) => el.type === "Button",
+        set: null,
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: ["Text"],
     },
     textitalics: {
         // field missing in CindyJS geo elements, default to false
@@ -650,7 +674,7 @@ const registry = {
         set: null,
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: ["C", "Poly"],
+        ownerKinds: ["C", "Poly", "Text"],
     },
 };
 
