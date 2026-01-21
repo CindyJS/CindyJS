@@ -4,7 +4,7 @@ import { List } from "libcs/List";
 import { General } from "libcs/General";
 import { nada } from "expose";
 
-const GEO_KINDS = ["P", "L", "S", "C", "G", "T"]; // known geo kinds
+const GEO_KINDS = ["P", "L", "S", "C", "Poly", "Text"]; // known geo kinds, probably some missing, @TODO add missing
 
 const CINDERELLA_PALETTE = [
     // copied from Cinderella, should be kept in sync
@@ -33,6 +33,7 @@ const CINDERELLA_PALETTE = [
     List.realVector([1.0, 0.741, 0.467]), // 22: bright orange(255,189,119)
 ];
 const colorIndexMap = new WeakMap(); // Track palette index for geo elements
+const colorFillIndexMap = new WeakMap(); // Track palette index for fillcolor of geo elements
 
 // Registry: maps inspect keys to a getter/setter and a declared value type.
 // The optional ownerKinds limits a key to specific geo element kinds.
@@ -167,14 +168,29 @@ const registry = {
         ownerKinds: GEO_KINDS,
     },
     colorfill: {
-        // @TODO adjust to Cinderella color palette index behavior
-        get: (el) => el.fillcolor,
+        get: (el) => {
+            const idx = colorFillIndexMap.get(el);
+            if (idx != null) return CSNumber.real(idx);
+            const list = el.fillcolor;
+            const found = paletteIndexFromList(list);
+            if (found != null) return CSNumber.real(found);
+            return list;
+        },
         set: (el, v) => {
+            if (v && v.ctype === "number") {
+                const idx = Math.round(v.value.real);
+                const col = CINDERELLA_PALETTE[idx];
+                if (col) {
+                    el.fillcolor = col;
+                    colorFillIndexMap.set(el, idx);
+                    return;
+                }
+            }
             el.fillcolor = v;
         },
         type: "color",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["C", "Poly"],
     },
     darkenDependent: {
         get: (el) => el.darkenDependent,
@@ -191,20 +207,20 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: ["L", "S", "C", "G"],
     },
+    definition: {
+        // @TODO not the same as Cinderella's definition, close enough for now
+        get: (el) => el.type || "",
+        set: null, // @TODO implement setter
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
+    },
     drawtrace: {
         get: (el) => !!el.drawtrace, // ensure boolean
         set: (el, v) => {
             el.drawtrace = v;
         },
         type: "bool",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
-    definition: {
-        // @TODO not the same as Cinderella's definition, close enough for now
-        get: (el) => el.type || "",
-        set: null, // @TODO implement setter
-        type: "string",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
@@ -243,6 +259,37 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    "fillcolor.red": {
+        get: (el) => {
+            const v = getFillColorVector(el);
+            return v ? v.value[0] : nada;
+        },
+        set: null, // @TODO implement setter
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["C", "Poly"],
+    },
+    "fillcolor.green": {
+        get: (el) => {
+            const v = getFillColorVector(el);
+            return v ? v.value[1] : nada;
+        },
+        set: null, // @TODO implement setter
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["C", "Poly"],
+    },
+    "fillcolor.blue": {
+        get: (el) => {
+            const v = getFillColorVector(el);
+            return v ? v.value[2] : nada;
+        },
+        set: null, // @TODO implement setter
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["C", "Poly"],
+    },
+
     imagealpha: {
         get: (el) => el.imagealpha,
         set: null, // @TODO implement setter
@@ -333,6 +380,14 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: ["L", "S", "C", "G"],
     },
+    linkvisibility: {
+        // placeholder, does not exist in CindyJS, @TODO
+        get: () => false,
+        set: null,
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: ["C", "Poly"],
+    },
     "mesh.density": {
         get: (el) => el.mesh.density,
         set: null, // @TODO implement setter
@@ -360,15 +415,6 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
-    pinning: {
-        get: (el) => !!el.pinned, // el.pinned == null when thing is not pinned, is that correct?
-        set: (el, v) => {
-            el.pinned = v;
-        },
-        type: "bool",
-        ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
-    },
     overlap: {
         get: (el) => (el.overhang !== undefined && el.overhang !== null ? el.overhang : CSNumber.real(0)),
         set: (el, v) => {
@@ -377,6 +423,15 @@ const registry = {
         type: "number",
         ownerTypes: ["geo"],
         ownerKinds: ["L", "S"],
+    },
+    pinning: {
+        get: (el) => !!el.pinned, // el.pinned == null when thing is not pinned, is that correct?
+        set: (el, v) => {
+            el.pinned = v;
+        },
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: GEO_KINDS,
     },
     plane: {
         // placeholder, does not exist in CindyJS, @TODO
@@ -589,6 +644,14 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    visibilityfill: {
+        // deprecated in Cinderella, use 'fillalpha' instead
+        get: () => 999,
+        set: null,
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["C", "Poly"],
+    },
 };
 
 // Determine palette index from color list (Cinderella colors).
@@ -614,6 +677,17 @@ function paletteIndexFromList(list) {
 // Get color vector (list) from geo element, if possible.
 function getColorVector(el) {
     const c = el.color;
+    if (!c) return null;
+    if (c.ctype === "list") return c;
+    if (c.ctype === "number") {
+        const idx = Math.round(c.value.real);
+        return CINDERELLA_PALETTE[idx] || null;
+    }
+    return null;
+}
+
+function getFillColorVector(el) {
+    const c = el.fillcolor;
     if (!c) return null;
     if (c.ctype === "list") return c;
     if (c.ctype === "number") {
