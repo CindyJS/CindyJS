@@ -106,7 +106,10 @@ const registry = {
         ownerTypes: ["port"],
     },
     "button.script": {
-        get: (el) => (el.script ? String(el.script) : ""),
+        get: (el) => {
+            if (el.type !== "Button" && el.type !== "ToggleButton") return nada;
+            return el.script ? String(el.script) : "";
+        },
         set: (el, v) => {
             el.script = v;
         },
