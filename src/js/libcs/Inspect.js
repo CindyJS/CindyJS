@@ -53,6 +53,45 @@ const registry = {
         type: "string",
         ownerTypes: ["port"],
     },
+    "arrow.mode": {
+        // @Todo fit to Cinderella semantics
+        get: (el) => (el.arrow ? CSNumber.real(1) : CSNumber.real(0)),
+        set: null,
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["S"],
+    },
+    "arrow.size": {
+        // @Todo fit to Cinderella semantics
+        get: (el) => (el.arrowsize !== undefined && el.arrowsize !== null ? el.arrowsize : CSNumber.real(8)),
+        set: (el, v) => {
+            el.arrowsize = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["S"],
+    },
+    "arrow.fraction": {
+        // @Todo fit to Cinderella semantics
+        get: (el) =>
+            el.arrowposition !== undefined && el.arrowposition !== null ? el.arrowposition : CSNumber.real(100),
+        set: (el, v) => {
+            el.arrowposition = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["S"],
+    },
+    "arrow.type": {
+        // @Todo fit to Cinderella semantics
+        get: (el) => (el.arrowshape !== undefined && el.arrowshape !== null ? el.arrowshape : CSNumber.real(3)),
+        set: (el, v) => {
+            el.arrowshape = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["S"],
+    },
     "axes.show": {
         get: (el) => el.axes && el.axes.show,
         set: null, // @TODO implement setter
@@ -64,6 +103,13 @@ const registry = {
         set: null, // @TODO implement setter
         type: "string",
         ownerTypes: ["port"],
+    },
+    clipline: {
+        get: (el) => cliplineFromClip(el), // map, since Cinderella uses numbers 0,1,2
+        set: null, // @TODO implement setter
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L"],
     },
     color: {
         get: (el) => {
@@ -143,10 +189,10 @@ const registry = {
         },
         type: "string",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["L", "S", "C", "G"],
     },
     drawtrace: {
-        get: (el) => el.drawtrace,
+        get: (el) => !!el.drawtrace, // ensure boolean
         set: (el, v) => {
             el.drawtrace = v;
         },
@@ -246,6 +292,38 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
     },
+    "line.image": {
+        // placeholder, does not exist in CindyJS, @TODO
+        get: () => "",
+        set: null,
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S"],
+    },
+    "line.image.media": {
+        // placeholder, does not exist in CindyJS, @TODO
+        get: () => nada,
+        set: null,
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S"],
+    },
+    "line.image.scalemode": {
+        // placeholder, does not exist in CindyJS, @TODO
+        get: () => "linescale.stretchx",
+        set: null,
+        type: "string",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S"],
+    },
+    lineborder: {
+        // placeholder, does not exist in CindyJS, @TODO
+        get: () => false,
+        set: null,
+        type: "bool",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S"],
+    },
     linesize: {
         get: (el) => el.size,
         set: (el, v) => {
@@ -290,6 +368,15 @@ const registry = {
         type: "bool",
         ownerTypes: ["geo"],
         ownerKinds: GEO_KINDS,
+    },
+    overlap: {
+        get: (el) => (el.overhang !== undefined && el.overhang !== null ? el.overhang : CSNumber.real(0)),
+        set: (el, v) => {
+            el.overhang = v;
+        },
+        type: "number",
+        ownerTypes: ["geo"],
+        ownerKinds: ["L", "S"],
     },
     plane: {
         // placeholder, does not exist in CindyJS, @TODO
@@ -534,6 +621,14 @@ function getColorVector(el) {
         return CINDERELLA_PALETTE[idx] || null;
     }
     return null;
+}
+
+function cliplineFromClip(el) {
+    const clip = el && el.clip;
+    const clipVal = clip && clip.value ? clip.value : clip;
+    if (clipVal === "end") return CSNumber.real(1);
+    if (clipVal === "inci") return CSNumber.real(2);
+    return CSNumber.real(0);
 }
 
 // Placeholder for recursive traversal (Cinderella has algorithm/behavior/arrow children).
