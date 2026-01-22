@@ -4790,12 +4790,12 @@ evaluator.eval$1 = function (args, modifs) {
 //      LAMBDA FUNCTIONS     //
 ///////////////////////////////
 
-evaluator.lambda = function (args, modifs) {
-    //VARIADIC!
+evaluator.lambda$2 = function (args, modifs) {
     if (args.length == 0) return nada;
-    let paramCount = args.length - 1;
-    for (let i = 0; i < paramCount; i++) {
-        if (args[i].ctype !== "variable") {
+    if (args[0].oper.toLowerCase() !== "genlist") return nada;
+    let params = args[0].args;
+    for (let i = 0; i < params.length; i++) {
+        if (params[i].ctype !== "variable") {
             console.error("lambda parameter should be variable got: " + args[i].ctype);
             return nada;
         }
@@ -4807,8 +4807,8 @@ evaluator.lambda = function (args, modifs) {
     });
     return {
         ctype: "lambda",
-        body: args[paramCount],
-        params: args.slice(0, paramCount),
+        body: args[1],
+        params: params,
         modifs: modValues,
     };
 };

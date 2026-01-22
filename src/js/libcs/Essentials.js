@@ -173,7 +173,7 @@ function niceprint(a, modifs) {
         return "IMAGE";
     }
     if (a.ctype === "lambda") {
-        return "lambda(" + a.params.map((v) => v.name).join(",") + ",...)";
+        return "lambda((" + a.params.map((v) => v.name).join(",") + "),...)";
     }
 
     return "_?_";
