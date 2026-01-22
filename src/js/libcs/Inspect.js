@@ -55,7 +55,7 @@ const registry = {
         ownerTypes: ["port"],
     },
     "arrow.mode": {
-        // @Todo fit to Cinderella semantics
+        // @TODO fit to Cinderella semantics
         get: (el) => (el.arrow ? CSNumber.real(1) : CSNumber.real(0)),
         set: null,
         type: "number",
@@ -63,7 +63,7 @@ const registry = {
         ownerKinds: ["S"],
     },
     "arrow.size": {
-        // @Todo fit to Cinderella semantics
+        // @TODO fit to Cinderella semantics
         get: (el) => (el.arrowsize !== undefined && el.arrowsize !== null ? el.arrowsize : CSNumber.real(8)),
         set: (el, v) => {
             el.arrowsize = v;
@@ -73,7 +73,7 @@ const registry = {
         ownerKinds: ["S"],
     },
     "arrow.fraction": {
-        // @Todo fit to Cinderella semantics
+        // @TODO fit to Cinderella semantics
         get: (el) =>
             el.arrowposition !== undefined && el.arrowposition !== null ? el.arrowposition : CSNumber.real(100),
         set: (el, v) => {
@@ -84,7 +84,7 @@ const registry = {
         ownerKinds: ["S"],
     },
     "arrow.type": {
-        // @Todo fit to Cinderella semantics
+        // @TODO fit to Cinderella semantics
         get: (el) => (el.arrowshape !== undefined && el.arrowshape !== null ? el.arrowshape : CSNumber.real(3)),
         set: (el, v) => {
             el.arrowshape = v;
@@ -217,7 +217,7 @@ const registry = {
         },
         type: "string",
         ownerTypes: ["geo"],
-        ownerKinds: ["L", "S", "C", "G"],
+        ownerKinds: ["L", "S", "C"],
     },
     definition: {
         // @TODO not the same as Cinderella's definition, close enough for now
@@ -269,7 +269,7 @@ const registry = {
         },
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["C", "Poly", "Text"],
     },
     "fillcolor.red": {
         get: (el) => {
@@ -301,7 +301,18 @@ const registry = {
         ownerTypes: ["geo"],
         ownerKinds: ["C", "Poly", "Text"],
     },
-
+    "freept.pos": {
+        get: (child) => {
+            const p = child.pos; // [x,y,z]
+            if (!p || p.length < 2) return p;
+            if (p.length >= 3 && p[2] !== 0) return [p[0] / p[2], p[1] / p[2]];
+            return [p[0], p[1]];
+        },
+        set: (child, v) => nada, // read-only
+        type: "list",
+        ownerTypes: ["child"],
+        ownerChildren: ["freept"],
+    },
     imagealpha: {
         get: (el) => el.imagealpha,
         set: null, // @TODO implement setter
@@ -325,7 +336,7 @@ const registry = {
         set: null, // Read-only
         type: "string",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S"],
     },
     isvisible: {
         // for some reason both 'visible' and 'isshowing' are used in CindyJS
@@ -349,31 +360,28 @@ const registry = {
         },
         type: "bool",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S", "C"],
     },
     "line.image": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => "",
+        get: (child) => child.value || "",
         set: null,
         type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: ["L", "S"],
+        ownerTypes: ["child"],
+        ownerChildren: ["line.image"],
     },
     "line.image.media": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => nada,
+        get: (child) => child.media,
         set: null,
         type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: ["L", "S"],
+        ownerTypes: ["child"],
+        ownerChildren: ["line.image"],
     },
     "line.image.scalemode": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => "linescale.stretchx",
+        get: (child) => child.scalemode,
         set: null,
         type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: ["L", "S"],
+        ownerTypes: ["child"],
+        ownerChildren: ["line.image"],
     },
     lineborder: {
         // placeholder, does not exist in CindyJS, @TODO
@@ -390,7 +398,7 @@ const registry = {
         },
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: ["L", "S", "C", "G"],
+        ownerKinds: ["L", "S", "C", "Poly"],
     },
     linkvisibility: {
         // placeholder, does not exist in CindyJS, @TODO
@@ -443,7 +451,8 @@ const registry = {
         },
         type: "bool",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "Text"],
+        ownerFilter: (el) => !!el.movable, // apply only for movable points/texts
     },
     plane: {
         // placeholder, does not exist in CindyJS, @TODO
@@ -454,28 +463,28 @@ const registry = {
         ownerKinds: GEO_KINDS,
     },
     "point.image": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => "",
+        // virtual child field for inspect compatibility
+        get: (child) => child.value,
         set: null,
         type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: ["P"],
+        ownerTypes: ["child"],
+        ownerChildren: ["point.image"],
     },
     "point.image.media": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => nada,
+        // virtual child field for inspect compatibility
+        get: (child) => child.media,
         set: null,
         type: "string",
-        ownerTypes: ["geo"],
-        ownerKinds: ["P"],
+        ownerTypes: ["child"],
+        ownerChildren: ["point.image"],
     },
     "point.image.rotation": {
-        // placeholder, does not exist in CindyJS, @TODO
-        get: () => 0,
+        // virtual child field for inspect compatibility
+        get: (child) => child.rotation,
         set: null,
         type: "number",
-        ownerTypes: ["geo"],
-        ownerKinds: ["P"],
+        ownerTypes: ["child"],
+        ownerChildren: ["point.image"],
     },
     pointborder: {
         // Why not just 'border'?
@@ -541,7 +550,7 @@ const registry = {
         },
         type: "string",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S", "C"],
     },
     printscale: {
         get: (el) => el.printscale,
@@ -615,7 +624,7 @@ const registry = {
         },
         type: "bool",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S", "Text"],
     },
     textborder: {
         // field missing in CindyJS geo elements, default to false
@@ -640,7 +649,7 @@ const registry = {
         },
         type: "bool",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S", "Text"],
     },
     textsize: {
         // field missing in CindyJS geo elements, default to 12
@@ -650,7 +659,7 @@ const registry = {
         },
         type: "number",
         ownerTypes: ["geo"],
-        ownerKinds: GEO_KINDS,
+        ownerKinds: ["P", "L", "S", "Text"],
     },
     texttoggle: {
         get: (el) => el.type === "ToggleButton",
@@ -757,12 +766,6 @@ function cliplineFromClip(el) {
     return CSNumber.real(0);
 }
 
-// Placeholder for recursive traversal (Cinderella has algorithm/behavior/arrow children).
-function getChildren(obj) {
-    // @TODO minimal: none for now; later: algorithm/behavior/arrow analogs
-    return [];
-}
-
 // Convert plain JS values to CindyScript values.
 function toCindyValue(type, value) {
     if (value === undefined || value === null) return nada;
@@ -778,6 +781,8 @@ function toCindyValue(type, value) {
             return CSNumber.real(+value); // force numeric conversion
         case "bool":
             return General.bool(!!value); // force boolean conversion
+        case "list":
+            return List.realVector(value); // expects JS array
         case "color":
             return List.realVector(value); // expects JS array [r,g,b]
         default:
@@ -790,7 +795,7 @@ function fromCindyValue(type, cindyVal) {
     if (!cindyVal || cindyVal === nada) return null;
 
     // 1) Use CindyScript value as is if possible (ctype present)
-    if (cindyVal.ctype) return cindyVal;
+    if (cindyVal.ctype && type !== "list") return cindyVal;
 
     // 2) Fallback: convert JS primitives to CindyScript values
     switch (type) {
@@ -799,7 +804,13 @@ function fromCindyValue(type, cindyVal) {
         case "number":
             return CSNumber.real(Number(cindyVal));
         case "bool":
-            return General.bool(!!cindyVal);
+            return General.bool(!!cindyVal); // force boolean conversion
+        case "list":
+            if (cindyVal.ctype === "list") {
+                return cindyVal.value.map((v) => (v.ctype === "number" ? v.value.real : v));
+            }
+            return null;
+
         case "color":
             return List.realVector(cindyVal);
         default:
@@ -833,27 +844,103 @@ function isGeoKind(el) {
 
 // Determine owner type of object for inspection purposes.
 function getOwnerType(obj) {
+    if (obj && obj.__inspectChild) return "child"; // special case for child wrappers
     if (obj && obj.ctype === "geo") return "geo";
-    if (obj && obj.ctype === "port") return "port"; // does this even exist?
+    if (obj && obj.ctype === "port") return "port";
 
     // Fallback: Function failed to determine type; try duck-typing instead
     const el = unwrapInspectable(obj);
     if (el && typeof el === "object" && isGeoKind(el)) return "geo";
-    if (obj && obj.__inspectOwner === "port") return "port";
     return "unknown";
 }
 
 // Check whether entry matches owner type (strict).
-function matchesOwner(entry, ownerType) {
+function matchesOwner(entry, ownerType, obj) {
     // Require explicit ownerTypes for every entry
-    if (!entry.ownerTypes || !Array.isArray(entry.ownerTypes)) return false;
-    return entry.ownerTypes.includes(ownerType);
+    if (!entry.ownerTypes || !entry.ownerTypes.includes(ownerType)) return false;
+
+    // Handle special case for 'child' owner type
+    if (ownerType === "child") {
+        if (!entry.ownerChildren) return false; // entry does not declare child namespaces
+        if (!obj || obj.__inspectChild === undefined) return false; // caller didn't pass a child wrapper
+        return entry.ownerChildren.includes(obj.__inspectChild); // child namespace must match
+    }
+
+    return true;
 }
 
-// Lightweight duck-typing check for CindyJS geo objects.
-function isInspectable(obj) {
-    const el = obj && obj.ctype === "geo" ? obj.value : obj;
-    return isGeoKind(el);
+// Get child wrappers for recursive inspection.
+function getChildren(el) {
+    const children = []; // Storage for child wrappers
+
+    // Point image child
+    if (el.kind === "P") {
+        children.push({
+            __inspectChild: "point.image",
+            get media() {
+                return el.point_image_media || "";
+            },
+            set media(v) {
+                el.point_image_media = v;
+            },
+
+            get rotation() {
+                return el.point_image_rotation || 0;
+            },
+            set rotation(v) {
+                el.point_image_rotation = v;
+            },
+
+            get value() {
+                return el.point_image || "";
+            },
+            set value(v) {
+                el.point_image = v;
+            },
+        });
+    }
+
+    // Free point child
+    if (el.kind === "P" && el.type === "Free") {
+        children.push({
+            __inspectChild: "freept",
+            get pos() {
+                return el.pos;
+            },
+            set pos(v) {
+                el.pos = v;
+            },
+        });
+    }
+
+    // Line image child (placeholder)
+    if (el.kind === "L" || el.kind === "S" /* && ...probably others */) {
+        children.push({
+            __inspectChild: "line.image",
+            get media() {
+                return el.line_image_media || "";
+            },
+            set media(v) {
+                el.line_image_media = v;
+            },
+
+            get scalemode() {
+                return el.line_image_scalemode || "linescale.stretchx";
+            },
+            set scalemode(v) {
+                el.line_image_scalemode = v;
+            },
+
+            get value() {
+                return el.line_image || "";
+            },
+            set value(v) {
+                el.line_image = v;
+            },
+        });
+    }
+
+    return children;
 }
 
 // inspect(obj): return list of available keys for this object, including children.
@@ -870,10 +957,13 @@ function inspectEval1(obj) {
         const entry = registry[key];
 
         // Check owner type restrictions
-        if (!matchesOwner(entry, ownerType)) continue;
+        if (!matchesOwner(entry, ownerType, obj)) continue;
 
         // For geo objects, check kind restrictions
         if (entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) continue;
+
+        // Optional owner filter (e.g. Free points only)
+        if (ownerType === "geo" && entry.ownerFilter && !entry.ownerFilter(el)) continue;
 
         // Key is valid
         keys.push({ ctype: "string", value: key });
@@ -900,17 +990,17 @@ function inspectEval2(obj, keyCindy) {
     // Get registry entry
     const key = niceprint(keyCindy);
     const entry = registry[key];
-    if (entry) {
-        // Check owner type restrictions
-        if (!matchesOwner(entry, ownerType)) return nada;
 
+    // Direct hit: key found on this object
+    if (entry && matchesOwner(entry, ownerType, obj)) {
         // For geo objects, check kind restrictions
         if (ownerType === "geo" && entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) return nada;
 
-        // Key is valid; get value
-        const v = entry.get(el);
+        // Optional owner filter (e.g. Free points only)
+        if (ownerType === "geo" && entry.ownerFilter && !entry.ownerFilter(el)) return nada;
 
-        // Convert to CindyScript value and return
+        // Key is valid; get value and convert to CindyScript value
+        const v = entry.get(el);
         return toCindyValue(entry.type, v);
     }
 
@@ -932,15 +1022,25 @@ function inspectEval3(obj, keyCindy, valCindy) {
     // Fast fail for unknown owner types
     if (ownerType === "unknown") return nada;
 
+    // Get registry entry
     const key = niceprint(keyCindy);
     const entry = registry[key];
-    if (entry && entry.set) {
-        if (!matchesOwner(entry, ownerType)) return nada;
+
+    // Direct hit: key found on this object
+    if (entry && entry.set && matchesOwner(entry, ownerType, obj)) {
+        // For geo objects, check kind restrictions
         if (ownerType === "geo" && entry.ownerKinds && el.kind && !entry.ownerKinds.includes(el.kind)) return nada;
+
+        // Optional owner filter (e.g. Free points only)
+        if (ownerType === "geo" && entry.ownerFilter && !entry.ownerFilter(el)) return nada;
+
+        // Key is valid; convert value and set
         const v = fromCindyValue(entry.type, valCindy);
         entry.set(el, v);
         return nada;
     }
+
+    // Handle children recursively if not found
     for (const child of getChildren(el)) {
         inspectEval3(child, keyCindy, valCindy);
     }
