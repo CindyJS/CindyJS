@@ -59,3 +59,20 @@ describe("Operators: length", function () {
     itCmd("length(var)", "0");
     itCmd("variable=1;length(variable)", "1");
 });
+
+describe("Operators: arithmetic", function () {
+    itCmd("1+2*3", "7");
+    itCmd("(1+2)*3", "9");
+    itCmd("5-2-1", "2");
+    itCmd("-(2+3)", "-5");
+    itCmd("2^3", "8");
+    itCmd("(-3)^2", "9");
+    itCmd("7/2", "3.5");
+});
+
+describe("Operators: comparisons", function () {
+    itCmd("1<2", "true");
+    itCmd("2<=2", "true");
+    itCmd("3>4", "false");
+    itCmd("3>=2", "true");
+});
