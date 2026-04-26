@@ -896,6 +896,7 @@ function infix_define(args, modifs, self) {
             oper: fname,
             body,
             arglist: ar,
+            defaultModifs: args[0].modifs || {},
             definer: self,
             generation,
         };

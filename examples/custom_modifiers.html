@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+        <script id="csinit" type="text/x-cindyscript">
+
+        red = (0.8, 0.2, 0.3);
+        green = (0.3, 0.8, 0.2);
+
+        functionA(x) := drawtext([0, 3], x, color -> col);
+
+        functionB(x, customColor -> (0, 0, 1)) := drawtext([0, -3], x, color -> customColor);
+        
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+        // old version of modifier passing-through
+        functionA("testA", col -> red);
+
+        // new functionality of custom default values
+        functionB("testB part 1");
+
+        </script>
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Defining your own modifiers</h1>
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
+</html>
