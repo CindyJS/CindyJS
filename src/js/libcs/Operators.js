@@ -3131,6 +3131,7 @@ evaluator.removeat$2 = function (args, modifs) {
     if (aList.ctype === "list" && indexValue.ctype === "number") {
         const index = Math.floor(indexValue.value.real) - 1;
         const elements = aList.value;
+        if (index < 0 || index >= elements.length) return aList; // index is outside list
         // create copy of list with element at given index removed
         const newElements = [...elements.slice(0, index), ...elements.slice(index + 1)];
         return {

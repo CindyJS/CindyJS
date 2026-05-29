@@ -121,3 +121,16 @@ describe("Operators: is...", function () {
     itCmd('isjson("Test")', "false");
     itCmd('isjson("0")', "false");
 });
+
+describe("Operators: removeAt", function () {
+    before(function () {
+        cdy.evalcs("aList = [1,2,3,4,5,6,7,8,9,10];");
+    });
+
+    itCmd("removeAt(aList,0)", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,11)", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,10)", "[1, 2, 3, 4, 5, 6, 7, 8, 9]");
+    itCmd("removeAt(aList,1)", "[2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,5)", "[1, 2, 3, 4, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,3);aList", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+});
