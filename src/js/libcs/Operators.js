@@ -779,6 +779,12 @@ evaluator.keys$1 = function (args, modifs) {
     if (ctype === "geo" || ctype === "list" || ctype === "JSON") {
         let keys = [];
 
+        let shouldSort = false;
+        if (modifs.sort !== undefined) {
+            let sortVal = evaluate(modifs.sort);
+            shouldSort = sortVal.ctype === "boolean" && sortVal.value;
+        }
+
         let data;
         if (ctype === "geo") {
             data = obj.value.userData;
@@ -789,7 +795,11 @@ evaluator.keys$1 = function (args, modifs) {
             data = obj.value;
         }
         if (data) {
-            keys = Object.keys(data).map(General.string).sort();
+            keys = Object.keys(data);
+            if (shouldSort) {
+                keys.sort();
+            }
+            keys = keys.map(General.string);
         }
         return List.turnIntoCSList(keys);
     }
