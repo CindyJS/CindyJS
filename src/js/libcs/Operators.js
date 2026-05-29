@@ -4839,6 +4839,21 @@ evaluator.eval$1 = function (args, modifs) {
     //                    return tt(args,modifs);
 };
 
+evaluator.merge$2 = function (args, modifs) {
+    const a = evaluate(args[0]);
+    const b = evaluate(args[1]);
+    if (a.ctype === "JSON" && b.ctype === "JSON") {
+        // create new JS-object containing the key-value pairs occuring in a or b
+        // for duplicate values the value in b is used
+        let newElements = Object.assign({}, a.values, b.values);
+        return {
+            ctype: "JSON",
+            value: newElements,
+        };
+    }
+    return nada;
+};
+
 ///////////////////////////////
 //   Calling external code   //
 ///////////////////////////////
