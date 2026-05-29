@@ -1988,6 +1988,34 @@ evaluator.iscomplex$1 = function (args, modifs) {
     };
 };
 
+evaluator.isbool$1 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype === "boolean") {
+        return {
+            ctype: "boolean",
+            value: true,
+        };
+    }
+    return {
+        ctype: "boolean",
+        value: false,
+    };
+};
+
+evaluator.isjson$1 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype === "JSON") {
+        return {
+            ctype: "boolean",
+            value: true,
+        };
+    }
+    return {
+        ctype: "boolean",
+        value: false,
+    };
+};
+
 evaluator.isstring$1 = function (args, modifs) {
     const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
