@@ -177,7 +177,11 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("nodetest", ["plain"], function () {
-        this.node("ref/js/runtests.js");
+        if (process.version > "v21.2") {
+            this.node("--no-experimental-global-navigator", "ref/js/runtests.js");
+        } else {
+            this.node("ref/js/runtests.js");
+        }
     });
 
     task("tests", ["closure", "nodetest", "unittests", "excomp"]);
@@ -187,7 +191,11 @@ module.exports = function build(settings, task) {
     //////////////////////////////////////////////////////////////////////
 
     task("unittests", ["exposed", "plain"], function () {
-        this.cmdscript("mocha", "tests");
+        if (process.version > "v21.2") {
+            this.cmdscript("mocha", "tests", "--no-experimental-global-navigator");
+        } else {
+            this.cmdscript("mocha", "tests");
+        }
     });
 
     //////////////////////////////////////////////////////////////////////
