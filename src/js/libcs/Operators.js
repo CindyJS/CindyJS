@@ -3125,6 +3125,22 @@ function infix_remove(args, modifs) {
     return nada;
 }
 
+evaluator.removeAt$2 = function (args, modifs) {
+    const aList = evaluate(args[0]);
+    const indexValue = evaluate(args[1]);
+    if (aList.ctype === "list" && indexValue.ctype === "number") {
+        const index = Math.floor(indexValue.value.real) - 1;
+        const elements = aList.value;
+        // create copy of list with element at given index removed
+        const newElements = [...elements.slice(0, index), ...elements.slice(index + 1)];
+        return {
+            ctype: "list",
+            value: newElements,
+        };
+    }
+    return nada;
+};
+
 evaluator.append$2 = infix_append;
 
 function infix_append(args, modifs) {
