@@ -3125,7 +3125,7 @@ function infix_remove(args, modifs) {
     return nada;
 }
 
-evaluator.removeAt$2 = function (args, modifs) {
+evaluator.removeat$2 = function (args, modifs) {
     const aList = evaluate(args[0]);
     const indexValue = evaluate(args[1]);
     if (aList.ctype === "list" && indexValue.ctype === "number") {
@@ -4845,7 +4845,7 @@ evaluator.merge$2 = function (args, modifs) {
     if (a.ctype === "JSON" && b.ctype === "JSON") {
         // create new JS-object containing the key-value pairs occuring in a or b
         // for duplicate values the value in b is used
-        let newElements = Object.assign({}, a.values, b.values);
+        let newElements = Object.assign({}, a.value, b.value);
         return {
             ctype: "JSON",
             value: newElements,
