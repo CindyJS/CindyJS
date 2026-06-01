@@ -941,9 +941,15 @@ evaluator.if$3 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "boolean") {
         if (v0.value === true) {
-            return evaluate(args[1]);
+            namespace.pushVstack("*");
+            const res = evaluate(args[1]);
+            namespace.cleanVstack();
+            return res;
         } else if (args.length === 3) {
-            return evaluate(args[2]);
+            namespace.pushVstack("*");
+            const res = evaluate(args[2]);
+            namespace.cleanVstack();
+            return res;
         }
     } else {
         printStackTrace("Condition for if is not boolean");
