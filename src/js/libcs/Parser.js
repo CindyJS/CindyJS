@@ -322,7 +322,7 @@ Tokenizer.prototype.advanceTo = function (pos) {
 Tokenizer.prototype.curPos = function () {
     return {
         row: this.line,
-        col: this.pos - this.bol,
+        col: this.pos - this.bol + 1, // in most text editors columns are 1-indexed
         pos: this.pos,
     };
 };
