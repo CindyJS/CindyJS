@@ -51,7 +51,7 @@ const Json: CSJson = {
                 return Json.niceprint(a, modifs, options);
             }
 
-            return niceprint(a);
+            return niceprint(a, modifs);
         },
 
         handlePrintException(e: Error) {

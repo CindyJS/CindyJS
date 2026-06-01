@@ -120,6 +120,9 @@ function niceprint(a, modifs) {
         return CSNumber.niceprint(a);
     }
     if (a.ctype === "string") {
+        if (modifs && modifs["escape"] !== undefined && evaluate(modifs["escape"]).value === true) {
+            return '"' + a.value.replaceAll('"', '""') + '"';
+        }
         return a.value;
     }
     if (a.ctype === "boolean") {
@@ -128,7 +131,7 @@ function niceprint(a, modifs) {
     if (a.ctype === "list") {
         let erg = "[";
         for (let i = 0; i < a.value.length; i++) {
-            erg = erg + niceprint(evaluate(a.value[i]));
+            erg = erg + niceprint(evaluate(a.value[i]), modifs);
             if (i !== a.value.length - 1) {
                 erg = erg + ", ";
             }
@@ -153,7 +156,7 @@ function niceprint(a, modifs) {
         return "INFIX";
     }
     if (a.ctype === "modifier") {
-        return a.key + "->" + niceprint(a.value);
+        return a.key + "->" + niceprint(a.value, modifs);
     }
     if (a.ctype === "shape") {
         return a.type;
@@ -163,7 +166,7 @@ function niceprint(a, modifs) {
         return "Error: " + a.message;
     }
     if (a.ctype === "variable") {
-        return niceprint(namespace.getvar(a.name));
+        return niceprint(namespace.getvar(a.name), modifs);
     }
 
     if (a.ctype === "geo") {

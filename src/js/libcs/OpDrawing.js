@@ -964,9 +964,6 @@ function setMeasureNoRendererCanvas(fct) {
     measureNoRendererCanvas = fct;
 }
 
-
-
-
 // This is a hook: the following function may get replaced by a plugin.
 let textRendererCanvas = defaultTextRendererCanvas;
 
@@ -1018,7 +1015,7 @@ eval_helper.drawtext = function (args, modifs, callback) {
     const xx = pt.x * m.a - pt.y * m.b + m.tx + Render2D.xOffset;
     const yy = pt.x * m.c - pt.y * m.d - m.ty - Render2D.yOffset;
 
-    const txt = niceprint(v1);
+    const txt = niceprint(v1, modifs);
 
     if (!CindyJS._pluginRegistry.katex && typeof txt === "string") {
         // split string by "$", if we have latex $...$ then the length is >=3
@@ -1066,7 +1063,7 @@ eval_helper.pixelsize = function (args, modifs) {
 
     const m = csport.drawingstate.matrix;
 
-    const txt = niceprint(v1);
+    const txt = niceprint(v1, modifs);
 
     if (!CindyJS._pluginRegistry.katex && typeof txt === "string") {
         // split string by "$", if we have latex $...$ then the length is >=3
@@ -1085,11 +1082,10 @@ eval_helper.pixelsize = function (args, modifs) {
         size,
         size * defaultAppearance.lineHeight,
         Render2D.angle
-    ); 
+    );
     if (result === undefined) return nada;
 
     return result;
-    
 };
 evaluator.pixelsize$1 = function (args, modifs) {
     const box = eval_helper.pixelsize(args, modifs);
@@ -1183,7 +1179,7 @@ evaluator.drawtable$2 = function (args, modifs) {
     csctx.fillStyle = color;
     for (r = 0; r < nr; ++r) {
         for (c = 0; c < nc; ++c) {
-            const txt = niceprint(data[r][c]);
+            const txt = niceprint(data[r][c], modifs);
             textRendererCanvas(csctx, txt, xx + c * sx, yy + r * sy, Render2D.align);
         }
     }
@@ -1820,4 +1816,11 @@ evaluator.layer$1 = function (args, modifs) {
     // See https://gitlab.cinderella.de:8082/cindyjs/cindyjs/issues/17
 };
 
-export { textRendererCanvas, setTextRendererCanvas, textRendererHtml, setTextRendererHtml, measureNoRendererCanvas, setMeasureNoRendererCanvas };
+export {
+    textRendererCanvas,
+    setTextRendererCanvas,
+    textRendererHtml,
+    setTextRendererHtml,
+    measureNoRendererCanvas,
+    setMeasureNoRendererCanvas,
+};
