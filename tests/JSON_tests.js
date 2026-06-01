@@ -161,3 +161,11 @@ describe("comparing JSON objects", function () {
         "2"
     );
 });
+
+describe("Operators: print self-containing JSON", function () {
+    before(function () {
+        cdy.evalcs('a = {};b = {};c= {};a:"children" = [b,c];b:"parent" = a;c:"parent" = a;');
+    });
+
+    itCmd("text(a,maxDepth->3)", "{children:[{parent:{children:[{parent:...}, {parent:...}]}}, {parent:...}]}");
+});
