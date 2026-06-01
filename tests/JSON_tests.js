@@ -161,3 +161,14 @@ describe("comparing JSON objects", function () {
         "2"
     );
 });
+
+describe("JSON delete", function () {
+    before(function () {
+        cdy.evalcs('json = {"a": 1, "b": 2, "c" : 3,"4": 4};');
+    });
+
+    itCmd("json", "{4:4, a:1, b:2, c:3}");
+    itCmd('delete(json,"x");json', "{4:4, a:1, b:2, c:3}");
+    itCmd('delete(json,"b");json', "{4:4, a:1, c:3}");
+    itCmd("delete(json,4);json", "{4:4, a:1, c:3}");
+});

@@ -76,3 +76,10 @@ describe("Operators: comparisons", function () {
     itCmd("3>4", "false");
     itCmd("3>=2", "true");
 });
+
+describe("Operators: delete", function () {
+    itCmd("delete(true);true", "___");
+    itCmd("delete(x);x=1", "1");
+    itCmd("x=0;f(x):=(delete(x);x);f(3)", "0");
+    itCmd("x=0;f(x):=(regional(x);x=5;delete(x);x);f(3)", "3");
+});
