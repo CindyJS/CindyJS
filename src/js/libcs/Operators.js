@@ -229,11 +229,17 @@ evaluator.while$2 = function (args, modifs) {
 
     const prog = args[1];
     const test = args[0];
+    namespace.pushVstack("*");
     let bo = evaluate(test);
+    namespace.cleanVstack();
     let erg = nada;
     while (bo.ctype !== "list" && bo.value) {
+        namespace.pushVstack("*");
         erg = evaluate(prog);
+        namespace.cleanVstack();
+        namespace.pushVstack("*");
         bo = evaluate(test);
+        namespace.cleanVstack();
     }
 
     return erg;

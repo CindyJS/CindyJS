@@ -47,4 +47,5 @@ describe("Scope: regional in loop", function () {
     itCmd("apply(1..5,regional(t);t=#*#;t);t", "___");
     itCmd("x=0;if(true,regional(x);x=2,x=5);x", "0");
     itCmd("x=0;if(false,regional(x);x=2,x=5);x", "5");
+    itCmd("x=0;while(x=x+1;x<5,regional(x);x=10);x", "5");
 });
