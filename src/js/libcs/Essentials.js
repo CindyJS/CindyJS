@@ -106,7 +106,7 @@ function operator_not_implemented(name) {
 // this function is responsible for evaluation an expression tree
 //****************************************************************
 
-function niceprint(a, modifs) {
+function niceprint(a, modifs, options) {
     if (typeof a === "undefined") {
         return "_??_";
     }
@@ -131,7 +131,7 @@ function niceprint(a, modifs) {
     if (a.ctype === "list") {
         let erg = "[";
         for (let i = 0; i < a.value.length; i++) {
-            erg = erg + niceprint(evaluate(a.value[i]), modifs);
+            erg = erg + niceprint(evaluate(a.value[i]), modifs, options);
             if (i !== a.value.length - 1) {
                 erg = erg + ", ";
             }
@@ -141,7 +141,7 @@ function niceprint(a, modifs) {
     if (a.ctype === "JSON") {
         // try catch to avoid bad situations with cyclic dicts
         try {
-            return Json.niceprint(a, modifs);
+            return Json.niceprint(a, modifs, options);
         } catch (e) {
             return Json._helper.handlePrintException(e);
         }
@@ -156,7 +156,7 @@ function niceprint(a, modifs) {
         return "INFIX";
     }
     if (a.ctype === "modifier") {
-        return a.key + "->" + niceprint(a.value, modifs);
+        return a.key + "->" + niceprint(a.value, modifs, options);
     }
     if (a.ctype === "shape") {
         return a.type;
@@ -166,7 +166,7 @@ function niceprint(a, modifs) {
         return "Error: " + a.message;
     }
     if (a.ctype === "variable") {
-        return niceprint(namespace.getvar(a.name), modifs);
+        return niceprint(namespace.getvar(a.name), modifs, options);
     }
 
     if (a.ctype === "geo") {
