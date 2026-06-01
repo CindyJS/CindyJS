@@ -81,9 +81,9 @@ describe("Operators: print", function () {
     itCmd("text(1)", "1");
     itCmd("text(nada)", "___");
     itCmd('text("Hello, World!")', "Hello, World!");
-    itCmd('text("Hello, World!",escape->true)', '"Hello, World!"');
+    itCmd('text("Hello, World!",quote->true)', '"Hello, World!"');
     itCmd('text(unicode(34)+"Test"+unicode(34))', '"Test"');
-    itCmd('text(unicode(34)+"Test"+unicode(34),escape->true)', '"""Test"""');
+    itCmd('text(unicode(34)+"Test"+unicode(34),quote->true)', '"""Test"""');
     itCmd('text(["a","b",{"c":1,"d":["e","f"]}])', "[a, b, {c:1, d:[e, f]}]");
-    itCmd('text(["a","b",{"c":1,"d":["e","f"]}],escape->true)', '["a", "b", {c:1, d:["e", "f"]}]');
+    itCmd('text(["a","b",{"c":1,"d":["e","f"]}],quote->true)', '["a", "b", {c:1, d:["e", "f"]}]');
 });

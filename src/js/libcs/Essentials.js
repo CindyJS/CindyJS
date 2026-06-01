@@ -120,7 +120,7 @@ function niceprint(a, modifs, options) {
         return CSNumber.niceprint(a);
     }
     if (a.ctype === "string") {
-        if (modifs && modifs["escape"] !== undefined && evaluate(modifs["escape"]).value === true) {
+        if (modifs && modifs["quote"] !== undefined && evaluate(modifs["quote"]).value === true) {
             return '"' + a.value.replaceAll('"', '""') + '"';
         }
         return a.value;
