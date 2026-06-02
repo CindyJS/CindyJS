@@ -31,7 +31,7 @@ else
 fi
 
 # Deploy via rsync to cindyjs.org
-rsync --delete-delay -rci --rsh='ssh -l deploy -p 7723' \
+rsync --delete-delay -rci --rsh="ssh -l deploy -p 7723 -i ~/.ssh/deploy_key" \
     build/deploy/ "cindyjs.org::CindyJS/${dir}/"
 
 # Deploy via git commit to "deploy" repository
