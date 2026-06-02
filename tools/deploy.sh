@@ -54,7 +54,7 @@ if ! git diff --staged --quiet; then
     git config --local user.name "GitHub Actions"
     git config --local user.email "github-actions@cinderella.de"
     git commit -m "Build of CindyJS ${name}"
-    git push origin "HEAD:${branch}"
+    git push origin "HEAD:refs/heads/${branch}"
     if [[ ${GIT_TAG} ]]; then
         git tag "${GIT_TAG}"
         git push origin tag "${GIT_TAG}"
