@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="../build/js/CindyJS.css" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+
+        <script id="csinit" type="text/x-cindyscript">
+
+        red = (0.8, 0.2, 0.3);
+        green = (0.3, 0.8, 0.2);
+        blue = (0.2, 0.3, 0.8);
+
+        functionA(x) := drawtext([0, 6], x, color -> col);
+        
+        functionB(x, customColor -> blue) := drawtext([0, 2], x, color -> customColor);
+        
+        functionC(x) := drawtext([0, -2], x, color -> col);
+        
+        functionD(x, customColor -> blue) := drawtext([0, -6], x, color -> customColor);
+
+        
+        </script>
+
+        <script id="csdraw" type="text/x-cindyscript">
+        // Old version of modifier passing-through.
+        functionA("testA", col -> red);
+        
+        // New functionality of custom default values.
+        functionB("testB");
+
+
+        // For completeness, the other two cases. But they are uninteresting
+        // Throws error and uses default value of whatever the built-in function uses as default value. As expected. Nothing changed here; nothing should change here.
+        functionC("testC");
+
+        // Calling a function with a custom modifier in a way that gives said custom modifier a non-default value.
+        // Uninteresting in the sense that the parser handles this exactly the same as the functionA example of the already existing modifier pass-through.
+        functionD("testD", customColor -> green);
+        </script>
+
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", width: 500, height: 500 }],
+                scripts: "cs*",
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>CindyJS: Defining your own modifiers</h1>
+        <div id="CSCanvas" style="border: 2px solid black"></div>
+    </body>
+</html>
