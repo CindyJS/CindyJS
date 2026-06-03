@@ -199,6 +199,9 @@ function evalmyfunctions(name, args, modifs) {
     }
     //  evaluate modifiers in caller-scope
     let modValues = {};
+    Object.entries(tt.defaultModifs || {}).forEach(function ([key, value]) {
+        modValues[key] = evaluate(value);
+    });
     Object.entries(modifs).forEach(function ([key, value]) {
         modValues[key] = evaluate(value);
     });
@@ -216,7 +219,7 @@ function evalmyfunctions(name, args, modifs) {
     namespace.cleanVstack();
 
     // remove modifiers again
-    Object.entries(modifs).forEach(function ([key, value]) {
+    Object.entries(modValues).forEach(function ([key]) {
         namespace.removevar(key);
     });
 

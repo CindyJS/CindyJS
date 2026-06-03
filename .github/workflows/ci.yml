@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v[0-9]*.[0-9]*.[0-9]*"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build and test
+        run: node make build=release alltests
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-22.04
+    environment: deploy
+    if: >
+      github.repository == 'CindyJS/CindyJS' &&
+      (github.ref == 'refs/heads/main' ||
+       startsWith(github.ref, 'refs/tags/v'))
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build release
+        run: node make build=release alltests
+
+      - name: Deploy
+        run: tools/deploy.sh
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          GIT_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
