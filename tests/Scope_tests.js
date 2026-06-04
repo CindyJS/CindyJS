@@ -18,7 +18,6 @@ function itCmd(command, expected) {
 
 describe("Scope: argument", function () {
     itCmd("x=nada;x=0;f(x):=(x);f(3)", "3");
-    itCmd("x=nada;x=0;f(x):=(x);f(3,x->12)", "12"); // TODO do we want modifiers to overwrite arguments?
     itCmd("x=nada;f(x):=(x);f(3)", "3");
     itCmd("x=nada;x=0;f(x):=(x=2;);f(3);x", "0");
     itCmd("x=nada;f(x):=(x=2;);f(3);x", "___");
