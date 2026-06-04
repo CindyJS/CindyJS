@@ -42,9 +42,23 @@ describe("Scope: global vs regional", function () {
 describe("Scope: regional in loop", function () {
     itCmd("x=0;forall(1..10,regional(t);t=#*#;x=x+t);x", "385");
     itCmd("x=0;forall(1..10,regional(t);t=#*#;x=x+t);t", "___");
+    itCmd("x=0;repeat(10,regional(t);t=#*#;x=x+t);x", "385");
+    itCmd("x=0;repeat(10,regional(t);t=#*#;x=x+t);t", "___");
     itCmd("apply(1..5,regional(t);t=#*#;t)", "[1, 4, 9, 16, 25]");
     itCmd("apply(1..5,regional(t);t=#*#;t);t", "___");
+    itCmd("select(1..5,regional(t);t=#*#;t<10)", "[1, 2, 3]");
+    itCmd("select(1..5,regional(t);t=#*#;t<10);t", "___");
     itCmd("x=0;if(true,regional(x);x=2,x=5);x", "0");
     itCmd("x=0;if(false,regional(x);x=2,x=5);x", "5");
     itCmd("x=0;while(x=x+1;x<5,regional(x);x=10);x", "5");
+    itCmd("x=0;sum(1..10,regional(x);x=#*#;x)", "385");
+    itCmd("x=0;sum(1..10,regional(x);x=#*#;x);x", "0");
+    itCmd("x=0;product(1..5,regional(x);x=#*#;x)", "14400");
+    itCmd("x=0;product(1..5,regional(x);x=#*#;x);x", "0");
+    itCmd("x=0;min(1..5,regional(x);x=#*#;x)", "1");
+    itCmd("x=0;min(1..5,regional(x);x=#*#;x);x", "0");
+    itCmd("x=0;max(1..5,regional(x);x=#*#;x)", "25");
+    itCmd("x=0;max(1..5,regional(x);x=#*#;x);x", "0");
+    itCmd("x=0;sort(1..10,regional(x);x=text(#))", "[1, 10, 2, 3, 4, 5, 6, 7, 8, 9]");
+    itCmd("x=0;sort(1..10,regional(x);x=text(#));x", "0");
 });
