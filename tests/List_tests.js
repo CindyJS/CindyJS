@@ -1,7 +1,6 @@
 const assert = require("chai").assert;
 const rewire = require("rewire");
 
-global.navigator = {};
 const cindyJS = rewire("../build/js/exposed.js");
 
 const List = cindyJS.__get__("List");
@@ -767,6 +766,276 @@ describe("List", function () {
             const nullspace = List.nullSpace(A);
             const expected = List.turnIntoCSList([List.realVector([0, 0])]);
             assert.equal(niceprint(nullspace), niceprint(expected));
+        });
+    });
+
+    describe("non-mutation guarantees", function () {
+        function snapshot(v) {
+            return JSON.parse(JSON.stringify(v));
+        }
+
+        it("det should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3, 4],
+                [5, 4, 3, 2],
+                [6, 6, 4, -1],
+                [0, 1, 2, 3],
+            ]);
+            const before = snapshot(A);
+            List.det(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("LUdecomp should not mutate its input", function () {
+            const A = List.realMatrix([
+                [2, 3, 1],
+                [5, 7, 2],
+                [1, 4, 6],
+            ]);
+            const before = snapshot(A);
+            List.LUdecomp(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("LUsolve should not mutate its input matrix or vector", function () {
+            const A = List.realMatrix([
+                [2, 3, 1],
+                [5, 7, 2],
+                [1, 4, 6],
+            ]);
+            const b = List.realVector([11, 13, 14]);
+            const beforeA = snapshot(A);
+            const beforeB = snapshot(b);
+            List.LUsolve(A, b);
+            assert.deepStrictEqual(A, beforeA);
+            assert.deepStrictEqual(b, beforeB);
+        });
+
+        it("linearsolve should not mutate its inputs", function () {
+            const A = List.realMatrix([
+                [2, 3, 1],
+                [5, 7, 2],
+                [1, 4, 6],
+            ]);
+            const b = List.realVector([11, 13, 14]);
+            const beforeA = snapshot(A);
+            const beforeB = snapshot(b);
+            List.linearsolve(A, b);
+            assert.deepStrictEqual(A, beforeA);
+            assert.deepStrictEqual(b, beforeB);
+        });
+
+        it("QRdecomp should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 10],
+            ]);
+            const before = snapshot(A);
+            List.QRdecomp(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("RRQRdecomp should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 10],
+            ]);
+            const before = snapshot(A);
+            List.RRQRdecomp(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("getBlock should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const before = snapshot(A);
+            List._helper.getBlock(A, [1], [1]);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("setBlock should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const B = List.realMatrix([
+                [99, 98],
+                [97, 96],
+            ]);
+            const beforeA = snapshot(A);
+            const beforeB = snapshot(B);
+            List._helper.setBlock(A, B, [0, 0]);
+            assert.deepStrictEqual(A, beforeA);
+            assert.deepStrictEqual(B, beforeB);
+        });
+
+        it("rank should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const before = snapshot(A);
+            List.rank(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("nullSpace should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9],
+            ]);
+            const before = snapshot(A);
+            List.nullSpace(A);
+            assert.deepStrictEqual(A, before);
+        });
+
+        it("inverse should not mutate its input", function () {
+            const A = List.realMatrix([
+                [1, 2, 3],
+                [0, 1, 4],
+                [5, 6, 0],
+            ]);
+            const before = snapshot(A);
+            List.inverse(A);
+            assert.deepStrictEqual(A, before);
+        });
+    });
+
+    describe("#copyMatrix()", function () {
+        it("should produce a structurally equal copy", function () {
+            const m = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const copy = List._helper.copyMatrix(m);
+            assert.deepStrictEqual(copy, m);
+        });
+
+        it("should give independent row arrays (replacing an element does not affect original)", function () {
+            const m = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const copy = List._helper.copyMatrix(m);
+            copy.value[0].value[0] = CSNumber.real(999);
+            assert.strictEqual(m.value[0].value[0].value.real, 1);
+        });
+
+        it("should share the (immutable) leaf objects", function () {
+            const m = List.realMatrix([
+                [1, 2],
+                [3, 4],
+            ]);
+            const copy = List._helper.copyMatrix(m);
+            assert.strictEqual(copy.value[0].value[0], m.value[0].value[0]);
+        });
+    });
+
+    describe("complex number arithmetic in inlined functions", function () {
+        it("scalproduct with complex vectors", function () {
+            const a = List.turnIntoCSList([CSNumber.complex(1, 2), CSNumber.complex(3, 4)]);
+            const b = List.turnIntoCSList([CSNumber.complex(5, 6), CSNumber.complex(7, 8)]);
+            const expected = CSNumber.complex(-18, 68);
+            assert(CSNumber._helper.isAlmostEqual(List.scalproduct(a, b), expected));
+        });
+
+        it("productMV with complex matrix and vector", function () {
+            const m = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.complex(1, 1), CSNumber.complex(2, 0)]),
+                List.turnIntoCSList([CSNumber.complex(0, 1), CSNumber.complex(3, -1)]),
+            ]);
+            const v = List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(0, 1)]);
+            const expected = List.turnIntoCSList([CSNumber.complex(1, 3), CSNumber.complex(1, 4)]);
+            assert(General.deeplyEqual(List.productMV(m, v), expected));
+        });
+
+        it("productVM with complex vector and matrix", function () {
+            const v = List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(0, 1)]);
+            const m = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.complex(1, 1), CSNumber.complex(2, 0)]),
+                List.turnIntoCSList([CSNumber.complex(0, 1), CSNumber.complex(3, -1)]),
+            ]);
+            const expected = List.turnIntoCSList([CSNumber.complex(0, 1), CSNumber.complex(3, 3)]);
+            assert(General.deeplyEqual(List.productVM(v, m), expected));
+        });
+
+        it("productMM with complex matrices", function () {
+            const a = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.complex(1, 1), CSNumber.complex(0, 0)]),
+                List.turnIntoCSList([CSNumber.complex(0, 0), CSNumber.complex(0, 1)]),
+            ]);
+            const b = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(0, 1)]),
+                List.turnIntoCSList([CSNumber.complex(1, 0), CSNumber.complex(1, 0)]),
+            ]);
+            const expected = List.turnIntoCSList([
+                List.turnIntoCSList([CSNumber.complex(1, 1), CSNumber.complex(-1, 1)]),
+                List.turnIntoCSList([CSNumber.complex(0, 1), CSNumber.complex(0, 1)]),
+            ]);
+            assert(General.deeplyEqual(List.productMM(a, b), expected));
+        });
+    });
+
+    describe("mult on malformed/non-numeric lists", function () {
+        it("returns nada for ragged matrix times vector", function () {
+            const ragged = List.turnIntoCSList([List.realVector([1, 2]), List.realVector([3])]);
+            assert.strictEqual(List.mult(ragged, List.realVector([1, 2])), nada);
+        });
+
+        it("returns nada for two ragged matrices", function () {
+            const ragged = List.turnIntoCSList([List.realVector([1, 2]), List.realVector([3])]);
+            assert.strictEqual(List.mult(ragged, ragged), nada);
+        });
+
+        it("returns nada for a vector containing a non-number", function () {
+            const geo = { ctype: "geo", value: {} };
+            const v = List.turnIntoCSList([CSNumber.real(1), geo, CSNumber.real(3)]);
+            assert.strictEqual(List.mult(v, List.realVector([1, 2, 3])), nada);
+        });
+
+        it("returns nada for a matrix containing a non-number", function () {
+            const geo = { ctype: "geo", value: {} };
+            const m = List.turnIntoCSList([List.turnIntoCSList([CSNumber.real(1), geo]), List.realVector([3, 4])]);
+            assert.strictEqual(List.mult(m, List.realVector([1, 2])), nada);
+        });
+
+        it("returns nada for dimension mismatch", function () {
+            assert.strictEqual(List.mult(List.realVector([1, 2]), List.realVector([1, 2, 3])), nada);
+        });
+
+        it("treats two empty lists as an empty scalar product", function () {
+            const result = List.mult(List.turnIntoCSList([]), List.turnIntoCSList([]));
+            assert.deepStrictEqual(result, CSNumber.real(0));
+        });
+    });
+
+    describe("#isUpperTriangular() on non-square matrices", function () {
+        it("does not throw and detects an upper-triangular tall matrix", function () {
+            const A = List.realMatrix([
+                [1, 2],
+                [0, 3],
+                [0, 0],
+                [0, 0],
+            ]);
+            assert.strictEqual(List._helper.isUpperTriangular(A), true);
+        });
+
+        it("detects a non-upper-triangular tall matrix", function () {
+            const A = List.realMatrix([
+                [1, 2],
+                [9, 3],
+                [0, 0],
+                [0, 0],
+            ]);
+            assert.strictEqual(List._helper.isUpperTriangular(A), false);
         });
     });
 });
