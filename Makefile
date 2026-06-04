@@ -106,6 +106,7 @@ fwdtargets = \
 	alltests \
 	beautified \
 	beautify \
+	benchmark \
 	cindy3d \
 	cindy3d-dbg \
 	cindygl \
