@@ -779,6 +779,12 @@ evaluator.keys$1 = function (args, modifs) {
     if (ctype === "geo" || ctype === "list" || ctype === "JSON") {
         let keys = [];
 
+        let shouldSort = false;
+        if (modifs.sort !== undefined) {
+            let sortVal = evaluate(modifs.sort);
+            shouldSort = sortVal.ctype === "boolean" && sortVal.value;
+        }
+
         let data;
         if (ctype === "geo") {
             data = obj.value.userData;
@@ -789,7 +795,11 @@ evaluator.keys$1 = function (args, modifs) {
             data = obj.value;
         }
         if (data) {
-            keys = Object.keys(data).map(General.string).sort();
+            keys = Object.keys(data);
+            if (shouldSort) {
+                keys.sort();
+            }
+            keys = keys.map(General.string);
         }
         return List.turnIntoCSList(keys);
     }
@@ -1989,6 +1999,34 @@ evaluator.iscomplex$1 = function (args, modifs) {
     };
 };
 
+evaluator.isbool$1 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype === "boolean") {
+        return {
+            ctype: "boolean",
+            value: true,
+        };
+    }
+    return {
+        ctype: "boolean",
+        value: false,
+    };
+};
+
+evaluator.isjson$1 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype === "JSON") {
+        return {
+            ctype: "boolean",
+            value: true,
+        };
+    }
+    return {
+        ctype: "boolean",
+        value: false,
+    };
+};
+
 evaluator.isstring$1 = function (args, modifs) {
     const v0 = evaluate(args[0]);
     if (v0.ctype === "string") {
@@ -3087,6 +3125,23 @@ function infix_remove(args, modifs) {
     }
     return nada;
 }
+
+evaluator.removeat$2 = function (args, modifs) {
+    const aList = evaluate(args[0]);
+    const indexValue = evaluate(args[1]);
+    if (aList.ctype === "list" && indexValue.ctype === "number") {
+        const index = Math.floor(indexValue.value.real) - 1;
+        const elements = aList.value;
+        if (index < 0 || index >= elements.length) return aList; // index is outside list
+        // create copy of list with element at given index removed
+        const newElements = [...elements.slice(0, index), ...elements.slice(index + 1)];
+        return {
+            ctype: "list",
+            value: newElements,
+        };
+    }
+    return nada;
+};
 
 evaluator.append$2 = infix_append;
 
@@ -4784,6 +4839,21 @@ evaluator.eval$1 = function (args, modifs) {
     });
     return erg;
     //                    return tt(args,modifs);
+};
+
+evaluator.merge$2 = function (args, modifs) {
+    const a = evaluate(args[0]);
+    const b = evaluate(args[1]);
+    if (a.ctype === "JSON" && b.ctype === "JSON") {
+        // create new JS-object containing the key-value pairs occuring in a or b
+        // for duplicate values the value in b is used
+        let newElements = Object.assign({}, a.value, b.value);
+        return {
+            ctype: "JSON",
+            value: newElements,
+        };
+    }
+    return nada;
 };
 
 ///////////////////////////////

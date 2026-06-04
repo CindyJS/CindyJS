@@ -76,3 +76,61 @@ describe("Operators: comparisons", function () {
     itCmd("3>4", "false");
     itCmd("3>=2", "true");
 });
+
+describe("Operators: is...", function () {
+    itCmd("isundefined(nada)", "true");
+    itCmd("isundefined(5)", "false");
+    itCmd("isbool(nada)", "false");
+    itCmd("isbool(4)", "false");
+    itCmd("isbool(isundefined(nada))", "true");
+    itCmd("isbool(false)", "true");
+    itCmd("iseven(0)", "true");
+    itCmd("iseven(1)", "false");
+    itCmd("iseven(-1)", "false");
+    itCmd("iseven(1.5)", "false");
+    itCmd("iseven(2)", "true");
+    itCmd("iseven(-2)", "true");
+    itCmd("isodd(0)", "false");
+    itCmd("isodd(1)", "true");
+    itCmd("isodd(-1)", "true");
+    itCmd("isodd(1.5)", "false");
+    itCmd("isodd(2)", "false");
+    itCmd("isodd(-2)", "false");
+    itCmd("isinteger(1)", "true");
+    itCmd("isinteger(-0.0)", "true");
+    itCmd("isinteger(i)", "false");
+    itCmd("isinteger(pi)", "false");
+    itCmd("isinteger(1.5)", "false");
+    itCmd("isreal(pi)", "true");
+    itCmd("isreal(i)", "false");
+    itCmd("isreal(1)", "true");
+    itCmd('isreal("1")', "false");
+    itCmd("iscomplex(0)", "true");
+    itCmd("iscomplex(i)", "true");
+    itCmd('isstring("Test")', "true");
+    itCmd('isstring(["1","2","3"])', "false");
+    itCmd('islist("Test")', "false");
+    itCmd('islist(["1","2","3"])', "true");
+    itCmd("ismatrix([1,2,3])", "false");
+    itCmd("ismatrix([[1,2],[4,5]])", "true");
+    itCmd("ismatrix([[1,2],[4,5,6]])", "false");
+    itCmd("ismatrix([[[1,2],[4,5]],[[5,6],[7,8]]])", "true");
+    itCmd("isjson(nada)", "false");
+    itCmd("isjson({})", "true");
+    itCmd("isjson([])", "false");
+    itCmd('isjson("Test")', "false");
+    itCmd('isjson("0")', "false");
+});
+
+describe("Operators: removeAt", function () {
+    before(function () {
+        cdy.evalcs("aList = [1,2,3,4,5,6,7,8,9,10];");
+    });
+
+    itCmd("removeAt(aList,0)", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,11)", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,10)", "[1, 2, 3, 4, 5, 6, 7, 8, 9]");
+    itCmd("removeAt(aList,1)", "[2, 3, 4, 5, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,5)", "[1, 2, 3, 4, 6, 7, 8, 9, 10]");
+    itCmd("removeAt(aList,3);aList", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
+});
