@@ -2,7 +2,7 @@ import { nada } from "expose";
 // @ts-expect-error: Not yet typed
 import { General } from "libcs/General";
 // @ts-expect-error: Not yet typed
-import { niceprint } from "libcs/Essentials";
+import { niceprint, defaultNiceprintOptions } from "libcs/Essentials";
 // @ts-expect-error: Not yet typed
 import { namespace } from "libcs/Namespace";
 // @ts-expect-error: Not yet typed
@@ -106,22 +106,7 @@ const Json: CSJson = {
     },
 
     niceprint(el: CSJsonValue, modifs?: any, options?) {
-        const niceprintOptions = options || {
-            printedWarning: false,
-            visitedMap: {
-                tracker: new WeakMap(),
-                level: 0,
-                maxLevel: 1000,
-                maxElVisit: 5000,
-                newLevel: false,
-                printedWarning: false,
-            },
-        };
-
-        if (modifs?.maxDepth) {
-            const depth = evaluate(modifs.maxDepth);
-            if (depth.ctype === "number") niceprintOptions.visitedMap.maxLevel = depth.value.real;
-        }
+        const niceprintOptions = options || defaultNiceprintOptions(modifs);
 
         const visitedMap = niceprintOptions.visitedMap;
         visitedMap.newLevel = true;
@@ -134,7 +119,7 @@ const Json: CSJson = {
                 .map(function (key) {
                     const elValKey = el.value[key];
                     let keyString = key;
-                    if (modifs && modifs["quote"] !== undefined && evaluate(modifs["quote"]).value === true) {
+                    if (niceprintOptions.quote) {
                         // switch to replaceAll('"','""') function once supported by build-settings
                         keyString = '"' + keyString.replace(/"/g, '""') + '"';
                     }

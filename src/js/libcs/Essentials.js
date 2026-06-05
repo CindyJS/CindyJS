@@ -102,10 +102,32 @@ function operator_not_implemented(name) {
     };
 }
 
+function defaultNiceprintOptions(modifs) {
+    let options = {
+        quote: false,
+        printedWarning: false,
+        visitedMap: {
+            tracker: new WeakMap(),
+            level: 0,
+            maxLevel: 1000,
+            maxElVisit: 5000,
+            newLevel: false,
+            printedWarning: false,
+        },
+    };
+    if (modifs && modifs.maxDepth) {
+        const depth = evaluate(modifs.maxDepth);
+        if (depth.ctype === "number") options.visitedMap.maxLevel = depth.value.real;
+    }
+    if (modifs && modifs.quote) {
+        const quote = evaluate(modifs.quote);
+        if (quote.ctype === "boolean") options.quote = quote.value;
+    }
+    return options;
+}
 //****************************************************************
 // this function is responsible for evaluation an expression tree
 //****************************************************************
-
 function niceprint(a, modifs, options) {
     if (typeof a === "undefined") {
         return "_??_";
@@ -119,20 +141,21 @@ function niceprint(a, modifs, options) {
     if (a.ctype === "number") {
         return CSNumber.niceprint(a);
     }
+    if (a.ctype === "boolean") {
+        return a.value;
+    }
+    const niceprintOptions = options || defaultNiceprintOptions(modifs);
     if (a.ctype === "string") {
-        if (modifs && modifs["quote"] !== undefined && evaluate(modifs["quote"]).value === true) {
+        if (niceprintOptions.quote) {
             // switch to replaceAll('"','""') function once supported by build-settings
             return '"' + a.value.replace(/"/g, '""') + '"';
         }
         return a.value;
     }
-    if (a.ctype === "boolean") {
-        return a.value;
-    }
     if (a.ctype === "list") {
         let erg = "[";
         for (let i = 0; i < a.value.length; i++) {
-            erg = erg + niceprint(evaluate(a.value[i]), modifs, options);
+            erg = erg + niceprint(evaluate(a.value[i]), modifs, niceprintOptions);
             if (i !== a.value.length - 1) {
                 erg = erg + ", ";
             }
@@ -142,7 +165,7 @@ function niceprint(a, modifs, options) {
     if (a.ctype === "JSON") {
         // try catch to avoid bad situations with cyclic dicts
         try {
-            return Json.niceprint(a, modifs, options);
+            return Json.niceprint(a, modifs, niceprintOptions);
         } catch (e) {
             return Json._helper.handlePrintException(e);
         }
@@ -157,7 +180,7 @@ function niceprint(a, modifs, options) {
         return "INFIX";
     }
     if (a.ctype === "modifier") {
-        return a.key + "->" + niceprint(a.value, modifs, options);
+        return a.key + "->" + niceprint(a.value, modifs, niceprintOptions);
     }
     if (a.ctype === "shape") {
         return a.type;
@@ -167,7 +190,7 @@ function niceprint(a, modifs, options) {
         return "Error: " + a.message;
     }
     if (a.ctype === "variable") {
-        return niceprint(namespace.getvar(a.name), modifs, options);
+        return niceprint(namespace.getvar(a.name), modifs, niceprintOptions);
     }
 
     if (a.ctype === "geo") {
