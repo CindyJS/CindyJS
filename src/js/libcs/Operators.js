@@ -205,6 +205,7 @@ evaluator.repeat$3 = function (args, modifs) {
             n = Math.floor((stop - start) / step);
         }
 
+    namespace.pushVstack("*");
     namespace.newvar(lauf);
     let erg = nada;
     for (let i = 0; i < n; i++) {
@@ -218,6 +219,7 @@ evaluator.repeat$3 = function (args, modifs) {
         erg = evaluate(args[2]);
     }
     namespace.removevar(lauf);
+    namespace.cleanVstack();
 
     return erg;
 };
@@ -227,11 +229,17 @@ evaluator.while$2 = function (args, modifs) {
 
     const prog = args[1];
     const test = args[0];
+    namespace.pushVstack("*");
     let bo = evaluate(test);
+    namespace.cleanVstack();
     let erg = nada;
     while (bo.ctype !== "list" && bo.value) {
+        namespace.pushVstack("*");
         erg = evaluate(prog);
+        namespace.cleanVstack();
+        namespace.pushVstack("*");
         bo = evaluate(test);
+        namespace.cleanVstack();
     }
 
     return erg;
@@ -259,6 +267,7 @@ evaluator.apply$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let keyVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -307,6 +316,7 @@ evaluator.apply$4 = function (args, modifs) {
     }
 
     namespace.removevar(valueVar);
+    namespace.cleanVstack();
 
     return v1.ctype === "list" ? List.turnIntoCSList(erg) : Json.turnIntoCSJson(erg);
 };
@@ -335,6 +345,7 @@ evaluator.forall$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let indexVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -378,6 +389,7 @@ evaluator.forall$4 = function (args, modifs) {
     }
 
     namespace.removevar(runVar);
+    namespace.cleanVstack();
 
     return res;
 };
@@ -405,6 +417,7 @@ evaluator.select$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let keyVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -497,6 +510,7 @@ evaluator.select$4 = function (args, modifs) {
     }
 
     namespace.removevar(lauf);
+    namespace.cleanVstack();
 
     return ret;
 };
@@ -944,9 +958,15 @@ evaluator.if$3 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]);
     if (v0.ctype === "boolean") {
         if (v0.value === true) {
-            return evaluate(args[1]);
+            namespace.pushVstack("*");
+            const res = evaluate(args[1]);
+            namespace.cleanVstack();
+            return res;
         } else if (args.length === 3) {
-            return evaluate(args[2]);
+            namespace.pushVstack("*");
+            const res = evaluate(args[2]);
+            namespace.cleanVstack();
+            return res;
         }
     } else {
         printStackTrace("Condition for if is not boolean");
@@ -1282,6 +1302,7 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
             }
         }
 
+        namespace.pushVstack("*");
         namespace.newvar(lauf);
         namespace.setvar(lauf, li[0]);
         let erg = evaluate(args[2]);
@@ -1291,6 +1312,7 @@ eval_helper.genericListMathGen = function (name, op, emptyval) {
             erg = op(erg, b);
         }
         namespace.removevar(lauf);
+        namespace.cleanVstack();
         return erg;
     };
 };
@@ -1340,6 +1362,7 @@ evaluator.max$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let indexVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -1395,6 +1418,7 @@ evaluator.max$4 = function (args, modifs) {
     }
 
     namespace.removevar(lauf);
+    namespace.cleanVstack();
     return return_element ? erg.element : erg.value;
 };
 
@@ -1440,6 +1464,7 @@ evaluator.min$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let indexVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -1497,6 +1522,7 @@ evaluator.min$4 = function (args, modifs) {
     }
 
     namespace.removevar(lauf);
+    namespace.cleanVstack();
     return return_element ? erg.element : erg.value;
 };
 
@@ -1569,12 +1595,14 @@ evaluator.d$2 = function (args, modifs) {
 
     const prog = args[0];
     const x = evaluateAndVal(args[1]);
+    namespace.pushVstack("*");
     namespace.newvar(lauf);
     namespace.setvar(lauf, CSNumber.add(x, eps));
     let f1 = evaluate(prog);
     namespace.setvar(lauf, CSNumber.sub(x, eps));
     let f2 = evaluate(prog);
     namespace.removevar(lauf);
+    namespace.cleanVstack();
     return CSNumber.div(CSNumber.sub(f1, f2), CSNumber.mult(eps, CSNumber.real(2)));
 };
 
@@ -1593,12 +1621,14 @@ evaluator.tangent$2 = function (args, modifs) {
 
     const prog = args[0];
     const x = evaluateAndVal(args[1]);
+    namespace.pushVstack("*");
     namespace.newvar(lauf);
     namespace.setvar(lauf, CSNumber.add(x, eps));
     let f1 = List.turnIntoCSList([CSNumber.add(x, eps), evaluate(prog), CSNumber.one]);
     namespace.setvar(lauf, CSNumber.sub(x, eps));
     let f2 = List.turnIntoCSList([CSNumber.sub(x, eps), evaluate(prog), CSNumber.one]);
     namespace.removevar(lauf);
+    namespace.cleanVstack();
     if (f1 !== nada && f1 !== nada) {
         let erg = List.cross(f1, f2);
         erg = General.withUsage(erg, "Line");
@@ -3214,6 +3244,7 @@ evaluator.sort$4 = function (args, modifs) {
         }
     }
 
+    namespace.pushVstack("*");
     let indexVar;
     if (args[2] !== null) {
         if (args[2].ctype === "variable") {
@@ -3247,6 +3278,7 @@ evaluator.sort$4 = function (args, modifs) {
     }
 
     namespace.removevar(lauf);
+    namespace.cleanVstack();
 
     erg.sort(General.compareResults);
     const erg1 = [];
