@@ -70,6 +70,23 @@ describe("JSON basic getter / setter", function () {
     itCmd('json = {"a":[1,{"b":2},3]}; json.a_2.b=34; json', "{a:[1, {b:34}, 3]}");
 });
 
+describe("JSON key sorting", function () {
+    before(function () {
+        cdy.evalcs('testJson = {"a": 1, "A": 2, "c" : 3,"B": 4};');
+    });
+
+    itCmd("keys(testJson)", "[a, A, c, B]");
+    itCmd("keys(testJson,sort->true)", "[A, B, a, c]");
+});
+describe("JSON merge", function () {
+    before(function () {
+        cdy.evalcs('aJson = {"a": 1, "A": 2, "c" : 3,"B": 4};bJson = {"b": 5, "B": 6, "c" : 7,"C": 8};');
+    });
+
+    itCmd("merge(aJson,bJson)", "{A:2, B:6, C:8, a:1, b:5, c:7}");
+    itCmd("merge(bJson,aJson)", "{A:2, B:4, C:8, a:1, b:5, c:3}");
+});
+
 describe("JSON geo objects", function () {
     before(function () {
         cdy.evalcs('geojson = {"pt1": A, "pt2": B, "pt3" : C};');
