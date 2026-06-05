@@ -143,5 +143,5 @@ describe("Operators: print", function () {
     itCmd('text(unicode(34)+"Test"+unicode(34))', '"Test"');
     itCmd('text(unicode(34)+"Test"+unicode(34),quote->true)', '"""Test"""');
     itCmd('text(["a","b",{"c":1,"d":["e","f"]}])', "[a, b, {c:1, d:[e, f]}]");
-    itCmd('text(["a","b",{"c":1,"d":["e","f"]}],quote->true)', '["a", "b", {c:1, d:["e", "f"]}]');
+    itCmd('text(["a","b",{"c":1,"d":["e","f"]}],quote->true)', '["a", "b", {"c":1, "d":["e", "f"]}]');
 });

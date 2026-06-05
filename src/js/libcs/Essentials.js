@@ -121,7 +121,8 @@ function niceprint(a, modifs, options) {
     }
     if (a.ctype === "string") {
         if (modifs && modifs["quote"] !== undefined && evaluate(modifs["quote"]).value === true) {
-            return '"' + a.value.replaceAll('"', '""') + '"';
+            // switch to replaceAll('"','""') function once supported by build-settings
+            return '"' + a.value.replace(/"/g, '""') + '"';
         }
         return a.value;
     }

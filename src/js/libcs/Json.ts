@@ -133,6 +133,11 @@ const Json: CSJson = {
             keys
                 .map(function (key) {
                     const elValKey = el.value[key];
+                    let keyString = key;
+                    if (modifs && modifs["quote"] !== undefined && evaluate(modifs["quote"]).value === true) {
+                        // switch to replaceAll('"','""') function once supported by build-settings
+                        keyString = '"' + keyString.replace(/"/g, '""') + '"';
+                    }
                     if (!visitedMap.tracker.has(elValKey)) {
                         visitedMap.tracker.set(elValKey, 1);
                     } else {
@@ -144,14 +149,14 @@ const Json: CSJson = {
                                 niceprintOptions.printedWarning = true;
                             }
 
-                            return key + ":" + "...";
+                            return keyString + ":" + "...";
                         }
                         if (visitedMap.newLevel) {
                             visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
                             visitedMap.newLevel = false;
                         }
                     }
-                    return key + ":" + Json._helper.niceprint(elValKey, modifs, niceprintOptions);
+                    return keyString + ":" + Json._helper.niceprint(elValKey, modifs, niceprintOptions);
                 })
                 .join(", ") +
             "}";
