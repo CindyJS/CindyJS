@@ -31,9 +31,9 @@ Unclosed block comments are an error.
 
     - CindyScript >=3.0
     > 1 + /* this does not close
-    ! CindyScriptParseError: Unterminated comment at 1:4: ‘/*’
+    ! CindyScriptParseError: Unterminated comment at 1:5: ‘/*’
     > 1 + /* this /* still */ not
-    ! CindyScriptParseError: Unterminated comment at 1:4: ‘/*’
+    ! CindyScriptParseError: Unterminated comment at 1:5: ‘/*’
 
 ### Whitespace
 
@@ -72,7 +72,7 @@ three distinct identifiers with no operators between them:
     > a
     > 	b
     > 		c
-    ! CindyScriptParseError: Missing operator at 2:1: ‘b’
+    ! CindyScriptParseError: Missing operator at 2:2: ‘b’
 
     - CindyScript <3.0
     > a
@@ -123,7 +123,7 @@ for the number zero.
 
     - CindyScript >=3.0
     > 0 + (.)
-    ! CindyScriptParseError: Operator without operands at 1:5: ‘.’
+    ! CindyScriptParseError: Operator without operands at 1:6: ‘.’
 
     - CindyScript <3.0
     > 0 + (.)
@@ -160,7 +160,7 @@ by a second dot, since the latter represents a range.
 
     - CindyScript >=3.0
     > 1 . . 3
-    ! CindyScriptParseError: Field name must be identifier at 1:2: ‘.’
+    ! CindyScriptParseError: Field name must be identifier at 1:3: ‘.’
 
 ### Identifier names
 
@@ -186,9 +186,9 @@ Multiple digits are not permissible, though.
     > #9 = 12; #9
     < 12
     > #12 = 17; #12
-    ! CindyScriptParseError: Missing operator at 1:2: ‘2’
+    ! CindyScriptParseError: Missing operator at 1:3: ‘2’
     > foo#1 = 19; foo#1
-    ! CindyScriptParseError: Missing operator at 1:3: ‘#1’
+    ! CindyScriptParseError: Missing operator at 1:4: ‘#1’
 
 The set of letters includes characters from
 [planes](http://www.unicode.org/glossary/#plane)
@@ -242,7 +242,7 @@ There may be no spaces within operator symbols.
 
     - CindyScript >=3.0
     > f(x) : = 123
-    ! CindyScriptParseError: Operator may not be used postfix at 1:5: ‘:’
+    ! CindyScriptParseError: Operator may not be used postfix at 1:6: ‘:’
 
 ### Superscript and subscript
 
@@ -278,9 +278,9 @@ and the fact that superscript visually appears more closely coupled.
 
     - CindyScript >=3.0
     > 2³^4
-    ! CindyScriptParseError: Operator not allowed after superscript at 1:2: ‘^’
+    ! CindyScriptParseError: Operator not allowed after superscript at 1:3: ‘^’
     > 2³_1
-    ! CindyScriptParseError: Operator not allowed after superscript at 1:2: ‘_’
+    ! CindyScriptParseError: Operator not allowed after superscript at 1:3: ‘_’
     > (2³)^4
     < 4096
     > [2³]_1
@@ -391,7 +391,7 @@ But since `,` may only be used inside brackets, and not at the top level,
 it is not included in the above list.
 
     > 1, 2, 3
-    ! CindyScriptParseError: comma may only be used to delimit list elements at 1:1
+    ! CindyScriptParseError: comma may only be used to delimit list elements at 1:2
 
 Several of these operators have alternate Unicode forms
 which often are more readable but harder to type.
@@ -421,7 +421,7 @@ These alternatives are valid only in operator tokens.
 It is illegal to use the Unicode minus sign in the exponent of a numeric literal:
 
     > 2.34e−5
-    ! CindyScriptParseError: Missing operator at 1:4: ‘e’
+    ! CindyScriptParseError: Missing operator at 1:5: ‘e’
 
 #### Prefix and postfix operators
 
@@ -507,7 +507,7 @@ Curly braces denote JSON objects. JavaScript Object Notation (JSON) is a text fo
     > 7 * {}
     < ___
     > sin{30°}
-    ! CindyScriptParseError: {…} not yet defined for operators. at 1:3
+    ! CindyScriptParseError: {…} not yet defined for operators. at 1:4
 
 #### Function invocation
 
@@ -538,7 +538,7 @@ of probably anonymous functions in an object-oriented programming style.)
 
     - CindyScript >=2016
     > lst_f(3)
-    ! CindyScriptParseError: Function call in indexing construct must be enclosed in parentheses at 1:5
+    ! CindyScriptParseError: Function call in indexing construct must be enclosed in parentheses at 1:6
 
 #### Vertical bars `|…|`
 
@@ -564,7 +564,7 @@ directly inside one another:
 
     - CindyScript >=3.0
     > |3 + |4*i| - 2|
-    ! CindyScriptParseError: Operator may not be used postfix at 1:3: ‘+’
+    ! CindyScriptParseError: Operator may not be used postfix at 1:4: ‘+’
 
 They may however be nested if there is at least one level of other brackets
 (`(…)`, `[…]` or `{…}`) between them.
