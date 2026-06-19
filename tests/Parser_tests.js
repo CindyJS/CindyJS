@@ -31,7 +31,7 @@ function simpl(expr) {
             break;
         case "void":
             return null;
-            break;
+            break; // eslint-disable-line no-unreachable
         case "error":
             throw expr;
         default:
@@ -91,6 +91,7 @@ describe("CindyScript parser normal operation", function () {
     simplCase("x²", { "^": ["$x", 2] });
     simplCase("x ⁻ ⁰ ¹ ²", { "^": ["$x", -12] });
     simplCase("a₇", { _: ["$a", 7] });
+    simplCase('"String with ""escaped"" quotes"', 'String with "escaped" quotes');
     /* Copy & paste from here:
     simplCase('', );
     */
@@ -124,7 +125,7 @@ describe("CindyScript tokenizer", function () {
             it(input, function () {
                 expect(function () {
                     var tokenizer = new Tokenizer(input);
-                    while (tokenizer.next().toktype !== "EOF") {}
+                    while (tokenizer.next().toktype !== "EOF") {} // eslint-disable-line no-empty
                 }).to.throw(expected);
             });
         } else {
@@ -151,6 +152,7 @@ describe("CindyScript tokenizer", function () {
 
     it("should reconstruct regular expression for unicode letters", function () {
         function esc(s) {
+            /* eslint-disable no-control-regex*/
             return s
                 .replace(/["\\]/g, "\\$&")
                 .replace(/[^\x00-\x7f]/g, function (c) {
@@ -160,6 +162,7 @@ describe("CindyScript tokenizer", function () {
                     return "\\u" + c;
                 })
                 .split("|");
+            /* eslint-enable no-control-regex*/
         }
         var expected;
         // First test, with escapes and splitting the expression
