@@ -35,7 +35,7 @@ Circular objects are allowed, but a printout will be shortened. The default recu
 
     > dic={"a" : 1}; dic.b = dic; print(dic, maxDepth->3);
     * Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete.
-    * {a:1, b:{a:1, b:{a:1, b:{a:..., b:...}}}}
+    * {a:1, b:{a:1, b:{a:1, b:{…}}}}
 
 
 ------
