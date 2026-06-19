@@ -2,7 +2,7 @@ import { nada } from "expose";
 // @ts-expect-error: Not yet typed
 import { General } from "libcs/General";
 // @ts-expect-error: Not yet typed
-import { niceprint } from "libcs/Essentials";
+import { niceprint, defaultNiceprintOptions } from "libcs/Essentials";
 // @ts-expect-error: Not yet typed
 import { namespace } from "libcs/Namespace";
 // @ts-expect-error: Not yet typed
@@ -51,7 +51,7 @@ const Json: CSJson = {
                 return Json.niceprint(a, modifs, options);
             }
 
-            return niceprint(a);
+            return niceprint(a, modifs, options);
         },
 
         handlePrintException(e: Error) {
@@ -106,26 +106,24 @@ const Json: CSJson = {
     },
 
     niceprint(el: CSJsonValue, modifs?: any, options?) {
-        const niceprintOptions = options || {
-            printedWarning: false,
-            visitedMap: {
-                tracker: new WeakMap(),
-                level: 0,
-                maxLevel: 1000,
-                maxElVisit: 5000,
-                newLevel: false,
-                printedWarning: false,
-            },
-        };
-
-        if (modifs?.maxDepth) {
-            const depth = evaluate(modifs.maxDepth);
-            if (depth.ctype === "number") niceprintOptions.visitedMap.maxLevel = depth.value.real;
-        }
+        const niceprintOptions = options || defaultNiceprintOptions(modifs);
 
         const visitedMap = niceprintOptions.visitedMap;
-        visitedMap.newLevel = true;
         visitedMap.level += 1;
+        if (!visitedMap.tracker.has(el)) {
+            visitedMap.tracker.set(el, 1);
+        } else {
+            if (visitedMap.tracker.get(el) > visitedMap.maxVisits || visitedMap.level > visitedMap.maxDepth) {
+                if (niceprintOptions && !niceprintOptions.printedWarning) {
+                    console.log(
+                        "Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete."
+                    );
+                    niceprintOptions.printedWarning = true;
+                }
+                return "{…}";
+            }
+            visitedMap.tracker.set(el, visitedMap.tracker.get(el) + 1);
+        }
 
         const keys = Object.keys(el.value).sort();
         const jsonString =
@@ -133,29 +131,17 @@ const Json: CSJson = {
             keys
                 .map(function (key) {
                     const elValKey = el.value[key];
-                    if (!visitedMap.tracker.has(elValKey)) {
-                        visitedMap.tracker.set(elValKey, 1);
-                    } else {
-                        if (visitedMap[elValKey] > visitedMap.maxElVisit || visitedMap.level > visitedMap.maxLevel) {
-                            if (niceprintOptions && !niceprintOptions.printedWarning) {
-                                console.log(
-                                    "Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete."
-                                );
-                                niceprintOptions.printedWarning = true;
-                            }
-
-                            return key + ":" + "...";
-                        }
-                        if (visitedMap.newLevel) {
-                            visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
-                            visitedMap.newLevel = false;
-                        }
+                    let keyString = key;
+                    if (niceprintOptions.quote) {
+                        // switch to replaceAll('"','""') function once supported by build-settings
+                        keyString = '"' + keyString.replace(/"/g, '""') + '"';
                     }
-                    return key + ":" + Json._helper.niceprint(elValKey, modifs, niceprintOptions);
+                    return keyString + ":" + Json._helper.niceprint(elValKey, modifs, niceprintOptions);
                 })
                 .join(", ") +
             "}";
-
+        visitedMap.tracker.set(el, visitedMap.tracker.get(el) - 1);
+        visitedMap.level -= 1;
         return jsonString;
     },
 };
