@@ -91,6 +91,7 @@ describe("CindyScript parser normal operation", function () {
     simplCase("x²", { "^": ["$x", 2] });
     simplCase("x ⁻ ⁰ ¹ ²", { "^": ["$x", -12] });
     simplCase("a₇", { _: ["$a", 7] });
+    simplCase('"String with ""escaped"" quotes"', 'String with "escaped" quotes');
     /* Copy & paste from here:
     simplCase('', );
     */

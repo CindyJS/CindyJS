@@ -264,7 +264,7 @@ const reNextToken = [
     "(" + subNum + ")", //             subscript
     "(" + supNum + ")", //             superscript
     "(" + reIdentifier + ")", //       identifier
-    '("[^"]*")', //                    string literal
+    '("(?:[^"]|"")*")', //             string literal
     "($)", //                          EOF
 ].join("|");
 
@@ -493,7 +493,7 @@ function parseRec(tokens, closing) {
                 break;
             case "STR":
                 tok.ctype = "string";
-                tok.value = tok.raw.substring(1, tok.raw.length - 1);
+                tok.value = tok.raw.substring(1, tok.raw.length - 1).replaceAll('""', '"');
                 if (seq.length & 1) throw ParseError("Missing operator", tok.start, tok.text);
                 seq.push(tok);
                 break;
