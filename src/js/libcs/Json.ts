@@ -109,8 +109,21 @@ const Json: CSJson = {
         const niceprintOptions = options || defaultNiceprintOptions(modifs);
 
         const visitedMap = niceprintOptions.visitedMap;
-        visitedMap.newLevel = true;
         visitedMap.level += 1;
+        if (!visitedMap.tracker.has(el)) {
+            visitedMap.tracker.set(el, 1);
+        } else {
+            if (visitedMap.tracker.get(el) > visitedMap.maxVisits || visitedMap.level > visitedMap.maxDepth) {
+                if (niceprintOptions && !niceprintOptions.printedWarning) {
+                    console.log(
+                        "Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete."
+                    );
+                    niceprintOptions.printedWarning = true;
+                }
+                return "{…}";
+            }
+            visitedMap.tracker.set(el, visitedMap.tracker.get(el) + 1);
+        }
 
         const keys = Object.keys(el.value).sort();
         const jsonString =
@@ -123,29 +136,12 @@ const Json: CSJson = {
                         // switch to replaceAll('"','""') function once supported by build-settings
                         keyString = '"' + keyString.replace(/"/g, '""') + '"';
                     }
-                    if (!visitedMap.tracker.has(elValKey)) {
-                        visitedMap.tracker.set(elValKey, 1);
-                    } else {
-                        if (visitedMap[elValKey] > visitedMap.maxElVisit || visitedMap.level > visitedMap.maxLevel) {
-                            if (niceprintOptions && !niceprintOptions.printedWarning) {
-                                console.log(
-                                    "Warning: We visited a key-value pair very often or encountered a very deeply nested dictionary. Dictionary is probably cyclic. Output will be probably incomplete."
-                                );
-                                niceprintOptions.printedWarning = true;
-                            }
-
-                            return keyString + ":" + "...";
-                        }
-                        if (visitedMap.newLevel) {
-                            visitedMap.tracker.set(elValKey, visitedMap.tracker.get(elValKey) + 1);
-                            visitedMap.newLevel = false;
-                        }
-                    }
                     return keyString + ":" + Json._helper.niceprint(elValKey, modifs, niceprintOptions);
                 })
                 .join(", ") +
             "}";
-
+        visitedMap.tracker.set(el, visitedMap.tracker.get(el) - 1);
+        visitedMap.level -= 1;
         return jsonString;
     },
 };

@@ -109,15 +109,18 @@ function defaultNiceprintOptions(modifs) {
         visitedMap: {
             tracker: new WeakMap(),
             level: 0,
-            maxLevel: 1000,
-            maxElVisit: 5000,
-            newLevel: false,
+            maxDepth: 16,
+            maxVisits: 2,
             printedWarning: false,
         },
     };
     if (modifs && modifs.maxDepth) {
         const depth = evaluate(modifs.maxDepth);
-        if (depth.ctype === "number") options.visitedMap.maxLevel = depth.value.real;
+        if (depth.ctype === "number") options.visitedMap.maxDepth = depth.value.real;
+    }
+    if (modifs && modifs.maxVisits) {
+        const count = evaluate(modifs.maxVisits);
+        if (count.ctype === "number") options.visitedMap.maxVisits = count.value.real;
     }
     if (modifs && modifs.quote) {
         const quote = evaluate(modifs.quote);
