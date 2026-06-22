@@ -623,6 +623,11 @@ evaluator.regional = function (args, modifs) {
     }
     return nada;
 };
+evaluator.delete$1 = function (args, modifs) {
+    if (args[0].ctype !== "variable") return nada;
+    namespace.removevar(args[0].name);
+    return nada;
+};
 
 evaluator.genList = function (args, modifs) {
     //VARIADIC!
@@ -4871,6 +4876,14 @@ evaluator.eval$1 = function (args, modifs) {
     });
     return erg;
     //                    return tt(args,modifs);
+};
+evaluator.delete$2 = function (args, modifs) {
+    const v0 = evaluate(args[0]);
+    if (v0.ctype !== "JSON") return nada;
+    const key = evaluate(args[1]);
+    if (key.ctype !== "string") return nada;
+    delete v0.value[key.value];
+    return nada;
 };
 
 evaluator.merge$2 = function (args, modifs) {

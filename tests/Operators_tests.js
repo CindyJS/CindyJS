@@ -145,3 +145,10 @@ describe("Operators: print", function () {
     itCmd('text(["a","b",{"c":1,"d":["e","f"]}])', "[a, b, {c:1, d:[e, f]}]");
     itCmd('text(["a","b",{"c":1,"d":["e","f"]}],quote->true)', '["a", "b", {"c":1, "d":["e", "f"]}]');
 });
+
+describe("Operators: delete", function () {
+    itCmd("delete(true);true", "___");
+    itCmd("delete(x);x=1", "1");
+    itCmd("x=0;f(x):=(delete(x);x);f(3)", "0");
+    itCmd("x=0;f(x):=(regional(x);x=5;delete(x);x);f(3)", "3");
+});
