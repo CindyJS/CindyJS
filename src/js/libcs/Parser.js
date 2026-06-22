@@ -322,7 +322,7 @@ Tokenizer.prototype.advanceTo = function (pos) {
 Tokenizer.prototype.curPos = function () {
     return {
         row: this.line,
-        col: this.pos - this.bol,
+        col: this.pos - this.bol + 1, // in most text editors columns are 1-indexed
         pos: this.pos,
     };
 };
@@ -700,12 +700,14 @@ Parser.prototype.postprocess = function (expr) {
             oper: String(expr.oper),
             args: [expr.args[0], expr.args[1]],
             impl: expr.impl,
+            start: expr.start,
         };
     }
     if (expr.ctype === "variable") {
         return {
             ctype: "variable",
             name: String(expr.name),
+            start: expr.start,
         };
     }
     if (expr.ctype === "number") {
@@ -715,18 +717,21 @@ Parser.prototype.postprocess = function (expr) {
                 real: +expr.value.real,
                 imag: +expr.value.imag,
             },
+            start: expr.start,
         };
     }
     if (expr.ctype === "string") {
         return {
             ctype: "string",
             value: String(expr.value),
+            start: expr.start,
         };
     }
     if (expr.ctype === "list") {
         return {
             ctype: "list",
             value: expr.value,
+            start: expr.start,
         };
     }
     if (expr.ctype === "function") {
@@ -735,6 +740,7 @@ Parser.prototype.postprocess = function (expr) {
             oper: String(expr.oper),
             args: expr.args,
             modifs: expr.modifs,
+            start: expr.start,
         };
     }
     if (expr.ctype === "field") {
@@ -742,6 +748,7 @@ Parser.prototype.postprocess = function (expr) {
             ctype: "field",
             obj: expr.obj,
             key: String(expr.key),
+            start: expr.start,
         };
     }
     if (expr.ctype === "userdata") {
@@ -749,6 +756,7 @@ Parser.prototype.postprocess = function (expr) {
             ctype: "userdata",
             obj: expr.obj,
             key: expr.key,
+            start: expr.start,
         };
     }
     if (expr.ctype === "jsonatom") {
@@ -756,6 +764,7 @@ Parser.prototype.postprocess = function (expr) {
             ctype: "jsonatom",
             key: expr.key,
             value: expr.value,
+            start: expr.start,
         };
     }
     throw Error("Unsupported AST node of type " + expr.ctype);
