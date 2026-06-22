@@ -72,7 +72,7 @@ evaluator.err$1 = function (args, modifs) {
     } else {
         s = args[0];
     }
-    s = varname + " ===> " + niceprint(evaluate(s));
+    s = varname + " ===> " + niceprint(evaluate(s), modifs);
     //printStackTrace(s);
     csconsole.err(s);
     return nada;
@@ -84,10 +84,10 @@ evaluator.errc$1 = function (args, modifs) {
     if (args[0].ctype === "variable") {
         // var s=evaluate(args[0].value[0]);
         s = evaluate(namespace.getvar(args[0].name));
-        console.log(args[0].name + " ===> " + niceprint(s));
+        console.log(args[0].name + " ===> " + niceprint(s, modifs));
     } else {
         s = evaluate(args[0]);
-        console.log(" ===> " + niceprint(s));
+        console.log(" ===> " + niceprint(s, modifs));
     }
     return nada;
 };
@@ -3821,7 +3821,7 @@ evaluator.stopanimation$0 = function (args, modifs) {
 evaluator.text$1 = function (args, modifs) {
     const v0 = evaluateAndVal(args[0]); // Cinderella compatible
     // if (v0 === nada) return nada; // Cinderella compatible
-    return General.string(niceprint(v0));
+    return General.string(niceprint(v0, modifs));
 };
 
 evaluator.replace$3 = function (args, modifs) {
@@ -5018,7 +5018,7 @@ evaluator.format$2 = function (args, modifs) {
         }
         return {
             ctype: "string",
-            value: niceprint(v).toString(),
+            value: niceprint(v, modifs).toString(),
         };
     }
     if ((v0.ctype === "number" || v0.ctype === "list") && v1.ctype === "number") {

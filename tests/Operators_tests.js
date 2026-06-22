@@ -134,3 +134,14 @@ describe("Operators: removeAt", function () {
     itCmd("removeAt(aList,5)", "[1, 2, 3, 4, 6, 7, 8, 9, 10]");
     itCmd("removeAt(aList,3);aList", "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]");
 });
+
+describe("Operators: print", function () {
+    itCmd("text(1)", "1");
+    itCmd("text(nada)", "___");
+    itCmd('text("Hello, World!")', "Hello, World!");
+    itCmd('text("Hello, World!",quote->true)', '"Hello, World!"');
+    itCmd('text(unicode(34)+"Test"+unicode(34))', '"Test"');
+    itCmd('text(unicode(34)+"Test"+unicode(34),quote->true)', '"""Test"""');
+    itCmd('text(["a","b",{"c":1,"d":["e","f"]}])', "[a, b, {c:1, d:[e, f]}]");
+    itCmd('text(["a","b",{"c":1,"d":["e","f"]}],quote->true)', '["a", "b", {"c":1, "d":["e", "f"]}]');
+});
