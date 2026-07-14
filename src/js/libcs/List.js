@@ -96,6 +96,14 @@ List.realMatrix = function (l) {
     return List.turnIntoCSList(erg);
 };
 
+List._helper.copyMatrix = function (matrix) {
+    const rows = new Array(matrix.value.length);
+    for (let i = 0; i < matrix.value.length; i++) {
+        rows[i] = { ctype: "list", value: matrix.value[i].value.slice() };
+    }
+    return { ctype: "list", value: rows };
+};
+
 List.ex = List.realVector([1, 0, 0]);
 List.ey = List.realVector([0, 1, 0]);
 List.ez = List.realVector([0, 0, 1]);
@@ -843,24 +851,20 @@ List.scalproduct = function (a1, a2) {
     if (a1.value.length !== a2.value.length) {
         return nada;
     }
-    let erg = {
-        ctype: "number",
-        value: {
-            real: 0,
-            imag: 0,
-        },
-    };
+    let real = 0;
+    let imag = 0;
     for (let i = 0; i < a2.value.length; i++) {
         const av1 = a1.value[i];
         const av2 = a2.value[i];
-        if (av1.ctype === "number" && av2.ctype === "number") {
-            erg = CSNumber.add(CSNumber.mult(av1, av2), erg);
-        } else {
+        if (av1.ctype !== "number" || av2.ctype !== "number") {
             return nada;
         }
+        const v1 = av1.value;
+        const v2 = av2.value;
+        real += v1.real * v2.real - v1.imag * v2.imag;
+        imag += v1.real * v2.imag + v1.imag * v2.real;
     }
-
-    return erg;
+    return { ctype: "number", value: { real, imag } };
 };
 
 List.sesquilinearproduct = function (a1, a2) {
@@ -888,89 +892,122 @@ List.normSquared = function (a) {
 };
 
 List.productMV = function (a, b) {
-    if (a.value[0].value.length !== b.value.length) {
+    const p = b.value.length;
+    if (a.value[0].value.length !== p) {
         return nada;
     }
-    const li = [];
-    for (let j = 0; j < a.value.length; j++) {
-        let erg = {
-            ctype: "number",
-            value: {
-                real: 0,
-                imag: 0,
-            },
-        };
-        const a1 = a.value[j];
-        for (let i = 0; i < b.value.length; i++) {
-            const av1 = a1.value[i];
+    const m = a.value.length;
+    const li = new Array(m);
+    for (let j = 0; j < m; j++) {
+        const aRow = a.value[j];
+        if (aRow.ctype !== "list" || aRow.value.length !== p) return nada;
+        let real = 0;
+        let imag = 0;
+        const row = aRow.value;
+        for (let i = 0; i < p; i++) {
+            const av1 = row[i];
             const av2 = b.value[i];
-
-            if (av1.ctype === "number" && av2.ctype === "number") {
-                erg = CSNumber.add(CSNumber.mult(av1, av2), erg);
-            } else {
+            if (av1.ctype !== "number" || av2.ctype !== "number") {
                 return nada;
             }
+            const v1 = av1.value;
+            const v2 = av2.value;
+            real += v1.real * v2.real - v1.imag * v2.imag;
+            imag += v1.real * v2.imag + v1.imag * v2.real;
         }
-        li[j] = erg;
+        li[j] = { ctype: "number", value: { real, imag } };
     }
     return List.turnIntoCSList(li);
 };
 
 List.productVM = function (a, b) {
-    if (a.value.length !== b.value.length) {
+    const p = a.value.length;
+    if (p !== b.value.length) {
         return nada;
     }
-    const li = [];
-    for (let j = 0; j < b.value[0].value.length; j++) {
-        let erg = {
-            ctype: "number",
-            value: {
-                real: 0,
-                imag: 0,
-            },
-        };
-        for (let i = 0; i < a.value.length; i++) {
+    const n = b.value[0].value.length;
+    const li = new Array(n);
+    for (let i = 0; i < p; i++) {
+        if (b.value[i].ctype !== "list" || b.value[i].value.length !== n) return nada;
+    }
+    for (let j = 0; j < n; j++) {
+        let real = 0;
+        let imag = 0;
+        for (let i = 0; i < p; i++) {
             const av1 = a.value[i];
             const av2 = b.value[i].value[j];
-
-            if (av1.ctype === "number" && av2.ctype === "number") {
-                erg = CSNumber.add(CSNumber.mult(av1, av2), erg);
-            } else {
+            if (av1.ctype !== "number" || av2.ctype !== "number") {
                 return nada;
             }
+            const v1 = av1.value;
+            const v2 = av2.value;
+            real += v1.real * v2.real - v1.imag * v2.imag;
+            imag += v1.real * v2.imag + v1.imag * v2.real;
         }
-        li[j] = erg;
+        li[j] = { ctype: "number", value: { real, imag } };
     }
     return List.turnIntoCSList(li);
 };
 
 List.productMM = function (a, b) {
-    if (a.value[0].value.length !== b.value.length) {
+    const p = a.value[0].value.length;
+    if (p !== b.value.length) {
         return nada;
     }
-    const li = [];
-    for (let j = 0; j < a.value.length; j++) {
-        const aa = a.value[j];
-        const erg = List.productVM(aa, b);
-        li[j] = erg;
+    const m = a.value.length;
+    const n = b.value[0].value.length;
+    for (let k = 0; k < p; k++) {
+        if (b.value[k].ctype !== "list" || b.value[k].value.length !== n) return nada;
     }
-    return List.turnIntoCSList(li);
+    const rows = new Array(m);
+    for (let i = 0; i < m; i++) {
+        if (a.value[i].ctype !== "list" || a.value[i].value.length !== p) return nada;
+        const aRow = a.value[i].value;
+        const row = new Array(n);
+        for (let j = 0; j < n; j++) {
+            let real = 0;
+            let imag = 0;
+            for (let k = 0; k < p; k++) {
+                const a_ik = aRow[k];
+                const b_kj = b.value[k].value[j];
+                if (a_ik.ctype !== "number" || b_kj.ctype !== "number") {
+                    return nada;
+                }
+                const v1 = a_ik.value;
+                const v2 = b_kj.value;
+                real += v1.real * v2.real - v1.imag * v2.imag;
+                imag += v1.real * v2.imag + v1.imag * v2.real;
+            }
+            row[j] = { ctype: "number", value: { real, imag } };
+        }
+        rows[i] = { ctype: "list", value: row };
+    }
+    return { ctype: "list", value: rows };
 };
 
 List.mult = function (a, b) {
-    if (a.value.length === b.value.length && List.isNumberVector(a).value && List.isNumberVector(b).value) {
+    if (a.value.length === 0 || b.value.length === 0) {
+        return a.value.length === b.value.length ? List.scalproduct(a, b) : nada;
+    }
+
+    const a0 = a.value[0];
+    const b0 = b.value[0];
+    const aIsVec = a0.ctype === "number";
+    const bIsVec = b0.ctype === "number";
+
+    if (aIsVec && bIsVec && a.value.length === b.value.length) {
         return List.scalproduct(a, b);
     }
 
-    if (List.isNumberMatrix(a).value && b.value.length === a.value[0].value.length && List.isNumberVector(b).value) {
+    if (!aIsVec && bIsVec && a0.ctype === "list" && b.value.length === a0.value.length) {
         return List.productMV(a, b);
     }
 
-    if (List.isNumberMatrix(b).value && a.value.length === b.value.length && List.isNumberVector(a).value) {
+    if (aIsVec && !bIsVec && b0.ctype === "list" && a.value.length === b.value.length) {
         return List.productVM(a, b);
     }
 
-    if (List.isNumberMatrix(a).value && List.isNumberMatrix(b).value && b.value.length === a.value[0].value.length) {
+    if (!aIsVec && !bIsVec && a0.ctype === "list" && b0.ctype === "list" && b.value.length === a0.value.length) {
         return List.productMM(a, b);
     }
 
@@ -1717,7 +1754,14 @@ List._helper.isLowerTriangular = function (A) {
 };
 
 List._helper.isUpperTriangular = function (A) {
-    return List._helper.isLowerTriangular(List.transpose(A));
+    const rows = A.value.length;
+    if (rows === 0) return true;
+    const cols = A.value[0].value.length;
+    for (let c = 0; c < cols; c++)
+        for (let r = c + 1; r < rows; r++) {
+            if (!CSNumber._helper.isAlmostZero(A.value[r].value[c])) return false;
+        }
+    return true;
 };
 
 List.nullSpace = function (A, precision) {
@@ -1775,7 +1819,7 @@ List._helper.inverseIteration = function (A, shiftinit) {
     shift = CSNumber.add(shift, CSNumber.real(0.1 * Math.random() - 0.5)); // add rand to make get a full rank matrix
     for (let ii = 0; ii < 100; ii++) {
         qk = List.scaldiv(List.abs(xx), xx);
-        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), JSON.parse(JSON.stringify(qk))); // TODO Use triangular form
+        xx = List.LUsolve(List.sub(A, List.scalmult(shift, ID)), qk); // TODO Use triangular form
     }
 
     return List.scaldiv(List.abs(xx), xx);
@@ -1807,7 +1851,7 @@ List.RRQRdecomp = function (A, precision) {
     const preci2 = preci * preci; // we are working work abs()^2 later on
 
     let i;
-    let AA;
+    let block;
     const len = A.value.length;
     let cslen = CSNumber.real(len);
     const one = CSNumber.real(1);
@@ -1819,7 +1863,7 @@ List.RRQRdecomp = function (A, precision) {
     let QQ = List.idMatrix(cslen, cslen);
 
     // this will be the updated matrix
-    let AAA = JSON.parse(JSON.stringify(A));
+    let working = List._helper.copyMatrix(A);
 
     // get column norms
     const tA = List.transpose(A);
@@ -1836,25 +1880,25 @@ List.RRQRdecomp = function (A, precision) {
     let normxx;
     for (let k = 0; CSNumber.abs2(tau).value.real > 1e-16; k++) {
         rank++;
-        List._helper.swapColumn(AAA, k, maxIdx);
+        List._helper.swapColumn(working, k, maxIdx);
         List._helper.swapEl(norms, k, maxIdx);
         List._helper.swapEl(piv, k, maxIdx);
-        AA = List._helper.getBlock(AAA, [k], [k]);
-        xx = List.column(AA, one);
+        block = List._helper.getBlock(working, [k], [k]);
+        xx = List.column(block, one);
         normxx = List.abs2(xx).value.real;
         if (normxx > 1e-8) {
             Qk = List._helper.getHouseHolder(xx);
             // fix dimension
             Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
             QQ = General.mult(QQ, List.transjugate(Qk));
-            AAA = General.mult(Qk, AAA);
+            working = General.mult(Qk, working);
         }
 
         // update norms
         for (i = k + 1; i < len; i++) {
             norms.value[i] = CSNumber.sub(
                 norms.value[i],
-                CSNumber.mult(AAA.value[k].value[i], CSNumber.conjugate(AAA.value[k].value[i]))
+                CSNumber.mult(working.value[k].value[i], CSNumber.conjugate(working.value[k].value[i]))
             );
         }
 
@@ -1873,7 +1917,7 @@ List.RRQRdecomp = function (A, precision) {
         e1.value = e1.value.splice(0, e1.value.length - 1);
     }
 
-    const R = AAA; //General.mult(List.transjugate(QQ), A);
+    const R = working; //General.mult(List.transjugate(QQ), A);
 
     return {
         Q: QQ,
@@ -1914,7 +1958,7 @@ List._helper.reOrderbyPivots = function (A, piv) {
 };
 
 List.QRdecomp = function (A) {
-    let AA;
+    let block;
     const len = A.value.length;
     let cslen = CSNumber.real(len);
 
@@ -1934,11 +1978,11 @@ List.QRdecomp = function (A) {
     let QQ = List.idMatrix(cslen, cslen);
 
     // this will be the updated matrix
-    let AAA = JSON.parse(JSON.stringify(A));
+    let working = A;
     for (let k = 0; ; k++) {
-        AA = List._helper.getBlock(AAA, [k], [k]);
+        block = List._helper.getBlock(working, [k], [k]);
 
-        xx = List.column(AA, one);
+        xx = List.column(block, one);
         normxx = List.abs2(xx).value.real;
         if (normxx > 1e-8) {
             // otherwise we already have the desired vector
@@ -1947,7 +1991,7 @@ List.QRdecomp = function (A) {
             // fix dimension
             Qk = List._helper.buildBlockMatrix(List.idMatrix(CSNumber.real(k), CSNumber.real(k)), Qk);
             QQ = General.mult(QQ, List.transjugate(Qk));
-            AAA = General.mult(Qk, AAA);
+            working = General.mult(Qk, working);
         }
 
         // after k+2 steps we are done
@@ -1960,7 +2004,7 @@ List.QRdecomp = function (A) {
         e1.value = e1.value.splice(0, e1.value.length - 1);
     }
 
-    const R = AAA; //General.mult(List.transjugate(QQ), A);
+    const R = working; //General.mult(List.transjugate(QQ), A);
     return {
         Q: QQ,
         R,
@@ -2003,31 +2047,21 @@ List._helper.buildBlockMatrix = function (A, B) {
 };
 
 List._helper.getBlock = function (A, m, n) {
-    const AA = JSON.parse(JSON.stringify(A));
     const m0 = m[0];
-    let m1;
+    const m1 = m[1] === undefined ? A.value.length : m[1] + 1;
     const n0 = n[0];
-    let n1;
+    const n1 = n[1] === undefined ? A.value[0].value.length : n[1] + 1;
 
-    if (m[1] === undefined) m1 = AA.value.length;
-    else m1 = m[1];
-
-    if (n[1] === undefined) n1 = AA.value[0].value.length;
-    else n1 = n[1];
-
-    // slice does not include end
-    m1++;
-    n1++;
-
-    AA.value = AA.value.slice(m0, m1);
-    for (let i = 0; i < AA.value.length; i++) AA.value[i].value = AA.value[i].value.slice(n0, n1);
-
-    return AA;
+    const rows = new Array(m1 - m0);
+    for (let i = m0; i < m1; i++) {
+        rows[i - m0] = List.turnIntoCSList(A.value[i].value.slice(n0, n1));
+    }
+    return List.turnIntoCSList(rows);
 };
 
 // return a copy of A with a Block B placed at position pos = [m, n]
 List._helper.setBlock = function (A, B, pos) {
-    const AA = JSON.parse(JSON.stringify(A));
+    const result = List._helper.copyMatrix(A);
     const m0 = pos[0];
     const n0 = pos[1];
 
@@ -2036,10 +2070,10 @@ List._helper.setBlock = function (A, B, pos) {
 
     for (let i = 0; i < m1; i++)
         for (let j = 0; j < n1; j++) {
-            AA.value[m0 + i].value[n0 + j] = B.value[i].value[j];
+            result.value[m0 + i].value[n0 + j] = B.value[i].value[j];
         }
 
-    return AA;
+    return result;
 };
 
 // return u v^T Matrix
@@ -2069,31 +2103,31 @@ List._helper.QRgetAlpha = function (x, k) {
     return CSNumber.neg(List.abs(x));
 };
 
-List.LUdecomp = function (AA) {
+List.LUdecomp = function (matrix) {
     //    if(List._helper.isUpperTriangular){
-    //        var len = AA.value.length;
+    //        var len = matrix.value.length;
     //
     //        var PP =  new Array(len);
     //        for(var ii = 0; ii < len; ii++) PP[ii] =ii;
     //        return {
-    //            LU: AA,
+    //            LU: matrix,
     //            P: PP,
     //            TransPos: 0
     //        };
     //    }
-    const A = JSON.parse(JSON.stringify(AA)); // TODO: get rid of this cloning
+    const lu = List._helper.copyMatrix(matrix);
     let i, j, k, absAjk, Akk, Ak, Pk, Ai;
     let tpos = 0;
     let max;
-    const n = A.value.length,
+    const n = lu.value.length,
         n1 = n - 1;
     const P = new Array(n);
     for (k = 0; k < n; ++k) {
         Pk = k;
-        Ak = A.value[k];
+        Ak = lu.value[k];
         max = CSNumber.abs(Ak.value[k]).value.real;
         for (j = k + 1; j < n; ++j) {
-            absAjk = CSNumber.abs(A.value[j].value[k]);
+            absAjk = CSNumber.abs(lu.value[j].value[k]);
             if (max < absAjk.value.real) {
                 max = absAjk.value.real;
                 Pk = j;
@@ -2104,20 +2138,20 @@ List.LUdecomp = function (AA) {
         P[k] = Pk;
 
         if (Pk !== k) {
-            A.value[k] = A.value[Pk];
-            A.value[Pk] = Ak;
-            Ak = A.value[k];
+            lu.value[k] = lu.value[Pk];
+            lu.value[Pk] = Ak;
+            Ak = lu.value[k];
             tpos++;
         }
 
         Akk = Ak.value[k];
 
         for (i = k + 1; i < n; ++i) {
-            A.value[i].value[k] = CSNumber.div(A.value[i].value[k], Akk);
+            lu.value[i].value[k] = CSNumber.div(lu.value[i].value[k], Akk);
         }
 
         for (i = k + 1; i < n; ++i) {
-            Ai = A.value[i];
+            Ai = lu.value[i];
             for (j = k + 1; j < n1; ++j) {
                 Ai.value[j] = CSNumber.sub(Ai.value[j], CSNumber.mult(Ai.value[k], Ak.value[j]));
                 ++j;
@@ -2128,7 +2162,7 @@ List.LUdecomp = function (AA) {
     }
 
     return {
-        LU: A,
+        LU: lu,
         P,
         TransPos: tpos,
     };
@@ -2140,16 +2174,14 @@ List.LUsolve = function (A, b) {
 };
 
 List._helper.LUsolve = function (LUP, bb) {
-    const b = JSON.parse(JSON.stringify(bb)); // TODO: get rid of this cloning
     let i, j;
     const LU = LUP.LU;
     const n = LU.value.length;
-    const x = JSON.parse(JSON.stringify(b));
+    const x = { ctype: "list", value: bb.value.slice() };
 
     const P = LUP.P;
     let Pi, LUi, LUii, tmp;
 
-    for (i = n - 1; i !== -1; --i) x.value[i] = b.value[i];
     for (i = 0; i < n; ++i) {
         Pi = P[i];
         if (P[i] !== i) {
@@ -2311,7 +2343,7 @@ List.det = function (a) {
     let i;
     let j;
     let k;
-    const A = JSON.parse(JSON.stringify(a));
+    const work = List._helper.copyMatrix(a);
     let Aj;
     let Ai;
     let alpha;
@@ -2322,19 +2354,19 @@ List.det = function (a) {
     for (j = 0; j < n - 1; j++) {
         k = j;
         for (i = j + 1; i < n; i++) {
-            if (CSNumber.abs(A.value[i].value[j]).value.real > CSNumber.abs(A.value[k].value[j]).value.real) {
+            if (CSNumber.abs(work.value[i].value[j]).value.real > CSNumber.abs(work.value[k].value[j]).value.real) {
                 k = i;
             }
         }
         if (k !== j) {
-            temp = A.value[k];
-            A.value[k] = A.value[j];
-            A.value[j] = temp;
+            temp = work.value[k];
+            work.value[k] = work.value[j];
+            work.value[j] = temp;
             ret = CSNumber.neg(ret);
         }
-        Aj = A.value[j];
+        Aj = work.value[j];
         for (i = j + 1; i < n; i++) {
-            Ai = A.value[i];
+            Ai = work.value[i];
             alpha = CSNumber.div(Ai.value[j], Aj.value[j]);
             for (k = j + 1; k < n - 1; k += 2) {
                 k1 = k + 1;
@@ -2350,7 +2382,7 @@ List.det = function (a) {
         }
         ret = CSNumber.mult(ret, Aj.value[j]);
     }
-    const result = CSNumber.mult(ret, A.value[j].value[j]);
+    const result = CSNumber.mult(ret, work.value[j].value[j]);
     return result;
 };
 

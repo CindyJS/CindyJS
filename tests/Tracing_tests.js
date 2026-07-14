@@ -1,7 +1,6 @@
 var should = require("chai").should();
 var rewire = require("rewire");
 
-global.navigator = {};
 var cindyJS = rewire("../build/js/exposed.js");
 
 var List = cindyJS.__get__("List");

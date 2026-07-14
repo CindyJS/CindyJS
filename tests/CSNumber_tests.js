@@ -1,7 +1,6 @@
 var assert = require("chai").assert;
 var rewire = require("rewire");
 
-global.navigator = {};
 var cindyJS = rewire("../build/js/exposed.js");
 
 var List = cindyJS.__get__("List");
@@ -187,7 +186,7 @@ describe("Trigonometry", function () {
         function arctan2(a, b) {
             var z = CSNumber.add(a, CSNumber.mult(CSNumber.complex(0, 1), b));
             var r = CSNumber.sqrt(CSNumber.add(CSNumber.mult(a, a), CSNumber.mult(b, b)));
-            erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
+            var erg = CSNumber.mult(CSNumber.complex(0, -1), CSNumber.log(CSNumber.div(z, r)));
             return erg;
         }
         // test whether this formula is compatible with Math.atan2
