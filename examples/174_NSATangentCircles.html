@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            d = |A - B|;
+            drawtext((-9, 9), "dist(A, B) = " + format(d, 3) + "   (tangent at 6)");
+        </script>
+        <script type="text/javascript">
+            var cdy = CindyJS({
+                ports: [{ id: "CSCanvas", transform: [{ visibleRect: [-10, -10, 10, 10] }], grid: 1, snap: true }],
+                scripts: "cs*",
+                tracingStateReport: "tracingStateReport",
+                nsa: true,
+                geometry: [
+                    { name: "A", type: "Free", pos: [-2, 0] },
+                    { name: "B", type: "Free", pos: [2, 0] },
+                    { name: "C0", type: "CircleMr", args: ["A"], radius: 3, color: [0.8, 0, 0] },
+                    { name: "C1", type: "CircleMr", args: ["B"], radius: 3, color: [0, 0, 0.8] },
+                    { name: "Ps", type: "IntersectCirCir", args: ["C0", "C1"] },
+                    { name: "P", type: "SelectP", args: ["Ps"], index: 1, color: [0, 0.8, 0] },
+                    { name: "Q", type: "SelectP", args: ["Ps"], index: 2, color: [0, 0.8, 0] },
+                    { name: "r", type: "Join", args: ["P", "Q"], color: [0, 0.6, 0] },
+                ],
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Non-standard analysis at a tangency</h1>
+        <p>
+            Two circles of radius 3 and the line r through their intersection points P and Q (the radical axis). Drag B,
+            or use the buttons, so that the circles touch, and further apart, where P and Q become complex.
+        </p>
+        <p>
+            This widget uses <code>nsa: true</code> (see <a href="173_NSA.html">173_NSA.html</a>), but at a tangency
+            there is nothing for it to do: P and Q coincide, yet their positions are defined, and so is r, the common
+            tangent. Non-standard analysis only fills in values that would otherwise be undefined. It does not change
+            which intersection is P and which is Q, and the tracing state still reports that the tangent position is
+            singular. Moving on from there is handled by tracing, which continues from the last good position, just as
+            without it.
+        </p>
+        <p>
+            <button onclick="cdy.evokeCS('B.xy = (2, 0);')">Overlapping (dist 4)</button>
+            <button onclick="cdy.evokeCS('B.xy = (4, 0);')">Tangent (dist 6)</button>
+            <button onclick="cdy.evokeCS('B.xy = (6, 0);')">Apart (dist 8)</button>
+            <button onclick="cdy.evokeCS('B.xy = (1.6, 4.8);')">Tangent at an angle</button>
+        </p>
+        <div id="CSCanvas" style="width: 500px; height: 500px; border: 2px solid black"></div>
+        <p>Tracing state: <span id="tracingStateReport" style="font-weight: bold"></span></p>
+    </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cindy JS Example</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            drawtext((-7, 6.5), "x + y = " + format(S.x - O.x, 4), size -> 16);
+            drawtext((-7, 5.8), "x = " + format(X.x - O.x, 4) + ",  y = " + format(Y.x - O.x, 4), size -> 12);
+        </script>
+        <script type="text/javascript">
+            // x + y on the line g using only joins and meets (von Staudt).
+            // The construction degenerates when the auxiliary point E lies on g,
+            // although the sum does not depend on E at all.
+            var geometry = [
+                { name: "g", type: "HorizontalLine", pos: [0, 1, 0], color: [0, 0, 0] },
+                { name: "O", type: "PointOnLine", args: ["g"], pos: [-4, 0, 1], color: [0, 0, 0] },
+                { name: "X", type: "PointOnLine", args: ["g"], pos: [1, 0, 1], color: [0, 0.6, 0] },
+                { name: "Y", type: "PointOnLine", args: ["g"], pos: [2, 0, 1], color: [0, 0.6, 0] },
+                { name: "E", type: "Free", pos: [-2, 3], color: [1, 0, 0] },
+                { name: "c", type: "Para", args: ["g", "E"], color: [0.7, 0.7, 0.7] },
+                { name: "F", type: "PointOnLine", args: ["c"], pos: [2, 3, 1], color: [1, 0.5, 0] },
+                { name: "a", type: "Join", args: ["O", "E"], color: [0.7, 0.7, 0.7] },
+                { name: "d", type: "Join", args: ["Y", "F"], color: [0.7, 0.7, 0.7] },
+                { name: "G", type: "Meet", args: ["a", "d"], color: [0.5, 0.5, 0], size: 3 },
+                { name: "e", type: "Para", args: ["g", "G"], color: [0.7, 0.7, 0.7] },
+                { name: "b", type: "Join", args: ["X", "E"], color: [0.7, 0.7, 0.7] },
+                { name: "H", type: "Meet", args: ["b", "e"], color: [0.5, 0.5, 0], size: 3 },
+                { name: "f", type: "Join", args: ["H", "F"], color: [0.7, 0.7, 0.7] },
+                { name: "S", type: "Meet", args: ["f", "g"], color: [0, 0, 1], printname: "x+y" },
+            ];
+            var ports = function (id) {
+                return [{ id: id, transform: [{ visibleRect: [-8, -4, 8, 7] }], grid: 1, snap: true }];
+            };
+            var plain = CindyJS({
+                ports: ports("plain"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+            });
+            var nsa = CindyJS({
+                ports: ports("nsa"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+                nsa: true,
+            });
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Non-standard analysis for degenerate constructions</h1>
+        <p>
+            Both widgets construct the sum <i>x + y</i> of the points X and Y (measured from O) on the line g, using
+            joins and meets only. The construction needs an auxiliary point E off g. The result does not depend on E,
+            but when E lies on g the construction degenerates: lines that should meet in a point coincide.
+        </p>
+        <p>
+            Drag E onto g (it snaps to the grid), along g, onto X or Y, and move X and Y while E stays on g. On the left
+            the construction breaks down. On the right (<code>nsa: true</code>) undefined elements are evaluated
+            infinitely close to the degenerate position with Levi-Civita numbers, and their limit is shown wherever it
+            does not depend on how the position is approached. The sum is always such a limit, so it stays correct.
+        </p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap">
+            <div>
+                <p>Without nsa</p>
+                <div id="plain" style="width: 480px; height: 330px; border: 2px solid black"></div>
+            </div>
+            <div>
+                <p>With <code>nsa: true</code></p>
+                <div id="nsa" style="width: 480px; height: 330px; border: 2px solid black"></div>
+            </div>
+        </div>
+    </body>
+</html>

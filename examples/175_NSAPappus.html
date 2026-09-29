@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pappus with nsa</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            inc = abs(Y.homog * p.homog) / (abs(Y.homog) * abs(p.homog));
+            drawtext((-9.5, -3.4), "|<Y, p>| = " + format(inc, 8), size -> 14);
+        </script>
+        <script type="text/javascript">
+            // Pappus: A, B, C on g and D, E, F on h; the points X = AE.BD,
+            // Y = AF.CD and Z = BF.CE lie on a line p (here the join of X and Z).
+            // g and h pass through O. Moving points onto O, or onto each other,
+            // makes lines coincide, so that some of the joins and meets are
+            // undefined, although the configuration has a limit.
+            function PL(name, line, x, y) {
+                return { name: name, type: "PointOnLine", args: [line], pos: [x, y, 1], color: [1, 0, 0] };
+            }
+            function J(name, p, q, color) {
+                return { name: name, type: "Join", args: [p, q], color: color || [0.7, 0.7, 0.7], size: 1 };
+            }
+            function M(name, l, m) {
+                return { name: name, type: "Meet", args: [l, m], color: [0, 0, 1], size: 4 };
+            }
+            var geometry = [
+                { name: "O", type: "Free", pos: [4, 1], color: [0, 0, 0] },
+                { name: "G", type: "Free", pos: [-8, -2], color: [0, 0, 0], size: 3 },
+                { name: "H", type: "Free", pos: [-8, 7], color: [0, 0, 0], size: 3 },
+                J("g", "O", "G", [0, 0, 0]),
+                J("h", "O", "H", [0, 0, 0]),
+                PL("A", "g", -6, -1.5),
+                PL("B", "g", -3, -0.75),
+                PL("C", "g", 0, 0),
+                PL("D", "h", -6, 6),
+                PL("E", "h", -3, 4.5),
+                PL("F", "h", 0, 3),
+                J("ae", "A", "E"),
+                J("bd", "B", "D"),
+                J("af", "A", "F"),
+                J("cd", "C", "D"),
+                J("bf", "B", "F"),
+                J("ce", "C", "E"),
+                M("X", "ae", "bd"),
+                M("Y", "af", "cd"),
+                M("Z", "bf", "ce"),
+                J("p", "X", "Z", [0, 0.6, 0]),
+            ];
+            geometry.forEach(function (el) {
+                if (el.type !== "Join" || el.name === "g" || el.name === "h" || el.name === "p") el.labeled = true;
+            });
+            var ports = function (id) {
+                return [{ id: id, transform: [{ visibleRect: [-10, -4, 6, 9] }] }];
+            };
+            var plain = CindyJS({
+                ports: ports("plain"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+            });
+            var nsa = CindyJS({
+                ports: ports("nsa"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+                nsa: true,
+            });
+            // apply the same moves to both widgets
+            function both(script) {
+                plain.evokeCS(script);
+                nsa.evokeCS(script);
+            }
+            var start = geometry
+                .filter(function (el) {
+                    return el.pos;
+                })
+                .map(function (el) {
+                    var p = el.pos;
+                    return el.name + ".xy = (" + p[0] + ", " + p[1] + ");";
+                })
+                .join("");
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Pappus' theorem at degenerate positions</h1>
+        <p>
+            A, B, C lie on the line g and D, E, F on h, both through O. By Pappus' theorem the points X = AE &cap; BD, Y
+            = AF &cap; CD and Z = BF &cap; CE are collinear; p (green) is the join of X and Z, and the text shows how
+            far Y is off p (0 up to rounding).
+        </p>
+        <p>
+            Move points onto O or onto each other, by dragging or with the buttons (they move the points in both
+            widgets): lines coincide, and some joins and meets are undefined. On the left they break down; on the right
+            (<code>nsa: true</code>) they show their limit, approached along the last move, and Pappus' theorem still
+            holds.
+        </p>
+        <p>
+            <button onclick="both(start)">Start</button>
+            <button onclick="both(start + 'B.xy = O.xy;')">B onto O</button>
+            <button onclick="both(start + 'B.xy = O.xy; E.xy = O.xy;')">B and E onto O</button>
+            <button onclick="both(start + 'D.xy = E.xy; A.xy = B.xy;')">D onto E, A onto B</button>
+            <button onclick="both(start + 'G.xy = H.xy;')">G onto H (g = h)</button>
+        </p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap">
+            <div>
+                <p>Without nsa</p>
+                <div id="plain" style="width: 520px; height: 425px; border: 2px solid black"></div>
+            </div>
+            <div>
+                <p>With <code>nsa: true</code></p>
+                <div id="nsa" style="width: 520px; height: 425px; border: 2px solid black"></div>
+            </div>
+        </div>
+    </body>
+</html>

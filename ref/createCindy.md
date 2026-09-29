@@ -165,6 +165,53 @@ i.e. to that property being specified inside each port.
 A list containing geometric primitives.
 See the section “Geometry” for details.
 
+### nsa
+
+If set to `true`, geometric elements that would be undefined in a degenerate
+configuration show their limit instead, if the singularity is removable.
+Examples are the line joining two points that come together,
+or a construction that only degenerates for special positions of an auxiliary point
+(such as von Staudt's construction of a sum with the auxiliary point on the base line).
+Without this setting such elements are undefined and not drawn.
+
+The limit is computed with non-standard analysis:
+the construction is evaluated infinitely close to the degenerate configuration,
+with Levi-Civita numbers, and the projective shadow of the result is shown.
+A value is only shown if it does not depend on how the configuration is approached:
+
+* Right after an element was moved, its path is continued infinitesimally
+  before and beyond its end point; both must give the same result.
+  So the line joining two points that meet is the line along which they met.
+* Otherwise (for example for a construction loaded in a degenerate position)
+  all free elements are displaced infinitesimally in a few random directions,
+  each within its constraints (a point on a line stays on its line),
+  and all results must agree.
+
+If they do not agree, the singularity is not removable and the element stays undefined.
+For example the connecting line of the intersections of two equal circles
+whose centers coincide stays undefined if the centers are free,
+but is the perpendicular through the center if they are bound to a common line.
+In practice the check along the path rarely rejects anything in algebraic constructions;
+it mainly guards against numerical artifacts.
+
+This only fills in values that would otherwise be undefined.
+Tracing is not affected: which solution of an intersection is chosen,
+how the construction continues through a singularity such as two circles touching,
+and the tracing state report stay as without this setting.
+The one difference: an element that shows its limit continues from the limit
+in the following moves, where without this setting it continues from its last defined position.
+Some operations, e.g. intersecting two conics one of which is degenerate,
+can not be resolved and remain undefined.
+
+The setting costs nothing when it is off.
+When it is on, every move checks for degenerate elements, which costs a few percent,
+and every degenerate element takes several extra evaluations of the construction
+with slower arithmetic, so dragging through many degenerate positions becomes slower
+(about three to four times in the test suite, which is full of degenerate configurations).
+
+The method follows M. Strobel, *Non-standard Analysis in Projective Geometry*
+(dissertation, TU Munich).
+
 ### behavior
 
 For physics simulations.
