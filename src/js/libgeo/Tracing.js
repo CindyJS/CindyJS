@@ -234,6 +234,7 @@ function traceMover(mover, pos, type) {
         op = geoOps[el.type];
         isShowing(el, op);
     }
+    if (nsaHooks.afterMove) nsaHooks.afterMove(mover, originParam, targetParam, deps);
     if (traceLog && traceLog.currentMouseAndScripts) {
         traceLog.currentMouseAndScripts.push(
             List.turnIntoCSList([
@@ -302,6 +303,7 @@ function recalcAll() {
     stateOut = stateIn;
     stateIn = stateTmp;
     stateContinueFromHere();
+    if (nsaHooks.afterRecalc) nsaHooks.afterRecalc();
 }
 
 function tracingStateReport(failed) {
@@ -806,7 +808,48 @@ function tracing2Conics(c1, c2) {
 
 tracing2Conics.stateSize = 24;
 
+// The state and tracing functions the construction operations in GeoOps.js
+// use, collected in objects so that a different evaluator - the non-standard
+// analysis of Nsa.ts - can substitute its own implementations for the
+// duration of its computation, without anything in here knowing about it.
+const opState = {
+    getNumber: getStateComplexNumber,
+    getVector: getStateComplexVector,
+    putNumber: putStateComplexNumber,
+    putVector: putStateComplexVector,
+    setInIdx: setStateInIdx,
+    // n complex numbers from the last good state at index idx; does not move
+    // the read position
+    lastGoodVector: function (idx, n) {
+        const lst = new Array(n);
+        for (let i = 0; i < n; ++i)
+            lst[i] = CSNumber.complex(stateLastGood[idx + 2 * i], stateLastGood[idx + 2 * i + 1]);
+        return List.turnIntoCSList(lst);
+    },
+};
+const opTracers = {
+    tracing2,
+    tracing2core,
+    tracing4,
+    tracingSesq,
+    tracing2Conics,
+    requestRefinement,
+};
+
+// Entry points for Nsa.ts, which registers itself here: called after a move
+// has been traced completely, after a full recalculation and after loading a
+// construction. The prover sets `suspended` while it probes.
+const nsaHooks = {
+    afterMove: null,
+    afterRecalc: null,
+    afterLoad: null,
+    suspended: false,
+};
+
 export {
+    opState,
+    opTracers,
+    nsaHooks,
     traceMouseAndScripts,
     stateArrays,
     stateIn,
@@ -815,6 +858,7 @@ export {
     stateContinueFromHere,
     assert,
     stateLastGood,
+    tracingFailed,
     stateAlloc,
     stateOut,
     tracingInitial,

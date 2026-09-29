@@ -23,25 +23,17 @@ import { Render2D } from "libcs/Render2D";
 import { csport } from "libgeo/GeoState";
 import { onSegment } from "libgeo/GeoBasics";
 import {
-    putStateComplexVector,
-    getStateComplexVector,
     movepointscr,
     tracingInitial,
-    stateInIdx,
-    stateIn,
-    stateLastGood,
-    tracing2core,
     defaultParameterPath,
+    setTracingInitial,
+    // the tracing functions' state sizes
     tracing2,
-    putStateComplexNumber,
-    getStateComplexNumber,
-    tracingSesq,
     tracing2Conics,
     tracing4,
-    requestRefinement,
-    setStateIn,
-    setStateInIdx,
-    setTracingInitial,
+    // state and tracing functions used by the operations, see there
+    opState,
+    opTracers,
 } from "libgeo/Tracing";
 
 const geoOps = {};
@@ -114,7 +106,7 @@ geoOps.FreeLine.signature = [];
 geoOps.FreeLine.isMovable = true;
 geoOps.FreeLine.initialize = function (el) {
     const pos = geoOps._helper.initializeLine(el);
-    putStateComplexVector(pos);
+    opState.putVector(pos);
 };
 geoOps.FreeLine.getParamForInput = function (el, pos, type) {
     let homog;
@@ -129,14 +121,14 @@ geoOps.FreeLine.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(homog);
 };
 geoOps.FreeLine.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.FreeLine.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.FreeLine.updatePosition = function (el) {
-    const param = getStateComplexVector(3);
-    putStateComplexVector(param); // copy param
+    const param = opState.getVector(3);
+    opState.putVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.FreeLine.getRandomMove = geoOps._helper.getRandMove;
@@ -273,7 +265,7 @@ geoOps.HorizontalLine.initialize = function (el) {
     let pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([CSNumber.zero, pos.value[1], pos.value[2]]);
     pos = List.normalizeMax(pos);
-    putStateComplexVector(pos);
+    opState.putVector(pos);
 };
 geoOps.HorizontalLine.getParamForInput = function (el, pos, type) {
     if (type === "mouse") {
@@ -287,14 +279,14 @@ geoOps.HorizontalLine.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(pos);
 };
 geoOps.HorizontalLine.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.HorizontalLine.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.HorizontalLine.updatePosition = function (el) {
-    const param = getStateComplexVector(3);
-    putStateComplexVector(param); // copy param
+    const param = opState.getVector(3);
+    opState.putVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.HorizontalLine.getRandomMove = geoOps._helper.getRandMove;
@@ -320,7 +312,7 @@ geoOps.VerticalLine.initialize = function (el) {
     let pos = geoOps._helper.initializeLine(el);
     pos = List.turnIntoCSList([pos.value[0], CSNumber.zero, pos.value[2]]);
     pos = List.normalizeMax(pos);
-    putStateComplexVector(pos);
+    opState.putVector(pos);
 };
 geoOps.VerticalLine.getParamForInput = function (el, pos, type) {
     if (type === "mouse") {
@@ -334,14 +326,14 @@ geoOps.VerticalLine.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(pos);
 };
 geoOps.VerticalLine.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.VerticalLine.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.VerticalLine.updatePosition = function (el) {
-    const param = getStateComplexVector(3);
-    putStateComplexVector(param); // copy param
+    const param = opState.getVector(3);
+    opState.putVector(param); // copy param
     el.homog = General.withUsage(param, "Line");
 };
 geoOps.VerticalLine.getRandomMove = geoOps._helper.getRandMove;
@@ -382,7 +374,7 @@ geoOps.Through.initialize = function (el) {
     let dir;
     if (el.dir) dir = General.wrap(el.dir);
     else dir = List.realVector([el.pos[1], -el.pos[0], 0]);
-    putStateComplexVector(dir);
+    opState.putVector(dir);
 };
 geoOps.Through.getParamForInput = function (el, pos, type) {
     let l;
@@ -399,14 +391,14 @@ geoOps.Through.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(dir);
 };
 geoOps.Through.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.Through.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.Through.updatePosition = function (el) {
-    const dir = getStateComplexVector(3);
-    putStateComplexVector(dir); // copy param
+    const dir = opState.getVector(3);
+    opState.putVector(dir); // copy param
     const p1 = csgeo.csnames[el.args[0]].homog;
     let homog = List.cross(p1, dir);
     homog = List.normalizeMax(homog);
@@ -435,7 +427,7 @@ geoOps.Free.signature = [];
 geoOps.Free.isMovable = true;
 geoOps.Free.initialize = function (el) {
     const pos = geoOps._helper.initializePoint(el);
-    putStateComplexVector(pos);
+    opState.putVector(pos);
 };
 geoOps.Free.getParamForInput = function (el, pos, type) {
     if (type === "mouse" && cssnap && csgridsize !== 0) {
@@ -451,14 +443,14 @@ geoOps.Free.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(pos);
 };
 geoOps.Free.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.Free.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.Free.updatePosition = function (el) {
-    const param = getStateComplexVector(3);
-    putStateComplexVector(param); // copy param
+    const param = opState.getVector(3);
+    opState.putVector(param); // copy param
     el.homog = General.withUsage(param, "Point");
 };
 geoOps.Free.getRandomMove = geoOps._helper.getRandPointMove;
@@ -482,27 +474,23 @@ geoOps.PointOnLine.initialize = function (el) {
     point = List.normalizeMax(point);
     let other = List.cross(List.linfty, point);
     other = List.normalizeMax(other);
-    putStateComplexVector(point);
-    putStateComplexVector(line);
+    opState.putVector(point);
+    opState.putVector(line);
     setTracingInitial(false); // force updatePosition to do proper matching
 };
 geoOps.PointOnLine.updatePosition = function (el, isMover) {
     let newPoint;
     const newLine = csgeo.csnames[el.args[0]].homog;
-    const oldPoint = getStateComplexVector(3);
-    const oldLine = getStateComplexVector(3);
+    const oldPoint = opState.getVector(3);
+    const oldLine = opState.getVector(3);
 
     if (isMover) {
         newPoint = oldPoint;
     } else {
         // Also read from last good, which is real,
         // instead of only stateIn which might be complex.
-        setStateInIdx(el.stateIdx);
-        const tmpIn = stateIn;
-        setStateIn(stateLastGood);
-        const realPoint = getStateComplexVector(3);
-        const realLine = getStateComplexVector(3);
-        setStateIn(tmpIn);
+        const realPoint = opState.lastGoodVector(el.stateIdx, 3);
+        const realLine = opState.lastGoodVector(el.stateIdx + 6, 3);
 
         let center = List.cross(realLine, newLine);
         //if (CSNumber._helper.isAlmostZero(List.scalproduct(newLine, realPoint))) {
@@ -517,12 +505,12 @@ geoOps.PointOnLine.updatePosition = function (el, isMover) {
         const circle = geoOps._helper.CircleMP(center, realPoint);
         const newCandidates = geoOps._helper.IntersectLC(newLine, circle);
         const oldAntipode = geoOps._helper.pointReflection(center, oldPoint);
-        const res = tracing2core(newCandidates[0], newCandidates[1], oldPoint, oldAntipode);
+        const res = opTracers.tracing2core(newCandidates[0], newCandidates[1], oldPoint, oldAntipode);
         newPoint = res[0];
     }
     newPoint = List.normalizeMax(newPoint);
-    putStateComplexVector(newPoint);
-    putStateComplexVector(newLine);
+    opState.putVector(newPoint);
+    opState.putVector(newLine);
     el.homog = General.withUsage(newPoint, "Point");
 };
 geoOps.PointOnLine.getParamForInput = function (el, pos, type) {
@@ -534,10 +522,10 @@ geoOps.PointOnLine.getParamForInput = function (el, pos, type) {
     return pos;
 };
 geoOps.PointOnLine.getParamFromState = function (el) {
-    return getStateComplexVector(3); // point is first state element
+    return opState.getVector(3); // point is first state element
 };
 geoOps.PointOnLine.putParamToState = function (el, param) {
-    return putStateComplexVector(param);
+    return opState.putVector(param);
 };
 geoOps.PointOnLine.getRandomMove = geoOps._helper.getRandPointMove;
 geoOps.PointOnLine.stateSize = 12;
@@ -565,24 +553,24 @@ geoOps.PointOnCircle.initialize = function (el) {
         pos = candidates[0];
         other = candidates[1];
     }
-    putStateComplexVector(param);
-    putStateComplexVector(pos);
-    putStateComplexVector(other);
+    opState.putVector(param);
+    opState.putVector(pos);
+    opState.putVector(other);
     setTracingInitial(false); // force updatePosition to do proper matching
 };
 geoOps.PointOnCircle.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.PointOnCircle.getParamFromState = function (el) {
-    return getStateComplexVector(3);
+    return opState.getVector(3);
 };
 geoOps.PointOnCircle.getParamForInput = function (el, pos, type) {
     const circle = csgeo.csnames[el.args[0]];
     const mid = List.normalizeZ(geoOps._helper.CenterOfCircle(circle.matrix));
     let dir = List.sub(pos, mid);
-    setStateInIdx(el.stateIdx);
-    const oldparam = getStateComplexVector(3);
-    const oldpos = List.normalizeZ(getStateComplexVector(3));
+    opState.setInIdx(el.stateIdx);
+    const oldparam = opState.getVector(3);
+    const oldpos = List.normalizeZ(opState.getVector(3));
     const olddir = List.sub(oldpos, mid);
     const oldSign = CSNumber.sub(
         CSNumber.mult(oldparam.value[0], olddir.value[1]),
@@ -630,12 +618,12 @@ geoOps.PointOnCircle.parameterPath = function (el, tr, tc, src, dst) {
     return res;
 };
 geoOps.PointOnCircle.updatePosition = function (el) {
-    const param = getStateComplexVector(3);
-    putStateComplexVector(param); // copy parameter
+    const param = opState.getVector(3);
+    opState.putVector(param); // copy parameter
     const circle = csgeo.csnames[el.args[0]];
     const diameter = List.productMV(circle.matrix, param);
     let candidates = geoOps._helper.IntersectLC(diameter, circle.matrix);
-    candidates = tracing2(candidates[0], candidates[1]);
+    candidates = opTracers.tracing2(candidates[0], candidates[1]);
     const pos = List.normalizeMax(candidates.value[0]);
     el.homog = General.withUsage(pos, "Point");
     el.antipodalPoint = candidates.value[1];
@@ -722,7 +710,7 @@ geoOps.PointOnSegment.isMovable = true;
 geoOps.PointOnSegment.initialize = function (el) {
     const pos = geoOps._helper.initializePoint(el);
     const cr = geoOps.PointOnSegment.getParamForInput(el, pos);
-    putStateComplexNumber(cr);
+    opState.putNumber(cr);
 };
 geoOps.PointOnSegment.getParamForInput = function (el, pos, type) {
     const seg = csgeo.csnames[el.args[0]];
@@ -741,14 +729,14 @@ geoOps.PointOnSegment.getParamForInput = function (el, pos, type) {
     return cr;
 };
 geoOps.PointOnSegment.getParamFromState = function (el) {
-    return getStateComplexNumber();
+    return opState.getNumber();
 };
 geoOps.PointOnSegment.putParamToState = function (el, param) {
-    putStateComplexNumber(param);
+    opState.putNumber(param);
 };
 geoOps.PointOnSegment.updatePosition = function (el) {
-    const param = getStateComplexNumber();
-    putStateComplexNumber(param); // copy parameter
+    const param = opState.getNumber();
+    opState.putNumber(param); // copy parameter
     const seg = csgeo.csnames[el.args[0]];
     const start = seg.startpos;
     const end = seg.endpos;
@@ -781,7 +769,7 @@ geoOps.PointOnArc.isMovable = true;
 geoOps.PointOnArc.initialize = function (el) {
     const pos = geoOps._helper.initializePoint(el);
     const cr = geoOps.PointOnArc.getParamForInput(el, pos);
-    putStateComplexVector(cr);
+    opState.putVector(cr);
 };
 geoOps.PointOnArc.getParamForInput = function (el, pos) {
     const arc = csgeo.csnames[el.args[0]];
@@ -802,10 +790,10 @@ geoOps.PointOnArc.getParamForInput = function (el, pos) {
     return crh;
 };
 geoOps.PointOnArc.getParamFromState = function (el) {
-    return getStateComplexVector(2);
+    return opState.getVector(2);
 };
 geoOps.PointOnArc.putParamToState = function (el, param) {
-    putStateComplexVector(param);
+    opState.putVector(param);
 };
 geoOps.PointOnArc.updatePosition = function (el) {
     const arc = csgeo.csnames[el.args[0]];
@@ -828,8 +816,8 @@ geoOps.PointOnArc.updatePosition = function (el) {
     const ab = List.productMV(List.adjoint2(M2x2), v2x1);
     const a = ab.value[0];
     const c = ab.value[1];
-    const crh = getStateComplexVector(2);
-    putStateComplexVector(crh);
+    const crh = opState.getVector(2);
+    opState.putVector(crh);
     const Q = List.normalizeMax(
         List.add(List.scalmult(CSNumber.mult(a, crh.value[0]), A), List.scalmult(CSNumber.mult(c, crh.value[1]), C))
     );
@@ -903,7 +891,7 @@ geoOps.CircleMr.kind = "C";
 geoOps.CircleMr.signature = ["P"];
 geoOps.CircleMr.isMovable = true;
 geoOps.CircleMr.initialize = function (el) {
-    putStateComplexNumber(CSNumber.real(el.radius));
+    opState.putNumber(CSNumber.real(el.radius));
 };
 geoOps.CircleMr.getParamForInput = function (el, pos, type) {
     if (type === "radius") return pos;
@@ -915,14 +903,14 @@ geoOps.CircleMr.getParamForInput = function (el, pos, type) {
     return rad;
 };
 geoOps.CircleMr.getParamFromState = function (el) {
-    return getStateComplexNumber();
+    return opState.getNumber();
 };
 geoOps.CircleMr.putParamToState = function (el, param) {
-    putStateComplexNumber(param);
+    opState.putNumber(param);
 };
 geoOps.CircleMr.updatePosition = function (el) {
-    const r = getStateComplexNumber();
-    putStateComplexNumber(r); // copy param
+    const r = opState.getNumber();
+    opState.putNumber(r); // copy param
     const m = csgeo.csnames[el.args[0]].homog;
     /*
     The circle's radius value may take on values from zero to infinity.
@@ -1083,14 +1071,14 @@ geoOps.FreeConic.getParamForInput = function (el, pos, type) {
     return List.normalizeMax(pos);
 };
 geoOps.FreeConic.getParamFromState = function (el) {
-    return geoOps._helper.buildConicMatrix(getStateComplexVector(6).value);
+    return geoOps._helper.buildConicMatrix(opState.getVector(6).value);
 };
 geoOps.FreeConic.putParamToState = function (el, param) {
-    for (let i = 0; i < 3; ++i) for (let j = 0; j <= i; ++j) putStateComplexNumber(param.value[i].value[j]);
+    for (let i = 0; i < 3; ++i) for (let j = 0; j <= i; ++j) opState.putNumber(param.value[i].value[j]);
 };
 geoOps.FreeConic.updatePosition = function (el) {
-    const pos = getStateComplexVector(6);
-    putStateComplexVector(pos);
+    const pos = opState.getVector(6);
+    opState.putVector(pos);
     el.matrix = geoOps._helper.buildConicMatrix(pos.value);
     el.matrix = List.normalizeMax(el.matrix);
     el.matrix = General.withUsage(el.matrix, "Conic");
@@ -1241,7 +1229,7 @@ geoOps._helper.ConicBy4p1l = function (el, a, b, c, d, l) {
     const k2 = List.scalmult(r2, a2);
     const x = List.normalizeMax(List.add(k1, k2));
     const y = List.normalizeMax(List.sub(k1, k2));
-    const xy = tracing2(x, y);
+    const xy = opTracers.tracing2(x, y);
     const t1 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[0]);
     const t2 = geoOps._helper.ConicBy5(el, a, b, c, d, xy.value[1]);
     return [List.normalizeMax(t1), List.normalizeMax(t2)];
@@ -1342,7 +1330,7 @@ geoOps.ConicBy3p2l.updatePosition = function (el) {
     const g = csgeo.csnames[el.args[3]].homog;
     const h = csgeo.csnames[el.args[4]].homog;
     let newVecs = geoOps._helper.ConicBy3p2l(a, b, c, g, h);
-    newVecs = tracingSesq(newVecs);
+    newVecs = opTracers.tracingSesq(newVecs);
     const res = new Array(4);
     for (let i = 0; i < 4; ++i) {
         const v = newVecs[i].value;
@@ -1367,7 +1355,7 @@ geoOps.ConicBy2p3l.updatePosition = function (el) {
     const l = csgeo.csnames[el.args[4]].homog;
     const oldVecs = el.tracing;
     let newVecs = geoOps._helper.ConicBy3p2l(g, h, l, a, b);
-    newVecs = tracingSesq(newVecs);
+    newVecs = opTracers.tracingSesq(newVecs);
     const res = new Array(4);
     for (let i = 0; i < 4; ++i) {
         const v = newVecs[i].value;
@@ -1700,7 +1688,7 @@ geoOps.ConicBy1Pol2P1L.updatePosition = function (el) {
     M2 = List.add(M2, transpose(M2));
     const res1 = List.normalizeMax(List.add(M1, M2));
     const res2 = List.normalizeMax(List.sub(M1, M2));
-    el.results = tracing2Conics(res1, res2).value;
+    el.results = opTracers.tracing2Conics(res1, res2).value;
 };
 geoOps.ConicBy1Pol2P1L.stateSize = tracing2Conics.stateSize;
 
@@ -1792,7 +1780,7 @@ geoOps.ConicBy1Pol1P2L.updatePosition = function (el) {
     M2 = List.add(M2, transpose(M2));
     const res1 = List.normalizeMax(List.add(M1, M2));
     const res2 = List.normalizeMax(List.sub(M1, M2));
-    el.results = tracing2Conics(res1, res2).value;
+    el.results = opTracers.tracing2Conics(res1, res2).value;
 };
 geoOps.ConicBy1Pol1P2L.stateSize = tracing2Conics.stateSize;
 
@@ -1951,7 +1939,7 @@ geoOps.AngleBisector.updatePosition = function (el) {
     let res2 = add(na, nb);
     if (isAlmostZero(res1)) res1 = cross(cross(cross(linfty, res2), linfty), p);
     if (isAlmostZero(res2)) res2 = cross(cross(cross(linfty, res1), linfty), p);
-    el.results = tracing2(nm(res1), nm(res2));
+    el.results = opTracers.tracing2(nm(res1), nm(res2));
 };
 geoOps.AngleBisector.stateSize = tracing2.stateSize;
 
@@ -2010,7 +1998,7 @@ geoOps.IntersectLC.updatePosition = function (el) {
     const erg = geoOps._helper.IntersectLC(l, c);
     const erg1 = erg[0];
     const erg2 = erg[1];
-    el.results = tracing2(erg1, erg2);
+    el.results = opTracers.tracing2(erg1, erg2);
 };
 geoOps.IntersectLC.stateSize = tracing2.stateSize;
 
@@ -2054,7 +2042,7 @@ geoOps.IntersectCirCir.updatePosition = function (el) {
     const erg = geoOps._helper.IntersectLC(ll, c1);
     const erg1 = erg[0];
     const erg2 = erg[1];
-    el.results = tracing2(erg1, erg2);
+    el.results = opTracers.tracing2(erg1, erg2);
 };
 geoOps.IntersectCirCir.stateSize = tracing2.stateSize;
 
@@ -2194,7 +2182,7 @@ geoOps.IntersectConicConic.updatePosition = function (el) {
     const BB = csgeo.csnames[el.args[1]].matrix;
 
     let erg = geoOps._helper.IntersectConicConic(AA, BB);
-    erg = tracing4(erg[0], erg[1], erg[2], erg[3]);
+    erg = opTracers.tracing4(erg[0], erg[1], erg[2], erg[3]);
     el.results = erg;
     //    el.results = List.turnIntoCSList(erg);
 };
@@ -3064,7 +3052,7 @@ geoOps.Angle.kind = "V";
 geoOps.Angle.signature = ["L", "L", "P"];
 geoOps.Angle.initialize = function (el) {
     if (el.angle === undefined) el.angle = 0.5 * Math.PI;
-    putStateComplexNumber(CSNumber._helper.input(el.angle));
+    opState.putNumber(CSNumber._helper.input(el.angle));
 };
 geoOps.Angle.updatePosition = function (el) {
     const a = csgeo.csnames[el.args[0]].homog;
@@ -3074,12 +3062,12 @@ geoOps.Angle.updatePosition = function (el) {
     const bp = List.cross(b, List.linfty);
     const cr = List.crossratio3(ap, bp, List.ii, List.jj, p);
     let ang = CSNumber.mult(CSNumber.complex(0, 0.5), CSNumber.log(cr));
-    const prev = getStateComplexNumber();
+    const prev = opState.getNumber();
     const diff = (prev.value.real - ang.value.real) / Math.PI;
     const winding = Math.round(diff);
-    if (!tracingInitial && Math.abs(winding - diff) > 1e-2) requestRefinement();
+    if (!tracingInitial && Math.abs(winding - diff) > 1e-2) opTracers.requestRefinement();
     ang = CSNumber.complex(winding * Math.PI + ang.value.real, ang.value.imag);
-    putStateComplexNumber(ang);
+    opState.putNumber(ang);
     el.value = General.withUsage(ang, "Angle");
 };
 geoOps.Angle.stateSize = 2;
