@@ -32,6 +32,7 @@ exports.libgeo = [
     "src/js/libgeo/Tracing.js",
     "src/js/libgeo/Prover.js",
     "src/js/libgeo/GeoOps.js",
+    "build/ts/libgeo/Nsa.js", // non-standard analysis for degenerate constructions
     "src/js/libgeo/GeoScripts.js",
     "src/js/libgeo/StateIO.js",
 ];
