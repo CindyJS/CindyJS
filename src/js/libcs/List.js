@@ -471,6 +471,32 @@ List.set = function (a1) {
 
 ///////////////////////////
 
+// Whether any number in a (possibly nested) list carries a Levi-Civita series
+// (see CSNumber.ts).
+List._helper.hasLC = function (a) {
+    const vs = a.value;
+    for (let i = 0; i < vs.length; i++) {
+        const v = vs[i];
+        if (v.ctype === "number") {
+            if (v.value.lc !== undefined) return true;
+        } else if (v.ctype === "list" && List._helper.hasLC(v)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+// The standard part of a list of numbers that may carry Levi-Civita series.
+List.standardPart = function (a) {
+    return List.turnIntoCSList(
+        a.value.map((v) => {
+            if (v.ctype === "number") return CSNumber.standardPart(v);
+            if (v.ctype === "list") return List.standardPart(v);
+            return v;
+        })
+    );
+};
+
 List.maxval = function (a) {
     //Only for Lists or Lists of Lists that contain numbers
     //Used for Normalize max

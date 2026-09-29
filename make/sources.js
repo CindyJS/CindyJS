@@ -1,8 +1,10 @@
 "use strict";
 
 exports.libcs = [
+    "build/ts/libcs/LeviCivita.js", // Levi-Civita numbers; used by CSNumber
     "build/ts/libcs/CSNumber.js", // now handled by typescript compiler
     "src/js/libcs/List.js",
+    "build/ts/libcs/LeviCivitaMode.js", // CSNumber and List on Levi-Civita numbers
     "build/ts/libcs/Json.js",
     "src/js/libcs/Dict.js",
     "src/js/libcs/General.js",
