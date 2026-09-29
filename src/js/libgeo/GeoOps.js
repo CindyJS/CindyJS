@@ -100,6 +100,58 @@ geoOps._helper.getRandPointMove = function (el) {
     };
 };
 
+// Whether the two arguments of el are (nearly) the same point or line, so that
+// the cross product of their coordinates is rounding noise. Used by the
+// non-standard analysis of Nsa.ts, which recomputes such elements as limits.
+geoOps._helper.argsCoincide = function (el) {
+    return geoOps._helper.homogsCoincide(el, 0, 1);
+};
+
+// Whether two of the arguments of el (all of them, or those at `indices`)
+// coincide: e.g. a circle through three points, two of which coincide, is not
+// determined.
+geoOps._helper.someArgsCoincide = function (el, indices) {
+    const idx = indices || el.args.map((_, i) => i);
+    for (let i = 0; i < idx.length; i++)
+        for (let j = i + 1; j < idx.length; j++) if (geoOps._helper.homogsCoincide(el, idx[i], idx[j])) return true;
+    return false;
+};
+
+// Whether the arguments i and j of el coincide up to rounding, i.e. their
+// directions differ by less than CSNumber.eps: |a x b|^2 <= eps^2 |a|^2 |b|^2.
+// With nsa it runs after every move, hence on the raw coordinates, without
+// allocations. (False for Levi-Civita values: their raw coordinates are NaN,
+// and so are the comparisons.)
+geoOps._helper.homogsCoincide = function (el, i, j) {
+    const a = csgeo.csnames[el.args[i]].homog.value;
+    const b = csgeo.csnames[el.args[j]].homog.value;
+    const h = geoOps._helper;
+    const c =
+        h.absDiffOfProducts2(a[1], b[2], a[2], b[1]) +
+        h.absDiffOfProducts2(a[2], b[0], a[0], b[2]) +
+        h.absDiffOfProducts2(a[0], b[1], a[1], b[0]);
+    const eps = CSNumber.eps;
+    return c <= eps * eps * h.abs2Vector(a) * h.abs2Vector(b);
+};
+
+// |x y - z w|^2 for complex numbers x, y, z, w
+geoOps._helper.absDiffOfProducts2 = function (x, y, z, w) {
+    const X = x.value,
+        Y = y.value,
+        Z = z.value,
+        W = w.value;
+    const re = X.real * Y.real - X.imag * Y.imag - (Z.real * W.real - Z.imag * W.imag);
+    const im = X.real * Y.imag + X.imag * Y.real - (Z.real * W.imag + Z.imag * W.real);
+    return re * re + im * im;
+};
+
+// sum of |v_i|^2 over the entries (complex numbers) of v
+geoOps._helper.abs2Vector = function (v) {
+    let s = 0;
+    for (const x of v) s += x.value.real * x.value.real + x.value.imag * x.value.imag;
+    return s;
+};
+
 geoOps.FreeLine = {};
 geoOps.FreeLine.kind = "L";
 geoOps.FreeLine.signature = [];
@@ -148,6 +200,9 @@ geoOps.RandomPoint.updatePosition = function (el) {
 geoOps.Join = {};
 geoOps.Join.kind = "L";
 geoOps.Join.signature = ["P", "P"];
+geoOps.Join.isDegenerate = function (el) {
+    return geoOps._helper.argsCoincide(el);
+};
 geoOps.Join.updatePosition = function (el) {
     const el1 = csgeo.csnames[el.args[0]];
     const el2 = csgeo.csnames[el.args[1]];
@@ -159,6 +214,9 @@ geoOps.Join.updatePosition = function (el) {
 geoOps.Segment = {};
 geoOps.Segment.kind = "S";
 geoOps.Segment.signature = ["P", "P"];
+geoOps.Segment.isDegenerate = function (el) {
+    return geoOps._helper.argsCoincide(el);
+};
 geoOps.Segment.updatePosition = function (el) {
     const el1 = csgeo.csnames[el.args[0]];
     const el2 = csgeo.csnames[el.args[1]];
@@ -185,6 +243,9 @@ geoOps.Segment.setSegmentPos = function (el, line, start, end) {
 geoOps.Meet = {};
 geoOps.Meet.kind = "P";
 geoOps.Meet.signature = ["L", "L"];
+geoOps.Meet.isDegenerate = function (el) {
+    return geoOps._helper.argsCoincide(el);
+};
 geoOps.Meet.updatePosition = function (el) {
     const el1 = csgeo.csnames[el.args[0]];
     const el2 = csgeo.csnames[el.args[1]];
@@ -597,7 +658,9 @@ geoOps.PointOnCircle.parameterPath = function (el, tr, tc, src, dst) {
     sp = List.scalproduct(src, mid);
     if (sp.value.real < 0) mid = List.neg(mid);
     let t2, dt;
-    if (tr < 0) {
+    if (tr === undefined) {
+        // called with the curve parameter tc itself (by Nsa.ts), keep it
+    } else if (tr < 0) {
         tr = 2 * tr + 1;
         t2 = tr * tr;
         dt = 0.25 / (1 + t2);
@@ -997,20 +1060,20 @@ geoOps.Compass.updatePosition = function (el) {
 
 geoOps._helper.getConicType = function (C) {
     const myEps = 1e-16;
-    const adet = CSNumber.abs(List.det(C));
-
-    if (adet.value.real < myEps) {
+    // threshold tests via CSNumber, so that they also classify the conics
+    // computed with infinitesimals in Nsa.ts correctly
+    if (CSNumber._helper.absBelow(List.det(C), myEps)) {
         return "degenerate";
     }
 
     let det = CSNumber.mult(C.value[0].value[0], C.value[1].value[1]);
     det = CSNumber.sub(det, CSNumber.pow(C.value[0].value[1], CSNumber.real(2)));
+    det = CSNumber.re(det);
 
-    det = det.value.real;
-
-    if (Math.abs(det) < myEps) {
+    if (CSNumber._helper.absBelow(det, myEps)) {
         return "parabola";
-    } else if (det > myEps) {
+    } else if (CSNumber._helper.realSign(CSNumber.sub(det, CSNumber.real(myEps))) > 0) {
+        // (det > myEps for ordinary numbers, exactly)
         return "ellipsoid";
     } else {
         return "hyperbola";
@@ -1044,6 +1107,9 @@ geoOps._helper.conicFromTwoDegenerates = function (v23, v14, v12, v34, p) {
 geoOps.ConicBy5 = {};
 geoOps.ConicBy5.kind = "C";
 geoOps.ConicBy5.signature = ["P", "P", "P", "P", "P"];
+geoOps.ConicBy5.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el);
+};
 geoOps.ConicBy5.updatePosition = function (el) {
     const a = csgeo.csnames[el.args[0]].homog;
     const b = csgeo.csnames[el.args[1]].homog;
@@ -1130,7 +1196,7 @@ geoOps._helper.splitDegenConic = function (mat) {
     }
 
     const beta = CSNumber.sqrt(CSNumber.mult(CSNumber.real(-1), adj_mat.value[idx].value[idx]));
-    if (CSNumber.abs2(beta).value.real < 1e-16) {
+    if (CSNumber._helper.absBelow(CSNumber.abs2(beta), 1e-16)) {
         const zeros = List.turnIntoCSList([CSNumber.zero, CSNumber.zero, CSNumber.zero]);
         return [zeros, zeros];
     }
@@ -1238,6 +1304,10 @@ geoOps._helper.ConicBy4p1l = function (el, a, b, c, d, l) {
 geoOps.ConicBy4p1l = {};
 geoOps.ConicBy4p1l.kind = "Cs";
 geoOps.ConicBy4p1l.signature = ["P", "P", "P", "P", "L"];
+// not determined through a point twice
+geoOps.ConicBy4p1l.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el, [0, 1, 2, 3]);
+};
 geoOps.ConicBy4p1l.updatePosition = function (el) {
     const a = csgeo.csnames[el.args[0]].homog;
     const b = csgeo.csnames[el.args[1]].homog;
@@ -1373,6 +1443,10 @@ geoOps.ConicBy2p3l.stateSize = 48;
 geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.kind = "Cs";
 geoOps.ConicBy1p4l.signature = ["P", "L", "L", "L", "L"];
+// not determined tangent to a line twice
+geoOps.ConicBy1p4l.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el, [1, 2, 3, 4]);
+};
 geoOps.ConicBy1p4l.updatePosition = function (el) {
     const p = csgeo.csnames[el.args[0]].homog;
     const l1 = csgeo.csnames[el.args[1]].homog;
@@ -1650,6 +1724,10 @@ geoOps.ConicBy1Pol3L.updatePosition = function (el) {
 geoOps.ConicBy1Pol2P1L = {};
 geoOps.ConicBy1Pol2P1L.kind = "Cs";
 geoOps.ConicBy1Pol2P1L.signature = ["P", "L", "P", "P", "L"];
+// one of the two is not determined through a point twice
+geoOps.ConicBy1Pol2P1L.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el, [2, 3]);
+};
 geoOps.ConicBy1Pol2P1L.updatePosition = function (el) {
     const A = csgeo.csnames[el.args[0]].homog;
     const a = csgeo.csnames[el.args[1]].homog;
@@ -1699,6 +1777,10 @@ geoOps.ConicBy1Pol2P1L.stateSize = tracing2Conics.stateSize;
 geoOps.ConicBy1Pol1P2L = {};
 geoOps.ConicBy1Pol1P2L.kind = "Cs";
 geoOps.ConicBy1Pol1P2L.signature = ["P", "L", "P", "L", "L"];
+// one of the two is not determined tangent to a line twice
+geoOps.ConicBy1Pol1P2L.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el, [3, 4]);
+};
 geoOps.ConicBy1Pol1P2L.updatePosition = function (el) {
     const A = csgeo.csnames[el.args[0]].homog;
     const a = csgeo.csnames[el.args[1]].homog;
@@ -1867,6 +1949,9 @@ geoOps.ConicFromPrincipalDirections.updatePosition = function (el) {
 geoOps.CircleBy3 = {};
 geoOps.CircleBy3.kind = "C";
 geoOps.CircleBy3.signature = ["P", "P", "P"];
+geoOps.CircleBy3.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el);
+};
 geoOps.CircleBy3.updatePosition = function (el) {
     const a = csgeo.csnames[el.args[0]].homog;
     const b = csgeo.csnames[el.args[1]].homog;
@@ -1882,6 +1967,9 @@ geoOps.CircleBy3.updatePosition = function (el) {
 geoOps.ArcBy3 = {};
 geoOps.ArcBy3.kind = "C";
 geoOps.ArcBy3.signature = ["P", "P", "P"];
+geoOps.ArcBy3.isDegenerate = function (el) {
+    return geoOps._helper.someArgsCoincide(el);
+};
 geoOps.ArcBy3.updatePosition = function (el) {
     geoOps.CircleBy3.updatePosition(el);
     el.startPoint = csgeo.csnames[el.args[0]].homog;
