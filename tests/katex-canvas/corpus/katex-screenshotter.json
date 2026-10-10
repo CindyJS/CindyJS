@@ -1,0 +1,399 @@
+{
+    "Accents": {
+        "tex": "\\vec{A}\\vec{x}\\vec x^2\\vec{x}_2^2\\vec{A}^2\\vec{xA}^2\\; \\underbar{X}"
+    },
+    "AccentsText": {
+        "tex": "\\begin{array}{lccccc}\n\\text{\\'\\i} & \\text{\\.\\i} & \\text{\\`\\i} & \\text{\\\"\\i} & \\text{\\H\\i} & \\text{\\r\\i} \\\\\n\\text{\\'\\j} & \\text{\\.\\j} & \\text{\\`\\j} & \\text{\\\"\\j} & \\text{\\H\\j} & \\text{\\r\\j} \\\\\n\\text{\\'a} & \\text{\\.a} & \\text{\\`a} & \\text{\\\"a} & \\text{\\H{a}} & \\text{\\r{a}} \\\\\n\\text{\\'A} & \\text{\\.A} & \\text{\\`A} & \\text{\\\"A} & \\text{\\H{A}} & \\text{\\r{A}} \\\\\n\\text{\\.I İ} & \\text{\\H e e̋} & \\text{\\i ı}\n\\end{array}"
+    },
+    "Align": {
+        "tex": "\\begin{align}\n  a &= 1 & b &= 2 \\\\\n  3a &= 3 & 17b &= 34 \\\\\n  \\tag{$\\ast$} a &\\neq b \\\\\n  \\nonumber a &={}? & b &={}? \\\\\n\\end{align}",
+        "display": true
+    },
+    "Aligned": {
+        "tex": "\\begin{aligned}\n    a &= 1 & b &= 2 \\\\\n    3a &= 3 & 17b &= 34\n\\end{aligned}"
+    },
+    "Alignedat": {
+        "tex": "\\begin{alignedat}{3}\n    a &= 1 & b &= 2 &\\quad c &= 3\\\\\n    3a &= 3 & 17b &= 34 &\\quad 400c &= 1200\n\\end{alignedat}"
+    },
+    "Arrays": {
+        "tex": "\\left(\\begin{array}{|rl:c||}\n    1&2&3\\\\ \\hline\n    1+1&2+1&3+1\\cr1\\over2&\\scriptstyle 1/2&\\frac12\\\\[1ex] \\hline \\hdashline\n    \\begin{pmatrix}x\\\\y\\end{pmatrix}&0&\\begin{vmatrix}a&b\\\\c&d\\end{vmatrix}\n\\end{array}\\right] \\\\\n\\begin{smallmatrix} a & b \\\\ c & d \\end{smallmatrix} \\;\\;\n\\begin{subarray}{c}a \\\\ b\\end{subarray}"
+    },
+    "ArrayMode": {
+        "tex": "\\begin{matrix}\n    \\frac{\\partial^2 f}{\\partial x_1^2} & \\frac{\\partial^2 f}{\\partial x_1\\,\\partial x_2} & \\cdots & \\frac{\\partial^2 f}{\\partial x_1\\,\\partial x_n} \\\\\n    \\frac{\\partial^2 f}{\\partial x_2\\,\\partial x_1} & \\frac{\\partial^2 f}{\\partial x_2^2} & \\cdots & \\frac{\\partial^2 f}{\\partial x_2\\,\\partial x_n} \\\\\n    \\vdots & \\vdots & \\ddots & \\vdots \\\\\n    \\frac{\\partial^2 f}{\\partial x_n\\,\\partial x_1} & \\frac{\\partial^2 f}{\\partial x_n\\,\\partial x_2} & \\cdots & \\frac{\\partial^2 f}{\\partial x_n^2}\n\\end{matrix}",
+        "display": true
+    },
+    "ArrayType": {
+        "tex": "1\\begin{array}{c}2\\\\3\\end{array}4"
+    },
+    "ArrayRemoveEmptyLine": {
+        "tex": "\\begin{pmatrix}\n    1 \\\\\n    2 \\\\\n\\end{pmatrix}"
+    },
+    "Baseline": {
+        "tex": "a+b-c\\cdot d/e"
+    },
+    "BasicTest": {
+        "tex": "a"
+    },
+    "BinCancellation": {
+        "tex": "\\begin{array}{cccc}\n    +1 & 1+ & 1+1 & (,) \\\\\n    1++1 & 3\\times) & 1+, & \\left(,\\right)\n\\end{array}"
+    },
+    "BinomTest": {
+        "tex": "\\dbinom{a}{b}\\tbinom{a}{b}^{\\binom{a}{b}+17}{\\scriptscriptstyle \\binom a b}"
+    },
+    "BoldSpacing": {
+        "tex": "\\mathbf{A}^2+\\mathbf{B}_3*\\mathscr{C}'"
+    },
+    "BoldSymbol": {
+        "tex": "\\sum_{\\boldsymbol{\\alpha}}^{\\boldsymbol{\\beta}} \\boldsymbol{\\omega}+ \\boldsymbol{\\int_\\alpha^\\beta} \\boldsymbol{\\Omega + {}} \\\\\n\\boldsymbol{\\lim_{x \\to \\infty} \\log Ax2k\\omega\\Omega\\imath+} \\\\\nx \\boldsymbol{+} y \\boldsymbol{=} z"
+    },
+    "Boxed": {
+        "tex": "\\begin{array}{l}\n  \\boxed{F=ma} \\quad \\boxed{ac}\\color{magenta}{\\boxed{F}}\\boxed{F=mg} \\\\[2em]\n  A_{\\angl n} + B_{\\angl g} + C_\\angln\n\\end{array}"
+    },
+    "Cases": {
+        "tex": "f(a,b)=\\begin{cases}\n    a+1&\\text{if }b\\text{ is odd} \\\\\n    a&\\text{if }b=0 \\\\\n    a-1&\\text{otherwise}\n\\end{cases} \\\\\n\\begin{rcases}\n    a &\\text{if } b \\\\\n    c &\\text{if } d\n\\end{rcases}⇒…"
+    },
+    "CD": {
+        "tex": "\\begin{CD} A @<a<< B @>>b> C \\\\ @| @AcAA @VVdV \\\\ D @= E @>>> F \\end{CD}",
+        "display": true
+    },
+    "Colors": {
+        "tex": "\\blue{a}\\textcolor{#0f0}{b}\\textcolor{red}{c}"
+    },
+    "ColorImplicit": {
+        "tex": "\\begin{array}{l} bl{ack\\color{red}red\\textcolor{green}{green}red\\color{blue}blue}black \\\\ black\\left(black\\color{red}red\\right)black \\end{array}"
+    },
+    "ColorSpacing": {
+        "tex": "\\textcolor{red}{\\displaystyle \\int x} + 1"
+    },
+    "Colorbox": {
+        "tex": "a \\colorbox{teal} B \\fcolorbox{blue}{red}{C} e+\\colorbox{teal}x"
+    },
+    "DashesAndQuotes": {
+        "tex": "\\begin{array}{l}\n    \\text{``a'' b---c -- d----`e'-{-}-f} -- \\\\\n    \\text{\\it ``a'' b---c -- d----`e'-{-}-f} ``x'' \\\\\n    \\text{\\tt ``a''---} \\texttt{``a''---} \\mathtt{--} \\\\\n\\end{array}"
+    },
+    "DeepFontSizing": {
+        "tex": "a^{\\big| x^{\\big(}}_{\\Big\\uparrow} +\ni^{i^{\\Huge x}_y}_{\\Huge z} +\n\\dfrac{\\Huge x}{y}"
+    },
+    "DelimiterSizing": {
+        "tex": "\\bigl\\uparrow\\Bigl\\downarrow\\biggl\\updownarrow\n\\Biggl\\Uparrow\\Biggr\\Downarrow\\biggr\\langle\\Bigr\\}\\bigr\\rfloor\\; \\Set{ x | x<\\frac 1 2 } \\\\\n\\begin{pmatrix}\n    a & b & c\\\\\n    a & b & c\\\\\n    a & b & c\\\\\n\\end{pmatrix}\\; \\begin{bmatrix}\n    a & b & c\\\\\n    a & b & c\\\\\n    a & b & c\\\\\n\\end{bmatrix} \\\\\n\\Braket{ ϕ | \\frac{∂^2}{∂ t^2} | ψ } \\\\"
+    },
+    "DisplayMode": {
+        "tex": "\\sum_{i=0}^\\infty \\frac{1}{i}",
+        "display": true
+    },
+    "DisplayStyle": {
+        "tex": "{\\displaystyle\\sqrt{x}}{\\sqrt{x}}\n{\\displaystyle \\frac12}{\\frac12}{\\displaystyle x^1_2}{x^1_2}"
+    },
+    "Dots": {
+        "tex": "\\begin{array}{l}\n  \\cdots;\\dots+\\dots\\int\\dots,\\dots \\\\\n  \\cdots{};\\ldots+\\ldots\\int\\ldots,\\ldots\n\\end{array}"
+    },
+    "Equation": {
+        "tex": "\\begin{equation}\\begin{split}a& =b+c-d \\\\ & \\quad +e-f \\\\ & =g+h \\\\ & =i \\end{split}\\end{equation}",
+        "display": true
+    },
+    "Exponents": {
+        "tex": "a^{a^a_a}_{a^a_a}"
+    },
+    "ExtensibleArrows": {
+        "tex": "\\begin{array}{l}\n    \\xrightarrow[ab]{ABC} + \\xRightarrow{ABC} \\\\\n    \\xrightleftharpoons[ab]{ABC} + \\xhookrightarrow[ab]{ABC} \\\\\n    \\xtwoheadrightarrow{ABC} + \\frac{\\xrightarrow[ab]{ABC}}{\\xrightarrow[ab]{ABC}} + \\left\\lvert\\xrightarrow[ab]{ABC}\\right\\rvert\n\\end{array}"
+    },
+    "FractionTest": {
+        "tex": "\\begin{array}{l}\n    \\dfrac{a}{b}\\frac{a}{b}\\tfrac{a}{b}\\;-\\dfrac12\\;1\\tfrac12\\;{1 \\atop 2} \n    \\; {a \\brace b} \\; {a \\brack b} \\\\[1em]\n    \\genfrac \\{ ]{0.8pt}{0}{a}{b} \\; {a \\above1.0pt b} \\; \\cfrac{1}{1+\\cfrac{1}{x}} \n     \\xrightarrow[\\dfrac g h]{\\displaystyle\\frac g h} \\; \\xrightarrow [2.\\, \\dfrac c d] {1.\\, \\displaystyle\\frac c d}\n\\end{array}"
+    },
+    "Functions": {
+        "tex": "\\sin\\cos\\tan\\ln\\log"
+    },
+    "Gather": {
+        "tex": "\\begin{gather} a=\\frac 1 2 \\\\ e=b+c \\end{gather}",
+        "display": true
+    },
+    "Gathered": {
+        "tex": "\\begin{gathered}\n  x = \\frac{1}{2} \\\\\n  y = \\sum_{i=1}^n i\n\\end{gathered} \\approx\n\\begin{array}{c}\n  x = \\frac{1}{2} \\\\\n  y = \\sum_{i=1}^n i\n\\end{array}"
+    },
+    "GreekLetters": {
+        "tex": "\\alpha\\beta\\gamma\\omega"
+    },
+    "GreekUnicode": {
+        "tex": "\\frac{αβγδεϵζηθϑικλμνξοπϖρϱςστυφϕχψω}{ΓΔΘΞΠΣΦΨΩϝ\\mathbf{Ω}\\mathbf{\\Omega}}"
+    },
+    "GroupMacros": {
+        "tex": "\\startExp a+b\\endExp",
+        "macros": {
+            "\\startExp": "e^\\bgroup",
+            "\\endExp": "\\egroup"
+        }
+    },
+    "HorizontalBraces": {
+        "tex": "\\overbrace{\\displaystyle{\\oint_S{\\vec E\\cdot\\hat n\\,\\mathrm d a}}}^\\text{emf} = \\underbrace{\\frac{q_{\\text{enc}}}{\\varepsilon_0}}_{\\text{charge}}"
+    },
+    "HorizontalBrackets": {
+        "tex": "\\overbracket{\\displaystyle{a+b+c}}^{\\text{note}} = \\underbracket{x+y+z}_{\\text{label}}"
+    },
+    "HTML": {
+        "tex": "\\htmlId{a}{a+}b\\htmlStyle{color:red;}{+c}"
+    },
+    "Includegraphics": {
+        "tex": "\\def\\logo{\\includegraphics[height=0.8em, totalheight=0.9em, width=0.9em, alt=KA logo]{../../ref/img/Ex1.png}}\n\\def\\logoB{\\includegraphics[height=0.4em, totalheight=0.9em, width=0.9em, alt=KA logo]{../../ref/img/Ex1.png}}\n\\begin{array}{l}\n    \\underline{A\\logo} + \\sqrt{\\logo} + \\tfrac{A\\logo}{\\logo}\\\\[1em]\n    \\underline{A\\logoB} + \\sqrt{x\\logoB} + \\tfrac{A\\logoB}{\\logoB}\n\\end{array}"
+    },
+    "Integrands": {
+        "tex": "\\begin{array}{l}\n    \\displaystyle \\int + \\oint + \\iint + \\oiint_i^n \\\\[0.6em]\n    \\displaystyle \\iiint + \\oiiint + \\textstyle \\int + \\oint_i^n \\\\[0.6em]\n    \\iint + \\oiint + \\iiint + \\oiiint \\\\[0.6em]\n    \\int\\limits^x_{y + 4 - a} \\int\\limits^x_{y + 4 - a}\n\\end{array}"
+    },
+    "KaTeX": {
+        "tex": "\\KaTeX, \\large \\KaTeX"
+    },
+    "Kern": {
+        "tex": "\\frac{a\\kern{1em}b}{c}a\\kern{1em}b\\kern{1ex}c\\kern{-0.25em}d"
+    },
+    "Lap": {
+        "tex": "\\begin{array}{l}\n    ab\\mathllap{f}cd\\mathrlap{g}hij\\mathclap{k}lm \\; ab\\llap{f}cd\\rlap{g}hij\\clap{k}lm \\\\\n    \\mathrlap{\\frac a b} \\frac a b \\\\\n    \\mathrlap{\\overbrace{\\phantom{a_0+a_1+a_2}}^m}a_0+a_1+a_2\n\\end{array}"
+    },
+    "LargeRuleNumerator": {
+        "tex": "\\frac{\\textcolor{blue}{\\rule{1em}{2em}}}{x}"
+    },
+    "LaTeX": {
+        "tex": "\\text{\\LaTeX}, \\text{\\TeX}, \\large \\text{\\LaTeX}, \\text{\\TeX}"
+    },
+    "LeftRight": {
+        "tex": "\\left( x^2 \\right) \\left\\{ x^{x^{x^{x^x}}} \\right."
+    },
+    "LeftRightListStyling": {
+        "tex": "a+\\left(x+y\\right)-x"
+    },
+    "LeftRightMiddle": {
+        "tex": "\\left( x^2 \\middle/ \\right) \\left\\{ x^{x^{x^{x^x}}} \\middle/ y \\right.\\left(x\\middle|y\\,\\middle|\\,z\\right)"
+    },
+    "LeftRightStyleSizing": {
+        "tex": "+\\left\\{\\rule{0.1em}{1em}\\right.\nx^{+\\left\\{\\rule{0.1em}{1em}\\right.\nx^{+\\left\\{\\rule{0.1em}{1em}\\right.}}"
+    },
+    "LimitControls": {
+        "tex": "\\displaystyle\\int\\limits_2^3 3x^2\\,dx + \\sum\\nolimits^n_{i=1}i +\n\\textstyle\\int\\limits_x^y z"
+    },
+    "LineBreak": {
+        "tex": "\\frac{x^2}{y^2} + z^2 =\nz^2 + \\frac{x^2}{y^2} =\n\\frac{x^2}{y^2} +\\nobreak z^2 =\nz^2 + \\frac{x^2}{y^2} =\n\\frac{x^2}{y^2} + ~ z^2 =\nz^2 + \\frac{x^2}{y^2} =\n\\frac{x^2}{y^2} + \\hspace{1em} z^2 =\nz^2 + \\frac{x^2}{y^2} =\n\\frac{x^2}{y^2} + z^2 = \\hspace*{1em}\nz^2 + \\frac{x^2}{y^2} =\n\\frac{x^2}{y^2} + z^2 =\nhi \\allowbreak there =\nhi \\allowbreak there"
+    },
+    "LowerAccent": {
+        "tex": "\\begin{matrix}\n    \\underleftarrow{AB} \\quad \\underrightarrow{AB} \\quad \\underleftrightarrow{AB} \\quad \\undergroup{AB} \\\\\n    \\underlinesegment{AB} \\quad \\utilde{AB}  \\quad \\color{green}{\\underrightarrow{AB}} \\\\\n    \\underrightarrow{F} + \\underrightarrow{AB} + \\underrightarrow{AB}^2 + \\underrightarrow{AB}_2 \\\\\n    \\frac{\\underrightarrow{AB}}{\\underrightarrow{AB}} + \\sqrt{\\underrightarrow{AB}} + \\left\\lvert\\underrightarrow{AB}\\right\\rvert \\\\\n    \\text{\\underline{text}}\n\\end{matrix}"
+    },
+    "Mapsfrom": {
+        "tex": "\\begin{gathered}\n    a \\mapsfrom b \\quad c ↤ d \\quad \\mapsfrom -x \\\\\n    x_{a \\mapsfrom b} \\quad x_{y_{a \\mapsfrom b}}\n\\end{gathered}"
+    },
+    "MathAtom": {
+        "tex": "a\\mathrel{\\mathop{=}\\limits^{\\blue ?}}b"
+    },
+    "MathAtom2": {
+        "tex": "\\mathop{\\overline{\\mathrm{lim}}}\\limits_{x\\to\\infty}f(x)"
+    },
+    "MathChoice": {
+        "tex": "{\\displaystyle\\mathchoice{D}{T}{S}{SS}} {\\textstyle\\mathchoice{D}{T}{S}{SS}} {\\scriptstyle \\mathchoice{D}{T}{S}{SS}} {\\scriptscriptstyle\\mathchoice{D}{T}{S}{SS}} \\displaystyle X_{\\mathchoice{D}{T}{S}{SS}_{\\mathchoice{D}{T}{S}{SS}}}"
+    },
+    "MathDefaultFonts": {
+        "tex": "Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX"
+    },
+    "MathBb": {
+        "tex": "\\mathbb{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathBf": {
+        "tex": "\\mathbf{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathCal": {
+        "tex": "\\mathcal{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathFrak": {
+        "tex": "\\mathfrak{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathIt": {
+        "tex": "\\mathit{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathNormal": {
+        "tex": "\\mathnormal{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathOp": {
+        "tex": "a\\mathop+b\\mathop:c\\mathop{\\delta}e\\mathop{\\textrm{and}}f\\mathrel{\\mathop{:}}=g\\sin h"
+    },
+    "MathRm": {
+        "tex": "\\mathrm{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathSf": {
+        "tex": "\\mathsf{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathSfIt": {
+        "tex": "\\mathsfit{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathScr": {
+        "tex": "\\mathscr{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "MathtoolsMatrix": {
+        "tex": "\\begin{matrix*}[l] a & -1 \\\\ -1 & d \\end{matrix*} \\; \\begin{pmatrix*}[r] a & -1 \\\\ -1 & d \\end{pmatrix*}"
+    },
+    "MathTt": {
+        "tex": "\\mathtt{Ax2k\\breve{a}\\omega\\Omega\\imath+\\KaTeX}"
+    },
+    "Mod": {
+        "tex": "\\begin{array}{cc}\n    a \\bmod 2 & b \\pod 3 \\\\\n    c \\pmod{4} & d \\mod{56} \\\\\n    \\displaystyle a\\bmod 2 & \\displaystyle b \\pod 3 \\\\\n    \\displaystyle c\\pmod{4} & \\displaystyle d \\mod{56}\n\\end{array}"
+    },
+    "ModScript": {
+        "tex": "\\begin{array}{cc}\n    \\scriptstyle a\\bmod 2 & \\scriptstyle b \\pod 3 \\\\\n    \\scriptstyle c\\pmod{4} & \\scriptstyle d \\mod{56}\n\\end{array}"
+    },
+    "ModSpacing": {
+        "tex": "\\begin{array}{l}\n    (a \\cdot b) \\bmod 257 \\\\\n    (a \\cdot b) \\mkern1mu\\mathbin{\\mathrm{mod}}\\mkern1mu 257 \\\\\n    (a \\cdot b) \\mathbin{\\mathrm{mod}} 257\n\\end{array}"
+    },
+    "NegativeSpaceBetweenRel": {
+        "tex": "A =\\!= B"
+    },
+    "NegativeSpace": {
+        "tex": "\\boxed{\\$1,\\!000,\\!000}\\KaTeX"
+    },
+    "NestedFractions": {
+        "tex": "\\dfrac{\\frac{a}{b}}{\\frac{c}{d}}\\dfrac{\\dfrac{a}{b}}\n{\\dfrac{c}{d}}\\frac{\\frac{a}{b}}{\\frac{c}{d}}"
+    },
+    "NewLine": {
+        "tex": "\\frac{a^2+b^2}{c^2} \\newline\n\\frac{a^2+b^2}{c^2} \\\\[1ex]\n\\begin{pmatrix}\n    a & b \\\\\n    c & d \\cr\n\\end{pmatrix} \\\\\na+b+c+{d+\\\\e}+f+g"
+    },
+    "Not": {
+        "tex": "\\begin{array}{l}\n    \\not=\\not>\\not\\geq\\not\\in\\not<\\not\\leq\\not{abc} \\\\\n    \\not xy + ab \\not xy \\\\\n    a \\neq b \\notin c\n\\end{array}"
+    },
+    "NullDelimiterInteraction": {
+        "tex": "a \\bigl. + 2 \\quad \\left. + a \\right)"
+    },
+    "OldFont": {
+        "tex": "\\begin{matrix}\n  \\rm rm & it & \\it it & \\bf bf & \\sf sf & \\tt tt \\\\\n  \\text{\\rm rm} & \\text{rm} & \\text{\\it it} & \\text{\\bf bf} & \\text{\\sf sf} & \\text{\\tt tt} \\\\\n  i\\rm r\\it i & \\text{r\\it i\\rm r}\n\\end{matrix}"
+    },
+    "OperatorName": {
+        "tex": "\\begin{matrix}\n    \\operatorname g (z) + 5\\operatorname{g}z + \\operatorname{Gam-ma}(z) \\\\\n    \\operatorname{Gam ma}(z) + \\operatorname{\\Gamma}(z) + \\operatorname{}x \\\\\n    \\operatorname*{asin} x + \\operatorname*{asin}_y x + \\operatorname*{asin}\\limits_y x \\\\[0.3em]\n    {\\displaystyle \\operatorname*{asin}_y x}\n\\end{matrix}"
+    },
+    "OpLimits": {
+        "tex": "\\begin{matrix}\n    {\\sin_2^2 \\lim_2^2 \\int_2^2 \\sum_2^2}\n    {\\displaystyle \\lim_2^2 \\int_2^2 \\intop_2^2 \\sum_2^2} \\\\\n    \\limsup_{x \\rightarrow \\infty} x \\stackrel{?}= \\liminf_{x \\rightarrow \\infty} x \\\\\n    {\\displaystyle \\limsup_{x \\rightarrow \\infty} x\\:\\: \\sum_{\\substack{0<i<m\\\\0<j<n}}}\n\\end{matrix}"
+    },
+    "OverUnderline": {
+        "tex": "x\\underline{x}\\underline{\\underline{x}}\\underline{x_{x_{x_x}}}\\underline{x^{x^{x^x}}}\\overline{x}\\overline{x}\\overline{x^{x^{x^x}}} \\blue{\\overline{\\underline{x}}\\underline{\\overline{x}}}"
+    },
+    "OverUnderset": {
+        "tex": "\\begin{array}{l}\nx\\overset?=1 \\quad \\underset{*}{x}^2 \\quad \\overset{a}{b}b\\underset{a}{b}b \\\\\n{\\displaystyle\\lim_{t\\underset{>0}\\to0}}\\\\\na+b+c+d\\overset{b+c=0}\\longrightarrow a+d\\\\\n\\overset { x = y } { \\sqrt { a b } }\n\\end{array}"
+    },
+    "Phantom": {
+        "tex": "\\begin{array}{l} \\dfrac{1+\\phantom{x^{\\blue{2}}} = x}{1+x^{\\blue{2}} = x} \\left(\\vphantom{\\int_t} zzz \\right) \\left( X \\hphantom{\\frac{\\frac X X}{X}} \\right)\\\\ \\text{a \\phantom{123}} b \\hphantom{\\frac{1}{2}}=c \\vphantom{101112} d \\\\ \\sqrt{\\mathstrut a} + \\sqrt{\\mathstrut d} \\end{array}"
+    },
+    "Phase": {
+        "tex": "120\\text{V}\\phase{-78.2^\\circ}\\;\\Large\\phase{78.2^\\circ}"
+    },
+    "Pmb": {
+        "tex": "\\mu\\pmb{\\mu}\\pmb{=}\\mu\\pmb{+}\\mu"
+    },
+    "PrimeSpacing": {
+        "tex": "f'+f_2'+f^{f'}"
+    },
+    "PrimeSuper": {
+        "tex": "x'^2+x'''^2+x'^2_3+x_3'^2"
+    },
+    "Raisebox": {
+        "tex": "\\begin{matrix} \\frac{a}{a\\raisebox{0.5em}{b}} \\cdot \\frac{a\\raisebox{-0.5em}{b}}{a} \\cdot \\sqrt{a\\raisebox{0.5em}{b}} \\cdot \\sqrt{a\\raisebox{-0.5em}{b}} \\cdot \\sqrt{a\\raisebox{0.5em}{b}\\raisebox{-0.5em}{b}} \\\\[2em] a + \\left(\\vcenter{\\hbox{$\\frac{a+b}{\\dfrac{c}{d}}$}}\\right) \\end {matrix}"
+    },
+    "ReactionArrows": {
+        "tex": "\\begin{matrix}\n    A \\xrightleftarrows{} B \\xrightequilibrium{} C \\xleftequilibrium{} D \\\\\n    A \\xrightleftarrows{over} B \\xrightequilibrium{over} C \\xleftequilibrium{over} D\n\\end{matrix}"
+    },
+    "Reflectbox": {
+        "tex": "\\begin{gathered}\n    a + \\reflectbox{abc} = b \\\\\n    \\reflectbox{$x^2 + \\frac{a}{b}$}\n    \\quad \\mathreflectbox{x^2 + \\frac{a}{b}} \\\\\n    x_{\\mathreflectbox{\\frac{a}{b}}} \\quad x_{\\frac{a}{b}}\n\\end{gathered}"
+    },
+    "RelativeUnits": {
+        "tex": "\\begin{array}{ll}\n    a\\kern1emb^{a\\kern1emb^{a\\kern1emb}} &\n    {\\footnotesize a\\kern1emb^{a\\kern1emb^{a\\kern1emb}}} \\\\\n    a\\mkern18mub^{a\\mkern18mub^{a\\mkern18mub}} &\n    {\\footnotesize a\\mkern18mub^{a\\mkern18mub^{a\\mkern18mub}}} \\\\\n    \\rule{1em}{1em}^{\\rule{1em}{1em}}\\rule{18mu}{18mu}^{\\rule{18mu}{18mu}} &\n    {\\footnotesize\\rule{1em}{1em}^{\\rule{1em}{1em}}\\rule{18mu}{18mu}^{\\rule{18mu}{18mu}}}\n\\end{array}"
+    },
+    "RlapBug": {
+        "tex": "\\frac{\\mathrlap{x}}{2}"
+    },
+    "Rule": {
+        "tex": "\\rule{1em}{0.5em}\\rule{1ex}{2ex}\\rule{1em}{1ex}\\rule{1em}{0.431ex}"
+    },
+    "SizingBaseline": {
+        "tex": "{\\tiny a+b}a+b{\\Huge a+b}"
+    },
+    "Sizing": {
+        "tex": "{\\Huge x}{\\LARGE y}{\\normalsize z}{\\scriptsize w}\\sqrt[\\small 3]{x+1}"
+    },
+    "Smash": {
+        "tex": "\\left( X^{\\smash 2} \\right) \\sqrt{\\smash[b]{y=}}"
+    },
+    "Spacing": {
+        "tex": "\\begin{matrix}\n    ^3+[-1][1-1]1=1(=1)\\lvert a\\rvert~b \\\\\n    \\scriptstyle{^3+[-1][1-1]1=1(=1)\\lvert a\\rvert~b} \\\\\n    \\scriptscriptstyle{^3+[-1][1-1]1=1(=1)\\lvert a\\rvert~b} \\\\\n    a : a \\colon a \\\\\n\\end{matrix}"
+    },
+    "Sqrt": {
+        "tex": "\\sqrt{\\sqrt{\\sqrt{x}}}_{\\sqrt{\\sqrt{x}}}^{\\sqrt{\\sqrt{\\sqrt{x}}}\n^{\\sqrt{\\sqrt{\\sqrt{x}}}}} \\\\\n\\sqrt{\\frac{\\frac{A}{B}}{\\frac{A}{B}}} \\;\n\\sqrt{\\frac{\\frac{\\frac{A}{B}}{\\frac{A}{B}}}{\\frac{\\frac{A}{B}}{\\frac{A}{B}}}}"
+    },
+    "SqrtRoot": {
+        "tex": "\\begin{array}{l}\n    1+\\sqrt[3]{2}+\\sqrt[1923^234]{2^{2^{2^{2^{2^{2^{2^{2^{2^{2^{2^2}}}}}}}}}}} \\\\\n    \\Huge \\sqrt[3]{M} + x^{\\sqrt[3] a}\n\\end{array}"
+    },
+    "StackRel": {
+        "tex": "a \\stackrel{?}{=} b \\stackrel{\\text{def}}{=} c"
+    },
+    "StretchyAccent": {
+        "tex": "\\begin{array}{l}\n    \\overrightarrow{AB} \\quad \\overleftarrow{AB} \\quad \\Overrightarrow{AB} \\quad \\overleftrightarrow{AB} \\quad \\overgroup{AB} \\\\\n    \\overlinesegment{AB} \\quad \\overleftharpoon{AB} \\quad \\overrightharpoon{AB} \\quad \\left(\\underleftarrow{\\frac{value}{j}}\\right)  \\\\\n    \\widecheck{AB} \\quad \\widehat{ABC} \\quad \\widetilde{AB} \\quad \\widetilde{ABC} \\\\\n    \\overrightarrow{F} + \\overrightarrow{AB} + \\overrightarrow{F}^2 + \\overrightarrow{F}_2 + \\overrightarrow{F}_1^2 \\\\\n    \\overrightarrow{AB}^2+\\frac{\\overrightarrow{AB}}{\\overrightarrow{AB}} + \\sqrt{\\overrightarrow{AB}} + \\left\\lvert\\overrightarrow{AB}\\right\\rvert\n\\end{array}"
+    },
+    "StretchyAccentColor": {
+        "tex": "\\red{\\overrightarrow{AB}} \\quad \\color{blue}{\\overleftarrow{AB}} \\quad \\color{blue}{\\green{\\Overrightarrow{AB}}} \\quad \\widehat{\\theta} \\widetilde{A}"
+    },
+    "StrikeThrough": {
+        "tex": "\\begin{array}{l}\n    \\cancel x \\quad \\cancel{2B} + \\bcancel 5 +\\bcancel{5ay} \\\\\n    \\text{\\sout{5ab}} + \\text{\\sout{5ABC}} + \\xcancel{\\oint_S{\\vec E\\cdot\\hat n\\,\\mathrm d a}} \\\\[0.3em]\n    \\frac{x+\\cancel B}{x+\\cancel x} + \\frac{x+\\cancel y}{x} + \\cancel{B}_1^2 + \\cancel{B^2} \\\\[0.2em]\n    \\left\\lvert\\cancel{ac}\\right\\rvert\n\\end{array}"
+    },
+    "StrikeThroughColor": {
+        "tex": "\\begin{array}{l}\n    \\red{\\cancel x \\quad \\cancel{2B} + \\bcancel 5 +\\bcancel{5ay}} \\\\\n    \\color{green}{\\text{\\sout{5ab}} + \\text{\\sout{5ABC}} + \\xcancel{\\oint_S{\\vec E\\cdot\\hat n\\,\\mathrm d a}}}\n\\end{array}"
+    },
+    "StyleSpacing": {
+        "tex": "\\scriptstyle ab\\;cd"
+    },
+    "StyleSwitching": {
+        "tex": "a\\cdot b\\scriptstyle a\\cdot ba\\textstyle\\cdot ba\\scriptstyle\\cdot b"
+    },
+    "SupSubCharacterBox": {
+        "tex": "a_2f_2{f}_2{aa}_2{af}_2\\mathbf{y}_Ay_A"
+    },
+    "SupSubHorizSpacing": {
+        "tex": "x^{x^{x}}\\Big|x_{x_{x_{x_{x}}}}\\bigg|x^{x^{x_{x_{x_{x_{x}}}}}}\\bigg|"
+    },
+    "SupSubLeftAlignReset": {
+        "tex": "\\omega^8_{888} \\quad \\frac{1}{\\hat{\\omega}^{8}_{888}} \\quad \\displaystyle\\sum_{\\omega^{8}_{888}}"
+    },
+    "SupSubOffsets": {
+        "tex": "\\displaystyle \\int_{2+3}x f^{2+3}+3\\lim_{2+3+4+5}f"
+    },
+    "SurrogatePairs": {
+        "tex": "\\begin{array}{l}\n    𝐀𝐚𝟎𝐴𝑎𝑨𝒂𝔅𝔞𝔸𝒜 \\\\\n    𝖠𝖺𝟢𝗔𝗮𝟬𝘈𝘢𝙰𝚊𝟶 \\\\\n    \\text{𝐀𝐚𝟎𝐴𝑎𝑨𝒂𝔅𝔞𝔸𝒜} \\\\\n    \\text{𝖠𝖺𝟢𝗔𝗮𝟬𝘈𝘢𝙰𝚊𝟶} \\\\\n    \\mathrm{𝐀𝐚𝑨𝒂𝔅𝔞𝔸𝒜} \\\\\n\\end{array}"
+    },
+    "SvgReset": {
+        "tex": "\\underbrace{\\sqrt{\\vec{x}} + \\sqrt{\\vec{\\color{#f00}y}}}"
+    },
+    "Symbols1": {
+        "tex": "\\maltese\\degree\\pounds\\$\\minuso\n\\text{\\maltese\\degree\\pounds\\textdollar}"
+    },
+    "Tag": {
+        "tex": "\\tag{$+$hi} \\frac{x^2}{y}+x^{2^y}",
+        "display": true
+    },
+    "Text": {
+        "tex": "\\frac{a}{b}\\text{c~ {ab} \\ e}+fg"
+    },
+    "TextSpace": {
+        "tex": "\\begin{array}{l} \\texttt{12345678901234} \\\\ \\texttt{A test  1~~2\\ \\ 3} \\\\ \\verb|A test 1  2  3| \\end{array}"
+    },
+    "TextStacked": {
+        "tex": "\\begin{matrix} \\textsf{abc123 \\textbf{abc123} \\textit{abc123}}\\\\ \\text{abc123 \\textbf{abc123} \\textit{abc123}}\\\\ \\textrm{abc123 \\textbf{abc123} \\textit{abc123}}\\\\ \\textsf{\\textrm{\\textbf{abc123}} \\textbf{abc123} \\textit{abc123}}\\\\ \\textit{abc123 \\textbf{abc123} \\textsf{abc123}}\\\\ \\end{matrix}"
+    },
+    "TextWithMath": {
+        "tex": "\\begin{matrix} \\text{for $a < b$ and $ c < d $}. \\\\ \\textsf{for $a < b$ and $ c < d $}. \\\\ \\textsf{for $a < b \\textbf{ and } c < d $} \\\\ \\text{\\sf for $a < b$ and $c < d$.} \\end{matrix}"
+    },
+    "Unicode": {
+        "tex": "\\begin{matrix}\\text{ÀàÇçÉéÏïÖöÛû} \\\\ \\text{БГДЖЗЙЛФЦШЫЮЯ} \\\\ \\text{여보세요} \\\\ \\text{私はバナナです} \\end{matrix}"
+    },
+    "Units": {
+        "tex": "\\begin{array}{ll}\n  \\mathrm H\\kern 1em\\mathrm H \\text{\\tiny (1em)}\n  & \\mathrm H\\kern 1ex\\mathrm H \\text{\\tiny (1ex)} \\\\\n  \\mathrm H{\\scriptstyle \\kern 1em}\\mathrm H \\text{\\tiny (ss 1em)}\n  & \\mathrm H{\\scriptstyle \\kern 1ex}\\mathrm H \\text{\\tiny (ss 1ex)} \\\\\n  \\mathrm H{\\small \\kern 1em}\\mathrm H \\text{\\tiny (sm 1em)}\n  & \\mathrm H{\\small \\kern 1ex}\\mathrm H \\text{\\tiny (sm 1ex)} \\\\\n  \\mathrm H\\mkern 18mu\\mathrm H \\text{\\tiny (18mu)}\n  & \\mathrm H\\kern 1cm\\mathrm H \\text{\\tiny (1cm)} \\\\\n  \\mathrm H{\\scriptstyle \\mkern 18mu}\\mathrm H \\text{\\tiny (ss 18mu)}\n  & \\mathrm H{\\scriptstyle \\kern 1cm}\\mathrm H \\text{\\tiny (ss 1cm)} \\\\\n  \\mathrm H{\\small \\mkern 18mu}\\mathrm H \\text{\\tiny (sm 18mu)}\n  & \\mathrm H{\\small \\kern 1cm}\\mathrm H \\text{\\tiny (sm 1cm)}\n\\end{array}"
+    },
+    "UnsupportedCmds": {
+        "tex": "\\err\\,\\frac\\fracerr3\\,2^\\superr_\\suberr\\,\\sqrt\\sqrterr",
+        "noThrow": true,
+        "errorColor": "#dd4c4c"
+    },
+    "Verb": {
+        "tex": "\\begin{array}{ll}\n  \\verb \\verb ,   & \\verb|\\verb  |, \\\\\n  \\verb* \\verb* , & \\verb*|\\verb* |, \\\\\n  \\verb!<x> & </y>! & \\scriptstyle\\verb|ss verb| \\\\\n  \\verb*!<x> & </y>! & \\small\\verb|sm verb| \\\\\n  \\verb|``---''~|\n\\end{array}"
+    },
+    "VerticalSpacing": {
+        "tex": "x^{\\Huge y}z"
+    }
+}

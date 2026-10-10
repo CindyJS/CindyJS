@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>KaTeX: HTML vs. canvas</title>
+        <!--
+            Interactive counterpart of the KaTeX comparison suite in
+            tests/katex-canvas: renders a formula as KaTeX's HTML output, with
+            the canvas backend of the KaTeX plugin and with the old KaTeX 0.7
+            canvas fork CindyJS used before. Loads the plugin's sources and
+            KaTeX from node_modules directly, so it needs a checkout with
+            `npm install` done, served from the repository root, e.g. with
+            `node_modules/.bin/st -l -nc`.
+        -->
+        <link rel="stylesheet" href="../node_modules/katex/dist/katex.min.css" />
+        <style>
+            body {
+                margin: 16px;
+                font-family: sans-serif;
+                background: #fff;
+                color: #222;
+            }
+            #controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 16px;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+            #tex {
+                width: 100%;
+                box-sizing: border-box;
+                font-family: monospace;
+                font-size: 14px;
+            }
+            #size {
+                width: 4em;
+            }
+            #panels {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            figure {
+                margin: 0;
+            }
+            figcaption {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+            .cell {
+                position: relative;
+                overflow: hidden;
+                background: #fff;
+                outline: 1px solid #ccc;
+            }
+            .cell > .host {
+                position: absolute;
+                white-space: nowrap;
+                color: #000;
+            }
+            .cell > .host .katex-display {
+                margin: 0;
+            }
+            .cell > canvas,
+            .cell > iframe {
+                position: absolute;
+                left: 0;
+                top: 0;
+                border: 0;
+            }
+            #status {
+                margin-top: 12px;
+                font-size: 13px;
+                white-space: pre-wrap;
+            }
+            .error {
+                color: #c00;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            <textarea id="tex" rows="3" spellcheck="false"></textarea>
+            <label
+                >Example
+                <select id="preset"></select
+            ></label>
+            <label>Size (px per em) <input id="size" type="number" min="4" max="200" value="32" /></label>
+            <label><input id="display" type="checkbox" /> display mode</label>
+            <label><input id="cindy" type="checkbox" checked /> Cinderella macros</label>
+        </div>
+        <div id="panels">
+            <figure>
+                <figcaption>KaTeX HTML (reference)</figcaption>
+                <div class="cell" id="htmlCell"><span class="host" id="host"></span></div>
+            </figure>
+            <figure>
+                <figcaption>Canvas backend (KaTeX plugin)</figcaption>
+                <div class="cell" id="canvasCell"><canvas id="canvas"></canvas></div>
+            </figure>
+            <figure>
+                <figcaption>Overlay: HTML black, canvas blue</figcaption>
+                <div class="cell" id="overlayCell">
+                    <span class="host" id="overlayHost"></span><canvas id="overlay"></canvas>
+                </div>
+            </figure>
+            <figure>
+                <figcaption>Old KaTeX 0.7 canvas fork</figcaption>
+                <!-- A page of its own: its fonts share the family names of current KaTeX. -->
+                <div class="cell" id="oldCell"><iframe id="old" src="../tests/katex-canvas/old.html"></iframe></div>
+            </figure>
+        </div>
+        <div id="status"></div>
+        <script>
+            (async function () {
+                const [{ default: katex }, backend, cindy] = await Promise.all([
+                    import("../node_modules/katex/dist/katex.mjs"),
+                    import("../plugins/katex/src/js/canvas-backend.mjs"),
+                    import("../plugins/katex/src/js/macros.mjs"),
+                ]);
+
+                const PRESETS = {
+                    "Issue #829": "\\vec{a}+\\overrightarrow{AB}+\\fbox{box}+\\bm{a}+{\\color{red}x}",
+                    Fraction: "\\frac{\\sin x}{x}",
+                    Roots: "\\sqrt{2}+\\sqrt[3]{x^2+1}",
+                    Sum: "\\sum_{i=1}^n i^2=\\frac{n(n+1)(2n+1)}{6}",
+                    Integral: "\\int_0^\\infty e^{-x^2}\\,dx=\\frac{\\sqrt\\pi}{2}",
+                    Matrix: "\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\begin{bmatrix}x\\\\y\\end{bmatrix}",
+                    Cases: "f(x)=\\begin{cases}x^2&x\\ge0\\\\-x&x<0\\end{cases}",
+                    Delimiters: "\\left(\\frac{a}{b}\\right)\\Bigg[\\left\\{x\\right\\}\\Bigg]",
+                    Accents: "\\hat a\\,\\tilde b\\,\\bar c\\,\\widehat{xyz}\\,\\overline{AB}\\,\\underbrace{a+b}_{n}",
+                    Arrows: "A\\xrightarrow[below]{above}B\\overleftrightarrow{CD}",
+                    "Cinderella macros": "\\R^n\\to\\C,\\ 30°",
+                    "Two lines": "a+b\\\\c+d",
+                    Tags: "\\begin{gather}E=mc^2\\\\a^2+b^2=c^2\\end{gather}",
+                };
+
+                const $ = (id) => document.getElementById(id);
+                const texInput = $("tex");
+                const preset = $("preset");
+                for (const name of Object.keys(PRESETS)) preset.add(new Option(name, name));
+                preset.add(new Option("(custom)", ""));
+
+                const oldFrame = $("old");
+                const oldReady = new Promise((resolve) => {
+                    const check = () =>
+                        oldFrame.contentWindow && oldFrame.contentWindow.renderOld
+                            ? resolve(oldFrame.contentWindow)
+                            : setTimeout(check, 50);
+                    check();
+                });
+
+                // Restore the state from the URL, so a formula can be shared.
+                const params = new URLSearchParams(location.hash.slice(1));
+                texInput.value = params.get("tex") || PRESETS["Issue #829"];
+                if (params.has("size")) $("size").value = params.get("size");
+                $("display").checked = params.get("display") === "1";
+                $("cindy").checked = params.get("cindy") !== "0";
+                preset.value = Object.keys(PRESETS).find((k) => PRESETS[k] === texInput.value) || "";
+
+                // The formula may come from a shared link, so only images
+                // from this server are trusted, no links or HTML.
+                const trust = (context) =>
+                    context.command === "\\includegraphics" && !/^[a-z][a-z0-9+.-]*:/i.test(context.url);
+
+                function options(cindyMacros, display) {
+                    return Object.assign({ strict: "ignore" }, cindyMacros ? cindy.katexOptions : {}, {
+                        displayMode: display,
+                        throwOnError: true,
+                        trust,
+                        // A copy, as KaTeX adds \gdef definitions to it.
+                        macros: Object.assign({}, cindyMacros ? cindy.macros : {}),
+                    });
+                }
+
+                function loadImage(src) {
+                    return new Promise((resolve, reject) => {
+                        const image = new Image();
+                        image.onload = () => resolve(image);
+                        image.onerror = reject;
+                        image.src = src;
+                    });
+                }
+
+                // The rendering at pixel (x0, y0) of the formula's baseline
+                // start, in a canvas of the cell's size and the screen's
+                // resolution.
+                function draw(canvasEl, box, width, height, x0, y0, color, images) {
+                    const dpr = window.devicePixelRatio || 1;
+                    canvasEl.width = Math.round(width * dpr);
+                    canvasEl.height = Math.round(height * dpr);
+                    canvasEl.style.width = width + "px";
+                    canvasEl.style.height = height + "px";
+                    const ctx = canvasEl.getContext("2d");
+                    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.fillStyle = color;
+                    backend.render(ctx, box, x0, y0, { images });
+                }
+
+                let generation = 0;
+                async function update() {
+                    const gen = ++generation;
+                    const cindyMacros = $("cindy").checked;
+                    const display = $("display").checked;
+                    const em = Math.max(4, Math.min(200, +$("size").value || 32));
+                    const source = texInput.value;
+                    const tex = cindyMacros ? cindy.preprocess(source) : source;
+                    const status = $("status");
+                    status.textContent = "";
+                    status.className = "";
+
+                    const hash = new URLSearchParams({
+                        tex: source,
+                        size: em,
+                        display: display ? 1 : 0,
+                        cindy: cindyMacros ? 1 : 0,
+                    });
+                    history.replaceState(null, "", "#" + hash);
+
+                    const opts = options(cindyMacros, display);
+                    let tree;
+                    const host = $("host");
+                    const overlayHost = $("overlayHost");
+                    try {
+                        tree = katex.__renderToHTMLTree(tex, opts);
+                        for (const h of [host, overlayHost]) {
+                            // KaTeX's em is 1.21 times the host's font size.
+                            h.style.fontSize = em / 1.21 + "px";
+                            h.textContent = "";
+                            katex.render(tex, h, opts);
+                        }
+                    } catch (e) {
+                        status.textContent = String(e.message || e);
+                        status.className = "error";
+                        return;
+                    }
+
+                    await document.fonts.ready;
+                    const images = {};
+                    const layoutOptions = { fontSize: em, pixelRatio: window.devicePixelRatio || 1, images };
+                    const ctx = $("canvas").getContext("2d");
+                    let box = backend.layout(tree, ctx, layoutOptions);
+                    await Promise.all(box.fonts.map((f) => document.fonts.load(f)));
+                    await Promise.all(
+                        box.images.map(async (src) => (images[src] = await loadImage(src).catch(() => null)))
+                    );
+                    if (gen !== generation) return;
+                    box = backend.layout(tree, ctx, layoutOptions);
+
+                    // Put the baseline at the same pixel in every cell.
+                    const pad = Math.round(em / 2);
+                    host.style.left = host.style.top = "0px";
+                    const hostRect = host.getBoundingClientRect();
+                    const firstBase = host.querySelector(".katex-base");
+                    const strut = firstBase.querySelector(".katex-strut");
+                    const strutDepth = -(parseFloat(strut.style.verticalAlign || "0") || 0) * em;
+                    const baseLeft = firstBase.getBoundingClientRect().left - hostRect.left;
+                    const baseline = strut.getBoundingClientRect().bottom - strutDepth - hostRect.top;
+                    const width = Math.ceil(Math.max(hostRect.width, box.width) + 2 * pad);
+                    const height = Math.ceil(Math.max(hostRect.height, box.height + box.depth) + 2 * pad);
+                    for (const id of ["htmlCell", "canvasCell", "overlayCell", "oldCell"]) {
+                        $(id).style.width = width + "px";
+                        $(id).style.height = height + "px";
+                    }
+                    for (const h of [host, overlayHost]) {
+                        h.style.left = h.style.top = pad + "px";
+                    }
+                    const x0 = pad + baseLeft;
+                    const y0 = pad + baseline;
+                    draw($("canvas"), box, width, height, x0, y0, "#000", images);
+                    draw($("overlay"), box, width, height, x0, y0, "rgba(0, 110, 255, 0.6)", images);
+
+                    const notes = [];
+                    notes.push(
+                        `width: HTML ${hostRect.width.toFixed(2)}px, canvas ${box.width.toFixed(2)}px; ` +
+                            `canvas height ${box.height.toFixed(2)}px, depth ${box.depth.toFixed(2)}px`
+                    );
+                    if (box.unsupported.length)
+                        notes.push("not supported by the canvas backend: " + box.unsupported.join(", "));
+
+                    // The old fork knew fewer macros and no \operatorname.
+                    oldFrame.style.width = width + "px";
+                    oldFrame.style.height = height + "px";
+                    const old = await oldReady;
+                    if (gen !== generation) return;
+                    const oldMacros = cindyMacros
+                        ? Object.assign({}, cindy.macros, { "\\operatorname": "\\text" })
+                        : {};
+                    try {
+                        await old.renderOld(
+                            tex,
+                            { fontSize: em, macros: oldMacros, displayMode: display, throwOnError: true },
+                            width,
+                            height,
+                            x0,
+                            y0
+                        );
+                    } catch (e) {
+                        notes.push("old fork: " + String(e.message || e).split("\n")[0]);
+                        const oldCanvas = old.document.getElementById("canvas");
+                        oldCanvas.getContext("2d").clearRect(0, 0, oldCanvas.width, oldCanvas.height);
+                    }
+                    if (gen === generation) status.textContent = notes.join("\n");
+                }
+
+                let timer = null;
+                const schedule = () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(update, 150);
+                };
+                texInput.addEventListener("input", () => {
+                    preset.value = Object.keys(PRESETS).find((k) => PRESETS[k] === texInput.value) || "";
+                    schedule();
+                });
+                preset.addEventListener("change", () => {
+                    if (preset.value) texInput.value = PRESETS[preset.value];
+                    update();
+                });
+                for (const id of ["size", "display", "cindy"]) $(id).addEventListener("input", schedule);
+                update();
+            })();
+        </script>
+    </body>
+</html>

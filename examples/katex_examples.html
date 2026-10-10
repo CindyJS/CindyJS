@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>KaTeX: old vs. new plugin</title>
+        <!--
+            Runs an example twice, with the KaTeX plugin as built
+            (build/js/katex-plugin.js) and with the old KaTeX 0.7 fork kept in
+            tests/katex-canvas/old. The old plugin is swapped in by the service
+            worker katex_compare_sw.js, so this needs `node make Cindy.js katex`
+            and a page served over http://localhost (or https).
+        -->
+        <style>
+            body {
+                margin: 16px;
+                font-family: sans-serif;
+                background: #fff;
+                color: #222;
+            }
+            #controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px 16px;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+            #path {
+                width: 28em;
+            }
+            #frames {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            #frames.blink {
+                display: grid;
+            }
+            #frames.blink > figure {
+                grid-area: 1 / 1;
+            }
+            #frames.blink > figure.hidden {
+                visibility: hidden;
+            }
+            figure {
+                margin: 0;
+                background: #fff;
+            }
+            figcaption {
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+            iframe {
+                display: block;
+                border: 1px solid #ccc;
+            }
+            #status {
+                margin-top: 12px;
+                font-size: 13px;
+                white-space: pre-wrap;
+            }
+            .error {
+                color: #c00;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="controls">
+            <label
+                >Example
+                <select id="example"></select
+            ></label>
+            <label>or path <input id="path" spellcheck="false" /></label>
+            <label
+                >Size <input id="width" type="number" value="720" min="100" step="10" /> ×
+                <input id="height" type="number" value="560" min="100" step="10"
+            /></label>
+            <label><input id="blink" type="checkbox" /> alternate in place</label>
+            <button id="reload">Reload</button>
+        </div>
+        <div id="frames">
+            <figure id="oldFigure">
+                <figcaption>Old KaTeX 0.7 plugin</figcaption>
+                <iframe id="old"></iframe>
+            </figure>
+            <figure id="newFigure">
+                <figcaption>New plugin (KaTeX 0.18, canvas backend)</figcaption>
+                <iframe id="new"></iframe>
+            </figure>
+        </div>
+        <div id="status"></div>
+        <script>
+            (async function () {
+                const EXAMPLES = [
+                    "00_Playground.html",
+                    "100_PointMirror.html",
+                    "101_PolarOperations.html",
+                    "104_isOperations.html",
+                    "110_ConicInSquare.html",
+                    "111_Moebius_CinderellaExportTest.html",
+                    "112_TrAffine.html",
+                    "112_TrSimilarity.html",
+                    "112_TrTranslation.html",
+                    "113_ReflectionInCircle.html",
+                    "113_ReflectionInLine.html",
+                    "113_ReflectionInPoint.html",
+                    "113_ReflectionInSegment.html",
+                    "113_ReflectionInThreePointCircle.html",
+                    "114_ParallelSegments.html",
+                    "114_allops.html",
+                    "133_TransformC.html",
+                    "141_d_false_conjecture_circle.html",
+                    "141_g_pointon.html",
+                    "142_kaleido.html",
+                    "146_angleFromScript.html",
+                    "146_elementsatmouse.html",
+                    "146_pointOnArc.html",
+                    "147_TrMoeb_seg.html",
+                    "147_algorithm.html",
+                    "148_mltext.html",
+                    "154_ReflectC.html",
+                    "155_InverseMoebius.html",
+                    "156_halfplane.html",
+                    "157_IFS2sim.html",
+                    "157_football-prognosis.html",
+                    "158_more_snap.html",
+                    "161_autoload_katex.html",
+                    "163_textAtAnyAngle.html",
+                    "164_JSON-self.html",
+                    "164_VAM-Framework-13.html",
+                    "166_boxsize.html",
+                    "166_coords_in_text.html",
+                    "167_LogMouseEvents.html",
+                    "168_test-pixelsize.html",
+                    "172-pointOnCircleAngle.html",
+                    "19_EuclidsAlgX2.html",
+                    "49-TangentParabola2linesAt2points.html",
+                    "59_Equilibrium.html",
+                    "60_Rotation.html",
+                    "88_Eigenvalues.html",
+                    "90_Tracing3.html",
+                    "96_OtherIntersection.html",
+                    "97_OtherIntersectionCL.html",
+                    "98_Compass.html",
+                    "99_LineMirror.html",
+                    "Buttons2.html",
+                    "CircleTest.html",
+                    "CircleTestNarrow.html",
+                    "ConstructionConicFromPrincipalDirections.html",
+                    "ConstructionParabolaPL.html",
+                    "ConstructionRadicalAxisApart-complex.html",
+                    "EllipseWithPaper.html",
+                    "PointOnCircleAngle.html",
+                    "TrRotationPNumb-150.html",
+                    "TrRotationPNumb.html",
+                    "bugs/RechtwDreieck_Ergänzung_zu_Rechteck-fix.html",
+                    "bugs/gleicheskalarprodukte.html",
+                    "cindygl/22_explorer.html",
+                    "cindygl/31_fft.html",
+                    "cindygl/31_fftinv.html",
+                    "cindygl/35_spirocomplex.html",
+                    "cindygl/42_taylor.html",
+                    "cindygl/44_raycasting.html",
+                    "cindygl/44_raycasting_symbolic.html",
+                    "cindygl/45_zeta.html",
+                    "cindygl/47_analyticlandscape.html",
+                    "cindygl/52_apollonian_fromcdy.html",
+                    "cindygl3d/08_surface.html",
+                    "cindyprint/69_Raycasting_Print.html",
+                    "katex1.html",
+                    "text-outline.html",
+                ];
+
+                const $ = (id) => document.getElementById(id);
+                const status = $("status");
+                const select = $("example");
+                for (const path of EXAMPLES) select.add(new Option(path, path));
+
+                if (!navigator.serviceWorker) {
+                    status.textContent =
+                        "This browser offers no service workers here (they need http://localhost or https and no private mode), so the old plugin cannot be swapped in.";
+                    status.className = "error";
+                    return;
+                }
+                const registration = await navigator.serviceWorker.register("katex_compare_sw.js");
+                await navigator.serviceWorker.ready;
+                // The worker is only needed here; it goes away once no page
+                // uses it any more, so other examples load without it.
+                window.addEventListener("pagehide", () => registration.unregister());
+
+                // The example and size are kept in the URL, so a comparison
+                // can be shared.
+                function fromHash() {
+                    const params = new URLSearchParams(location.hash.slice(1));
+                    $("path").value = params.get("example") || "katex1.html";
+                    if (params.has("width")) $("width").value = params.get("width");
+                    if (params.has("height")) $("height").value = params.get("height");
+                }
+
+                function withQuery(path, value) {
+                    const url = new URL(path, location.href);
+                    url.searchParams.set("katex", value);
+                    return url.href;
+                }
+
+                // Reports which plugin each frame ended up with: the old one
+                // puts KaTeX 0.7 with its canvasBox on the page, the new one
+                // bundles KaTeX and puts nothing there.
+                function check() {
+                    const notes = [];
+                    for (const [id, wantOld] of [
+                        ["old", true],
+                        ["new", false],
+                    ]) {
+                        let win;
+                        try {
+                            win = $(id).contentWindow;
+                        } catch (e) {
+                            continue;
+                        }
+                        const isOld = !!(win && win.katex && win.katex.canvasBox);
+                        if (isOld !== wantOld)
+                            notes.push(
+                                `${id} frame: expected the ${wantOld ? "old" : "new"} plugin, got the ${
+                                    isOld ? "old" : "new"
+                                } one`
+                            );
+                    }
+                    status.textContent = notes.join("\n");
+                    status.className = notes.length ? "error" : "";
+                }
+
+                function load() {
+                    const path = $("path").value.trim();
+                    if (!path) return;
+                    select.value = EXAMPLES.includes(path) ? path : "";
+                    const w = Math.max(100, +$("width").value || 720);
+                    const h = Math.max(100, +$("height").value || 560);
+                    history.replaceState(null, "", "#" + new URLSearchParams({ example: path, width: w, height: h }));
+                    for (const id of ["old", "new"]) {
+                        const frame = $(id);
+                        frame.style.width = w + "px";
+                        frame.style.height = h + "px";
+                        frame.onload = () => setTimeout(check, 1500);
+                        frame.src = withQuery(path, id);
+                    }
+                }
+
+                select.addEventListener("change", () => {
+                    $("path").value = select.value;
+                    load();
+                });
+                $("path").addEventListener("change", load);
+                $("width").addEventListener("change", load);
+                $("height").addEventListener("change", load);
+                $("reload").addEventListener("click", load);
+
+                let blinkTimer = null;
+                $("blink").addEventListener("change", () => {
+                    const on = $("blink").checked;
+                    $("frames").classList.toggle("blink", on);
+                    clearInterval(blinkTimer);
+                    $("newFigure").classList.remove("hidden");
+                    if (on) blinkTimer = setInterval(() => $("newFigure").classList.toggle("hidden"), 800);
+                });
+
+                window.addEventListener("hashchange", () => {
+                    fromHash();
+                    load();
+                });
+                fromHash();
+                load();
+            })();
+        </script>
+    </body>
+</html>

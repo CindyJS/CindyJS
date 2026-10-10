@@ -6,3 +6,6 @@ download/**/*
 build/**/*
 
 plugins/**/*
+
+# The KaTeX 0.7 fork and plugin kept verbatim as a comparison reference
+tests/katex-canvas/old/**/*

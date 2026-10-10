@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>KaTeX plugin in CindyJS</title>
+        <!--
+            Left: KaTeX's HTML rendering, placed where the formula should go.
+            Right: a CindyJS widget drawing the same formula with drawtext and
+            the KaTeX plugin. plugin.spec.mjs compares the two.
+        -->
+        <link rel="stylesheet" href="../../node_modules/katex/dist/katex.min.css" />
+        <style>
+            html,
+            body {
+                margin: 0;
+                background: #fff;
+            }
+            #stage {
+                position: absolute;
+                left: 0;
+                top: 0;
+                display: flex;
+            }
+            .cell {
+                position: relative;
+                width: 500px;
+                height: 200px;
+                overflow: hidden;
+                background: #fff;
+                flex: none;
+            }
+            #host {
+                position: absolute;
+                white-space: nowrap;
+            }
+        </style>
+        <script src="../../node_modules/katex/dist/katex.min.js"></script>
+        <script src="../../build/js/Cindy.js"></script>
+    </head>
+    <body>
+        <div id="stage">
+            <div class="cell" id="reference"><span id="host"></span></div>
+            <div class="cell" id="CSCanvas"></div>
+        </div>
+        <script>
+            const W = 500;
+            const H = 200;
+            let cdy = null;
+
+            // Draws `tex` at pixel (x, y) with CindyJS text size `size`,
+            // alignment and colour, both ways. Resolves once the plugin has
+            // drawn it, i.e. once its fonts have loaded.
+            // `text`, if given, is what CindyJS draws instead of "$tex$".
+            window.drawBoth = async function ({ tex, text, size, align, color, x, y, angle = 0 }) {
+                // Reference: KaTeX's em is 1.21 times the host's font size;
+                // the plugin uses the CindyJS text size as the em.
+                const host = document.getElementById("host");
+                host.style.fontSize = size / 1.21 + "px";
+                host.style.color = color;
+                host.style.transform = "";
+                host.textContent = "";
+                katex.render(tex, host, { macros: {}, colorIsTextColor: true, strict: "ignore" });
+                await document.fonts.ready;
+                const strut = host.querySelector(".katex-strut");
+                const em = parseFloat(getComputedStyle(host.querySelector(".katex")).fontSize);
+                const depth = -(parseFloat(strut.style.verticalAlign || "0") || 0) * em;
+                host.style.left = "0px";
+                host.style.top = "0px";
+                const hostRect = host.getBoundingClientRect();
+                const baseline = strut.getBoundingClientRect().bottom - depth - hostRect.top;
+                const width = host.querySelector(".katex-html").getBoundingClientRect().width;
+                const factor = { left: 0, mid: 0.5, right: 1 }[align];
+                host.style.left = x - factor * width + "px";
+                host.style.top = y - baseline + "px";
+                // CindyJS rotates texts around their anchor.
+                host.style.transformOrigin = `${factor * width}px ${baseline}px`;
+                host.style.transform = angle ? `rotate(${-angle}rad)` : "";
+
+                // CindyJS: user coordinates are pixels with y pointing up.
+                // CindyScript strings take backslashes literally.
+                const rgb = color.match(/\d+/g).map((c) => c / 255);
+                const code =
+                    `drawtext([${x}, ${H - y}], "${text || "$" + tex + "$"}", ` +
+                    `size->${size}, align->"${align}", color->[${rgb}], angle->${angle});`;
+                window.__drawn = false;
+                if (cdy) cdy.shutdown();
+                document.getElementById("CSCanvas").innerHTML = "";
+                cdy = CindyJS({
+                    ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, W, H] }] }],
+                    scripts: { draw: code },
+                    use: ["katex"],
+                    autoplay: false,
+                });
+                // The plugin skips drawing while fonts load and repaints
+                // afterwards; poll for the formula's ink.
+                const canvas = () => document.querySelector("#CSCanvas canvas");
+                for (let i = 0; i < 200; ++i) {
+                    await new Promise((r) => setTimeout(r, 25));
+                    const c = canvas();
+                    if (!c) continue;
+                    const data = c.getContext("2d").getImageData(0, 0, c.width, c.height).data;
+                    let ink = 0;
+                    for (let j = 3; j < data.length; j += 4) if (data[j] > 0) ++ink;
+                    if (ink > 0) break;
+                }
+                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return { width: W, height: H };
+            };
+
+            // Runs `code` as draw script and returns the fonts of all texts
+            // drawn, once formulas appear (or after five seconds).
+            window.drawTable = async function (code) {
+                const fonts = [];
+                const fillText = CanvasRenderingContext2D.prototype.fillText;
+                CanvasRenderingContext2D.prototype.fillText = function (...args) {
+                    fonts.push(this.font);
+                    return fillText.apply(this, args);
+                };
+                try {
+                    if (cdy) cdy.shutdown();
+                    document.getElementById("CSCanvas").innerHTML = "";
+                    cdy = CindyJS({
+                        ports: [{ id: "CSCanvas", transform: [{ visibleRect: [0, 0, W, H] }] }],
+                        scripts: { draw: code },
+                        use: ["katex"],
+                        autoplay: false,
+                    });
+                    for (let i = 0; i < 200 && !fonts.some((f) => /KaTeX_/.test(f)); ++i) {
+                        await new Promise((r) => setTimeout(r, 25));
+                    }
+                    return fonts;
+                } finally {
+                    CanvasRenderingContext2D.prototype.fillText = fillText;
+                }
+            };
+        </script>
+    </body>
+</html>

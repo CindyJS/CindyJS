@@ -16,6 +16,7 @@
 *.jar           -text
 *.java          text
 *.json          text
+*.mjs           text
 *.js            text
 *.ts            text
 *.md            text

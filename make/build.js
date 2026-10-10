@@ -794,24 +794,38 @@ module.exports = function build(settings, task) {
     task("gwt_modules", gwt_modules);
 
     //////////////////////////////////////////////////////////////////////
-    // Copy KaTeX to build directory
+    // KaTeX plugin: KaTeX's stylesheet and fonts from its npm package, and
+    // the plugin (which bundles KaTeX itself) built by esbuild
     //////////////////////////////////////////////////////////////////////
 
-    var katex_src = glob.sync("lib/katex/*.*").concat(glob.sync("lib/katex/fonts/*.*"), "lib/webfont.js");
+    var katex_dist = "node_modules/katex/dist";
+    var katex_src = ["katex.min.css"].concat(glob.sync("fonts/*.{woff2,woff,ttf}", { cwd: katex_dist }));
+
+    // Removes leftovers of the KaTeX 0.7 fork shipped before, which a build
+    // directory from back then still contains. Having no outputs, it always
+    // runs.
+    task("katex_stale", [], function () {
+        ["katex/katex.min.js", "katex/README.md", "katex/contrib", "katex/fonts/*.eot", "webfont.js"].forEach(function (
+            stale
+        ) {
+            this.delete(path.join("build", "js", stale));
+        },
+        this);
+    });
 
     task("katex_src", [], function () {
         this.parallel(function () {
             katex_src.forEach(function (input) {
-                this.copy(input, path.join("build", "js", input.substr(4)));
+                this.copy(path.join(katex_dist, input), path.join("build", "js", "katex", input));
             }, this);
         });
     });
 
     task("katex-plugin", [], function () {
-        this.copy("plugins/katex/src/js/katex-plugin.js", "build/js/katex-plugin.js");
+        this.node("tools/build-katex-plugin.js");
     });
 
-    task("katex", ["katex_src", "katex-plugin"]);
+    task("katex", ["katex_stale", "katex_src", "katex-plugin"]);
 
     //////////////////////////////////////////////////////////////////////
     // Copy MIDI to build directory

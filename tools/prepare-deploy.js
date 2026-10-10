@@ -51,6 +51,8 @@ var handlers = {
     images: true,
     katex: true,
     "katex-plugin.js": true,
+    // esbuild's source map, which embeds the sources already.
+    "katex-plugin.js.map": true,
     midi: true,
     "midi-plugin.js": true,
     "ours.js": false,
@@ -59,7 +61,9 @@ var handlers = {
     quickhull3d: true,
     soundfonts: true,
     "symbolic.js": true,
-    "webfont.js": true,
+    // Loaded KaTeX's fonts until the plugin moved to the Font Loading API;
+    // not built any more, so only a stale copy could turn up here.
+    "webfont.js": false,
 };
 
 var exitStatus = 0;

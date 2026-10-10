@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Old KaTeX canvas fork</title>
+        <!--
+            The KaTeX 0.7 canvas fork CindyJS shipped before its current plugin. It runs on
+            a page of its own because its fonts have the same family names as
+            those of current KaTeX.
+        -->
+        <link rel="stylesheet" href="old/katex/katex.min.css" />
+        <style>
+            html,
+            body {
+                margin: 0;
+                background: #fff;
+            }
+            canvas {
+                position: absolute;
+                left: 0;
+                top: 0;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+        <script src="old/katex/katex.min.js"></script>
+        <script>
+            window.renderOld = async function (tex, options, width, height, x0, y0) {
+                const canvas = document.getElementById("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                canvas.style.width = width + "px";
+                canvas.style.height = height + "px";
+                const ctx = canvas.getContext("2d");
+                // CindyJS always strokes text with its outline colour, which is
+                // transparent unless an outline was requested.
+                ctx.strokeStyle = "rgba(0,0,0,0)";
+                let box = katex.canvasBox(tex, ctx, options);
+                const fonts = Object.keys(box.fontsUsed).map((k) => box.fontsUsed[k]);
+                await Promise.all(fonts.map((f) => document.fonts.load(f)));
+                box = katex.canvasBox(tex, ctx, options);
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(0, 0, width, height);
+                ctx.fillStyle = "#000";
+                box.renderAt(x0, y0);
+            };
+        </script>
+    </body>
+</html>
