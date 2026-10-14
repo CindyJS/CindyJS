@@ -30,6 +30,13 @@ const angleUnitName = angleUnit.replace(/\s+/g, "") as AngleUnit; // unit may co
 //      Complex Numbers
 //==========================================
 
+const csZero: CSNum = { ctype: "number", value: { real: 0, imag: 0 } };
+const csOne: CSNum = { ctype: "number", value: { real: 1, imag: 0 } };
+const csInfinity: CSNum = { ctype: "number", value: { real: Infinity, imag: Infinity } };
+const csNan: CSNum = { ctype: "number", value: { real: NaN, imag: NaN } };
+const csZ3a: CSNum = { ctype: "number", value: { real: -0.5, imag: 0.5 * Math.sqrt(3) } };
+const csZ3b: CSNum = { ctype: "number", value: { real: -0.5, imag: -0.5 * Math.sqrt(3) } };
+
 const CSNumber: CSMath = {
     _helper: {
         roundingfactor: 1e4,
@@ -140,30 +147,11 @@ const CSNumber: CSMath = {
             return r < eps && r > -eps && i < eps && i > -eps;
         },
 
-        get z3a() {
-            return CSNumber.complex(-0.5, 0.5 * Math.sqrt(3));
-        },
-        get z3b() {
-            return CSNumber.complex(-0.5, -0.5 * Math.sqrt(3));
-        },
-        get cub1(): CSList {
-            return {
-                ctype: "list",
-                value: [CSNumber.one, CSNumber.one, CSNumber.one],
-            };
-        },
-        get cub2(): CSList {
-            return {
-                ctype: "list",
-                value: [CSNumber._helper.z3a, CSNumber.one, CSNumber._helper.z3b],
-            };
-        },
-        get cub3(): CSList {
-            return {
-                ctype: "list",
-                value: [CSNumber._helper.z3b, CSNumber.one, CSNumber._helper.z3a],
-            };
-        },
+        z3a: csZ3a,
+        z3b: csZ3b,
+        cub1: { ctype: "list", value: [csOne, csOne, csOne] } as CSList,
+        cub2: { ctype: "list", value: [csZ3a, csOne, csZ3b] } as CSList,
+        cub3: { ctype: "list", value: [csZ3b, csOne, csZ3a] } as CSList,
 
         /* Helps solving the cubic equation ax^3 + bx^2 + cx + d = 0.
          * The returned values are however NOT the solution itself.
@@ -350,21 +338,10 @@ const CSNumber: CSMath = {
         };
     },
 
-    get zero() {
-        return CSNumber.real(0);
-    },
-
-    get one() {
-        return CSNumber.real(1);
-    },
-
-    get infinity() {
-        return CSNumber.complex(Infinity, Infinity);
-    },
-
-    get nan() {
-        return CSNumber.complex(NaN, NaN);
-    },
+    zero: csZero,
+    one: csOne,
+    infinity: csInfinity,
+    nan: csNan,
 
     argmax: function (a: CSNum, b: CSNum): CSNum {
         const n1 = a.value.real * a.value.real + a.value.imag * a.value.imag;
