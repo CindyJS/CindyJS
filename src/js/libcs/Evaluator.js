@@ -217,7 +217,11 @@ function printStackTrace(msg) {
         msg +
             callStack
                 .map(function (frame) {
-                    return "  at " + frame.oper;
+                    let lineinfo = "";
+                    if (frame.start) {
+                        lineinfo = " at " + frame.start.row + ":" + frame.start.col;
+                    }
+                    return "  in " + frame.oper + lineinfo;
                 })
                 .join("\n")
     );

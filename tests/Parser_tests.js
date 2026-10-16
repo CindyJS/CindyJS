@@ -98,22 +98,22 @@ describe("CindyScript parser normal operation", function () {
 });
 
 describe("CindyScript parser error reporting", function () {
-    badCase('1 * "foo', 'Invalid token at 1:4: ‘"’');
-    badCase("test??()", "Invalid token at 1:4: ‘??’");
-    badCase("7+", "Operator may not be used postfix at 1:1: ‘+’");
-    badCase("x ! y", "Operator may not be used infix at 1:2: ‘!’");
-    badCase("(x ° y)", "Operator may not be used infix at 1:3: ‘°’");
-    badCase("*p", "Operator may not be used prefix at 1:0: ‘*’");
-    badCase("(1 + 2", "Opening ( at 1:0 closed by EOF at 2:0");
-    badCase("(1 + 2]", "Opening ( at 1:0 closed by ] at 1:6");
-    badCase("1 + || * 2", "Don't support |…| with 0 arguments at 1:4");
-    badCase("|x,y,z|", "Don't support |…| with 3 arguments at 1:0");
-    badCase("1 + 2)", "Closing bracket never opened. at 1:5: ‘)’");
-    badCase("17()", "Function name must be an identifier at 1:0");
-    badCase("f(7->8)", "Modifier name must be an identifier at 1:3");
-    badCase("f(x.y->8)", "Modifier name must be an identifier at 1:5");
-    badCase("f(7):=123", "Function argument must be an identifier at 1:2");
-    badCase("f(a,(b)):=123", "Function argument must be an identifier at 1:8");
+    badCase('1 * "foo', 'Invalid token at 1:5: ‘"’');
+    badCase("test??()", "Invalid token at 1:5: ‘??’");
+    badCase("7+", "Operator may not be used postfix at 1:2: ‘+’");
+    badCase("x ! y", "Operator may not be used infix at 1:3: ‘!’");
+    badCase("(x ° y)", "Operator may not be used infix at 1:4: ‘°’");
+    badCase("*p", "Operator may not be used prefix at 1:1: ‘*’");
+    badCase("(1 + 2", "Opening ( at 1:1 closed by EOF at 2:1");
+    badCase("(1 + 2]", "Opening ( at 1:1 closed by ] at 1:7");
+    badCase("1 + || * 2", "Don't support |…| with 0 arguments at 1:5");
+    badCase("|x,y,z|", "Don't support |…| with 3 arguments at 1:1");
+    badCase("1 + 2)", "Closing bracket never opened. at 1:6: ‘)’");
+    badCase("17()", "Function name must be an identifier at 1:1");
+    badCase("f(7->8)", "Modifier name must be an identifier at 1:4");
+    badCase("f(x.y->8)", "Modifier name must be an identifier at 1:6");
+    badCase("f(7):=123", "Function argument must be an identifier at 1:3");
+    badCase("f(a,(b)):=123", "Function argument must be an identifier at 1:9");
     /* Copy & paste from here:
     badCase('', ': ‘’');
     */
