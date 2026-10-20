@@ -59,7 +59,11 @@ function evaluateAt(c, nsa, pos) {
     return cdy.evalcs(c.target);
 }
 
-var cases = [
+// Free elements that meet: the limit along the path exists, but it depends on
+// the direction they meet from, so it is not stable under perturbation of the
+// free elements (thesis, Algorithm "Extended C0-Continuation"), and the
+// singularity is not removable.
+var notRemovable = [
     {
         // classifying the conics (ellipse or hyperbola) must work with infinitesimals
         name: "conics by two coinciding foci and a point",
@@ -249,7 +253,241 @@ var cases = [
         to: [1, 1],
         target: "X.homog",
     },
+];
+
+// A point bound to a line (PointOnLine), at a position given as [x, y]
+function L(name, line, x, y) {
+    return { name: name, type: "PointOnLine", args: [line], pos: [x, y, 1] };
+}
+
+// The same constructions with the elements that meet bound to a common line
+// (as the centers in the thesis' "Unification of Circles (semi-free)"): every
+// perturbation keeps them on it, so the limit is stable and the singularity
+// removable.
+var cases = [
     {
+        // classifying the conics (ellipse or hyperbola) must work with infinitesimals
+        name: "conics by two coinciding foci and a point",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [0, 1, 0] },
+            L("F1", "g", 0, 0),
+            L("F2", "g", 2, 0),
+            P("Q", 1, 2),
+            { name: "Cs", type: "ConicBy2Foci1P", args: ["F1", "F2", "Q"] },
+            { name: "K", type: "SelectConic", args: ["Cs"], index: 2 },
+        ],
+        mover: "F2",
+        from: [1, 0],
+        to: [0, 0],
+        target: "K.matrix",
+    },
+    {
+        name: "join of coinciding points on a vertical line",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, 0, -1] },
+            L("A", "g", 1, 0),
+            L("B", "g", 1, 1),
+            { name: "X", type: "Join", args: ["A", "B"] },
+        ],
+        mover: "A",
+        from: [1, 0],
+        to: [1, 1],
+        target: "X.homog",
+        expect: [1, 0, -1],
+    },
+    {
+        name: "join of coinciding points on a diagonal line",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, -1, 0] },
+            L("A", "g", 0, 0),
+            L("B", "g", 1, 1),
+            { name: "X", type: "Join", args: ["A", "B"] },
+        ],
+        mover: "A",
+        from: [0, 0],
+        to: [1, 1],
+        target: "X.homog",
+        expect: [1, -1, 0],
+    },
+    {
+        name: "meet of coinciding lines through a point on both",
+        geometry: [
+            P("A", 0, 0),
+            P("B", 2, 0),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            L("C", "l", 1, 0),
+            P("D", 3, 1),
+            { name: "m", type: "Join", args: ["C", "D"] },
+            { name: "X", type: "Meet", args: ["l", "m"] },
+        ],
+        mover: "D",
+        from: [3, 1],
+        to: [3, 0],
+        target: "X.homog",
+        expect: [1, 0, 1],
+    },
+    {
+        name: "perpendicular to a degenerate join",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, 0, -1] },
+            L("A", "g", 1, 0),
+            L("B", "g", 1, 1),
+            P("C", 3, 0),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            { name: "X", type: "Perp", args: ["l", "C"] },
+        ],
+        mover: "A",
+        from: [1, 0],
+        to: [1, 1],
+        target: "X.homog",
+        expect: [0, 1, 0],
+    },
+    {
+        name: "parallel to a degenerate join",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, 0, -1] },
+            L("A", "g", 1, 0),
+            L("B", "g", 1, 1),
+            P("C", 3, 0),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            { name: "X", type: "Para", args: ["l", "C"] },
+        ],
+        mover: "A",
+        from: [1, 0],
+        to: [1, 1],
+        target: "X.homog",
+        expect: [1, 0, -3],
+    },
+    {
+        name: "meet with a degenerate join",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [0, 1, -1] },
+            L("A", "g", 0, 1),
+            L("B", "g", 1, 1),
+            P("C", 3, 0),
+            P("D", 3, 5),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            { name: "m", type: "Join", args: ["C", "D"] },
+            { name: "X", type: "Meet", args: ["l", "m"] },
+        ],
+        mover: "A",
+        from: [0, 1],
+        to: [1, 1],
+        target: "X.homog",
+        expect: [3, 1, 1],
+    },
+    {
+        name: "point on a degenerate join",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, 0, -1] },
+            L("A", "g", 1, 0),
+            L("B", "g", 1, 1),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            { name: "X", type: "PointOnLine", args: ["l"], pos: [1, 0.5, 1] },
+        ],
+        mover: "A",
+        from: [1, 0],
+        to: [1, 1],
+        target: "X.homog",
+    },
+    {
+        name: "join through a midpoint",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, -1, 0] },
+            L("A", "g", -1, -1),
+            L("B", "g", 2, 2),
+            L("C", "g", 1, 1),
+            { name: "M", type: "Mid", args: ["A", "B"] },
+            { name: "X", type: "Join", args: ["M", "C"] },
+        ],
+        mover: "A",
+        from: [-1, -1],
+        to: [0, 0],
+        target: "X.homog",
+    },
+    {
+        // the circle through B tangent to g at A
+        name: "circle through two coinciding points",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, -1, 0] },
+            L("A", "g", 0, 0),
+            P("B", 2, 0),
+            L("C", "g", 1, 1),
+            { name: "X", type: "CircleBy3", args: ["A", "B", "C"] },
+        ],
+        mover: "C",
+        from: [1, 1],
+        to: [0, 0],
+        target: "X.matrix",
+    },
+    {
+        name: "conic through two coinciding points",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [2, 1, 0] },
+            L("A", "g", 0, 0),
+            P("B", 2, 0),
+            P("C", 3, 2),
+            P("D", 1, 3),
+            L("E", "g", -1, 2),
+            { name: "X", type: "ConicBy5", args: ["A", "B", "C", "D", "E"] },
+        ],
+        mover: "E",
+        from: [-1, 2],
+        to: [0, 0],
+        target: "X.matrix",
+    },
+    {
+        name: "center of a degenerate circle",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, -1, 0] },
+            L("A", "g", 0, 0),
+            P("B", 2, 0),
+            L("C", "g", 1, 1),
+            { name: "c", type: "CircleBy3", args: ["A", "B", "C"] },
+            { name: "X", type: "CenterOfConic", args: ["c"] },
+        ],
+        mover: "C",
+        from: [1, 1],
+        to: [0, 0],
+        target: "X.homog",
+        expect: [1, -1, 1],
+    },
+    {
+        name: "polar with respect to a degenerate circle",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, -1, 0] },
+            L("A", "g", 0, 0),
+            P("B", 2, 0),
+            L("C", "g", 1, 1),
+            P("Q", 5, 5),
+            { name: "c", type: "CircleBy3", args: ["A", "B", "C"] },
+            { name: "X", type: "PolarOfPoint", args: ["Q", "c"] },
+        ],
+        mover: "C",
+        from: [1, 1],
+        to: [0, 0],
+        target: "X.homog",
+    },
+    {
+        name: "intersection of a circle and a degenerate join",
+        geometry: [
+            { name: "g", type: "FreeLine", pos: [1, 0, -1] },
+            L("A", "g", 1, 0),
+            L("B", "g", 1, 1),
+            P("M", 0, 0),
+            P("R", 3, 0),
+            { name: "l", type: "Join", args: ["A", "B"] },
+            { name: "c", type: "CircleMP", args: ["M", "R"] },
+            { name: "Is", type: "IntersectLC", args: ["l", "c"] },
+            { name: "X", type: "SelectP", args: ["Is"], index: 1 },
+        ],
+        mover: "A",
+        from: [1, 0],
+        to: [1, 1],
+        target: "X.homog",
+    },
+    {
+        // S and T are defined, they only coincide: the free points do not meet
         name: "join of two degenerate meets",
         geometry: [
             P("A", 0, 0),
@@ -293,10 +531,19 @@ describe("nsa: degenerate constructions", function () {
         var cdy = CindyJS({
             isNode: true,
             csconsole: false,
-            geometry: cases[0].geometry,
+            geometry: cases[1].geometry,
         });
         cdy.evalcs("A.xy=(1,1)");
         isUndefined(cdy.evalcs("X.homog")).should.equal(true);
+    });
+});
+
+describe("nsa: singularities that are not removable", function () {
+    notRemovable.forEach(function (c) {
+        it(c.name + ": undefined", function () {
+            var limit = evaluateAt(c, true, c.to);
+            isUndefined(limit).should.equal(true, niceprint(limit));
+        });
     });
 });
 
@@ -489,14 +736,25 @@ describe("nsa leaves tracing alone", function () {
 });
 
 describe("nsa: continuation along the path of the move", function () {
-    // X joins E and F; whenever E and F coincide, X must be the line through
-    // them along the direction the last of them arrived from.
+    // X joins E and F, both on the line g; whenever E and F coincide, X must
+    // be g. (Were they free, the line through them would depend on the
+    // direction the last of them arrived from: not removable.)
+    function through(name, p, q) {
+        return {
+            name: name,
+            type: "FreeLine",
+            pos: List.cross(List.realVector([p[0], p[1], 1]), List.realVector([q[0], q[1], 1])).value.map(
+                (z) => z.value.real
+            ),
+        };
+    }
+
     function expectLine(cdy, point, dir, label) {
         var x = cdy.evalcs("X.homog");
         isUndefined(x).should.equal(false, label + ": X undefined");
-        var through = List.realVector([point[0], point[1], 1]);
+        var on = List.realVector([point[0], point[1], 1]);
         var along = List.realVector([point[0] + dir[0], point[1] + dir[1], 1]);
-        projectiveDistance(x, List.cross(through, along)).should.be.below(1e-9, label + ": " + niceprint(x));
+        projectiveDistance(x, List.cross(on, along)).should.be.below(1e-9, label + ": " + niceprint(x));
     }
 
     it("when the endpoint of the move is not exactly representable", function () {
@@ -509,7 +767,12 @@ describe("nsa: continuation along the path of the move", function () {
             [-3.3, -0.9],
         ].forEach(function (from) {
             var cdy = widget(
-                [P("E", from[0], from[1]), P("F", 2.7, -1.3), { name: "X", type: "Join", args: ["E", "F"] }],
+                [
+                    through("g", from, [2.7, -1.3]),
+                    L("E", "g", from[0], from[1]),
+                    L("F", "g", 2.7, -1.3),
+                    { name: "X", type: "Join", args: ["E", "F"] },
+                ],
                 true
             );
             cdy.evalcs("E.xy=(2.7,-1.3)");
@@ -518,31 +781,44 @@ describe("nsa: continuation along the path of the move", function () {
     });
 
     it("after the point that arrived stays and others move", function () {
-        ["Free", "PointOnLine"].forEach(function (kind) {
-            var E = kind === "Free" ? P("E", 1, -5) : { name: "E", type: "PointOnLine", args: ["g"], pos: [1, -5, 1] };
-            var cdy = widget(
-                [
-                    P("A", -1, -8),
-                    P("B", 5, 1),
-                    { name: "g", type: "Join", args: ["A", "B"] },
-                    E,
-                    P("F", 3, -2),
-                    { name: "X", type: "Join", args: ["E", "F"] },
-                    P("U", 7, 7),
-                ],
-                true
-            );
-            cdy.evalcs("E.xy=(3,-2)"); // along g, direction (2, 3)
-            expectLine(cdy, [3, -2], [2, 3], kind + " arrived");
-            cdy.evalcs("F.xy=(3,-2)"); // F moved without moving
-            expectLine(cdy, [3, -2], [2, 3], kind + " after F moved by zero");
-            cdy.evalcs("U.xy=(8,6)"); // an unrelated point moved
-            expectLine(cdy, [3, -2], [2, 3], kind + " after U moved");
-        });
+        var cdy = widget(
+            [
+                P("A", -1, -8),
+                P("B", 5, 1),
+                { name: "g", type: "Join", args: ["A", "B"] },
+                L("E", "g", 1, -5),
+                L("F", "g", 3, -2),
+                { name: "X", type: "Join", args: ["E", "F"] },
+                P("U", 7, 7),
+            ],
+            true
+        );
+        cdy.evalcs("E.xy=(3,-2)"); // along g, direction (2, 3)
+        expectLine(cdy, [3, -2], [2, 3], "arrived");
+        cdy.evalcs("F.xy=(3,-2)"); // F moved without moving
+        expectLine(cdy, [3, -2], [2, 3], "after F moved by zero");
+        cdy.evalcs("U.xy=(8,6)"); // an unrelated point moved
+        expectLine(cdy, [3, -2], [2, 3], "after U moved");
+    });
+
+    it("but not for free points: the line depends on where they met from", function () {
+        var cdy = widget([P("E", 1, -5), P("F", 3, -2), { name: "X", type: "Join", args: ["E", "F"] }], true);
+        cdy.evalcs("E.xy=(3,-2)");
+        isUndefined(cdy.evalcs("X.homog")).should.equal(true, "arrived");
+        cdy.evalcs("F.xy=(3,-2)");
+        isUndefined(cdy.evalcs("X.homog")).should.equal(true, "after F moved by zero");
     });
 
     it("when the point that arrived is moved by zero", function () {
-        var cdy = widget([P("E", 2, 5), P("F", 2, 2), { name: "X", type: "Join", args: ["E", "F"] }], true);
+        var cdy = widget(
+            [
+                { name: "g", type: "FreeLine", pos: [1, 0, -2] },
+                L("E", "g", 2, 5),
+                L("F", "g", 2, 2),
+                { name: "X", type: "Join", args: ["E", "F"] },
+            ],
+            true
+        );
         cdy.evalcs("E.xy=(2,2)"); // arrives at F from above
         expectLine(cdy, [2, 2], [0, 1], "arrived from above");
         cdy.evalcs("E.xy=(2,2)");
@@ -552,8 +828,9 @@ describe("nsa: continuation along the path of the move", function () {
     it("is not disturbed by an unrelated undefined element", function () {
         var cdy = widget(
             [
-                P("E", 0, 1),
-                P("F", 2, 1),
+                { name: "g", type: "FreeLine", pos: [0, 1, -1] },
+                L("E", "g", 0, 1),
+                L("F", "g", 2, 1),
                 { name: "X", type: "Join", args: ["E", "F"] },
                 { name: "K", type: "FreeConic" },
             ],
@@ -566,13 +843,47 @@ describe("nsa: continuation along the path of the move", function () {
         expectLine(cdy, [2, 1], [1, 0], "after F moved by zero");
     });
 
-    it("leaves the join of points coinciding when loading undefined: there is no path", function () {
+    it("when nothing can be perturbed: pinned points moved by a script", function () {
+        var cdy = widget(
+            [
+                { name: "g", type: "FreeLine", pos: [1, -1, 0], pinned: true },
+                Object.assign(L("E", "g", 3, 3), { pinned: true }),
+                Object.assign(L("F", "g", 1, 1), { pinned: true }),
+                { name: "X", type: "Join", args: ["E", "F"] },
+            ],
+            true
+        );
+        cdy.evalcs("E.xy=(1,1)");
+        expectLine(cdy, [1, 1], [1, 1], "arrived");
+        cdy.evalcs("F.xy=(1,1)");
+        expectLine(cdy, [1, 1], [1, 1], "after F moved by zero");
+    });
+
+    it("but not without a path: pinned points coinciding when loading", function () {
+        var cdy = widget(
+            [
+                { name: "g", type: "FreeLine", pos: [1, -1, 0], pinned: true },
+                Object.assign(L("E", "g", 1, 1), { pinned: true }),
+                Object.assign(L("F", "g", 1, 1), { pinned: true }),
+                { name: "X", type: "Join", args: ["E", "F"] },
+            ],
+            true
+        );
+        isUndefined(cdy.evalcs("X.homog")).should.equal(true);
+    });
+
+    it("leaves the join of free points coinciding when loading undefined", function () {
         var cdy = widget([P("E", 2, 1), P("F", 2, 1), { name: "X", type: "Join", args: ["E", "F"] }], true);
         isUndefined(cdy.evalcs("X.homog")).should.equal(true);
     });
 
     it("only in the widget that asked for it", function () {
-        var geometry = [P("E", 0, 1), P("F", 2, 1), { name: "X", type: "Join", args: ["E", "F"] }];
+        var geometry = [
+            { name: "g", type: "FreeLine", pos: [0, 1, -1] },
+            L("E", "g", 0, 1),
+            L("F", "g", 2, 1),
+            { name: "X", type: "Join", args: ["E", "F"] },
+        ];
         var plain = widget(geometry, false);
         var nsa = widget(geometry, true);
         plain.evalcs("E.xy=(2,1)");
@@ -598,28 +909,13 @@ describe("nsa: removable and non-removable singularities", function () {
     }
 
     it("unified circles with centers on a common line: the perpendicular through the center", function () {
-        var geometry = circles([
-            { name: "g", type: "HorizontalLine", pos: [0, 1, -1] },
-            { name: "A", type: "PointOnLine", args: ["g"], pos: [0, 1, 1] },
-            { name: "C", type: "PointOnLine", args: ["g"], pos: [1, 1, 1] },
-        ]);
-        var cdy = widget(geometry, true);
-        cdy.evalcs("C.xy=(0,1)");
-        var z = cdy.evalcs("Z.homog");
-        isUndefined(z).should.equal(false, "Z undefined");
-        projectiveDistance(z, List.realVector([1, 0, 0])).should.be.below(1e-9, niceprint(z));
-        // CircleMr radii are free parameters of their own, so loaded in that
-        // position the perturbations change them independently and the
-        // radical axis is arbitrary: undefined
-        geometry[2].pos = [0, 1, 1];
-        isUndefined(widget(geometry, true).evalcs("Z.homog")).should.equal(true, "free radii");
-        // with the radius tied to the other circle's, the extended
-        // continuation exists: every perturbation keeps both centers on g
-        var tied = widget(
-            [
+        // the radius of c2 tied to that of c1, so that every perturbation
+        // keeps the radii equal and both centers on g
+        var tied = function (cx) {
+            return [
                 { name: "g", type: "HorizontalLine", pos: [0, 1, -1] },
                 { name: "A", type: "PointOnLine", args: ["g"], pos: [0, 1, 1] },
-                { name: "C", type: "PointOnLine", args: ["g"], pos: [0, 1, 1] },
+                { name: "C", type: "PointOnLine", args: ["g"], pos: [cx, 1, 1] },
                 P("B", 2, 1),
                 { name: "c1", type: "CircleMP", args: ["A", "B"] },
                 { name: "c2", type: "Compass", args: ["A", "B", "C"] },
@@ -627,17 +923,38 @@ describe("nsa: removable and non-removable singularities", function () {
                 { name: "X", type: "SelectP", args: ["Is"], index: 1 },
                 { name: "Y", type: "SelectP", args: ["Is"], index: 2 },
                 { name: "Z", type: "Join", args: ["X", "Y"] },
-            ],
-            true
-        );
-        var loaded = tied.evalcs("Z.homog");
+            ];
+        };
+        var cdy = widget(tied(1), true);
+        cdy.evalcs("C.xy=(0,1)");
+        var z = cdy.evalcs("Z.homog");
+        isUndefined(z).should.equal(false, "Z undefined");
+        projectiveDistance(z, List.realVector([1, 0, 0])).should.be.below(1e-9, niceprint(z));
+        var loaded = widget(tied(0), true).evalcs("Z.homog");
         isUndefined(loaded).should.equal(false, "Z undefined when loaded");
         projectiveDistance(loaded, List.realVector([1, 0, 0])).should.be.below(1e-9, niceprint(loaded));
+        // CircleMr radii are free parameters of their own: the perturbations
+        // change them independently and the radical axis is arbitrary
+        var geometry = circles([
+            { name: "g", type: "HorizontalLine", pos: [0, 1, -1] },
+            { name: "A", type: "PointOnLine", args: ["g"], pos: [0, 1, 1] },
+            { name: "C", type: "PointOnLine", args: ["g"], pos: [1, 1, 1] },
+        ]);
+        var free = widget(geometry, true);
+        free.evalcs("C.xy=(0,1)");
+        isUndefined(free.evalcs("Z.homog")).should.equal(true, "free radii, moved");
+        geometry[2].pos = [0, 1, 1];
+        isUndefined(widget(geometry, true).evalcs("Z.homog")).should.equal(true, "free radii, loaded");
     });
 
     it("unified circles with free centers: undefined", function () {
         var geometry = circles([P("A", 0, 1), P("C", 0, 1)]);
-        isUndefined(widget(geometry, true).evalcs("Z.homog")).should.equal(true);
+        isUndefined(widget(geometry, true).evalcs("Z.homog")).should.equal(true, "loaded");
+        // also right after a move: the limit along the path depends on its direction
+        geometry[1].pos = [3, 1];
+        var cdy = widget(geometry, true);
+        cdy.evalcs("C.xy=(0,1)");
+        isUndefined(cdy.evalcs("Z.homog")).should.equal(true, "moved");
     });
 
     it("circles touching along the whole path: undefined", function () {
@@ -707,7 +1024,12 @@ describe("nsa: removable and non-removable singularities", function () {
 
     it("gives the same limit for exact and rounded coincidence", function () {
         // 0.1 + 0.2 is not 0.3 in floating point
-        var geometry = [P("E", 0, 0), P("F", 0.3, 1), { name: "X", type: "Join", args: ["E", "F"] }];
+        var geometry = [
+            { name: "g", type: "FreeLine", pos: [10, -3, 0] },
+            L("E", "g", 0, 0),
+            L("F", "g", 0.3, 1),
+            { name: "X", type: "Join", args: ["E", "F"] },
+        ];
         var exact = widget(geometry, true);
         exact.evalcs("E.xy=(0.3,1)");
         var rounded = widget(geometry, true);
@@ -761,8 +1083,9 @@ describe("nsa: review regressions", function () {
         function run(nsa, finalA, path) {
             var cdy = widget(
                 [
-                    P("A", -1, 0.2),
-                    P("B", 0, 0),
+                    { name: "g", type: "FreeLine", pos: [1, 5, 0] },
+                    L("A", "g", -1, 0.2),
+                    L("B", "g", 0, 0),
                     P("M", 0.3, 1),
                     P("R", 0.3, 3),
                     { name: "l", type: "Join", args: ["A", "B"] },
@@ -811,7 +1134,15 @@ describe("nsa: review regressions", function () {
     });
 
     it("keeps properties set by scripts", function () {
-        var cdy = widget([P("A", -1, 0), P("B", 0, 0), { name: "l", type: "Join", args: ["A", "B"] }], true);
+        var cdy = widget(
+            [
+                { name: "g", type: "FreeLine", pos: [0, 1, 0] },
+                L("A", "g", -1, 0),
+                L("B", "g", 0, 0),
+                { name: "l", type: "Join", args: ["A", "B"] },
+            ],
+            true
+        );
         cdy.evalcs("A.xy=(0,0)");
         cdy.evalcs("l.color=[1,0,0]; l.size=7");
         cdy.evalcs("A.xy=(0,0)");
@@ -823,8 +1154,9 @@ describe("nsa: review regressions", function () {
     it("keeps limits while other parts of the construction change", function () {
         var cdy = widget(
             [
-                P("A", -1, 0),
-                P("B", 0, 0),
+                { name: "g", type: "FreeLine", pos: [0, 1, 0] },
+                L("A", "g", -1, 0),
+                L("B", "g", 0, 0),
                 P("C", 2, -1),
                 P("E", 1, 1),
                 { name: "l", type: "Join", args: ["A", "B"] },
@@ -833,7 +1165,7 @@ describe("nsa: review regressions", function () {
             ],
             true
         );
-        cdy.evalcs("A.xy=(0,0)"); // l is the x axis, the line A arrived along
+        cdy.evalcs("A.xy=(0,0)"); // l is g, the x axis
         niceprint(cdy.evalcs("D.xy")).should.equal("[1.5, 0]");
         cdy.evalcs("C.xy=(2.5,-1)"); // D is recomputed from the limit l
         niceprint(cdy.evalcs("D.xy")).should.equal("[1.75, 0]");
@@ -856,7 +1188,8 @@ describe("nsa: review regressions", function () {
                 [
                     P("M", 0, 0),
                     P("R", 1, 0),
-                    { name: "c", type: "CircleMr", args: ["M"], radius: 1 },
+                    // through R, also when R is perturbed
+                    { name: "c", type: "CircleMP", args: ["M", "R"] },
                     { name: "Q", type: "PointOnCircle", args: ["c"], pos: [from[0], from[1], 1] },
                     { name: "l", type: "Join", args: ["Q", "R"] },
                 ],
@@ -919,7 +1252,6 @@ describe("nsa: Pappus at degenerate positions", function () {
     [
         ["B.xy=O.xy"],
         ["B.xy=O.xy", "E.xy=O.xy"],
-        ["D.xy=E.xy", "A.xy=B.xy"],
         ["G.xy=H.xy"],
         // X = Z = E during the whole move of F: the join of the two, computed
         // from standard values that coincide up to rounding, is noise, not the
@@ -935,6 +1267,15 @@ describe("nsa: Pappus at degenerate positions", function () {
             incidence(cdy, "Y", "p").should.be.below(1e-12);
             incidence(cdy, "X", "p").should.be.below(1e-12);
         });
+    });
+
+    it("D.xy=E.xy, A.xy=B.xy: p undefined", function () {
+        // AE and BD both become AD, and where X lies on it depends on how the
+        // two coincidences are approached, independently of each other
+        var cdy = widget(geometry, true);
+        cdy.evalcs("D.xy=E.xy");
+        cdy.evalcs("A.xy=B.xy");
+        isUndefined(cdy.evalcs("p.homog")).should.equal(true);
     });
 
     it("B dragged onto O, then E dragged along h: Y stays on p", function () {
@@ -1011,17 +1352,26 @@ describe("nsa: curves through coinciding input", function () {
 
     [
         {
-            name: "arc through three points, B onto A",
-            geometry: [P("A", 0.1, 0.3), P("B", 1.1, 0.2), P("C", 0.4, 1.7)].concat([
+            name: "arc through three points, B onto A along a line",
+            geometry: [
+                { name: "g", type: "FreeLine", pos: [0.1, 1, -0.31] },
+                L("A", "g", 0.1, 0.3),
+                L("B", "g", 1.1, 0.2),
+                P("C", 0.4, 1.7),
                 { name: "k", type: "ArcBy3", args: ["A", "B", "C"] },
-            ]),
+            ],
             moves: ["B.xy=(0.6,0.3)", "B.xy=A.xy"],
             curves: ["k"],
             points: ["A", "C"],
         },
         {
-            name: "segment, B onto A",
-            geometry: [P("A", 0.1, 0.3), P("B", 1.1, 0.2), { name: "s", type: "Segment", args: ["A", "B"] }],
+            name: "segment, B onto A along a line",
+            geometry: [
+                { name: "g", type: "FreeLine", pos: [0.1, 1, -0.31] },
+                L("A", "g", 0.1, 0.3),
+                L("B", "g", 1.1, 0.2),
+                { name: "s", type: "Segment", args: ["A", "B"] },
+            ],
             moves: ["B.xy=(0.6,0.3)", "B.xy=A.xy"],
             curves: ["s"],
             points: ["A"],
@@ -1059,6 +1409,7 @@ describe("nsa: curves through coinciding input", function () {
             points: ["B"],
         },
         {
+            // d turns about D1 on c until it coincides with c
             name: "conics with pole and polar tangent to two coinciding lines",
             geometry: [
                 P("A", 0.1, 2.1),
@@ -1066,12 +1417,12 @@ describe("nsa: curves through coinciding input", function () {
                 P("B", 1.6, 1.1),
                 P("C1", -2.1, -3.1),
                 P("C2", 2.2, -2.9),
-                P("D1", -4.1, -1.1),
-                P("D2", 4.2, -3.2),
                 J("c", "C1", "C2"),
+                L("D1", "c", -1.1, -3.05),
+                P("D2", 4.2, -3.2),
                 J("d", "D1", "D2"),
             ].concat(conics("ConicBy1Pol1P2L", ["A", "a", "B", "c", "d"])),
-            moves: ["D1.xy=C1.xy", "D2.xy=(2.3,-2.5)", "D2.xy=C2.xy"],
+            moves: ["D2.xy=(2.3,-2.5)", "D2.xy=C2.xy"],
             curves: ["X", "Y"],
             points: ["B"],
         },
@@ -1095,11 +1446,12 @@ describe("nsa: curves through coinciding input", function () {
 describe("nsa: circle through two coinciding points, off the grid", function () {
     // With coordinates that are not exact in binary, the circle through A,
     // B = A and C is rounding noise without nsa, not even through A. With nsa
-    // it is the limit: through A and C, tangent at A to the direction B came
-    // from (horizontal here).
+    // it is the limit: through A and C, tangent at A to the line that A and B
+    // are bound to (horizontal here).
     var geometry = [
-        P("A", 0.1, 0.3),
-        P("B", 2.1, 1.3),
+        { name: "g", type: "FreeLine", pos: [0, 1, -0.3] },
+        L("A", "g", 0.1, 0.3),
+        L("B", "g", 2.1, 0.3),
         P("C", 3.1, -1.7),
         { name: "k", type: "CircleBy3", args: ["A", "B", "C"] },
     ];

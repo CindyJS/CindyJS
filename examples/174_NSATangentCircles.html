@@ -37,10 +37,18 @@
         <p>
             This widget uses <code>nsa: true</code> (see <a href="173_NSA.html">173_NSA.html</a>), but at a tangency
             there is nothing for it to do: P and Q coincide, yet their positions are defined, and so is r, the common
-            tangent. Non-standard analysis only fills in values that would otherwise be undefined. It does not change
+            tangent. Non-standard analysis only acts on elements that would otherwise be undefined. It does not change
             which intersection is P and which is Q, and the tracing state still reports that the tangent position is
             singular. Moving on from there is handled by tracing, which continues from the last good position, just as
             without it.
+        </p>
+        <p>
+            Put B onto A and the circles coincide: P, Q and r are undefined. Along the path of B, r would have a limit,
+            the line through A perpendicular to the direction B came from, but it depends on that direction, so it is
+            not stable under perturbation and the singularity is not removable: r stays undefined with
+            <code>nsa: true</code> as well. (Binding A and B to a common line does not change that here: each circle has
+            a radius of its own, which can be displaced as well. Circles that share their radius, e.g. both drawn with
+            the compass, would give the perpendicular.)
         </p>
         <p>
             <button onclick="cdy.evokeCS('B.xy = (2, 0);')">Overlapping (dist 4)</button>

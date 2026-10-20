@@ -17,12 +17,14 @@
 //     right after a move, the mover's parameter is set infinitesimally before
 //     and after the end of its path, t = 1 -+ eps; both projective shadows
 //     must agree.
-//   Extended C0-continuation (Algorithm "Extended C0-Continuation"):
-//     for everything the path does not decide (the construction vanishes
-//     identically along it, zero moves, loading, full recalculation), all free
-//     elements are perturbed infinitesimally in a few random directions, each
-//     staying within its constraints (a point on a line stays on the line);
-//     all projective shadows must agree.
+//   Extended C0-continuation (Algorithm "Extended C0-Continuation"): always,
+//     all free elements are perturbed infinitesimally in a few random
+//     directions, each staying within its constraints (a point on a line stays
+//     on the line); all projective shadows must agree, and with the one along
+//     the path, if there is one. A limit that depends on the direction of
+//     approach is not stable under perturbation, and the singularity is not
+//     removable: the join of two free points that meet stays undefined, that
+//     of two points on a common line is that line.
 //
 // The implementation sits inside a function because the sources are
 // concatenated into one scope: its many short helper names (evaluate, match,
@@ -741,6 +743,8 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             const frozen = frozenFor(inScope, badSet, keys);
             const order = ancestorClosure(todo, frozen);
             const found = new Map<GeoElement, { fields: Fields; state: StateSlice } | null>();
+            // continuous along the path, still to be checked for stability
+            const alongPath = new Map<GeoElement, { fields: Fields; state: StateSlice }>();
             const eps = CSNumber.infinitesimal(1);
 
             // C0-continuation along the mover's path, at t = 1 -+ eps
@@ -767,24 +771,32 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                 for (const el of todo) {
                     const a = before.fields.get(el);
                     const b = after.fields.get(el);
-                    // defined on both sides: continuous or not; otherwise the path
-                    // does not decide and the extended continuation below may
+                    // defined on both sides: discontinuous, or a candidate that
+                    // must also be stable under perturbation (below); otherwise
+                    // the path does not decide
                     if (a && b) {
                         const state = before.states.get(el);
-                        found.set(el, agree(a, b) && state ? { fields: a, state } : null);
+                        if (agree(a, b) && state) alongPath.set(el, { fields: a, state });
+                        else found.set(el, null);
                     }
                 }
             }
 
-            // Extended C0-continuation for the rest: first with the given inputs
-            // fixed, then, for what that leaves open, perturbing everything. A
-            // fixed input is a limit for its ancestors' current configuration, so
-            // those are not perturbed either - otherwise the evaluation would mix
-            // two configurations, and could agree on a wrong value.
+            // Extended C0-continuation: the value must not depend on the
+            // direction of approach, so all free elements, the mover included,
+            // are perturbed in random directions, and a value found along the
+            // path must agree with them. (Two equal circles whose free centers
+            // meet: along the path, the line through their intersections has a
+            // limit, but it depends on the direction the centers met from.)
+            // First with the given inputs fixed, then, for what that leaves
+            // open, perturbing everything. A fixed input is a limit for its
+            // ancestors' current configuration, so those are not perturbed
+            // either - otherwise the evaluation would mix two configurations,
+            // and could agree on a wrong value.
             for (const fixed of [frozen, new Set<GeoElement>()]) {
                 const held = new Set(ancestorClosure([...fixed], new Set()));
-                // decided: both sides of the path defined (continuous or not), or
-                // an extended continuation found
+                // decided: discontinuous along the path, or an extended
+                // continuation found
                 const rest = todo.filter((el) => !found.has(el));
                 if (rest.length === 0) break;
                 const restOrder = ancestorClosure(rest, fixed);
@@ -800,9 +812,18 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                     const fs = samples.map((s) => s.fields.get(el));
                     const state = samples[0].states.get(el);
                     const first = fs[0];
-                    if (state && first && fs.every((f) => f && agree(first, f)))
-                        found.set(el, { fields: first, state });
+                    if (!state || !first || !fs.every((f) => f && agree(first, f))) continue;
+                    const path = alongPath.get(el);
+                    if (!path) found.set(el, { fields: first, state });
+                    // the state along the path, so that tracing continues from there
+                    else if (agree(path.fields, first)) found.set(el, path);
                 }
+            }
+            // Nothing that could be perturbed (e.g. pinned points moved by a
+            // script): every approach is the path, so its limit stands.
+            const canPerturb = (a: GeoElement) => !!perturbations[a.type] && !a.pinned;
+            for (const [el, path] of alongPath) {
+                if (!found.has(el) && !ancestorClosure([el], new Set()).some(canPerturb)) found.set(el, path);
             }
             for (const el of todo) {
                 const r = found.get(el);
