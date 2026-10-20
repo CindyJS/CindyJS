@@ -465,7 +465,16 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         return saved;
     }
 
-    let warned = false;
+    // Each distinct failure is reported once (up to a limit), so that one
+    // failure does not hide others, and a failure in every move does not
+    // flood the console.
+    const warnings = new Set<string>();
+    function warnOnce(what: string, e: unknown) {
+        const key = what + ": " + String(e);
+        if (warnings.has(key) || warnings.size >= 20) return;
+        warnings.add(key);
+        console.warn("CindyJS nsa: " + what, e);
+    }
 
     // Evaluates the elements of `order` once, with parameters perturbed by
     // `perturb`, and returns, for the `targets` that depend on a perturbed
@@ -548,10 +557,7 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                 states.set(el, st);
             });
         } catch (e) {
-            if (e !== Abort && !warned) {
-                warned = true;
-                console.warn("CindyJS nsa: evaluation failed", e);
-            }
+            if (e !== Abort) warnOnce("evaluation failed", e);
             fields.clear();
             states.clear();
         } finally {
@@ -813,10 +819,7 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         try {
             resolve(scope, mover, originParam, targetParam);
         } catch (e) {
-            if (!warned) {
-                warned = true;
-                console.warn("CindyJS nsa: resolution failed", e);
-            }
+            warnOnce("resolution failed", e);
         }
     }
 

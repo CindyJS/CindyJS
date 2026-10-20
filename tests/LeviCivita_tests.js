@@ -196,6 +196,80 @@ describe("Levi-Civita mode", function () {
         List.det3.should.equal(stdDet3);
         CSNumber._helper.isZero.should.equal(stdIsZero);
     });
+
+    it("restores every member of CSNumber and List, also after exceptions", function () {
+        // a fresh instance, in which the mode has not been used yet
+        var fresh = rewire("../build/js/exposed.js");
+        var CSNumber = fresh.__get__("CSNumber");
+        var List = fresh.__get__("List");
+        var withLeviCivita = fresh.__get__("withLeviCivita");
+        var e = CSNumber.infinitesimal(1);
+        var objects = {
+            CSNumber: CSNumber,
+            "CSNumber._helper": CSNumber._helper,
+            List: List,
+            "List._helper": List._helper,
+        };
+        var snapshot = function () {
+            var s = {};
+            Object.keys(objects).forEach(function (name) {
+                // descriptors: some members are getters (CSNumber.zero)
+                s[name] = Object.getOwnPropertyDescriptors(objects[name]);
+            });
+            return s;
+        };
+        var check = function (before) {
+            Object.keys(objects).forEach(function (name) {
+                var now = Object.getOwnPropertyDescriptors(objects[name]);
+                Object.keys(now).should.have.members(Object.keys(before[name]), name);
+                Object.keys(now).forEach(function (key) {
+                    var a = now[key];
+                    var b = before[name][key];
+                    (a.value === b.value && a.get === b.get && a.set === b.set).should.equal(true, name + "." + key);
+                });
+            });
+        };
+        var before = snapshot();
+        withLeviCivita(function () {
+            CSNumber.add(CSNumber.real(1), e);
+        });
+        check(before);
+        (function () {
+            withLeviCivita(function () {
+                withLeviCivita(function () {
+                    throw new Error("boom");
+                });
+            });
+        }.should.throw("boom"));
+        check(before);
+    });
+
+    // The substitutes only take effect where CSNumber and List members are
+    // looked up at call time. A reference captured at load time (const add =
+    // CSNumber.add at the top level of a file) would keep the standard
+    // implementation inside the mode and compute NaN on series.
+    it("is not bypassed by references captured at load time", function () {
+        var fs = require("fs");
+        var path = require("path");
+        var capture = /^\S.*[=:(,]\s*(CSNumber|List)(\._helper)?\.[A-Za-z_$][\w$]*\s*[,;)]?\s*$/;
+        var constants = /\.(zero|one|infinity|eps|epsbig|ii|jj|ex|ey|ez|linfty|_helper)\s*[,;)]?\s*$/;
+        var offenders = [];
+        var walk = function (dir) {
+            fs.readdirSync(dir).forEach(function (f) {
+                var p = path.join(dir, f);
+                if (fs.statSync(p).isDirectory()) return walk(p);
+                if (!/\.(js|ts)$/.test(f)) return;
+                fs.readFileSync(p, "utf8")
+                    .split("\n")
+                    .forEach(function (line, i) {
+                        if (capture.test(line) && !constants.test(line))
+                            offenders.push(p + ":" + (i + 1) + ": " + line);
+                    });
+            });
+        };
+        walk(path.join(__dirname, "../src/js"));
+        offenders.should.deep.equal([]);
+    });
 });
 
 describe("CSNumber on Levi-Civita values", function () {

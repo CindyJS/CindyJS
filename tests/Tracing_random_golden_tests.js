@@ -4,9 +4,13 @@
 // bit-identical when nsa is off. Complements tests/Tracing_golden_tests.js
 // with many more operations and coincidences.
 //
-// To regenerate tests/fixtures/tracing-random.json (only ever with a build
-// that is known to trace correctly):
+// The expected values must come from a build without the nsa work, never
+// from this code: recording here would make the test pass by definition. To
+// add a case or regenerate tests/fixtures/tracing-random.json, check out a
+// commit from before the nsa work (a7dbbbaa), build it (node make plain),
+// copy this test and tests/fixtures/ there, run
 //     node tests/Tracing_random_golden_tests.js --record > tests/fixtures/tracing-random.json
+// and check that the cases recorded before are unchanged.
 
 global.navigator = {};
 var crypto = require("crypto");

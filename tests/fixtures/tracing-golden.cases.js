@@ -168,6 +168,62 @@ module.exports = [
         ).concat(["t.slope=0.5", "t.slope=-3"]),
     },
     {
+        // classifies the conics by sign of a determinant (ellipse first) and
+        // splits degenerate conics to intersect them
+        name: "conics by foci, compass, and their intersections",
+        degenerate: false,
+        geometry: [
+            P("F1", -2, 0),
+            P("F2", 2, 0),
+            P("Q", 0, 3),
+            P("A", 0, 0),
+            P("B", 1.5, 0),
+            P("M", 1, 1),
+            { name: "Cs", type: "ConicBy2Foci1P", args: ["F1", "F2", "Q"] },
+            { name: "E", type: "SelectConic", args: ["Cs"], index: 1 },
+            { name: "H", type: "SelectConic", args: ["Cs"], index: 2 },
+            { name: "k", type: "Compass", args: ["A", "B", "M"] },
+            { name: "Is", type: "IntersectConicConic", args: ["E", "k"] },
+            { name: "X1", type: "SelectP", args: ["Is"], index: 1 },
+            { name: "X2", type: "SelectP", args: ["Is"], index: 2 },
+            { name: "X3", type: "SelectP", args: ["Is"], index: 3 },
+            { name: "X4", type: "SelectP", args: ["Is"], index: 4 },
+        ],
+        moves: drag(
+            "Q",
+            [
+                [0, 3],
+                [3, 1],
+                [2, 0.5],
+                [-1, -2],
+                [0, 3],
+            ],
+            8
+        )
+            .concat(
+                drag(
+                    "M",
+                    [
+                        [1, 1],
+                        [3, 0],
+                        [-2, 2],
+                    ],
+                    6
+                )
+            )
+            .concat(
+                drag(
+                    "F2",
+                    [
+                        [2, 0],
+                        [0.5, 0],
+                        [2, 2],
+                    ],
+                    6
+                )
+            ),
+    },
+    {
         name: "joins and meets passing through degenerate positions",
         degenerate: true,
         geometry: [

@@ -1172,3 +1172,36 @@ describe("nsa: conics by four points and a line, two points coinciding", functio
         });
     });
 });
+
+// The shipped build is compiled by the Closure Compiler at ADVANCED level,
+// may rename or inline what the plain build keeps. Only available after
+// `node make closure`, as in `node make tests`.
+describe("nsa: Closure-compiled build", function () {
+    var closurePath = require("path").join(__dirname, "../build/js/Cindy.closure.js");
+    var CindyJSClosure = require("fs").existsSync(closurePath) ? require(closurePath) : null;
+
+    before(function () {
+        if (!CindyJSClosure) this.skip();
+    });
+
+    cases.forEach(function (c) {
+        it(c.name, function () {
+            var cdy = CindyJSClosure({
+                isNode: true,
+                csconsole: false,
+                nsa: true,
+                geometry: JSON.parse(JSON.stringify(c.geometry)),
+            });
+            (c.setup || []).forEach(function (s) {
+                cdy.evalcs(s);
+            });
+            cdy.evalcs(c.mover + ".xy=(" + c.from + ")");
+            cdy.evalcs(c.mover + ".xy=(" + c.to + ")");
+            var limit = cdy.evalcs(c.target);
+            isUndefined(limit).should.equal(false, "resolved: " + niceprint(limit));
+            var plain = evaluateAt(c, true, c.to);
+            projectiveDistance(limit, plain).should.be.below(1e-12, niceprint(limit) + " vs " + niceprint(plain));
+            hasSeries(cdy.evalcs("apply(allelements(), [#.homog, #.matrix, #.radius])")).should.equal(false);
+        });
+    });
+});

@@ -3,15 +3,34 @@
 // tracing computes. These tests replay scripted moves and compare every
 // coordinate bit for bit with values recorded before that work.
 //
-// To regenerate tests/fixtures/tracing-golden.json (only ever with a build
-// that is known to trace correctly):
+// The expected values must come from a build without the nsa work, never
+// from this code: recording here would make the test pass by definition. To
+// add a case or regenerate tests/fixtures/tracing-golden.json, check out a
+// commit from before the nsa work (a7dbbbaa), build it (node make plain),
+// copy this test and tests/fixtures/ there, run
 //     node tests/Tracing_golden_tests.js --record > tests/fixtures/tracing-golden.json
+// and check that the cases recorded before are unchanged.
 
 global.navigator = {};
 var cases = require("./fixtures/tracing-golden.cases.js");
 var CindyJS = require("../build/js/Cindy.plain.js");
 
 function snapshot(CindyJS, c, options) {
+    // some operations use Math.random (e.g. ConicBy2Foci1P)
+    var rs = 12345;
+    var random = Math.random;
+    Math.random = function () {
+        rs = (rs * 16807) % 2147483647;
+        return rs / 2147483647;
+    };
+    try {
+        return replay(CindyJS, c, options);
+    } finally {
+        Math.random = random;
+    }
+}
+
+function replay(CindyJS, c, options) {
     var cdy = CindyJS(
         Object.assign({ isNode: true, csconsole: false, geometry: JSON.parse(JSON.stringify(c.geometry)) }, options)
     );
