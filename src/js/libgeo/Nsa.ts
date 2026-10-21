@@ -423,7 +423,17 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         setInIdx: function (idx: number): void {
             inIdx = idx;
         },
-        // (lastGoodVector stays the tracing one: the last good state is read only)
+        // The last good state, as the evaluation starts from it: the degenerate
+        // elements from their last good state, all others from the current one.
+        // (Tracing's own last good state can be older: it is not written while
+        // tracing failed, e.g. in the move that made an element degenerate. A
+        // point on a line, rotated from there when its line is perturbed, would
+        // jump elsewhere on the line.)
+        lastGoodVector: function (idx: number, n: number): Value {
+            const lst = new Array(n);
+            for (let i = 0; i < n; ++i) lst[i] = CSNumber.complex(inArr[idx + 2 * i], inArr[idx + 2 * i + 1]);
+            return List.turnIntoCSList(lst);
+        },
     };
 
     // the vector compared when matching solutions: Levi-Civita vectors by their limit
@@ -667,13 +677,15 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         CircleMr: function (el, p, eps, rnd) {
             return CSNumber.add(p as CSNum, CSNumber.realmult(rnd(), eps));
         },
-        // by a random symmetric matrix, relative to the largest entry
+        // by a random symmetric matrix, relative to the largest entry; in the
+        // form of the tracing state (the six entries), not of the parameter
         FreeConic: function (el, p, eps, rnd) {
             const m = p as CSList;
             const s = [0, 1, 2].map(() => [0, 0, 0]);
             for (let i = 0; i < 3; i++) for (let j = 0; j <= i; j++) s[i][j] = s[j][i] = rnd();
             const size = CSNumber.abs(List.maxval(m)).value.real;
-            return List.add(m, List.scalmult(CSNumber.realmult(size, eps), List.realMatrix(s)));
+            const perturbed = List.add(m, List.scalmult(CSNumber.realmult(size, eps), List.realMatrix(s)));
+            return geoOps._helper.flattenConicMatrix(perturbed);
         },
     };
 
