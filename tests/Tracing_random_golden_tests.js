@@ -6,9 +6,9 @@
 //
 // The expected values must come from a build without the nsa work, never
 // from this code: recording here would make the test pass by definition. To
-// add a case or regenerate tests/fixtures/tracing-random.json, check out a
-// commit from before the nsa work (a7dbbbaa), build it (node make plain),
-// copy this test and tests/fixtures/ there, run
+// add a case or regenerate tests/fixtures/tracing-random.json, check out the
+// commit the nsa work is based on (git merge-base HEAD origin/main), build it
+// (node make plain), copy this test and tests/fixtures/ there, run
 //     node tests/Tracing_random_golden_tests.js --record > tests/fixtures/tracing-random.json
 // and check that the cases recorded before are unchanged.
 
@@ -24,6 +24,7 @@ var COUNT = 30;
 var SKIP = ["seed 33 #10", "seed 33 #21"];
 
 var exact = function (v) {
+    if (Array.isArray(v)) return "(" + v.map(exact).join(";") + ")";
     if (!v || typeof v !== "object") return String(v);
     if (v.ctype === "number") return v.value.real + "," + v.value.imag;
     if (v.ctype === "list") return "[" + v.value.map(exact).join(";") + "]";
@@ -32,7 +33,7 @@ var exact = function (v) {
 };
 
 // per frame: a hash of all coordinates and visibility
-function replay(c, index) {
+function replay(c, index, options) {
     // some operations use Math.random (e.g. ConicBy2Foci1P)
     var rs = 12345 + index * 7919;
     var random = Math.random;
@@ -46,19 +47,26 @@ function replay(c, index) {
     console.log = console.warn = console.error = function () {};
     var hashes = [];
     try {
-        var cdy = CindyJS({ isNode: true, csconsole: false, geometry: JSON.parse(JSON.stringify(c.geometry)) });
+        var cdy = CindyJS(
+            Object.assign({ isNode: true, csconsole: false, geometry: JSON.parse(JSON.stringify(c.geometry)) }, options)
+        );
         var names = c.geometry.map(function (g) {
             return g.name;
         });
         var frame = function () {
             var s = names
                 .map(function (n) {
+                    // the element itself, for what CindyScript has no accessor
+                    // for: all solutions of an intersection, the value of an angle
+                    var el = cdy.evalcs(n).value;
                     return (
                         n +
                         "=" +
                         exact(cdy.evalcs(n + ".homog")) +
                         exact(cdy.evalcs(n + ".matrix")) +
-                        exact(cdy.evalcs(n + ".isshowing"))
+                        exact(cdy.evalcs(n + ".isshowing")) +
+                        (el.results ? " results" + exact(el.results) : "") +
+                        (el.kind === "V" ? " value" + exact(el.value) : "")
                     );
                 })
                 .join(" ");
@@ -93,28 +101,37 @@ function allCases() {
     return cases;
 }
 
-if (require.main === module && process.argv[2] === "--record") {
+// The same constructions with nsa, compared with tests/fixtures/nsa-random.json:
+// unlike the values above, these are recorded from this code, to notice any
+// change in what nsa computes. Regenerate them, after checking that a change
+// is intended, with
+//     node tests/Tracing_random_golden_tests.js --record-nsa > tests/fixtures/nsa-random.json
+var record = { "--record": {}, "--record-nsa": { nsa: true } }[process.argv[2]];
+if (require.main === module && record) {
     var out = {};
     allCases().forEach(function (c, i) {
-        out[c.name] = replay(c.construction, i);
+        out[c.name] = replay(c.construction, i, record);
     });
     process.stdout.write(JSON.stringify(out, null, 0) + "\n");
 } else {
     var expect = require("chai").expect;
-    var golden = require("./fixtures/tracing-random.json");
-
-    describe("Tracing golden values, random constructions", function () {
-        this.timeout(20000);
-        allCases().forEach(function (c, i) {
-            it(c.name, function () {
-                var hashes = replay(c.construction, i);
-                hashes.forEach(function (h, k) {
-                    expect(h).to.equal(
-                        golden[c.name][k],
-                        "frame " + k + (k ? " after " + c.construction.moves[k - 1] : "")
-                    );
+    var compare = function (title, fixture, options) {
+        var golden = require(fixture);
+        describe(title, function () {
+            this.timeout(20000);
+            allCases().forEach(function (c, i) {
+                it(c.name, function () {
+                    var hashes = replay(c.construction, i, options);
+                    hashes.forEach(function (h, k) {
+                        expect(h).to.equal(
+                            golden[c.name][k],
+                            "frame " + k + (k ? " after " + c.construction.moves[k - 1] : "")
+                        );
+                    });
                 });
             });
         });
-    });
+    };
+    compare("Tracing golden values, random constructions", "./fixtures/tracing-random.json", {});
+    compare("nsa golden values, random constructions", "./fixtures/nsa-random.json", { nsa: true });
 }

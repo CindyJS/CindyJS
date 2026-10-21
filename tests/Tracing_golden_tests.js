@@ -5,9 +5,9 @@
 //
 // The expected values must come from a build without the nsa work, never
 // from this code: recording here would make the test pass by definition. To
-// add a case or regenerate tests/fixtures/tracing-golden.json, check out a
-// commit from before the nsa work (a7dbbbaa), build it (node make plain),
-// copy this test and tests/fixtures/ there, run
+// add a case or regenerate tests/fixtures/tracing-golden.json, check out the
+// commit the nsa work is based on (git merge-base HEAD origin/main), build it
+// (node make plain), copy this test and tests/fixtures/ there, run
 //     node tests/Tracing_golden_tests.js --record > tests/fixtures/tracing-golden.json
 // and check that the cases recorded before are unchanged.
 
@@ -38,6 +38,7 @@ function replay(CindyJS, c, options) {
         return g.name;
     });
     var exact = function (v) {
+        if (Array.isArray(v)) return "(" + v.map(exact).join(";") + ")";
         if (!v || typeof v !== "object") return String(v);
         if (v.ctype === "number") return v.value.real + "," + v.value.imag;
         if (v.ctype === "list") return "[" + v.value.map(exact).join(";") + "]";
@@ -46,7 +47,13 @@ function replay(CindyJS, c, options) {
     var frame = function () {
         return names
             .map(function (n) {
-                return n + "=" + exact(cdy.evalcs(n + ".homog")) + exact(cdy.evalcs(n + ".matrix"));
+                // the element itself, for what CindyScript has no accessor for:
+                // all solutions of an intersection, the value of an angle
+                var el = cdy.evalcs(n).value;
+                var extra =
+                    (el.results ? " results" + exact(el.results) : "") +
+                    (el.kind === "V" ? " value" + exact(el.value) : "");
+                return n + "=" + exact(cdy.evalcs(n + ".homog")) + exact(cdy.evalcs(n + ".matrix")) + extra;
             })
             .join(" ");
     };
@@ -58,16 +65,23 @@ function replay(CindyJS, c, options) {
     return frames;
 }
 
-if (require.main === module && process.argv[2] === "--record") {
+// With nsa, all frames are also compared with tests/fixtures/nsa-golden.json:
+// unlike the values above, these are recorded from this code, to notice any
+// change in what nsa computes. Regenerate them, after checking that a change
+// is intended, with
+//     node tests/Tracing_golden_tests.js --record-nsa > tests/fixtures/nsa-golden.json
+var record = { "--record": {}, "--record-nsa": { nsa: true } }[process.argv[2]];
+if (require.main === module && record) {
     var out = {};
     cases.forEach(function (c) {
-        out[c.name] = snapshot(CindyJS, c, {});
+        out[c.name] = snapshot(CindyJS, c, record);
     });
     process.stdout.write(JSON.stringify(out, null, 1) + "\n");
 } else {
     var chai = require("chai");
     var expect = chai.expect;
     var golden = require("./fixtures/tracing-golden.json");
+    var nsaGolden = require("./fixtures/nsa-golden.json");
 
     // whether a recorded frame contains an undefined (NaN or zero) vector or matrix
     var hasUndefined = function (frame) {
@@ -105,6 +119,12 @@ if (require.main === module && process.argv[2] === "--record") {
                     });
                 });
             }
+            it(c.name + ", nsa golden values", function () {
+                var frames = snapshot(CindyJS, c, { nsa: true });
+                frames.forEach(function (f, i) {
+                    expect(f).to.equal(nsaGolden[c.name][i], "frame " + i + (i ? " after " + c.moves[i - 1] : ""));
+                });
+            });
         });
     });
 }
