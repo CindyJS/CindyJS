@@ -109,6 +109,38 @@ test("175: Pappus at degenerate positions, without errors", async ({ page }) => 
     expect(problems).toEqual([]);
 });
 
+test("176: Pascal's theorem holds in its degenerate cases", async ({ page }) => {
+    const problems = await open(page, "examples/176_NSAPascal.html");
+    // |det(X, Y, Z)| relative to the points: 0 if they are collinear
+    const collinearity = (name) =>
+        page.evaluate(
+            (name) =>
+                window[name].evalcs(
+                    "abs(det([X.homog, Y.homog, Z.homog])) / (abs(X.homog) * abs(Y.homog) * abs(Z.homog))"
+                ).value.real,
+            name
+        );
+    // the tangent at A = (4, 0) to k around (0, -3): 4x + 3y = 16
+    const isTangentAtA = async (name) => {
+        const [a, b, c] = await coordinates(page, name, "ab.homog");
+        return Math.abs(b / a - 3 / 4) < 1e-9 && Math.abs(c / a + 4) < 1e-9;
+    };
+    const buttons = page.locator("button");
+    for (let i = 1; i < 4; i++) {
+        await buttons.nth(0).click();
+        await buttons.nth(i).click();
+        expect(await collinearity("nsa")).toBeLessThan(1e-9);
+        expect(await isTangentAtA("nsa")).toBe(true);
+    }
+    // dropped next to A, B snaps onto it
+    await buttons.nth(0).click();
+    for (const name of ["plain", "nsa"]) await drag(page, name, [3, 1], [3.9, 0.1]);
+    expect(await isUndefined(page, "plain", "ab.homog")).toBe(true);
+    expect(await isTangentAtA("nsa")).toBe(true);
+    expect(await collinearity("nsa")).toBeLessThan(1e-9);
+    expect(problems).toEqual([]);
+});
+
 test("while dragging, what exceeds the budget is resolved when the drag ends", async ({ page }) => {
     const problems = await open(page, "tests/nsa-browser/budget.html");
     // X is the line g: y = 0

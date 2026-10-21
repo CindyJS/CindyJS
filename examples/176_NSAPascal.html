@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pascal with nsa</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csdraw" type="text/x-cindyscript">
+            d = abs(det([X.homog, Y.homog, Z.homog])) / (abs(X.homog) * abs(Y.homog) * abs(Z.homog));
+            ok = d < 1e-9;
+            status = if(ok == true, "yes", if(ok == false, "NO (" + format(d, 6) + ")", "undefined"));
+            drawtext((-10.5, 10.2), "X, Y, Z collinear: " + status, size -> 14);
+            t = "";
+            if(|A - B| < 1e-9, t = t + "  AB at A");
+            if(|B - C| < 1e-9, t = t + "  BC at B");
+            if(|C - D| < 1e-9, t = t + "  CD at C");
+            if(|D - E| < 1e-9, t = t + "  DE at D");
+            if(|E - F| < 1e-9, t = t + "  EF at E");
+            if(|F - A| < 1e-9, t = t + "  FA at F");
+            if(t != "", drawtext((-10.5, 9.3), "tangents:" + t, size -> 12));
+        </script>
+        <script id="csmouseup" type="text/x-cindyscript">
+            // points on a circle do not snap to the grid: a vertex dropped next
+            // to another one snaps onto it
+            vs = [A, B, C, D, E, F];
+            forall(vs, m, if(m == mover(), forall(vs, v, if(v != m & |v - m| < 0.3, m.xy = v.xy))));
+        </script>
+        <script type="text/javascript">
+            // Pascal: the opposite sides of a hexagon ABCDEF inscribed in the
+            // circle k meet in three points X = AB.DE, Y = BC.EF, Z = CD.FA on a
+            // line p. When two neighbouring vertices coincide, their side is
+            // undefined; its limit is the tangent there, and Pascal turns into
+            // its degenerate versions for pentagons, quadrilaterals and
+            // triangles.
+            function V(name, x, y) {
+                return { name: name, type: "PointOnCircle", args: ["k"], pos: [x, y, 1], color: [1, 0, 0] };
+            }
+            function J(name, p, q) {
+                return { name: name, type: "Join", args: [p, q], color: [0.4, 0.4, 0.4], size: 1 };
+            }
+            function M(name, l, m) {
+                return { name: name, type: "Meet", args: [l, m], color: [0, 0, 1], size: 4 };
+            }
+            var geometry = [
+                { name: "O", type: "Free", pos: [0, -3], color: [0, 0, 0], size: 3 },
+                { name: "k", type: "CircleMr", args: ["O"], radius: 5, color: [0, 0, 0] },
+                V("A", 4, 0),
+                V("B", 3, 1),
+                V("C", 0, 2),
+                V("D", -3, 1),
+                V("E", -5, -3),
+                V("F", -3, -7),
+                J("ab", "A", "B"),
+                J("bc", "B", "C"),
+                J("cd", "C", "D"),
+                J("de", "D", "E"),
+                J("ef", "E", "F"),
+                J("fa", "F", "A"),
+                M("X", "ab", "de"),
+                M("Y", "bc", "ef"),
+                M("Z", "cd", "fa"),
+                { name: "p", type: "Join", args: ["X", "Y"], color: [0, 0.6, 0], size: 2 },
+            ];
+            // names on the points, k and p, not on the sides
+            geometry.forEach(function (el) {
+                if (el.type !== "Join" || el.name === "p") el.labeled = true;
+            });
+            var ports = function (id) {
+                return [{ id: id, transform: [{ visibleRect: [-11, -11, 11, 11] }], grid: 1, snap: true }];
+            };
+            var plain = CindyJS({
+                ports: ports("plain"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+            });
+            var nsa = CindyJS({
+                ports: ports("nsa"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+                nsa: true,
+            });
+            function both(code) {
+                plain.evokeCS(code);
+                nsa.evokeCS(code);
+            }
+            var hexagon =
+                "O.xy = (0, -3); A.xy = (4, 0); B.xy = (3, 1); C.xy = (0, 2); D.xy = (-3, 1); E.xy = (-5, -3); F.xy = (-3, -7);";
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>Pascal's theorem and its degenerate cases</h1>
+        <p>
+            Both widgets construct, with joins and meets only, the hexagon ABCDEF inscribed in the circle k, the
+            intersections X, Y and Z of its opposite sides, and the line p through X and Y. By Pascal's theorem, Z lies
+            on p as well.
+        </p>
+        <p>
+            Classical geometry gets a family of further theorems out of it by letting neighbouring vertices coincide:
+            the side through them becomes the tangent there. With B on A, AB is the tangent at A (Pascal for pentagons);
+            with B on A and D on C, two tangents (quadrilaterals); with B on A, D on C and F on E, the tangents of a
+            triangle meet the opposite sides in three points on a line. These are the cases that give ruler-only
+            constructions of tangents to a conic.
+        </p>
+        <p>
+            Use the buttons, or drag vertices onto each other (a vertex dropped next to another one snaps onto it). On
+            the left, the sides through coinciding vertices are undefined, or rounding noise if the vertices coincide up
+            to rounding only, and so are X, Y and Z, or they are no longer collinear. On the right, with
+            <code>nsa: true</code> (see <a href="173_NSA.html">173_NSA.html</a>), each such side is evaluated with
+            infinitesimally separated vertices. Its limit, the tangent, does not depend on how they are separated, so it
+            is shown, and the degenerate theorems hold. Move O or the remaining vertices to see that the tangents stay
+            tangents.
+        </p>
+        <p>
+            <button onclick="both(hexagon)">Hexagon</button>
+            <button onclick="both(hexagon + 'B.xy = A.xy;')">Pentagon: B onto A</button>
+            <button onclick="both(hexagon + 'B.xy = A.xy; D.xy = C.xy;')">Quadrilateral: B onto A, D onto C</button>
+            <button onclick="both(hexagon + 'B.xy = A.xy; D.xy = C.xy; F.xy = E.xy;')">
+                Triangle: B onto A, D onto C, F onto E
+            </button>
+            <button onclick="both('O.xy = O.xy + (1, 1);')">Move O</button>
+        </p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap">
+            <div>
+                <p>Without nsa</p>
+                <div id="plain" style="width: 480px; height: 480px; border: 2px solid black"></div>
+            </div>
+            <div>
+                <p>With <code>nsa: true</code></p>
+                <div id="nsa" style="width: 480px; height: 480px; border: 2px solid black"></div>
+            </div>
+        </div>
+    </body>
+</html>

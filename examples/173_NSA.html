@@ -29,6 +29,10 @@
                 { name: "f", type: "Join", args: ["H", "F"], color: [0.7, 0.7, 0.7] },
                 { name: "S", type: "Meet", args: ["f", "g"], color: [0, 0, 1], printname: "x+y" },
             ];
+            // names on the points and on g, not on the auxiliary lines
+            geometry.forEach(function (el) {
+                if (el.type !== "Join" && el.type !== "Para") el.labeled = true;
+            });
             var ports = function (id) {
                 return [{ id: id, transform: [{ visibleRect: [-8, -4, 8, 7] }], grid: 1, snap: true }];
             };
