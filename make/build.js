@@ -199,6 +199,22 @@ module.exports = function build(settings, task) {
     });
 
     //////////////////////////////////////////////////////////////////////
+    // Run the nsa stress test on more random constructions
+    //////////////////////////////////////////////////////////////////////
+
+    task("nsafuzz", ["exposed", "plain"], function () {
+        var env = {
+            NSA_STRESS_SEEDS: process.env.NSA_STRESS_SEEDS || "11,22,33,44,55,66,77,88,99",
+            NSA_STRESS_TIMEOUT: process.env.NSA_STRESS_TIMEOUT || "600000",
+        };
+        if (process.version > "v21.2") {
+            this.cmdscript("mocha", "tests/Nsa_stress_tests.js", "--no-experimental-global-navigator", { env: env });
+        } else {
+            this.cmdscript("mocha", "tests/Nsa_stress_tests.js", { env: env });
+        }
+    });
+
+    //////////////////////////////////////////////////////////////////////
     // Run the List matrix microbenchmark
     //////////////////////////////////////////////////////////////////////
 

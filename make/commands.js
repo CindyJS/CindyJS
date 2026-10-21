@@ -21,6 +21,7 @@ function cmdImpl(task, opts, command, args) {
         var cmdline = [command || "node"].concat(args).join(" ");
         task.log(cmdline);
         var spawnOpts = { stdio: ["ignore", "pipe", "pipe"] };
+        if (opts.env) spawnOpts.env = Object.assign({}, process.env, opts.env);
         if (!command) command = process.argv[0]; // node
         var child = cp.spawn(command, args, spawnOpts);
         var output = null;
@@ -74,6 +75,7 @@ function gitLsFiles(task) {
  * The first argument is the command, or null for node.
  * Other arguments are passed to that command.
  * Arrays in these positions will be flattened out by one level.
+ * A last object argument holds options: env (added to the environment).
  */
 exports.cmd = function (command) {
     var task = this;
