@@ -104,6 +104,13 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
     // accident only on a set of measure zero.
     const SAMPLES = 2;
 
+    // During a drag with the mouse, a move resolves its degenerate elements
+    // only if that takes at most this many evaluations of elements; otherwise
+    // they stay as tracing left them, and are resolved when the drag ends. A
+    // count rather than a time, so that the results do not depend on the
+    // machine. (An evaluation with infinitesimals takes 10-50 microseconds.)
+    const DRAG_BUDGET = 500;
+
     // Two projective shadows agree if their projective distance is below this.
     const AGREE = 1e-8;
 
@@ -732,12 +739,13 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         scope: GeoElement[],
         mover: GeoElement | null,
         originParam: Value | null,
-        targetParam: Value | null
-    ) {
+        targetParam: Value | null,
+        budget: number
+    ): boolean {
         const bad = degenerateElements(scope);
         if (bad.length === 0) {
             if (results.size > 0) for (const el of scope) results.delete(el.name);
-            return;
+            return true;
         }
         const badSet = new Set(bad);
         for (const el of scope) if (!badSet.has(el)) results.delete(el.name);
@@ -755,10 +763,13 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         }
         const todo = bad.filter((el) => !hit(el));
 
-        if (todo.length > 0) {
-            // Elements with a result, shown already, count as given inputs, so
-            // the new results are consistent with them.
-            const frozen = frozenFor(inScope, badSet, keys);
+        // Elements with a result, shown already, count as given inputs, so
+        // the new results are consistent with them.
+        const frozen = todo.length > 0 ? frozenFor(inScope, badSet, keys) : new Set<GeoElement>();
+        // at most: the samples in one or two passes, and the path
+        const evaluations = 2 * SAMPLES * (frozen.size > 0 ? 2 : 1) + 2;
+        const complete = evaluations * ancestorClosure(todo, frozen).length <= budget;
+        if (todo.length > 0 && complete) {
             type Found = { fields: Fields; state: StateSlice };
             const found = new Map<GeoElement, Found | null>();
             const eps = CSNumber.infinitesimal(1);
@@ -848,13 +859,20 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             }
         }
         for (const el of csgeo.gslp as GeoElement[]) if (inScope.has(el)) isShowing(el, geoOps[el.type]);
+        return complete;
     }
 
-    function run(scope: GeoElement[], mover: GeoElement | null, originParam: Value | null, targetParam: Value | null) {
+    type Move = { scope: GeoElement[]; mover: GeoElement | null; originParam: Value | null; targetParam: Value | null };
+
+    // the last move of a drag whose resolution exceeded DRAG_BUDGET
+    let deferred: Move | null = null;
+
+    function run(move: Move, budget = Infinity) {
         if (!enabled()) return;
         graph = null;
         try {
-            resolve(scope, mover, originParam, targetParam);
+            const complete = resolve(move.scope, move.mover, move.originParam, move.targetParam, budget);
+            deferred = complete ? null : move;
         } catch (e) {
             warnOnce("resolution failed", e);
         } finally {
@@ -862,13 +880,25 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         }
     }
 
-    nsaHooks.afterMove = function (mover: GeoElement, originParam: Value, targetParam: Value, deps: GeoElement[]) {
-        run(deps, mover, originParam, targetParam);
+    const whole = (): Move => ({ scope: csgeo.gslp, mover: null, originParam: null, targetParam: null });
+
+    nsaHooks.afterMove = function (
+        mover: GeoElement,
+        originParam: Value,
+        targetParam: Value,
+        deps: GeoElement[],
+        inMouseMove: boolean
+    ) {
+        run({ scope: deps, mover, originParam, targetParam }, inMouseMove ? DRAG_BUDGET : Infinity);
     };
     nsaHooks.afterRecalc = function () {
-        run(csgeo.gslp, null, null, null);
+        run(whole());
     };
     nsaHooks.afterLoad = function () {
-        run(csgeo.gslp, null, null, null);
+        run(whole());
+    };
+    // what a drag left unresolved, along the path of its last step
+    nsaHooks.afterDrag = function () {
+        if (deferred) run(deferred);
     };
 })();

@@ -234,7 +234,7 @@ function traceMover(mover, pos, type) {
         op = geoOps[el.type];
         isShowing(el, op);
     }
-    if (nsaHooks.afterMove) nsaHooks.afterMove(mover, originParam, targetParam, deps);
+    if (nsaHooks.afterMove) nsaHooks.afterMove(mover, originParam, targetParam, deps, inMouseMove);
     if (traceLog && traceLog.currentMouseAndScripts) {
         traceLog.currentMouseAndScripts.push(
             List.turnIntoCSList([
@@ -837,12 +837,14 @@ const opTracers = {
 };
 
 // Entry points for Nsa.ts, which registers itself here: called after a move
-// has been traced completely, after a full recalculation and after loading a
-// construction. The prover sets `suspended` while it probes.
+// has been traced completely, after a full recalculation, after loading a
+// construction and when a drag with the mouse ends (Events.js). The prover
+// sets `suspended` while it probes.
 const nsaHooks = {
     afterMove: null,
     afterRecalc: null,
     afterLoad: null,
+    afterDrag: null,
     suspended: false,
 };
 

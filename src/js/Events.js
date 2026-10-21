@@ -31,7 +31,7 @@ import { evaluate } from "libcs/Evaluator";
 import { manage } from "libcs/Tools";
 import { csport } from "libgeo/GeoState";
 import { draw_traces, render } from "libgeo/GeoRender";
-import { traceMouseAndScripts } from "libgeo/Tracing";
+import { traceMouseAndScripts, nsaHooks } from "libgeo/Tracing";
 import { csPhysicsInited, lab } from "liblab/LabBasics";
 
 const mouse = {};
@@ -884,6 +884,7 @@ function cs_onDrop(lst, pos) {
 
 function cindy_cancelmove() {
     move = undefined;
+    if (nsaHooks.afterDrag) nsaHooks.afterDrag();
 }
 
 export {
