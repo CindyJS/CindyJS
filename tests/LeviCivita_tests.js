@@ -270,6 +270,64 @@ describe("Levi-Civita mode", function () {
         walk(path.join(__dirname, "../src/js"));
         offenders.should.deep.equal([]);
     });
+
+    // A function of CSNumber or List that computes on real and imaginary parts
+    // itself (as List.productMM does for speed) computes NaN on series, unless
+    // the mode replaces it with a version that goes through CSNumber.
+    it("replaces every function that computes on real and imaginary parts", function () {
+        var fs = require("fs");
+        var path = require("path");
+        // functions that are safe without a replacement, and why
+        var harmless = {
+            "List._helper.unitvector": "builds real constants",
+            "List._helper.flippedidMatrix": "builds real constants",
+            "List.column": "index arithmetic",
+            "List.row": "index arithmetic",
+            "List.nullSpace": "QR based: not available on series",
+            "List.RRQRdecomp": "QR based: not available on series",
+        };
+        var definition =
+            /^(List(?:\._helper)?\.[A-Za-z0-9_$]+)\s*=\s*function|^ {4,8}([A-Za-z0-9_$]+)(?:: function\s*)?\(.*\)\s*(?::\s*[^{]+)?\{$/gm;
+        var arithmetic =
+            /(\.(real|imag)\b\s*[-+*/](?!=)|[-+*/]\s*[A-Za-z0-9_$.[\]]*\.(real|imag)\b|(real|imag)\s*[-+*/]=)/;
+        var computing = function (file, prefix) {
+            var src = fs.readFileSync(path.join(__dirname, "../src/js/libcs", file), "utf8");
+            var starts = [];
+            var m;
+            while ((m = definition.exec(src))) starts.push({ name: m[1] || prefix + m[2], at: m.index });
+            return starts
+                .filter(function (d, i) {
+                    var end = i + 1 < starts.length ? starts[i + 1].at : src.length;
+                    return arithmetic.test(src.slice(d.at, end));
+                })
+                .map(function (d) {
+                    return d.name;
+                });
+        };
+        var lookup = function (name) {
+            var parts = name.split(".");
+            var obj = { CSNumber: CSNumber, List: List };
+            var members = [];
+            // CSNumber.ts defines helpers and members alike as name: function
+            if (parts[0] === "CSNumber") members = [CSNumber[parts[1]], CSNumber._helper[parts[1]]];
+            else members = [parts.reduce((o, k) => o && o[k], obj)];
+            return members;
+        };
+        var names = computing("List.js", "List.").concat(computing("CSNumber.ts", "CSNumber."));
+        names.length.should.be.above(10, "the source scan finds the known cases");
+        var standard = names.map(lookup);
+        var missing = [];
+        withLeviCivita(function () {
+            names.forEach(function (name, i) {
+                var now = lookup(name);
+                var replaced = now.some(function (f, k) {
+                    return f !== standard[i][k];
+                });
+                if (!replaced && !harmless[name]) missing.push(name);
+            });
+        });
+        missing.should.deep.equal([], "add these to LeviCivitaMode.ts, or to `harmless` here");
+    });
 });
 
 describe("CSNumber on Levi-Civita values", function () {
