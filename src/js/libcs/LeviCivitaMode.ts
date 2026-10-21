@@ -398,7 +398,53 @@ const { withLeviCivita, inLeviCivitaMode } = (function () {
                 List.turnIntoCSList([List.cross(row2, row3), List.cross(row3, row1), List.cross(row1, row2)])
             );
         },
+        // The standard version compares real parts, NaN for series, and so would
+        // always return the first index: e.g. IntersectLC would then divide by
+        // a coordinate of the line that may be all but zero, and lose all digits.
+        maxIndex: function (lst: CSList, fun: (v: unknown) => CSNum, startIdx?: number) {
+            const start = startIdx === undefined ? 0 : startIdx;
+            const values = lst.value.map((v, i) => (i < start ? CSNumber.zero : fun(v)));
+            if (!values.some((v) => isLC(v))) return stdList.maxIndex(lst, fun, startIdx);
+            let best = start;
+            for (let i = start + 1; i < values.length; i++)
+                if (CSNumber._helper.realSign(CSNumber.sub(values[i], values[best])) > 0) best = i;
+            return best;
+        },
+        // Two vectors infinitely close to each other, e.g. a point and another one
+        // moved onto it, often have the same standard part only up to rounding.
+        // Their cross product then has a standard part that is rounding noise,
+        // and would hide the infinitesimal part that determines the limit (e.g.
+        // the tangent, for two points on a circle). If the standard directions
+        // coincide up to rounding, in the sense of geoOps._helper.homogsCoincide,
+        // those orders are dropped.
+        cross: function (a: CSList, b: CSList) {
+            const c = stdList.cross(a, b);
+            if (!hasLC(a, b)) return c;
+            const sa = List.standardPartProjective(a);
+            const sb = List.standardPartProjective(b);
+            const abs2 = (v: CSList): number => List.abs2(v).value.real;
+            const eps = CSNumber.eps;
+            if (!(abs2(stdList.cross(sa, sb)) <= eps * eps * abs2(sa) * abs2(sb))) return c;
+            // the order of the product of the standard parts
+            const order = vectorOrder(a) + vectorOrder(b);
+            return List.turnIntoCSList(
+                (c.value as CSNum[]).map((z) => {
+                    const s = lcOf(z);
+                    return fromLC({ terms: s.terms.filter((t) => t.q > order + 1e-9), big: s.big });
+                })
+            );
+        },
     };
+
+    // The lowest order of eps among the entries of a vector (of numbers).
+    function vectorOrder(a: CSList): number {
+        let order = Infinity;
+        for (const z of a.value as CSNum[]) {
+            const s = lcOf(z);
+            if (s.terms.length > 0) order = Math.min(order, s.terms[0].q);
+        }
+        return order;
+    }
 
     // Sets the entries of `replacement` on `target`, returns the old ones - on
     // an object that inherits everything else from `target`, so that it serves

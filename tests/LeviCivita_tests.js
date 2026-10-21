@@ -285,11 +285,22 @@ describe("Levi-Civita mode", function () {
             "List.row": "index arithmetic",
             "List.nullSpace": "QR based: not available on series",
             "List.RRQRdecomp": "QR based: not available on series",
+            "List.QRdecomp": "QR based: not available on series",
+            "List._helper.QRIteration": "QR based: not available on series",
+            "List.eig": "QR based: not available on series",
+            "List._helper.isAlmostDiagonal": "part of eig",
+            "List._helper.isNormalMatrix": "part of eig",
+            "List.linearsolveCG": "iterative numerics, not used by geometric operations",
+            "List.LUdecomp": "pivoting numerics, not used by geometric operations",
+            "List.det": "up to 4x4 through det2, det3 and det4m; larger ones are not geometric",
+            "List._helper.isAlmostFarpoint": "only in angle accessors, not while evaluating",
         };
         var definition =
             /^(List(?:\._helper)?\.[A-Za-z0-9_$]+)\s*=\s*function|^ {4,8}([A-Za-z0-9_$]+)(?:: function\s*)?\(.*\)\s*(?::\s*[^{]+)?\{$/gm;
+        // arithmetic on real or imaginary parts, or a decision on those of a
+        // computed value (e.g. comparing magnitudes)
         var arithmetic =
-            /(\.(real|imag)\b\s*[-+*/](?!=)|[-+*/]\s*[A-Za-z0-9_$.[\]]*\.(real|imag)\b|(real|imag)\s*[-+*/]=)/;
+            /(\.(real|imag)\b\s*[-+*/](?!=)|[-+*/]\s*[A-Za-z0-9_$.[\]]*\.(real|imag)\b|(real|imag)\s*[-+*/]=|\)\.value\.(real|imag)\b)/;
         var computing = function (file, prefix) {
             var src = fs.readFileSync(path.join(__dirname, "../src/js/libcs", file), "utf8");
             var starts = [];

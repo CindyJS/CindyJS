@@ -1476,6 +1476,73 @@ describe("nsa: circle through two coinciding points, off the grid", function () 
     });
 });
 
+describe("nsa: join of two coinciding points on a moving circle", function () {
+    // B is moved onto A on the circle k, then the center moves, and A and B
+    // with it. Their join is the tangent at A. Intersecting the diameter
+    // through A and B with k, in the evaluation with infinitesimals, must
+    // divide by the largest coordinate of the diameter (List.maxIndex on
+    // series), not by one that is infinitesimal: with the center moved by
+    // (0, 1), that loses enough digits for the samples to disagree.
+    var geometry = [
+        P("O", 0, 0),
+        { name: "k", type: "CircleMr", args: ["O"], radius: 5 },
+        { name: "A", type: "PointOnCircle", args: ["k"], pos: [5, 0, 1] },
+        { name: "B", type: "PointOnCircle", args: ["k"], pos: [3, 4, 1] },
+        { name: "ab", type: "Join", args: ["A", "B"] },
+    ];
+
+    [
+        [0, 1],
+        [1, 1],
+        [1, 0],
+    ].forEach(function (d) {
+        it("is the tangent at A after moving the center by (" + d + ")", function () {
+            var cdy = widget(geometry, true);
+            cdy.evalcs("B.xy=A.xy");
+            cdy.evalcs("O.xy=O.xy+(" + d + ")");
+            // the vertical line x = 5 + d[0]
+            var l = cdy.evalcs("ab.homog").value.map((z) => z.value.real);
+            Math.abs(l[1] / l[0]).should.be.below(1e-9);
+            Math.abs(l[2] / l[0] + 5 + d[0]).should.be.below(1e-9);
+        });
+    });
+
+    // Off the origin, B moved onto A = (4, 0) by a script coincides with A
+    // only up to rounding (A carries some 1e-16 in its y coordinate, B not):
+    // along the path of B, the standard part of the join is that rounding
+    // noise, which must not hide the tangent 4x + 3y = 16.
+    it("is the tangent at A after moving B onto it, off the origin", function () {
+        var cdy = widget(
+            [
+                P("O", 0, -3),
+                { name: "k", type: "CircleMr", args: ["O"], radius: 5 },
+                { name: "A", type: "PointOnCircle", args: ["k"], pos: [4, 0, 1] },
+                { name: "B", type: "PointOnCircle", args: ["k"], pos: [3, 1, 1] },
+                { name: "ab", type: "Join", args: ["A", "B"] },
+            ],
+            true
+        );
+        cdy.evalcs("B.xy=A.xy");
+        var l = cdy.evalcs("ab.homog").value.map((z) => z.value.real);
+        Math.abs(l[1] / l[0] - 3 / 4).should.be.below(1e-9);
+        Math.abs(l[2] / l[0] + 4).should.be.below(1e-9);
+    });
+
+    // B dragged onto A with the mouse lands there up to rounding only, e.g. at
+    // (5, 1e-12): the coordinates of the diameter through B are not exactly
+    // zero then, but all but zero, which must not be taken for the largest.
+    ["-7.3e-16", "1e-12"].forEach(function (y) {
+        it("is the tangent at A with B at (5, " + y + ")", function () {
+            var cdy = widget(geometry, true);
+            cdy.evalcs("B.xy=(4.9,0.5)");
+            cdy.evalcs("B.xy=(5," + y + ")");
+            var l = cdy.evalcs("ab.homog").value.map((z) => z.value.real);
+            Math.abs(l[1] / l[0]).should.be.below(1e-9);
+            Math.abs(l[2] / l[0] + 5).should.be.below(1e-9);
+        });
+    });
+});
+
 describe("nsa: conics by four points and a line, two points coinciding", function () {
     // D is moved onto C, then A moves: all the while the conics are only
     // determined as limits. The evaluation along A's move must not take the
