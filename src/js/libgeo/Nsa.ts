@@ -209,16 +209,34 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         return false;
     }
 
+    // The construction as positions in csgeo.gslp and the positions of each
+    // element's arguments; built once per resolution (see run).
+    type Graph = { position: Map<GeoElement, number>; args: number[][] };
+    let graph: Graph | null = null;
+
+    function dependencyGraph(): Graph {
+        if (graph) return graph;
+        const gslp = csgeo.gslp as GeoElement[];
+        const byName = new Map(gslp.map((el, i) => [el.name, i]));
+        const args = gslp.map((el) => (el.args || []).map((a) => byName.get(a)).filter((i) => i !== undefined));
+        graph = { position: new Map(gslp.map((el, i) => [el, i])), args: args as number[][] };
+        return graph;
+    }
+
     // `els` and everything they depend on, in construction order - except what
     // lies behind elements in `frozen`, which count as given inputs
     function ancestorClosure(els: GeoElement[], frozen: Set<GeoElement>): GeoElement[] {
         const gslp = csgeo.gslp as GeoElement[];
-        const needed = new Set(els.map((el) => el.name));
-        for (let i = gslp.length - 1; i >= 0; --i) {
-            const el = gslp[i];
-            if (needed.has(el.name) && el.args && !frozen.has(el)) for (const a of el.args) needed.add(a);
+        const { position, args } = dependencyGraph();
+        const needed = new Uint8Array(gslp.length);
+        for (const el of els) {
+            const i = position.get(el);
+            if (i !== undefined) needed[i] = 1;
         }
-        return gslp.filter((el) => needed.has(el.name));
+        for (let i = gslp.length - 1; i >= 0; --i) {
+            if (needed[i] && !frozen.has(gslp[i])) for (const a of args[i]) needed[a] = 1;
+        }
+        return gslp.filter((_, i) => needed[i]);
     }
 
     // ---------------------------------------------------------------------------
@@ -741,16 +759,58 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             // Elements with a result, shown already, count as given inputs, so
             // the new results are consistent with them.
             const frozen = frozenFor(inScope, badSet, keys);
-            const order = ancestorClosure(todo, frozen);
-            const found = new Map<GeoElement, { fields: Fields; state: StateSlice } | null>();
-            // continuous along the path, still to be checked for stability
-            const alongPath = new Map<GeoElement, { fields: Fields; state: StateSlice }>();
+            type Found = { fields: Fields; state: StateSlice };
+            const found = new Map<GeoElement, Found | null>();
             const eps = CSNumber.infinitesimal(1);
 
-            // C0-continuation along the mover's path, at t = 1 -+ eps
+            // Extended C0-continuation: the value must not depend on the
+            // direction of approach, so all free elements, the mover included,
+            // are perturbed in random directions, and the results must agree.
+            // (Two equal circles whose free centers meet: along the path, the
+            // line through their intersections has a limit, but it depends on
+            // the direction the centers met from.) First with the given inputs
+            // fixed, then, for what that leaves open, perturbing everything (the
+            // same, if nothing is fixed). A fixed input is a limit for its
+            // ancestors' current configuration, so those are not perturbed
+            // either - otherwise the evaluation would mix two configurations,
+            // and could agree on a wrong value.
+            const stable = new Map<GeoElement, Found>();
+            const passes = frozen.size > 0 ? [frozen, new Set<GeoElement>()] : [frozen];
+            for (const fixed of passes) {
+                const held = new Set(ancestorClosure([...fixed], new Set()));
+                const rest = todo.filter((el) => !stable.has(el));
+                if (rest.length === 0) break;
+                const restOrder = ancestorClosure(rest, fixed);
+                const samples: Evaluation[] = [];
+                for (let k = 0; k < SAMPLES; k++) {
+                    const perturb: Perturb = function (el, param) {
+                        const p = perturbations[el.type];
+                        return p && !el.pinned && !held.has(el) ? p(el, param, eps, randomSource(el.name, k)) : null;
+                    };
+                    samples.push(evaluate(restOrder, rest, perturb, bad, fixed));
+                }
+                for (const el of rest) {
+                    const fs = samples.map((s) => s.fields.get(el));
+                    const state = samples[0].states.get(el);
+                    const first = fs[0];
+                    if (state && first && fs.every((f) => f && agree(first, f)))
+                        stable.set(el, { fields: first, state });
+                }
+            }
+            for (const [el, r] of stable) found.set(el, r);
+
+            // C0-continuation along the mover's path, at t = 1 -+ eps: a limit
+            // found above must also be continuous along it, and the state is
+            // taken from there, so that tracing continues from the path. Where
+            // nothing can be perturbed (e.g. pinned points moved by a script),
+            // every approach is the path, so its limit stands. Elements without
+            // either do not need the path.
+            const canPerturb = (a: GeoElement) => !!perturbations[a.type] && !a.pinned;
+            const onPath = todo.filter((el) => stable.has(el) || !ancestorClosure([el], new Set()).some(canPerturb));
+            const pathOrder = ancestorClosure(onPath, frozen);
             if (
                 mover &&
-                order.includes(mover) &&
+                pathOrder.includes(mover) &&
                 originParam &&
                 targetParam &&
                 !isAlmostZeroValue(General.sub(originParam, targetParam))
@@ -766,64 +826,19 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                         const tc = CSNumber.add(CSNumber.real(1), CSNumber.realmult(side, eps));
                         return path(mover, undefined, tc, originParam, targetParam);
                     };
-                const before = evaluate(order, todo, at(-1), bad, frozen);
-                const after = evaluate(order, todo, at(+1), bad, frozen);
-                for (const el of todo) {
+                const before = evaluate(pathOrder, onPath, at(-1), bad, frozen);
+                const after = evaluate(pathOrder, onPath, at(+1), bad, frozen);
+                for (const el of onPath) {
                     const a = before.fields.get(el);
                     const b = after.fields.get(el);
-                    // defined on both sides: discontinuous, or a candidate that
-                    // must also be stable under perturbation (below); otherwise
-                    // the path does not decide
-                    if (a && b) {
-                        const state = before.states.get(el);
-                        if (agree(a, b) && state) alongPath.set(el, { fields: a, state });
-                        else found.set(el, null);
-                    }
+                    const state = before.states.get(el);
+                    // defined on both sides: continuous or not; otherwise the
+                    // path does not decide
+                    if (!a || !b) continue;
+                    const r = stable.get(el);
+                    if (!agree(a, b) || !state || (r && !agree(a, r.fields))) found.set(el, null);
+                    else found.set(el, { fields: a, state });
                 }
-            }
-
-            // Extended C0-continuation: the value must not depend on the
-            // direction of approach, so all free elements, the mover included,
-            // are perturbed in random directions, and a value found along the
-            // path must agree with them. (Two equal circles whose free centers
-            // meet: along the path, the line through their intersections has a
-            // limit, but it depends on the direction the centers met from.)
-            // First with the given inputs fixed, then, for what that leaves
-            // open, perturbing everything. A fixed input is a limit for its
-            // ancestors' current configuration, so those are not perturbed
-            // either - otherwise the evaluation would mix two configurations,
-            // and could agree on a wrong value.
-            for (const fixed of [frozen, new Set<GeoElement>()]) {
-                const held = new Set(ancestorClosure([...fixed], new Set()));
-                // decided: discontinuous along the path, or an extended
-                // continuation found
-                const rest = todo.filter((el) => !found.has(el));
-                if (rest.length === 0) break;
-                const restOrder = ancestorClosure(rest, fixed);
-                const samples: Evaluation[] = [];
-                for (let k = 0; k < SAMPLES; k++) {
-                    const perturb: Perturb = function (el, param) {
-                        const p = perturbations[el.type];
-                        return p && !el.pinned && !held.has(el) ? p(el, param, eps, randomSource(el.name, k)) : null;
-                    };
-                    samples.push(evaluate(restOrder, rest, perturb, bad, fixed));
-                }
-                for (const el of rest) {
-                    const fs = samples.map((s) => s.fields.get(el));
-                    const state = samples[0].states.get(el);
-                    const first = fs[0];
-                    if (!state || !first || !fs.every((f) => f && agree(first, f))) continue;
-                    const path = alongPath.get(el);
-                    if (!path) found.set(el, { fields: first, state });
-                    // the state along the path, so that tracing continues from there
-                    else if (agree(path.fields, first)) found.set(el, path);
-                }
-            }
-            // Nothing that could be perturbed (e.g. pinned points moved by a
-            // script): every approach is the path, so its limit stands.
-            const canPerturb = (a: GeoElement) => !!perturbations[a.type] && !a.pinned;
-            for (const [el, path] of alongPath) {
-                if (!found.has(el) && !ancestorClosure([el], new Set()).some(canPerturb)) found.set(el, path);
             }
             for (const el of todo) {
                 const r = found.get(el);
@@ -837,10 +852,13 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
 
     function run(scope: GeoElement[], mover: GeoElement | null, originParam: Value | null, targetParam: Value | null) {
         if (!enabled()) return;
+        graph = null;
         try {
             resolve(scope, mover, originParam, targetParam);
         } catch (e) {
             warnOnce("resolution failed", e);
+        } finally {
+            graph = null;
         }
     }
 
