@@ -1528,6 +1528,44 @@ describe("nsa: conics by four points and a line, two points coinciding", functio
 // The shipped build is compiled by the Closure Compiler at ADVANCED level,
 // may rename or inline what the plain build keeps. Only available after
 // `node make closure`, as in `node make tests`.
+describe("nsa: free conics", function () {
+    // E and F are pinned to the polars of A and B with respect to the free
+    // conic K, and E is moved onto F along its polar by a script. Only K can
+    // be perturbed: that moves the polars, and with them E and F, apart in
+    // directions that depend on the perturbation, so their join has no limit.
+    // (Were K not perturbed, nothing could be, and the path would decide:
+    // the polar of A.)
+    var geometry = [
+        {
+            name: "K",
+            type: "FreeConic",
+            pos: { xx: 1, xy: 0, yy: 1, xz: 0, yz: 0, zz: -4 },
+        },
+        Object.assign(P("A", 1, 3), { pinned: true }),
+        Object.assign(P("B", 3, 1), { pinned: true }),
+        { name: "a", type: "PolarOfPoint", args: ["A", "K"] },
+        { name: "b", type: "PolarOfPoint", args: ["B", "K"] },
+        Object.assign(L("E", "a", 4, 0), { pinned: true }),
+        Object.assign(L("F", "b", 1, 1), { pinned: true }),
+        { name: "X", type: "Join", args: ["E", "F"] },
+    ];
+
+    it("are perturbed as well", function () {
+        var cdy = widget(geometry, true);
+        // a: x + 3y = 4, b: 3x + y = 4, meeting in (1, 1)
+        cdy.evalcs("E.xy=(1,1)");
+        isUndefined(cdy.evalcs("X.homog")).should.equal(true, niceprint(cdy.evalcs("X.homog")));
+    });
+
+    it("unless pinned", function () {
+        var pinned = JSON.parse(JSON.stringify(geometry));
+        pinned[0].pinned = true;
+        var cdy = widget(pinned, true);
+        cdy.evalcs("E.xy=(1,1)");
+        projectiveDistance(cdy.evalcs("X.homog"), List.realVector([1, 3, -4])).should.be.below(1e-9);
+    });
+});
+
 describe("nsa: Closure-compiled build", function () {
     var closurePath = require("path").join(__dirname, "../build/js/Cindy.closure.js");
     var CindyJSClosure = require("fs").existsSync(closurePath) ? require(closurePath) : null;

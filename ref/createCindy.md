@@ -207,8 +207,9 @@ how the construction continues through a singularity such as two circles touchin
 and the tracing state report stay as without this setting.
 The one difference: an element that shows its limit continues from the limit
 in the following moves, where without this setting it continues from its last defined position.
-Some operations, e.g. intersecting two conics one of which is degenerate,
-can not be resolved and remain undefined.
+The intersections of two conics (`IntersectConicConic`, `OtherIntersectionCC`)
+can not be resolved and remain undefined: their computation decides between cases
+in a way that does not carry over to infinitely close configurations.
 
 The setting costs nothing when it is off.
 When it is on, every move checks for degenerate elements, which costs a few percent,

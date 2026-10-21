@@ -551,7 +551,8 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                 const op = geoOps[el.type];
                 inIdx = outIdx = el.stateIdx;
                 let perturbed = false;
-                if (op.isMovable && op.getParamFromState) {
+                // (free conics are set by scripts only, not movable)
+                if ((op.isMovable || perturbations[el.type]) && op.getParamFromState) {
                     const value = perturb(el, op.getParamFromState(el));
                     inIdx = el.stateIdx;
                     if (value) {
@@ -665,6 +666,14 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         },
         CircleMr: function (el, p, eps, rnd) {
             return CSNumber.add(p as CSNum, CSNumber.realmult(rnd(), eps));
+        },
+        // by a random symmetric matrix, relative to the largest entry
+        FreeConic: function (el, p, eps, rnd) {
+            const m = p as CSList;
+            const s = [0, 1, 2].map(() => [0, 0, 0]);
+            for (let i = 0; i < 3; i++) for (let j = 0; j <= i; j++) s[i][j] = s[j][i] = rnd();
+            const size = CSNumber.abs(List.maxval(m)).value.real;
+            return List.add(m, List.scalmult(CSNumber.realmult(size, eps), List.realMatrix(s)));
         },
     };
 
