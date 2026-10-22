@@ -1543,6 +1543,66 @@ describe("nsa: join of two coinciding points on a moving circle", function () {
     });
 });
 
+describe("nsa: conics by four points and a line through one of them", function () {
+    // The line l always passes through A: the point of contact the operation
+    // computes is A itself, so the conic is not determined, at any position
+    // and under any perturbation. With nsa it must not show the conic that
+    // the computation happens to give then (through the four points, but not
+    // tangent to l).
+    var geometry = [
+        P("A", 0, 2),
+        P("B", -1, -1),
+        P("C", -0.85, -1.8),
+        P("D", 2, -1.5),
+        P("E", 1.8, 1),
+        { name: "l", type: "Segment", args: ["A", "E"] },
+        { name: "K", type: "ConicBy4p1l", args: ["A", "B", "C", "D", "l"] },
+        { name: "X", type: "SelectConic", args: ["K"], index: 1 },
+    ];
+
+    // the polar of A, i.e. the tangent at A if A is on X, is l
+    function tangentAtA(cdy) {
+        var t = List.productMV(cdy.evalcs("X.matrix"), cdy.evalcs("A.homog"));
+        return projectiveDistance(t, cdy.evalcs("l.homog"));
+    }
+
+    ["(-1.1,-0.9)", "B.xy+(0.3,0.1)"].forEach(function (to) {
+        it("is undefined or tangent to l at A after B.xy=" + to, function () {
+            var cdy = widget(geometry, true);
+            cdy.evalcs("B.xy=" + to);
+            var X = cdy.evalcs("X.matrix");
+            if (!isUndefined(X)) tangentAtA(cdy).should.be.below(1e-6, niceprint(X));
+        });
+    });
+
+    // Found by the stress test (tracing seed 11 #25): X11 is such a conic
+    // through P4, with S5 through P4. After move 38 it is undefined without
+    // nsa, and nsa showed a conic through the points, not tangent to S5.
+    it("as found by the stress test", function () {
+        var c = require("./fixtures/tracing-random.gen.js")(11, 30)[25];
+        var rs = 54321 + 25 * 7919;
+        var random = Math.random;
+        Math.random = function () {
+            rs = (rs * 16807) % 2147483647;
+            return rs / 2147483647;
+        };
+        try {
+            var cdy = widget(c.geometry, true);
+            c.moves.slice(0, 39).forEach(function (m) {
+                cdy.evalcs(m);
+            });
+        } finally {
+            Math.random = random;
+        }
+        c.moves[38].should.equal("P2.xy=P1.xy");
+        var X = cdy.evalcs("X11.matrix");
+        if (!isUndefined(X)) {
+            var t = List.productMV(X, cdy.evalcs("P4.homog"));
+            projectiveDistance(t, cdy.evalcs("S5.homog")).should.be.below(1e-6, niceprint(X));
+        }
+    });
+});
+
 describe("nsa: conics by four points and a line, two points coinciding", function () {
     // D is moved onto C, then A moves: all the while the conics are only
     // determined as limits. The evaluation along A's move must not take the

@@ -134,6 +134,40 @@ geoOps._helper.homogsCoincide = function (el, i, j) {
     return c <= eps * eps * h.abs2Vector(a) * h.abs2Vector(b);
 };
 
+// Whether one of the points among the arguments of el (at `points`) lies on
+// one of the lines (at `lines`) up to rounding: e.g. the conics through four
+// points tangent to a line through one of them are not determined by these
+// (the point of contact is that point). Like homogsCoincide, on the raw
+// coordinates; in the evaluation with Levi-Civita values of Nsa.ts, where
+// those are NaN, whether the point lies on the line at every order (lying
+// infinitely close is what Nsa.ts resolves).
+geoOps._helper.someArgsIncident = function (el, points, lines) {
+    const eps = CSNumber.eps;
+    for (const i of points) {
+        const p = csgeo.csnames[el.args[i]].homog;
+        for (const j of lines) {
+            const l = csgeo.csnames[el.args[j]].homog;
+            let re = 0;
+            let im = 0;
+            for (let k = 0; k < 3; k++) {
+                const P = p.value[k].value;
+                const L = l.value[k].value;
+                re += P.real * L.real - P.imag * L.imag;
+                im += P.real * L.imag + P.imag * L.real;
+            }
+            if (re !== re || im !== im) {
+                if (CSNumber._helper.isAlmostZero(List.scalproduct(p, l))) return true;
+            } else if (
+                re * re + im * im <=
+                eps * eps * geoOps._helper.abs2Vector(p.value) * geoOps._helper.abs2Vector(l.value)
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
 // |x y - z w|^2 for complex numbers x, y, z, w
 geoOps._helper.absDiffOfProducts2 = function (x, y, z, w) {
     const X = x.value,
@@ -1304,9 +1338,9 @@ geoOps._helper.ConicBy4p1l = function (el, a, b, c, d, l) {
 geoOps.ConicBy4p1l = {};
 geoOps.ConicBy4p1l.kind = "Cs";
 geoOps.ConicBy4p1l.signature = ["P", "P", "P", "P", "L"];
-// not determined through a point twice
+// not determined through a point twice, or tangent to a line through one
 geoOps.ConicBy4p1l.isDegenerate = function (el) {
-    return geoOps._helper.someArgsCoincide(el, [0, 1, 2, 3]);
+    return geoOps._helper.someArgsCoincide(el, [0, 1, 2, 3]) || geoOps._helper.someArgsIncident(el, [0, 1, 2, 3], [4]);
 };
 geoOps.ConicBy4p1l.updatePosition = function (el) {
     const a = csgeo.csnames[el.args[0]].homog;
@@ -1443,9 +1477,9 @@ geoOps.ConicBy2p3l.stateSize = 48;
 geoOps.ConicBy1p4l = {};
 geoOps.ConicBy1p4l.kind = "Cs";
 geoOps.ConicBy1p4l.signature = ["P", "L", "L", "L", "L"];
-// not determined tangent to a line twice
+// not determined tangent to a line twice, or through a point on one
 geoOps.ConicBy1p4l.isDegenerate = function (el) {
-    return geoOps._helper.someArgsCoincide(el, [1, 2, 3, 4]);
+    return geoOps._helper.someArgsCoincide(el, [1, 2, 3, 4]) || geoOps._helper.someArgsIncident(el, [0], [1, 2, 3, 4]);
 };
 geoOps.ConicBy1p4l.updatePosition = function (el) {
     const p = csgeo.csnames[el.args[0]].homog;
