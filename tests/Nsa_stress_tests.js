@@ -8,10 +8,12 @@
 // - a value that nsa shows where the element is undefined without it is the
 //   limit: without nsa, close to the end of the move along its path, the
 //   element has almost the same value.
-// Two kinds of constructions: those of the tracing golden tests, which mostly
-// degenerate in non-removable ways (free points meeting), and those of
+// Three kinds of constructions: those of the tracing golden tests, which
+// mostly degenerate in non-removable ways (free points meeting), those of
 // fixtures/nsa-random.gen.js, built on points bound to common lines and
-// circles, which mostly degenerate in removable ways.
+// circles, which mostly degenerate in removable ways, and those of
+// fixtures/nsa-circles.gen.js, points on circles off the origin moved onto
+// each other by scripts, so that they coincide up to rounding only.
 //
 // The unit tests run one seed of each; `node make nsafuzz` runs more
 // (NSA_STRESS_SEEDS, comma separated; NSA_STRESS_TIMEOUT in ms per
@@ -22,6 +24,7 @@ var expect = require("chai").expect;
 var corpora = {
     tracing: require("./fixtures/tracing-random.gen.js"),
     removable: require("./fixtures/nsa-random.gen.js"),
+    circles: require("./fixtures/nsa-circles.gen.js"),
 };
 var CindyJS = require("../build/js/Cindy.plain.js");
 
@@ -36,6 +39,8 @@ var LIMIT_TOLERANCE = 1e-2;
 var SKIP = {
     tracing: ["seed 33 #10", "seed 33 #21", "seed 44 #24", "seed 44 #29", "seed 99 #29"],
     removable: ["seed 11 #29"],
+    // seconds per move without nsa (tracing), and the prover at load
+    circles: ["seed 11 #0", "seed 11 #8", "seed 11 #14", "seed 11 #24"],
 };
 var TOLERANCE = 1e-6;
 
@@ -108,6 +113,30 @@ function onConic(p, c) {
     return Math.hypot(re, im) / (n * n * norm(c));
 }
 
+// the adjugate of the 3x3 matrix c (9 complex entries, by rows)
+function adjugate(c) {
+    var mul = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+    var e = (i, j) => c[3 * (i % 3) + (j % 3)];
+    var out = [];
+    for (var i = 0; i < 3; i++)
+        for (var j = 0; j < 3; j++) {
+            // cofactor of (j, i)
+            var x = mul(e(j + 1, i + 1), e(j + 2, i + 2));
+            var y = mul(e(j + 1, i + 2), e(j + 2, i + 1));
+            out.push([x[0] - y[0], x[1] - y[1]]);
+        }
+    return out;
+}
+
+// 0 if the line l touches the conic c (l^T adj(c) l = 0), or if c is
+// degenerate (adj(c) all but zero), where tangency means little
+function tangentTo(l, c) {
+    var adj = adjugate(c);
+    var n = norm(c);
+    if (norm(adj) <= 1e-9 * n * n) return 0;
+    return onConic(l, adj);
+}
+
 // the incidences of each element that its definition guarantees, as
 // [description, point, line or conic]
 function incidences(geometry, names) {
@@ -120,10 +149,24 @@ function incidences(geometry, names) {
         if (g.type === "Meet") out.push([g.name, a[0]], [g.name, a[1]]);
         if (g.type === "PointOnLine" || g.type === "PointOnSegment") out.push([g.name, a[0]]);
         if (g.type === "PointOnCircle") out.push([g.name, a[0]]);
+        if (g.type === "CircleBy3" || g.type === "ConicBy5") a.forEach((p) => out.push([p, g.name]));
+        if (g.type === "CircleMP") out.push([a[1], g.name]);
         if (g.type === "SelectP" && byName[a[0]]) {
             var set = byName[a[0]];
             if (/^Intersect(LC|CirCir|ConicConic)$/.test(set.type))
                 out.push([g.name, set.args[0]], [g.name, set.args[1]]);
+        }
+        if (g.type === "SelectConic" && byName[a[0]]) {
+            var family = byName[a[0]];
+            var f = family.args;
+            if (family.type === "ConicBy4p1l") {
+                f.slice(0, 4).forEach((p) => out.push([p, g.name]));
+                out.push([f[4], g.name, "tangent"]);
+            }
+            if (family.type === "ConicBy1p4l") {
+                out.push([f[0], g.name]);
+                f.slice(1).forEach((l) => out.push([l, g.name, "tangent"]));
+            }
         }
     });
     return out.filter((i) => names.indexOf(i[0]) >= 0 && names.indexOf(i[1]) >= 0);
@@ -137,8 +180,8 @@ function violations(cdy, checks) {
         var isConic = target.kind === "C";
         var t = entries(cdy.evalcs(c[1] + (isConic ? ".matrix" : ".homog")));
         if (!p || !t) return;
-        var d = isConic ? onConic(p, t) : onLine(p, t);
-        if (!(d < TOLERANCE)) bad[c[0] + " on " + c[1]] = d;
+        var d = c[2] === "tangent" ? tangentTo(p, t) : isConic ? onConic(p, t) : onLine(p, t);
+        if (!(d < TOLERANCE)) bad[c[0] + (c[2] === "tangent" ? " tangent to " : " on ") + c[1]] = d;
     });
     return bad;
 }
