@@ -25,6 +25,10 @@ export interface LCTerm {
     q: number;
     re: number;
     im: number;
+    // The magnitude of the summands the coefficient was computed from, if it
+    // is larger than the coefficient's own (after cancellation): its rounding
+    // noise is relative to that, not to the coefficient (see CANCEL_TOL).
+    s?: number;
 }
 
 export interface LCSeries {
@@ -51,6 +55,14 @@ const LC = (function () {
     // cancellation in the standard part (e.g. the cross product of two equal points)
     // would leave a spurious 1e-17 * eps^0 term that hides the infinitesimal part.
     const CANCEL_TOL = 1e-12;
+
+    // The same, relative to the summands of earlier operations, whose
+    // cancellation left smaller coefficients behind, with the absolute rounding
+    // noise of those summands (see LCTerm.s): a few roundings of them, and much
+    // less than CANCEL_TOL, since a genuine coefficient can be that small after
+    // several cancellations (the circle through three points at distances d
+    // has coefficients of the order d^2 relative to them).
+    const SCALE_TOL = 1e-14;
 
     function invalid(): LCSeries {
         return { terms: [{ q: 0, re: NaN, im: NaN }], big: Infinity };
@@ -121,6 +133,11 @@ const LC = (function () {
     // ------------------------------------------------------------------------
     // Normalization
 
+    // The magnitude a term's rounding noise is relative to (see LCTerm.s).
+    function scaleOf(t: LCTerm): number {
+        return t.s === undefined ? magnitude(t.re, t.im) : t.s;
+    }
+
     // |re + i im|; Math.hypot is much slower, and only needed where the squares
     // would overflow or underflow.
     function magnitude(re: number, im: number): number {
@@ -150,8 +167,9 @@ const LC = (function () {
 
     // Sort, merge equal exponents, drop zeros and everything at or beyond `big`.
     // `parts` holds, per term, the sum of the absolute values of everything that
-    // was added into it, so cancellation can be judged relative to the summands.
-    function tidy(terms: LCTerm[], big: number, parts?: number[]): LCSeries {
+    // was added into it, so cancellation can be judged relative to the summands,
+    // and `scales` the same for their scales (see LCTerm.s).
+    function tidy(terms: LCTerm[], big: number, parts?: number[], scales?: number[]): LCSeries {
         const idx = sortedByExponent(terms);
         const n = idx.length;
         const out: LCTerm[] = [];
@@ -164,18 +182,21 @@ const LC = (function () {
             let re = 0;
             let im = 0;
             let sum = 0;
+            let scale = 0;
             do {
                 const i = idx[k++];
                 const t = terms[i];
                 re += t.re;
                 im += t.im;
                 sum += parts ? parts[i] : magnitude(t.re, t.im);
+                scale += scales ? scales[i] : scaleOf(t);
             } while (k < n && q === q && Math.abs(terms[idx[k]].q - q) <= Q_TOL);
             if (q !== q || q >= big - Q_TOL) continue;
             const mag = magnitude(re, im);
             // NaN, or an infinite coefficient: not a Levi-Civita number
             if (mag !== mag || mag === Infinity || sum === Infinity) bad = true;
-            if (mag !== 0 && mag > CANCEL_TOL * sum) out.push({ q, re, im });
+            if (mag !== 0 && mag > CANCEL_TOL * sum && mag > SCALE_TOL * scale)
+                out.push(scale > mag ? { q, re, im, s: scale } : { q, re, im });
         }
         if (bad) return invalid();
         if (out.length > MAX_TERMS) {
@@ -201,7 +222,13 @@ const LC = (function () {
     }
 
     function neg(a: LCSeries): LCSeries {
-        return { terms: a.terms.map((t) => ({ q: t.q, re: -t.re, im: -t.im })), big: a.big };
+        return { terms: a.terms.map((t) => withScale(t, { q: t.q, re: -t.re, im: -t.im }, 1)), big: a.big };
+    }
+
+    // `to`, with the scale of `from` (if it has one) times `factor`
+    function withScale(from: LCTerm, to: LCTerm, factor: number): LCTerm {
+        if (from.s !== undefined) to.s = from.s * factor;
+        return to;
     }
 
     function sub(a: LCSeries, b: LCSeries): LCSeries {
@@ -212,7 +239,9 @@ const LC = (function () {
         if (re !== re || im !== im) return invalid();
         if (re === 0 && im === 0) return ZERO;
         return {
-            terms: a.terms.map((t) => ({ q: t.q, re: t.re * re - t.im * im, im: t.re * im + t.im * re })),
+            terms: a.terms.map((t) =>
+                withScale(t, { q: t.q, re: t.re * re - t.im * im, im: t.re * im + t.im * re }, magnitude(re, im))
+            ),
             big: a.big,
         };
     }
@@ -224,22 +253,27 @@ const LC = (function () {
         const big = Math.min(a.big + order(b), b.big + order(a));
         const terms: LCTerm[] = [];
         const parts: number[] = [];
+        const scales: number[] = [];
         const bMag = b.terms.map((t) => magnitude(t.re, t.im));
+        const bScale = b.terms.map(scaleOf);
         for (const s of a.terms) {
             const sMag = magnitude(s.re, s.im);
+            const sScale = scaleOf(s);
             for (let j = 0; j < b.terms.length; j++) {
                 const t = b.terms[j];
                 if (s.q + t.q >= big - Q_TOL) continue;
                 terms.push({ q: s.q + t.q, re: s.re * t.re - s.im * t.im, im: s.re * t.im + s.im * t.re });
+                // the noise of a product: |s| noise(t) + noise(s) |t|, to first order
                 parts.push(sMag * bMag[j]);
+                scales.push(sMag * bScale[j] + sScale * bMag[j] - sMag * bMag[j]);
             }
         }
-        return tidy(terms, big, parts);
+        return tidy(terms, big, parts, scales);
     }
 
     function shift(a: LCSeries, dq: number): LCSeries {
         if (dq === 0) return a;
-        return { terms: a.terms.map((t) => ({ q: t.q + dq, re: t.re, im: t.im })), big: a.big + dq };
+        return { terms: a.terms.map((t) => withScale(t, { q: t.q + dq, re: t.re, im: t.im }, 1)), big: a.big + dq };
     }
 
     // Split a = c * eps^q * (1 + eta) with eta infinitesimal (relative precision
@@ -252,7 +286,13 @@ const LC = (function () {
         const terms: LCTerm[] = [];
         for (let k = 1; k < a.terms.length; k++) {
             const t = a.terms[k];
-            terms.push({ q: t.q - c.q, re: t.re * ire - t.im * iim, im: t.re * iim + t.im * ire });
+            terms.push(
+                withScale(
+                    t,
+                    { q: t.q - c.q, re: t.re * ire - t.im * iim, im: t.re * iim + t.im * ire },
+                    1 / Math.sqrt(s)
+                )
+            );
         }
         return { c, eta: { terms, big: a.big - c.q } };
     }
@@ -291,7 +331,7 @@ const LC = (function () {
     }
 
     function conj(a: LCSeries): LCSeries {
-        return { terms: a.terms.map((t) => ({ q: t.q, re: t.re, im: -t.im })), big: a.big };
+        return { terms: a.terms.map((t) => withScale(t, { q: t.q, re: t.re, im: -t.im }, 1)), big: a.big };
     }
 
     function realPart(a: LCSeries): LCSeries {

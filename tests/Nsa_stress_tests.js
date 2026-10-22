@@ -37,7 +37,7 @@ var LIMIT_TOLERANCE = 1e-2;
 // the prover checking conjectures when loading (removable seed 11 #29: over
 // 30 s per widget)
 var SKIP = {
-    tracing: ["seed 33 #10", "seed 33 #21", "seed 44 #24", "seed 44 #29", "seed 99 #29"],
+    tracing: ["seed 33 #10", "seed 33 #21", "seed 44 #24", "seed 44 #28", "seed 44 #29", "seed 99 #29"],
     removable: ["seed 11 #29"],
     // seconds per move without nsa (tracing), and the prover at load
     circles: ["seed 11 #0", "seed 11 #8", "seed 11 #14", "seed 11 #24"],

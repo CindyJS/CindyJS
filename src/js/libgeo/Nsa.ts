@@ -114,6 +114,15 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
     // Two projective shadows agree if their projective distance is below this.
     const AGREE = 1e-8;
 
+    // Tracing the degenerate elements along the mover's path (traceAlongPath):
+    // how close to its end (in the curve parameter, which runs from -1 to 1),
+    // the shortest step, and the most steps.
+    const NEAR_END = 1e-6;
+    const MIN_STEP = 1e-4;
+    const MAX_STEPS = 200;
+    // the steps a short path takes (a move during a drag), for DRAG_BUDGET
+    const USUAL_STEPS = 3;
+
     // Keys of element fields holding projective quantities.
     const projectiveFields: Record<string, boolean> = {
         homog: true,
@@ -376,6 +385,10 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         },
     };
 
+    // Set by match when the old solutions do not determine the new ones clearly
+    // (judged like Tracing's tracing2core): a step along the path that was too long.
+    let ambiguous = false;
+
     let inArr: number[] = []; // private state: plain numbers, copied from the tracing state
     let outArr: Array<number | undefined> = []; // what the operations write, as standard numbers
     let inIdx = 0;
@@ -450,6 +463,19 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             })
         );
         const m: number[] = minCostMatching(cost);
+        const moved = Math.max(...olds.map((_, i) => cost[i][m[i]]));
+        // Solutions that (almost) coincide, old or new ones, may be assigned
+        // either way; NaN ones have nothing to go by.
+        const spread = (vs: CSList[]): number => {
+            let d = Infinity;
+            for (let i = 0; i < vs.length; i++)
+                for (let j = i + 1; j < vs.length; j++)
+                    d = Math.min(d, List.projectiveDistMinScal(comparable(vs[i]), comparable(vs[j])));
+            return d;
+        };
+        const dOld = spread(olds);
+        const dNew = spread(news);
+        if (dOld >= 1e-5 && dNew >= 1e-5 && !(dOld > 3 * moved && dNew > 3 * moved)) ambiguous = true;
         return olds.map((_, i) => news[m[i]]);
     }
 
@@ -483,8 +509,10 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             res.forEach(privateState.putVector);
             return List.turnIntoCSList(res.map((r) => geoOps._helper.buildConicMatrix(r.value)));
         },
-        // there is no refining here: give up on the element
+        // there is no refining here: give up on the element (along the path:
+        // on the step)
         requestRefinement: function (): never {
+            ambiguous = true;
             throw Abort;
         },
     };
@@ -517,16 +545,17 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
     // `perturb`, and returns, for the `targets` that depend on a perturbed
     // element and came out defined, their shadow fields and the tracing state they
     // would have. Elements in `frozen` keep their values; `lastGoodFor` start from
-    // their last good state. Elements and tracing state are left exactly as they
-    // were.
+    // their last good state (in `lastGood`, tracing's by default). Elements and
+    // tracing state are left exactly as they were.
     function evaluate(
         order: GeoElement[],
         targets: GeoElement[],
         perturb: Perturb,
         lastGoodFor: GeoElement[],
-        frozen: Set<GeoElement>
+        frozen: Set<GeoElement>,
+        lastGood: ArrayLike<number> = stateLastGood
     ): Evaluation {
-        return withLeviCivita(() => evaluateLC(order, targets, perturb, lastGoodFor, frozen));
+        return withLeviCivita(() => evaluateLC(order, targets, perturb, lastGoodFor, frozen, lastGood));
     }
 
     // evaluate, with CSNumber and List computing on Levi-Civita numbers. Nothing
@@ -537,7 +566,8 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         targets: GeoElement[],
         perturb: Perturb,
         lastGoodFor: GeoElement[],
-        frozen: Set<GeoElement>
+        frozen: Set<GeoElement>,
+        lastGood: ArrayLike<number>
     ): Evaluation {
         const savedEls = order.map((el) => Object.assign({}, el));
         const savedState = substitute(opState, privateState);
@@ -554,7 +584,7 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             outArr = new Array(inArr.length);
             for (const el of lastGoodFor) {
                 const size: number = geoOps[el.type].stateSize;
-                for (let i = 0; i < size; i++) inArr[el.stateIdx + i] = stateLastGood[el.stateIdx + i];
+                for (let i = 0; i < size; i++) inArr[el.stateIdx + i] = lastGood[el.stateIdx + i];
             }
             for (const el of order) {
                 if (frozen.has(el)) continue;
@@ -750,6 +780,49 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         }
     }
 
+    // The state the degenerate elements are continued from at the end of the
+    // move: traced along the mover's path from its start up to shortly before
+    // its end, through the elements in `order`, like Tracing does it (the same
+    // detour through the complex numbers, steps refined where the solutions
+    // are not clearly assigned). Tracing's last good state is the one at the
+    // start of the move: after a long move, matching the limits against it
+    // would pick arbitrary solutions. Null if the elements do not depend on the
+    // mover.
+    function traceAlongPath(
+        order: GeoElement[],
+        mover: GeoElement,
+        originParam: Value,
+        targetParam: Value
+    ): number[] | null {
+        if (!order.includes(mover)) return null;
+        const path = geoOps[mover.type].parameterPath || defaultParameterPath;
+        const state = Array.from(stateLastGood as Float64Array);
+        const end = 1 - NEAR_END;
+        let last = -1;
+        let step = 0.9;
+        for (let steps = 0; last < end && steps < MAX_STEPS; steps++) {
+            const t = Math.min(last + step, end);
+            const t2 = t * t;
+            const dt = 0.5 / (1 + t2);
+            const tc = CSNumber.complex(2 * t * dt + 0.5, (1 - t2) * dt);
+            const at: Perturb = (el) => (el === mover ? path(mover, t, tc, originParam, targetParam) : null);
+            ambiguous = false;
+            const r = evaluate(order, order, at, order, new Set(), state);
+            if (ambiguous && step > MIN_STEP) {
+                step *= 0.5;
+                continue;
+            }
+            for (const [el, st] of r.states) {
+                st.forEach((v, i) => {
+                    if (v !== null) state[el.stateIdx + i] = v;
+                });
+            }
+            last = t;
+            step *= 1.25;
+        }
+        return state;
+    }
+
     function isAlmostZeroValue(v: Value): boolean {
         if (v.ctype === "number") return CSNumber._helper.isAlmostZero(v as CSNum);
         if (v.ctype === "list") return (v as CSList).value.every(isAlmostZeroValue);
@@ -787,13 +860,18 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
         // Elements with a result, shown already, count as given inputs, so
         // the new results are consistent with them.
         const frozen = todo.length > 0 ? frozenFor(inScope, badSet, keys) : new Set<GeoElement>();
-        // at most: the samples in one or two passes, and the path
-        const evaluations = 2 * SAMPLES * (frozen.size > 0 ? 2 : 1) + 2;
+        const moving =
+            !!mover && !!originParam && !!targetParam && !isAlmostZeroValue(General.sub(originParam, targetParam));
+        // at most: the samples in one or two passes, and the path, traced
+        const evaluations = 2 * SAMPLES * (frozen.size > 0 ? 2 : 1) + 2 + (moving ? USUAL_STEPS : 0);
         const complete = evaluations * ancestorClosure(todo, frozen).length <= budget;
         if (todo.length > 0 && complete) {
             type Found = { fields: Fields; state: StateSlice };
             const found = new Map<GeoElement, Found | null>();
             const eps = CSNumber.infinitesimal(1);
+            const lastGood =
+                (moving && mover && traceAlongPath(ancestorClosure(todo, frozen), mover, originParam, targetParam)) ||
+                stateLastGood;
 
             // Extended C0-continuation: the value must not depend on the
             // direction of approach, so all free elements, the mover included,
@@ -819,7 +897,7 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                         const p = perturbations[el.type];
                         return p && !el.pinned && !held.has(el) ? p(el, param, eps, randomSource(el.name, k)) : null;
                     };
-                    samples.push(evaluate(restOrder, rest, perturb, bad, fixed));
+                    samples.push(evaluate(restOrder, rest, perturb, bad, fixed, lastGood));
                 }
                 for (const el of rest) {
                     const fs = samples.map((s) => s.fields.get(el));
@@ -840,13 +918,7 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
             const canPerturb = (a: GeoElement) => !!perturbations[a.type] && !a.pinned;
             const onPath = todo.filter((el) => stable.has(el) || !ancestorClosure([el], new Set()).some(canPerturb));
             const pathOrder = ancestorClosure(onPath, frozen);
-            if (
-                mover &&
-                pathOrder.includes(mover) &&
-                originParam &&
-                targetParam &&
-                !isAlmostZeroValue(General.sub(originParam, targetParam))
-            ) {
+            if (moving && mover && pathOrder.includes(mover) && originParam && targetParam) {
                 const path = geoOps[mover.type].parameterPath || defaultParameterPath;
                 // the path as a function of its (real) curve parameter, at
                 // 1 + side * eps (computed inside the evaluation, where
@@ -858,8 +930,8 @@ type Perturb = (el: GeoElement, param: Value) => Value | null;
                         const tc = CSNumber.add(CSNumber.real(1), CSNumber.realmult(side, eps));
                         return path(mover, undefined, tc, originParam, targetParam);
                     };
-                const before = evaluate(pathOrder, onPath, at(-1), bad, frozen);
-                const after = evaluate(pathOrder, onPath, at(+1), bad, frozen);
+                const before = evaluate(pathOrder, onPath, at(-1), bad, frozen, lastGood);
+                const after = evaluate(pathOrder, onPath, at(+1), bad, frozen, lastGood);
                 for (const el of onPath) {
                     const a = before.fields.get(el);
                     const b = after.fields.get(el);

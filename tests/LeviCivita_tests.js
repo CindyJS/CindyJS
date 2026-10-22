@@ -44,6 +44,19 @@ describe("Levi-Civita series", function () {
         LC.order(s).should.equal(1);
     });
 
+    it("judges cancellation relative to the summands of earlier operations", function () {
+        // two standard parts that are 1e-7 after cancellation, with absolute
+        // rounding noise of the summands (1/3, 0.7): their difference is noise
+        // relative to those, not to 1e-7
+        var a = LC.sub(LC.add(c(1 / 3 + 1e-7), eps), c(1 / 3));
+        var b = LC.sub(c(0.7 + 1e-7), c(0.7));
+        LC.order(LC.sub(a, b)).should.equal(1);
+        // also after a multiplication
+        LC.order(LC.sub(LC.mul(a, c(3)), LC.mul(b, c(3)))).should.equal(1);
+        // a genuine small difference stays
+        LC.order(LC.sub(a, LC.sub(c(0.7 + 2e-7), c(0.7)))).should.equal(0);
+    });
+
     it("inverts an infinitesimal to an infinite number", function () {
         var s = LC.inv(LC.add(eps, LC.monomial(2, 3)));
         LC.order(s).should.equal(-1);

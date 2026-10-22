@@ -1722,3 +1722,107 @@ describe("nsa: Closure-compiled build", function () {
         });
     });
 });
+
+describe("nsa: a long move onto a coinciding point", function () {
+    // K2 moves along c1 a long way, onto K3: their join becomes the tangent at
+    // K3, and its intersections with c6 are what they approach along the move.
+    // Matched against their values at the start of the move instead (tracing's
+    // last good state), they came out swapped. (Found by the stress test,
+    // circles seed 77 #24.)
+    var geometry = [
+        P("M0", -3, -3),
+        { name: "c1", type: "CircleMr", args: ["M0"], radius: 5 },
+        { name: "K2", type: "PointOnCircle", args: ["c1"], pos: [-3, 2, 1] },
+        { name: "K3", type: "PointOnCircle", args: ["c1"], pos: [-3, -8, 1] },
+        { name: "K4", type: "PointOnCircle", args: ["c1"], pos: [1, 0, 1] },
+        P("M5", -3, -1),
+        { name: "c6", type: "CircleMr", args: ["M5"], radius: 5 },
+        { name: "l", type: "Join", args: ["K2", "K3"] },
+        { name: "S", type: "IntersectLC", args: ["l", "c6"] },
+        { name: "Y1", type: "SelectP", args: ["S"], index: 1 },
+        { name: "Y2", type: "SelectP", args: ["S"], index: 2 },
+    ];
+    var moves = [
+        "K2.xy=M0.xy+(-5,0)",
+        "K4.xy=M0.xy+(-4,3)",
+        "K2.xy=M0.xy+(3,4)",
+        "K4.xy=M0.xy+(4,3)",
+        "K2.xy=K3.xy",
+        "K3.xy=K4.xy",
+    ];
+    var xy = function (cdy, name) {
+        return cdy.evalcs(name + ".xy").value.map(function (z) {
+            return z.value.real;
+        });
+    };
+
+    it("continues the intersections along the move", function () {
+        var cdy = widget(geometry, true);
+        var near = widget(geometry, false);
+        moves.forEach(function (m) {
+            cdy.evalcs(m);
+            near.evalcs(m);
+        });
+        var from = xy(cdy, "K2");
+        var to = xy(cdy, "K4");
+        cdy.evalcs("K2.xy=K4.xy");
+        // without nsa, stopping shortly before the end
+        near.evalcs("K2.xy=(" + (to[0] + 1e-6 * (from[0] - to[0])) + "," + (to[1] + 1e-6 * (from[1] - to[1])) + ")");
+        ["Y1", "Y2"].forEach(function (n) {
+            var limit = cdy.evalcs(n + ".homog");
+            var close = near.evalcs(n + ".homog");
+            projectiveDistance(limit, close).should.be.below(
+                1e-4,
+                n + ": " + niceprint(limit) + " vs " + niceprint(close)
+            );
+        });
+    });
+});
+
+describe("nsa: a circle through three points on a circle, two coinciding", function () {
+    // K2 and K5 coincide on c1 (and the join of K5 with itself holds K5 in
+    // the evaluation), K4 is moved close to them: the circle through the
+    // three is c1. With rounding noise left over from cancelling standard
+    // parts in two steps (see LeviCivita.ts, LCTerm.s), the evaluations
+    // agreed on a tiny circle around K5 instead. (Found by the stress test,
+    // circles seed 99 #27.) Closer still, the circle is too ill-conditioned
+    // for the evaluations to agree: undefined.
+    var geometry = [
+        P("M0", -3, 0),
+        { name: "c1", type: "CircleMr", args: ["M0"], radius: 5 },
+        { name: "K2", type: "PointOnCircle", args: ["c1"], pos: [1, 3, 1] },
+        { name: "K3", type: "PointOnCircle", args: ["c1"], pos: [1, -3, 1] },
+        { name: "K4", type: "PointOnCircle", args: ["c1"], pos: [-3, 5, 1] },
+        { name: "K5", type: "PointOnCircle", args: ["c1"], pos: [-6, 4, 1] },
+        { name: "l6", type: "Join", args: ["K5", "K5"] },
+        { name: "k7", type: "CircleBy3", args: ["K2", "K4", "K5"] },
+    ];
+    var moves = [
+        "K2.xy=K3.xy",
+        "K4.xy=K3.xy",
+        "K4.xy=K5.xy",
+        "K3.xy=K2.xy",
+        "K3.xy=K4.xy",
+        "K4.xy=K2.xy",
+        "M0.xy=(-1,-2)",
+        "K4.xy=K3.xy",
+        "K4.xy=K3.xy",
+        "K4.xy=K2.xy",
+        "K2.xy=K3.xy",
+        "K5.xy=K3.xy",
+    ];
+
+    it("is the circle, or undefined", function () {
+        var cdy = widget(geometry, true);
+        moves.forEach(function (m) {
+            cdy.evalcs(m);
+        });
+        // 0.001 before K4 reaches K5
+        cdy.evalcs("K4.xy=(-3.9993, 1.9993)");
+        var k = cdy.evalcs("k7.matrix");
+        if (!isUndefined(k)) {
+            var c = cdy.evalcs("c1.matrix");
+            projectiveDistance(flat(k), flat(c)).should.be.below(1e-6, niceprint(k));
+        }
+    });
+});
