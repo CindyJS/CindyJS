@@ -1,6 +1,6 @@
 /**
  * nsa in a real browser, driven with the mouse:
- * - the nsa examples (173-175) work without page errors, console errors or
+ * - the nsa examples (173-177) work without page errors, console errors or
  *   nsa warnings, and show what their text says;
  * - while dragging, a move resolves degenerate elements only within a
  *   budget, and what exceeds it is resolved when the drag ends (budget.html).
@@ -138,6 +138,28 @@ test("176: Pascal's theorem holds in its degenerate cases", async ({ page }) => 
     expect(await isUndefined(page, "plain", "ab.homog")).toBe(true);
     expect(await isTangentAtA("nsa")).toBe(true);
     expect(await collinearity("nsa")).toBeLessThan(1e-9);
+    expect(problems).toEqual([]);
+});
+
+test("177: the osculating circle, and the evolute while dragging", async ({ page }) => {
+    const problems = await open(page, "examples/177_NSAOsculatingCircle.html");
+    const value = (name, expression) =>
+        page.evaluate(([name, expression]) => window[name].evalcs(expression).value.real, [name, expression]);
+    // the radius of curvature of y = x^2 / 4 at x
+    const curvature = (x) => 2 * Math.pow(1 + (x * x) / 4, 1.5);
+    const buttons = page.locator("button");
+    await buttons.nth(2).click(); // X2 and X3 onto X1, at x = -1
+    expect(await isUndefined(page, "plain", "k.matrix")).toBe(true);
+    expect(Math.abs((await value("nsa", "k.radius")) - curvature(-1))).toBeLessThan(1e-9);
+    // dragged with X2 and X3 following, Z stays on the evolute (-x^3/4, 2 + 3x^2/4)
+    await page.locator("#lock").check();
+    await drag(page, "nsa", [-1, -1], [1.5, -1]);
+    const x = (await coordinates(page, "nsa", "X1.xy"))[0];
+    expect(x).toBeGreaterThan(1);
+    expect(Math.abs((await value("nsa", "k.radius")) - curvature(x))).toBeLessThan(1e-9);
+    const [zx, zy] = await coordinates(page, "nsa", "Z.xy");
+    expect(Math.hypot(zx + (x * x * x) / 4, zy - 2 - (3 * x * x) / 4)).toBeLessThan(1e-9);
+    expect(await value("nsa", "length(trail)")).toBeGreaterThan(5);
     expect(problems).toEqual([]);
 });
 
