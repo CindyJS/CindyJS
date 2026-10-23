@@ -2,7 +2,7 @@ import { csgeo } from "Setup";
 import { CSNumber } from "libcs/CSNumber";
 import { List } from "libcs/List";
 import { General } from "libcs/General";
-import { stateArrays, stateIn, movepointscr, recalcAll } from "libgeo/Tracing";
+import { stateArrays, stateIn, movepointscr, recalcAll, nsaHooks } from "libgeo/Tracing";
 import { geoOps } from "libgeo/GeoOps";
 
 let conjectures = [];
@@ -359,19 +359,26 @@ function checkConjectures() {
 
     let emove;
     const nconject = conjectures.length;
-    for (let kk = 0; kk < nummoves; kk++) {
-        for (const name in involved) {
-            const el = csgeo.csnames[name];
-            if (!el.pinned && geoOps[el.type].isMovable) {
-                if (debug) console.log("prover: moving element", el.name);
-                // get random move and move free element
-                emove = geoOps[el.type].getRandomMove(el);
-                movepointscr(el, emove.value, emove.type);
-                // check if conjecture still holds
-                conjectures = conjectures.filter(checkCon);
+    // the probing moves must see undefined elements as undefined, not as limits
+    const wasSuspended = nsaHooks.suspended;
+    nsaHooks.suspended = true;
+    try {
+        for (let kk = 0; kk < nummoves; kk++) {
+            for (const name in involved) {
+                const el = csgeo.csnames[name];
+                if (!el.pinned && geoOps[el.type].isMovable) {
+                    if (debug) console.log("prover: moving element", el.name);
+                    // get random move and move free element
+                    emove = geoOps[el.type].getRandomMove(el);
+                    movepointscr(el, emove.value, emove.type);
+                    // check if conjecture still holds
+                    conjectures = conjectures.filter(checkCon);
+                }
             }
+            recalcInvolved();
         }
-        recalcInvolved();
+    } finally {
+        nsaHooks.suspended = wasSuspended;
     }
 
     if (debug) {

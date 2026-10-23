@@ -55,6 +55,7 @@
         "test": "node make/index.js call_npm=false alltests",
         "prettier": "prettier --write .",
         "test:katex-canvas": "playwright test --config tests/katex-canvas/playwright.config.mjs",
+        "test:nsa-browser": "playwright test --config tests/nsa-browser/playwright.config.mjs",
         "lint": "eslint 'src/js/**/*.js'",
         "prepare": "husky install"
     },

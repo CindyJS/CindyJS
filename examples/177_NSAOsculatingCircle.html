@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Osculating circle with nsa</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../build/js/Cindy.js"></script>
+        <script id="csinit" type="text/x-cindyscript">
+            lock = false;
+            trail = [];
+        </script>
+        <script id="csmove" type="text/x-cindyscript">
+            // X1, X2 and X3 stay together, following the one that is dragged:
+            // the circle through the three points is the osculating circle at
+            // P1, and its center Z runs along the evolute
+            if(lock,
+                xs = [X1, X2, X3];
+                m = if(contains(xs, mover()), mover(), X1);
+                forall(xs, v, if(v != m, v.xy = m.xy));
+                if(!isundefined(Z.x), trail = trail :> Z.xy);
+                if(length(trail) > 2000, trail = trail_(-2000..-1));
+            );
+        </script>
+        <script id="csdraw" type="text/x-cindyscript">
+            // the parabola y = x^2 / 4 with focus F and directrix d
+            plot(#^2 / 4, color -> [0, 0, 0], size -> 2);
+            // its evolute, Neile's parabola: the centers of curvature
+            connect(apply(-60..60, i, s = i / 10; (-s^3 / 4, 2 + 3 * s^2 / 4)), color -> [0.7, 0.7, 0.7]);
+            if(length(trail) > 1, connect(trail, color -> [1, 0.5, 0], size -> 2));
+            t = X1.x;
+            rk = k.radius;
+            // not a boolean for NaN
+            ok = abs(rk) < 1e300;
+            shown = if(ok == true, format(rk, 6), "undefined");
+            drawtext((-7.6, 9.3), "radius of k: " + shown, size -> 14);
+            drawtext((-7.6, 8.5), "radius of curvature at P1: " + format(2 * (1 + t^2 / 4)^(3 / 2), 6), size -> 14);
+        </script>
+        <script type="text/javascript">
+            // P_i on the parabola with focus F and directrix d, from X_i on d:
+            // the perpendicular to d at X_i meets the perpendicular bisector of
+            // X_i and F in P_i (P_i is as far from F as from d). k is the circle
+            // through P1, P2, P3; Z its center.
+            function onParabola(i, x) {
+                var g = [0.5, 0.5, 0.5];
+                return [
+                    {
+                        name: "X" + i,
+                        type: "PointOnLine",
+                        args: ["d"],
+                        pos: [x, -1, 1],
+                        color: [1, 0, 0],
+                        labeled: true,
+                    },
+                    { name: "h" + i, type: "Perp", args: ["d", "X" + i], color: g, size: 1, visible: false },
+                    { name: "xf" + i, type: "Join", args: ["X" + i, "F"], visible: false },
+                    { name: "N" + i, type: "Mid", args: ["X" + i, "F"], visible: false },
+                    { name: "b" + i, type: "Perp", args: ["xf" + i, "N" + i], visible: false },
+                    { name: "P" + i, type: "Meet", args: ["h" + i, "b" + i], color: [0, 0, 1], labeled: true },
+                    { name: "s" + i, type: "Segment", args: ["X" + i, "P" + i], color: g, size: 1 },
+                ];
+            }
+            var geometry = [
+                { name: "F", type: "Free", pos: [0, 1], color: [0, 0, 0], pinned: true, labeled: true },
+                { name: "D1", type: "Free", pos: [-8, -1], visible: false, pinned: true },
+                { name: "D2", type: "Free", pos: [8, -1], visible: false, pinned: true },
+                { name: "d", type: "Join", args: ["D1", "D2"], color: [0, 0, 0], labeled: true },
+            ]
+                .concat(onParabola(1, -1), onParabola(2, 1), onParabola(3, 2.5))
+                .concat([
+                    {
+                        name: "k",
+                        type: "CircleBy3",
+                        args: ["P1", "P2", "P3"],
+                        color: [0, 0.6, 0],
+                        size: 2,
+                        labeled: true,
+                    },
+                    { name: "Z", type: "CenterOfConic", args: ["k"], color: [0, 0.6, 0], labeled: true },
+                ]);
+            var ports = function (id) {
+                return [{ id: id, transform: [{ visibleRect: [-8, -2, 8, 10] }] }];
+            };
+            var plain = CindyJS({
+                ports: ports("plain"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+            });
+            var nsa = CindyJS({
+                ports: ports("nsa"),
+                scripts: "cs*",
+                geometry: JSON.parse(JSON.stringify(geometry)),
+                nsa: true,
+            });
+            function both(code) {
+                plain.evokeCS(code);
+                nsa.evokeCS(code);
+            }
+            var apart = "lock = false; trail = []; X1.xy = (-1, -1); X2.xy = (1, -1); X3.xy = (2.5, -1);";
+            function reset(code) {
+                document.getElementById("lock").checked = false;
+                both(apart + code);
+            }
+            function setLock(on) {
+                both(on ? "lock = true; trail = []; X2.xy = X1.xy; X3.xy = X1.xy;" : "lock = false;");
+            }
+        </script>
+    </head>
+
+    <body style="font-family: Arial">
+        <h1>The osculating circle as a circle through three points</h1>
+        <p>
+            Both widgets construct, with ruler and compass, three points P1, P2, P3 on the parabola with focus F and
+            directrix d (y = x&sup2;/4): P<sub>i</sub> lies on the perpendicular to d at X<sub>i</sub>, as far from F as
+            from d. The circle k passes through the three points, Z is its center.
+        </p>
+        <p>
+            Move X2 onto X1: then P2 coincides with P1, and k, the circle through two points, is undefined. Its limit is
+            the circle through P3 that touches the parabola at P1. Move X3 onto X1 as well: the limit of the circles
+            through three points of a curve that run together is the osculating circle, the circle that fits the curve
+            best at P1, whose radius is the radius of curvature, here 2(1 + x&sup2;/4)<sup>3/2</sup> at x. On the left,
+            k is undefined in both cases. On the right, with <code>nsa: true</code> (see
+            <a href="173_NSA.html">173_NSA.html</a>), k is evaluated with infinitesimally separated points, and its
+            limit, which does not depend on how they are separated, is shown: the radius agrees with the formula.
+        </p>
+        <p>
+            With "X1, X2, X3 together", drag them along d: Z, the center of curvature, runs along the evolute of the
+            parabola (gray, Neile's parabola), and leaves a trail.
+        </p>
+        <p>
+            <button onclick="reset('')">Three points</button>
+            <button onclick="reset('X2.xy = X1.xy;')">X2 onto X1</button>
+            <button onclick="reset('X2.xy = X1.xy; X3.xy = X1.xy;')">X2 and X3 onto X1</button>
+            <label><input id="lock" type="checkbox" onchange="setLock(this.checked)" /> X1, X2, X3 together</label>
+        </p>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap">
+            <div>
+                <p>Without nsa</p>
+                <div id="plain" style="width: 480px; height: 480px; border: 2px solid black"></div>
+            </div>
+            <div>
+                <p>With <code>nsa: true</code></p>
+                <div id="nsa" style="width: 480px; height: 480px; border: 2px solid black"></div>
+            </div>
+        </div>
+    </body>
+</html>

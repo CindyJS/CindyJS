@@ -15,6 +15,7 @@ import {
     stateOutIdx,
     stateArrays,
     setTracingInitial,
+    nsaHooks,
     setStateIn,
     setStateOut,
     setStateInIdx,
@@ -103,6 +104,7 @@ function csinit(gslp) {
     });
 
     checkConjectures();
+    if (nsaHooks.afterLoad) nsaHooks.afterLoad();
 }
 
 // Setzen der Default appearance
@@ -192,6 +194,7 @@ function addElement(el, removeDuplicates) {
     }
 
     checkConjectures();
+    if (nsaHooks.afterLoad) nsaHooks.afterLoad();
 
     // remove element if it's a proven duplicate
     if (typeof removeDuplicates === "boolean" && removeDuplicates && el.Duplicate) {

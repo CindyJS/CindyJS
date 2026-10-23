@@ -1,3 +1,5 @@
+import type { LCSeries } from "libcs/LeviCivita";
+
 export type ctypes = "number" | "list" | "undefined" | "image" | "function" | "boolean" | "JSON" | "string";
 
 export interface CSType {
@@ -11,6 +13,8 @@ export interface CSNum extends CSType {
     value: {
         real: number;
         imag: number;
+        // a Levi-Civita series; real and imag are NaN then, see CSNumber.ts
+        lc?: LCSeries;
     };
 }
 
@@ -43,6 +47,8 @@ export interface CSMath {
         isZero: (arg: CSNum) => boolean;
         isAlmostZero: (arg: CSNum) => boolean;
         isAlmostReal: (arg: CSNum) => boolean;
+        absBelow: (a: CSNum, eps: number) => boolean;
+        realSign: (a: CSNum) => number;
         isAlmostImag: (arg: CSNum) => boolean;
         solveCubicHelper: (a: CSNum, b: CSNum, c: CSNum, d: CSNum) => CSList;
         z3a: CSNum;
@@ -100,6 +106,8 @@ export interface CSMath {
     mod: (a: CSNum, b: CSNum) => CSNum;
     solveCubic: (a: CSNum, b: CSNum, c: CSNum, d: CSNum) => Array<CSNum>;
     getRandReal: (a: number, b: number) => CSNum;
+    infinitesimal: (q?: number) => CSNum;
+    standardPart: (a: CSNum) => CSNum;
     getRandComplex: (a: number, b: number) => CSNum;
 }
 

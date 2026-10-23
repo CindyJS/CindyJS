@@ -3,6 +3,7 @@ import { instanceInvocationArguments, nada } from "expose";
 import { List } from "libcs/List";
 
 import { CSNum, Nada, CSMath, CSList } from "types";
+import { LC } from "libcs/LeviCivita";
 
 const angleUnit = instanceInvocationArguments.angleUnit || "°";
 const TWOPI = Math.PI * 2;
@@ -117,6 +118,19 @@ const CSNumber: CSMath = {
             const a = CSNumber._helper.rand();
             const b = CSNumber._helper.rand();
             return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
+        },
+
+        // |a| < eps, for threshold tests in geometric operations. |a| is computed
+        // as CSNumber.abs does, which for real a is exactly Math.abs.
+        absBelow: function (a: CSNum, eps: number): boolean {
+            const abs = a.value.imag === 0 ? Math.abs(a.value.real) : CSNumber.abs(a).value.real;
+            return abs < eps;
+        },
+
+        // the sign of the real part (0 for NaN)
+        realSign: function (a: CSNum): number {
+            const r = a.value.real;
+            return r > 0 ? 1 : r < 0 ? -1 : 0;
         },
 
         isEqual: function (a: CSNum, b: CSNum): boolean {
@@ -772,6 +786,26 @@ const CSNumber: CSMath = {
             List.scalproduct(CSNumber._helper.cub2, help),
             List.scalproduct(CSNumber._helper.cub3, help),
         ] as Array<CSNum>;
+    },
+
+    // Levi-Civita numbers (libcs/LeviCivita.ts, libcs/LeviCivitaMode.ts): a
+    // number value may carry a series in value.lc. Its real and imag are NaN
+    // on purpose, so that code reading them directly yields NaN instead of
+    // silently dropping the infinitesimal part. The operations above do not
+    // know about series; LeviCivitaMode.ts substitutes versions that do for
+    // the duration of a non-standard computation.
+
+    // eps^q for the positive infinitesimal eps of LeviCivita.ts
+    infinitesimal: function (q = 1): CSNum {
+        return { ctype: "number", value: { real: NaN, imag: NaN, lc: LC.monomial(q, 1) } };
+    },
+
+    // The standard part ("limit") of a number: the number itself unless it
+    // carries a Levi-Civita series.
+    standardPart: function (a: CSNum): CSNum {
+        if (!a.value.lc) return a;
+        const sp = LC.standardPart(a.value.lc);
+        return CSNumber.complex(sp.re, sp.im);
     },
 
     getRandReal: function (min: number, max: number) {

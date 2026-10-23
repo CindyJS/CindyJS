@@ -165,6 +165,61 @@ i.e. to that property being specified inside each port.
 A list containing geometric primitives.
 See the section “Geometry” for details.
 
+### nsa
+
+If set to `true`, geometric elements that would be undefined in a degenerate
+configuration show their limit instead, if the singularity is removable.
+Examples are the line joining two points on a line that come together,
+or a construction that only degenerates for special positions of an auxiliary point
+(such as von Staudt's construction of a sum with the auxiliary point on the base line).
+Without this setting such elements are undefined and not drawn.
+
+The limit is computed with non-standard analysis:
+the construction is evaluated infinitely close to the degenerate configuration,
+with Levi-Civita numbers, and the projective shadow of the result is shown.
+A value is only shown if it does not depend on how the configuration is approached:
+all free elements are displaced infinitesimally in a few random directions,
+each within its constraints (a point on a line stays on its line),
+and all results must agree.
+Right after an element was moved, its path is also continued infinitesimally
+before and beyond its end point, and that must give the same result too.
+If nothing can be displaced (e.g. pinned points moved by a script), the path alone decides.
+
+If they do not agree, the singularity is not removable and the element stays undefined.
+For example the line joining two free points that meet stays undefined:
+its limit is the line along which they met, which depends on the direction.
+If both points are bound to a common line, their join is that line.
+Likewise the connecting line of the intersections of two equal circles
+whose centers coincide stays undefined if the centers are free.
+If they are bound to a common line and the circles share their radius
+(e.g. both drawn with the compass from the same two points),
+it is the perpendicular through the center;
+circles with a radius of their own (`CircleMr`) do not count as equal,
+as each radius is displaced as well.
+Results that do not depend on the degenerate parts, such as the sum in
+von Staudt's construction when its auxiliary point lies on the base line, are always shown.
+
+Elements whose inputs coincide only up to rounding errors count as degenerate as well:
+without this setting they show a value made of rounding noise,
+with it they show their limit, or are undefined if there is none.
+Apart from that, tracing is not affected: which solution of an intersection is chosen,
+how the construction continues through a singularity such as two circles touching,
+and the tracing state report stay as without this setting.
+The one difference: an element that shows its limit continues from the limit
+in the following moves, where without this setting it continues from its last defined position.
+The intersections of two conics (`IntersectConicConic`, `OtherIntersectionCC`)
+can not be resolved and remain undefined: their computation decides between cases
+in a way that does not carry over to infinitely close configurations.
+
+The setting costs nothing when it is off.
+When it is on, every move checks for degenerate elements, which costs a few percent,
+and every degenerate element takes several extra evaluations of the construction
+with slower arithmetic, so a move into a degenerate position takes a few milliseconds,
+five to fifteen times as long as without this setting.
+
+The method follows M. Strobel, *Non-standard Analysis in Projective Geometry*
+(dissertation, TU Munich).
+
 ### behavior
 
 For physics simulations.

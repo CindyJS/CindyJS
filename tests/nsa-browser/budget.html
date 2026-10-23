@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>nsa: cost per move while dragging</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="../../build/js/Cindy.js"></script>
+        <script type="text/javascript">
+            // E and F on the line g, X their join: when E is dragged onto F, X
+            // is the limit g. In the big widget, 90 more elements depend on X,
+            // so that resolving it exceeds the budget per move while dragging
+            // (src/js/libgeo/Nsa.ts, DRAG_BUDGET): it is resolved when the
+            // drag ends.
+            function geometry(dependents) {
+                var g = [
+                    { name: "g", type: "HorizontalLine", pos: [0, 1, 0] },
+                    { name: "E", type: "PointOnLine", args: ["g"], pos: [-4, 0, 1] },
+                    { name: "F", type: "PointOnLine", args: ["g"], pos: [4, 0, 1] },
+                    { name: "X", type: "Join", args: ["E", "F"] },
+                ];
+                for (var i = 0; i < dependents / 2; i++) {
+                    var a = 0.3 + (2.5 * i) / dependents;
+                    g.push(
+                        { name: "m" + i, type: "FreeLine", pos: [Math.cos(a), Math.sin(a), -2], size: 1 },
+                        { name: "Y" + i, type: "Meet", args: ["X", "m" + i], size: 1 }
+                    );
+                }
+                return g;
+            }
+            function widget(id, dependents) {
+                return CindyJS({
+                    ports: [{ id: id, transform: [{ visibleRect: [-6, -6, 6, 6] }], grid: 1, snap: true }],
+                    nsa: true,
+                    geometry: geometry(dependents),
+                });
+            }
+            var small = widget("small", 0);
+            var big = widget("big", 90);
+        </script>
+    </head>
+    <body>
+        <div id="small" style="width: 360px; height: 360px; border: 1px solid black; display: inline-block"></div>
+        <div id="big" style="width: 360px; height: 360px; border: 1px solid black; display: inline-block"></div>
+    </body>
+</html>
